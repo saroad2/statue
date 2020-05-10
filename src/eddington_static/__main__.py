@@ -9,6 +9,7 @@ parser = ArgumentParser(description=description)
 parser.add_argument(
     "-i", "--input", nargs="+", required=True, type=Path, help="Input path to analyze"
 )
+RESOURCES_PATH = Path(__file__).parent.parent / "resources"
 
 
 def print_title(title):
@@ -32,7 +33,7 @@ def main():
 
     print(f"Evaluating the following files: {', '.join(input_path)}")
     run_and_throw("black", *input_path, "--check")
-    run_and_throw("flake8", *input_path, "--max-line-length=88")
+    run_and_throw("flake8", *input_path, f"--config={RESOURCES_PATH / '.flake8'}")
 
 
 if __name__ == "__main__":
