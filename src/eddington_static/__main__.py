@@ -14,6 +14,9 @@ parser.add_argument(
 parser.add_argument(
     "--silent", action="store_true", default=False, help="Runs silently"
 )
+parser.add_argument(
+    "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
+)
 
 
 def print_title(title):
@@ -54,9 +57,10 @@ def main():
     silent = args.silent
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_path)}")
-    failed_commands = run(
-        create_commands(input_path), is_format=args.format, is_silent=silent,
-    )
+    commands = create_commands(input_path)
+    if args.commands:
+        commands = [command for command in commands if command.name in args.commands]
+    failed_commands = run(commands, is_format=args.format, is_silent=silent,)
     print_title("Summary")
     if len(failed_commands) != 0:
         print(f"The following commands failed: {', '.join(failed_commands)}")
