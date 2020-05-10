@@ -22,14 +22,18 @@ class Command:
     args: List[str]
     check_arg: Union[str, None] = field(default=None)
 
-    def execute(self, is_format=False):
+    def execute(self, is_format=False, is_silent=False):
         """
         Execute the command.
 
         :param is_format: Boolean. Indicates if formatting is required.
+        :param is_silent: Boolean. Indicates to run the command without capturing
+         output.
         :return: Int. Returns the return code of the command
         """
         args = [self.name, *self.args]
         if not is_format and self.check_arg is not None:
             args.append(self.check_arg)
-        return subprocess.run(args, env=os.environ, check=False).returncode
+        return subprocess.run(
+            args, env=os.environ, check=False, capture_output=is_silent,
+        ).returncode

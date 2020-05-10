@@ -10,6 +10,9 @@ parser.add_argument("input", nargs="+", type=Path, help="Input path to analyze")
 parser.add_argument(
     "--format", action="store_true", default=False, help="Format code when possible"
 )
+parser.add_argument(
+    "--silent", action="store_true", default=False, help="Runs silently"
+)
 RESOURCES_PATH = Path(__file__).parent.parent / "resources"
 
 
@@ -23,30 +26,24 @@ def print_title(title):
     print("=" * len(title))
 
 
-def run_command(command, is_format=False):
-    """
-    Run an analysis command.
-
-    :param command: a :ref:`Command` class representing the command to run.
-    :param is_format: Boolean. Indicates if formatting is required.
-    :return: Int. Returns the return code of the command
-    """
-    print_title(command.name)
-    return command.execute(is_format=is_format)
-
-
-def run(*commands, is_format=False):
+def run(*commands, is_format=False, is_silent=False):
     """
     Run all static analysis commands.
 
     :param commands: List of commands to run
     :param is_format: Boolean. Indicates if formatting is required.
+    :param is_silent: Boolean. Indicates to run the command without capturing
+     output.
     :return: List of failed command names.
     """
-    return_codes = {
-        command.name: run_command(command, is_format=is_format) for command in commands
-    }
-    return [command for command, code in return_codes.items() if code != 0]
+    failed_commands = []
+    for command in commands:
+        if not is_silent:
+            print_title(command.name)
+        return_code = command.execute(is_format=is_format, is_silent=is_silent)
+        if return_code != 0:
+            failed_commands.append(command.name)
+    return failed_commands
 
 
 def main():
@@ -57,7 +54,9 @@ def main():
         input_path = [input_path]
     input_path = [str(path) for path in input_path]
 
-    print(f"Evaluating the following files: {', '.join(input_path)}")
+    silent = args.silent
+    if not silent:
+        print(f"Evaluating the following files: {', '.join(input_path)}")
     failed_commands = run(
         Command(name="black", args=input_path, check_arg="--check"),
         Command(
@@ -78,6 +77,7 @@ def main():
             args=[*input_path, f"--config={RESOURCES_PATH / '.pydocstyle.ini'}"],
         ),
         is_format=args.format,
+        is_silent=silent,
     )
     print_title("Summary")
     if len(failed_commands) == 0:
