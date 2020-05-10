@@ -57,6 +57,7 @@ def main():
             ],
             check_arg="--check-only",
         ),
+        Command(name="pylint", args=input_path),
         is_format=args.format,
     )
     print_title("Summary")
