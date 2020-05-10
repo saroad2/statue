@@ -2,8 +2,8 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from eddington_static import DESCRIPTION
-from eddington_static.command import Command
+from eddington_static.command import create_commands
+from eddington_static.constants import DESCRIPTION
 
 parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument("input", nargs="+", type=Path, help="Input path to analyze")
@@ -13,7 +13,6 @@ parser.add_argument(
 parser.add_argument(
     "--silent", action="store_true", default=False, help="Runs silently"
 )
-RESOURCES_PATH = Path(__file__).parent.parent / "resources"
 
 
 def print_title(title):
@@ -26,7 +25,7 @@ def print_title(title):
     print("=" * len(title))
 
 
-def run(*commands, is_format=False, is_silent=False):
+def run(commands, is_format=False, is_silent=False):
     """
     Run all static analysis commands.
 
@@ -58,26 +57,7 @@ def main():
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_path)}")
     failed_commands = run(
-        Command(name="black", args=input_path, check_arg="--check"),
-        Command(
-            name="flake8", args=[*input_path, f"--config={RESOURCES_PATH / '.flake8'}"]
-        ),
-        Command(
-            name="isort",
-            args=[
-                *input_path,
-                "--recursive",
-                f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
-            ],
-            check_arg="--check-only",
-        ),
-        Command(name="pylint", args=input_path),
-        Command(
-            name="pydocstyle",
-            args=[*input_path, f"--config={RESOURCES_PATH / '.pydocstyle.ini'}"],
-        ),
-        is_format=args.format,
-        is_silent=silent,
+        create_commands(input_path), is_format=args.format, is_silent=silent,
     )
     print_title("Summary")
     if len(failed_commands) == 0:
