@@ -3,28 +3,30 @@
 import os
 import subprocess
 from dataclasses import dataclass, field
-from typing import List, Union
+from typing import Callable, Union
 
 from eddington_static.constants import RESOURCES_PATH
 
 
-@dataclass
+@dataclass(repr=False)
 class Command:
     """
     Data class representing a command to run in order to evaluate the code.
 
-    It has 3 variables:
+    It has the following parameters:
     * name: The name of the command to run
-    * args: The arguments of the command
+    * args: A callable that gets input paths and return the arguments for the command
     * check_arg: A checking argument that indicates that no formatting actions are
+    * help: Help string
      required
     """
 
     name: str
-    args: List[str]
+    args: Callable
+    help: str
     check_arg: Union[str, None] = field(default=None)
 
-    def execute(self, is_format=False, is_silent=False):
+    def execute(self, input_paths, is_format=False, is_silent=False):
         """
         Execute the command.
 
@@ -33,38 +35,56 @@ class Command:
          output.
         :return: Int. Returns the return code of the command
         """
-        args = [self.name, *self.args]
+        args = [self.name, *self.args(input_paths)]
         if not is_format and self.check_arg is not None:
             args.append(self.check_arg)
         return subprocess.run(
             args, env=os.environ, check=False, capture_output=is_silent,
         ).returncode
 
+    def __repr__(self):
+        """
+        Create a representation string for the command.
 
-def create_commands(input_paths):
-    """
-    Create list of commands to perform on input path.
+        :return: A representation string.
+        """
+        return f"{self.name} - {self.help}"
 
-    :param input_paths: List of strings. Path to perform static code anlysis on.
-    :return: List of :ref:`Command` objects.
-    """
-    return [
-        Command(name="black", args=input_paths, check_arg="--check"),
-        Command(
-            name="flake8", args=[*input_paths, f"--config={RESOURCES_PATH / '.flake8'}"]
-        ),
-        Command(
-            name="isort",
-            args=[
-                *input_paths,
-                "--recursive",
-                f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
-            ],
-            check_arg="--check-only",
-        ),
-        Command(name="pylint", args=input_paths),
-        Command(
-            name="pydocstyle",
-            args=[*input_paths, f"--config={RESOURCES_PATH / '.pydocstyle.ini'}"],
-        ),
-    ]
+
+COMMANDS = [
+    Command(
+        name="black",
+        args=lambda input_paths: input_paths,
+        check_arg="--check",
+        help="A code formatter for python",
+    ),
+    Command(
+        name="flake8",
+        args=lambda input_paths: [
+            *input_paths,
+            f"--config={RESOURCES_PATH / '.flake8'}",
+        ],
+        help="Code style checker for python",
+    ),
+    Command(
+        name="isort",
+        args=lambda input_paths: [
+            *input_paths,
+            "--recursive",
+            f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
+        ],
+        check_arg="--check-only",
+        help="A tool for sorting and cleaning python imports",
+    ),
+    Command(
+        name="pylint", args=lambda input_paths: input_paths, help="Python code linter",
+    ),
+    Command(
+        name="pydocstyle",
+        args=lambda input_paths: [
+            *input_paths,
+            f"--config={RESOURCES_PATH / '.pydocstyle.ini'}",
+        ],
+        help="A tool for python docstring style enforcing",
+    ),
+]

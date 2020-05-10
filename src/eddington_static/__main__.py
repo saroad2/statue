@@ -3,11 +3,11 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from eddington_static.command import create_commands
+from eddington_static.command import COMMANDS
 from eddington_static.constants import DESCRIPTION
 
 parser = ArgumentParser(description=DESCRIPTION)
-parser.add_argument("input", nargs="+", type=Path, help="Input path to analyze")
+parser.add_argument("input", nargs="*", type=Path, help="Input path to analyze")
 parser.add_argument(
     "--format", action="store_true", default=False, help="Format code when possible"
 )
@@ -17,6 +17,18 @@ parser.add_argument(
 parser.add_argument(
     "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
 )
+parser.add_argument(
+    "--commands-list",
+    action="store_true",
+    default=False,
+    help="Print list of supported commands",
+)
+
+
+def print_commands():
+    """Print all supported commands."""
+    for command in COMMANDS:
+        print(command)
 
 
 def print_title(title):
@@ -29,7 +41,7 @@ def print_title(title):
     print("=" * len(title))
 
 
-def run(commands, is_format=False, is_silent=False):
+def run(commands, input_paths, is_format=False, is_silent=False):
     """
     Run all static analysis commands.
 
@@ -43,7 +55,9 @@ def run(commands, is_format=False, is_silent=False):
     for command in commands:
         if not is_silent:
             print_title(command.name)
-        return_code = command.execute(is_format=is_format, is_silent=is_silent)
+        return_code = command.execute(
+            input_paths, is_format=is_format, is_silent=is_silent
+        )
         if return_code != 0:
             failed_commands.append(command.name)
     return failed_commands
@@ -52,15 +66,23 @@ def run(commands, is_format=False, is_silent=False):
 def main():
     """A main function of Eddington-Static."""
     args = parser.parse_args()
-    input_path = [str(path) for path in args.input]
+    if args.commands_list:
+        print_commands()
+        return
+    input_paths = [str(path) for path in args.input]
+    if len(input_paths) == 0:
+        parser.print_help()
+        return
 
     silent = args.silent
     if not silent:
-        print(f"Evaluating the following files: {', '.join(input_path)}")
-    commands = create_commands(input_path)
+        print(f"Evaluating the following files: {', '.join(input_paths)}")
+    commands = COMMANDS
     if args.commands:
         commands = [command for command in commands if command.name in args.commands]
-    failed_commands = run(commands, is_format=args.format, is_silent=silent,)
+    failed_commands = run(
+        commands, input_paths, is_format=args.format, is_silent=silent,
+    )
     print_title("Summary")
     if len(failed_commands) != 0:
         print(f"The following commands failed: {', '.join(failed_commands)}")
