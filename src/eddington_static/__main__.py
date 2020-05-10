@@ -49,10 +49,7 @@ def run(commands, is_format=False, is_silent=False):
 def main():
     """A main function of Eddington-Static."""
     args = parser.parse_args()
-    input_path = args.input
-    if not isinstance(input_path, list):
-        input_path = [input_path]
-    input_path = [str(path) for path in input_path]
+    input_path = [str(path) for path in args.input]
 
     silent = args.silent
     if not silent:
