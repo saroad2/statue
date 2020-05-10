@@ -21,10 +21,10 @@ def print_title(title):
 
 def run_command(command, is_format=False):
     print_title(command.name)
-    args = list(command.args)
+    args = [command.name, *command.args]
     if not is_format and command.check_arg is not None:
         args.append(command.check_arg)
-    res = subprocess.run([command.name, *args], env=os.environ)
+    res = subprocess.run(args, env=os.environ)
     return res.returncode
 
 
