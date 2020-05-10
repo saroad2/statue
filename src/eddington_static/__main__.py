@@ -1,7 +1,7 @@
 import os
+import subprocess
 from argparse import ArgumentParser
 from pathlib import Path
-import subprocess
 
 from eddington_static import description
 from eddington_static.command import Command
