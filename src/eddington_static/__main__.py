@@ -1,6 +1,4 @@
 """Main of Eddington Static."""
-import os
-import subprocess
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -34,11 +32,7 @@ def run_command(command, is_format=False):
     :return: Int. Returns the return code of the command
     """
     print_title(command.name)
-    args = [command.name, *command.args]
-    if not is_format and command.check_arg is not None:
-        args.append(command.check_arg)
-    res = subprocess.run(args, env=os.environ, check=False)
-    return res.returncode
+    return command.execute(is_format=is_format)
 
 
 def run(*commands, is_format=False):
