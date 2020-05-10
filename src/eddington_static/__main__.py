@@ -1,4 +1,5 @@
 """Main of Eddington Static."""
+import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
@@ -60,10 +61,10 @@ def main():
         create_commands(input_path), is_format=args.format, is_silent=silent,
     )
     print_title("Summary")
-    if len(failed_commands) == 0:
-        print("Static code analysis successful")
-    else:
+    if len(failed_commands) != 0:
         print(f"The following commands failed: {', '.join(failed_commands)}")
+        sys.exit(1)
+    print("Static code analysis successful")
 
 
 if __name__ == "__main__":
