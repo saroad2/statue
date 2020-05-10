@@ -17,11 +17,15 @@ def print_title(title):
     print("=" * len(title))
 
 
-def run_and_throw(command, *args):
+def run_command(command, *args):
     print_title(command)
     res = subprocess.run([command, *args], env=os.environ)
-    if res.returncode != 0:
-        raise RuntimeError(f'"{command}" command returned with non zero return code')
+    return res.returncode
+
+
+def run(*commands):
+    return_codes = {command[0]: run_command(*command) for command in commands}
+    return [command for command, code in return_codes.items() if code != 0]
 
 
 def main():
@@ -32,8 +36,22 @@ def main():
     input_path = [str(path) for path in input_path]
 
     print(f"Evaluating the following files: {', '.join(input_path)}")
-    run_and_throw("black", *input_path, "--check")
-    run_and_throw("flake8", *input_path, f"--config={RESOURCES_PATH / '.flake8'}")
+    failed_commands = run(
+        ["black", *input_path, "--check"],
+        ["flake8", *input_path, f"--config={RESOURCES_PATH / '.flake8'}"],
+        [
+            "isort",
+            *input_path,
+            "--recursive",
+            f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
+            "--check-only",
+        ],
+    )
+    print_title("Summary")
+    if len(failed_commands) == 0:
+        print("Static code analysis successful")
+    else:
+        print(f"The following commands failed: {', '.join(failed_commands)}")
 
 
 if __name__ == "__main__":
