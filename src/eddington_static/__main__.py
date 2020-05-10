@@ -28,6 +28,7 @@ def main():
     input_path = str(args.input.absolute())
 
     run_and_throw("black", input_path, "--check")
+    run_and_throw("flake8", input_path, "--max-line-length=88")
 
 
 if __name__ == "__main__":
