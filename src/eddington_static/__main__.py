@@ -4,10 +4,12 @@ from pathlib import Path
 import subprocess
 
 from eddington_static import description
+from eddington_static.command import Command
 
 parser = ArgumentParser(description=description)
+parser.add_argument("input", nargs="+", type=Path, help="Input path to analyze")
 parser.add_argument(
-    "-i", "--input", nargs="+", required=True, type=Path, help="Input path to analyze"
+    "--format", action="store_true", default=False, help="Format code when possible"
 )
 RESOURCES_PATH = Path(__file__).parent.parent / "resources"
 
@@ -17,14 +19,19 @@ def print_title(title):
     print("=" * len(title))
 
 
-def run_command(command, *args):
-    print_title(command)
-    res = subprocess.run([command, *args], env=os.environ)
+def run_command(command, is_format=False):
+    print_title(command.name)
+    args = list(command.args)
+    if not is_format and command.check_arg is not None:
+        args.append(command.check_arg)
+    res = subprocess.run([command.name, *args], env=os.environ)
     return res.returncode
 
 
-def run(*commands):
-    return_codes = {command[0]: run_command(*command) for command in commands}
+def run(*commands, is_format=False):
+    return_codes = {
+        command.name: run_command(command, is_format=is_format) for command in commands
+    }
     return [command for command, code in return_codes.items() if code != 0]
 
 
@@ -37,15 +44,20 @@ def main():
 
     print(f"Evaluating the following files: {', '.join(input_path)}")
     failed_commands = run(
-        ["black", *input_path, "--check"],
-        ["flake8", *input_path, f"--config={RESOURCES_PATH / '.flake8'}"],
-        [
-            "isort",
-            *input_path,
-            "--recursive",
-            f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
-            "--check-only",
-        ],
+        Command(name="black", args=input_path, check_arg="--check"),
+        Command(
+            name="flake8", args=[*input_path, f"--config={RESOURCES_PATH / '.flake8'}"]
+        ),
+        Command(
+            name="isort",
+            args=[
+                *input_path,
+                "--recursive",
+                f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
+            ],
+            check_arg="--check-only",
+        ),
+        is_format=args.format,
     )
     print_title("Summary")
     if len(failed_commands) == 0:
