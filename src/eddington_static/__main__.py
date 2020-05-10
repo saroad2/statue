@@ -7,7 +7,7 @@ from eddington_static import description
 
 parser = ArgumentParser(description=description)
 parser.add_argument(
-    "-i", "--input", required=True, type=Path, help="Input path to analyze"
+    "-i", "--input", nargs="+", required=True, type=Path, help="Input path to analyze"
 )
 
 
@@ -25,10 +25,14 @@ def run_and_throw(command, *args):
 
 def main():
     args = parser.parse_args()
-    input_path = str(args.input.absolute())
+    input_path = args.input
+    if not isinstance(input_path, list):
+        input_path = [input_path]
+    input_path = [str(path) for path in input_path]
 
-    run_and_throw("black", input_path, "--check")
-    run_and_throw("flake8", input_path, "--max-line-length=88")
+    print(f"Evaluating the following files: {', '.join(input_path)}")
+    run_and_throw("black", *input_path, "--check")
+    run_and_throw("flake8", *input_path, "--max-line-length=88")
 
 
 if __name__ == "__main__":
