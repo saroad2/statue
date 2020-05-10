@@ -1,6 +1,4 @@
-"""
-This is the main module of Eddington Static
-"""
+"""Main of Eddington Static."""
 import os
 import subprocess
 from argparse import ArgumentParser
@@ -19,7 +17,8 @@ RESOURCES_PATH = Path(__file__).parent.parent / "resources"
 
 def print_title(title):
     """
-    Prints a title with a title line under it.
+    Print a title with a title line under it.
+
     :param title: The title to print
     """
     print(title.title())
@@ -28,7 +27,8 @@ def print_title(title):
 
 def run_command(command, is_format=False):
     """
-    Run an analysis command
+    Run an analysis command.
+
     :param command: a :ref:`Command` class representing the command to run.
     :param is_format: Boolean. Indicates if formatting is required.
     :return: Int. Returns the return code of the command
@@ -43,7 +43,8 @@ def run_command(command, is_format=False):
 
 def run(*commands, is_format=False):
     """
-    Run all static analysis commands
+    Run all static analysis commands.
+
     :param commands: List of commands to run
     :param is_format: Boolean. Indicates if formatting is required.
     :return: List of failed command names.
@@ -55,9 +56,7 @@ def run(*commands, is_format=False):
 
 
 def main():
-    """
-    Main function of Eddington-Static
-    """
+    """A main function of Eddington-Static."""
     args = parser.parse_args()
     input_path = args.input
     if not isinstance(input_path, list):
@@ -80,6 +79,10 @@ def main():
             check_arg="--check-only",
         ),
         Command(name="pylint", args=input_path),
+        Command(
+            name="pydocstyle",
+            args=[*input_path, f"--config={RESOURCES_PATH / '.pydocstyle.ini'}"],
+        ),
         is_format=args.format,
     )
     print_title("Summary")
