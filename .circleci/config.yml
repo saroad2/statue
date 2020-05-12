@@ -39,7 +39,7 @@ jobs:
           name: "Publish Release on GitHub"
           command: |
             go get github.com/tcnksm/ghr
-            VERSION=v$(cat VERSION)
+            VERSION=v$(python3 setup.py --version)
             if [[ ${VERSION} == *"dev"* ]]; then
                PRERELEASE="-prerelease"
             fi
