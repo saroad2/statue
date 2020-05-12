@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from eddington_static import __version__
-from eddington_static.command import COMMANDS, BLACK, FLAKE8, ISORT
+from eddington_static.command import BLACK, COMMANDS, FLAKE8, ISORT
 from eddington_static.constants import DESCRIPTION
 
 parser = ArgumentParser(description=DESCRIPTION)

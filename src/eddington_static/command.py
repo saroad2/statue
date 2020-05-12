@@ -3,7 +3,7 @@
 import os
 import subprocess
 from dataclasses import dataclass, field
-from typing import Union, List
+from typing import List, Union
 
 
 @dataclass(repr=False)
@@ -12,7 +12,8 @@ class Command:
     Data class representing a command to run in order to evaluate the code.
 
     :param name: The name of the command to run.
-    :param args: A callable that gets input paths and return the arguments for the command.
+    :param args: A callable that gets input paths and return the arguments for the
+    command.
     :param test_args: List of arguments to add when evaluating test directory.
     :param check_arg: A checking argument that indicates that no formatting actions are
     :param help: Help string
@@ -24,7 +25,7 @@ class Command:
     test_args: List[str] = field(default=None)
     check_arg: Union[str, None] = field(default=None)
 
-    def execute(
+    def execute(  # pylint: disable=too-many-arguments
         self,
         input_paths,
         is_format=False,
