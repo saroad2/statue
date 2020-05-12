@@ -66,7 +66,15 @@ COMMANDS = [
     ),
     Command(
         name="isort",
-        args=lambda input_paths: [*input_paths, "--recursive"],
+        args=lambda input_paths: [
+            *input_paths,
+            "--recursive",
+            "--multi-line=3",
+            "--trailing-comma",
+            "--force-grid-wrap=0",
+            "--use-parentheses",
+            "--lines=88",
+        ],
         check_arg="--check-only",
         help="A tool for sorting and cleaning python imports",
     ),
