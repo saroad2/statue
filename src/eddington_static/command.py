@@ -3,7 +3,7 @@
 import os
 import subprocess
 from dataclasses import dataclass, field
-from typing import Callable, Union
+from typing import Union, List
 
 
 @dataclass(repr=False)
@@ -11,30 +11,43 @@ class Command:
     """
     Data class representing a command to run in order to evaluate the code.
 
-    It has the following parameters:
-    * name: The name of the command to run
-    * args: A callable that gets input paths and return the arguments for the command
-    * check_arg: A checking argument that indicates that no formatting actions are
-    * help: Help string
-     required
+    :param name: The name of the command to run.
+    :param args: A callable that gets input paths and return the arguments for the command.
+    :param test_args: List of arguments to add when evaluating test directory.
+    :param check_arg: A checking argument that indicates that no formatting actions are
+    :param help: Help string
     """
 
     name: str
-    args: Callable
     help: str
+    args: List[str] = field(default=None)
+    test_args: List[str] = field(default=None)
     check_arg: Union[str, None] = field(default=None)
 
-    def execute(self, input_paths, is_format=False, is_silent=False, is_verbose=False):
+    def execute(
+        self,
+        input_paths,
+        is_format=False,
+        is_silent=False,
+        is_verbose=False,
+        is_test=False,
+    ):
         """
         Execute the command.
 
+        :param input_paths: input files to check.
         :param is_format: Boolean. Indicates if formatting is required.
         :param is_silent: Boolean. Indicates to run the command without capturing
          output.
         :param is_verbose: Boolean. Run commands verbosely
+        :param is_test: Boolean. Is running on test folder or file
         :return: Int. Returns the return code of the command
         """
-        args = [self.name, *self.args(input_paths)]
+        args = [self.name, *input_paths]
+        if self.args is not None:
+            args.extend(self.args)
+        if is_test and self.test_args is not None:
+            args.extend(self.test_args)
         if not is_format and self.check_arg is not None:
             args.append(self.check_arg)
         if is_verbose:
@@ -52,21 +65,13 @@ class Command:
         return f"{self.name} - {self.help}"
 
 
-BLACK = Command(
-    name="black",
-    args=lambda input_paths: input_paths,
-    check_arg="--check",
-    help="A code formatter for python",
-)
+BLACK = Command(name="black", check_arg="--check", help="A code formatter for python",)
 FLAKE8 = Command(
-    name="flake8",
-    args=lambda input_paths: [*input_paths, "--max-line-length=88"],
-    help="Code style checker for python",
+    name="flake8", args=["--max-line-length=88"], help="Code style checker for python",
 )
 ISORT = Command(
     name="isort",
-    args=lambda input_paths: [
-        *input_paths,
+    args=[
         "--recursive",
         "--multi-line=3",
         "--trailing-comma",
@@ -79,12 +84,14 @@ ISORT = Command(
 )
 PYLINT = Command(
     name="pylint",
-    args=lambda input_paths: [*input_paths, "--disable=C0330"],
+    args=["--disable=C0330,E0401"],
+    test_args=["--disable=C0103,C0114,C0115,C0116,E1101"],
     help="Python code linter",
 )
 PYDOCSTYLE = Command(
     name="pydocstyle",
-    args=lambda input_paths: [*input_paths, "--ignore=D203,D212,D401,D400"],
+    args=["--ignore=D203,D212,D400,D401"],
+    test_args=["--ignore=D100,D101,D102"],
     help="A tool for python docstring style enforcing",
 )
 
