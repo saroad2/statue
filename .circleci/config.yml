@@ -1,0 +1,21 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@0.2.1
+
+jobs:
+  run-on-myself:
+    executor: python/default
+    steps:
+      - checkout
+      - run:
+          name: Install self
+          command: pip install -e .
+      - run:
+          name: Run self
+          command: eddington-static src
+
+workflows:
+  main:
+    jobs:
+      - run-on-myself
