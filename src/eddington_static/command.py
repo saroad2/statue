@@ -5,8 +5,6 @@ import subprocess
 from dataclasses import dataclass, field
 from typing import Callable, Union
 
-from eddington_static.constants import RESOURCES_PATH
-
 
 @dataclass(repr=False)
 class Command:
@@ -60,19 +58,12 @@ COMMANDS = [
     ),
     Command(
         name="flake8",
-        args=lambda input_paths: [
-            *input_paths,
-            f"--config={RESOURCES_PATH / '.flake8'}",
-        ],
+        args=lambda input_paths: [*input_paths, "--max-line-length=88"],
         help="Code style checker for python",
     ),
     Command(
         name="isort",
-        args=lambda input_paths: [
-            *input_paths,
-            "--recursive",
-            f"--settings-path={RESOURCES_PATH / '.isort.cfg'}",
-        ],
+        args=lambda input_paths: [*input_paths, "--recursive"],
         check_arg="--check-only",
         help="A tool for sorting and cleaning python imports",
     ),
@@ -81,10 +72,7 @@ COMMANDS = [
     ),
     Command(
         name="pydocstyle",
-        args=lambda input_paths: [
-            *input_paths,
-            f"--config={RESOURCES_PATH / '.pydocstyle.ini'}",
-        ],
+        args=lambda input_paths: [*input_paths, "--ignore=D203,D212,D401"],
         help="A tool for python docstring style enforcing",
     ),
 ]
