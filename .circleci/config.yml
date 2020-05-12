@@ -14,8 +14,58 @@ jobs:
       - run:
           name: Run self
           command: eddington-static src
+  publish:
+    docker:
+      - image: circleci/golang:1.14-buster
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - lib-{{ checksum "setup.cfg" }}
+      - run:
+          name: "Import needed packages"
+          command: |
+            sudo apt-get install -y python3 python3-pip
+            python3 -m pip install --upgrade pip --user
+            pip3 install --upgrade setuptools wheel twine --user
+            python3 setup.py install --user
+            export SOURCE_PATH=$HOME/project/src
+            export PYTHONPATH=$PYTHONPATH:$SOURCE_PATH
+      - run:
+          name: "Create release"
+          command: |
+            python3 setup.py sdist bdist_wheel
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            VERSION=v$(cat VERSION)
+            if [[ ${VERSION} == *"dev"* ]]; then
+               PRERELEASE="-prerelease"
+            fi
+            ghr -t ${GITHUB_TOKEN} -u ${CIRCLE_PROJECT_USERNAME} -r ${CIRCLE_PROJECT_REPONAME} -c ${CIRCLE_SHA1} -delete ${PRERELEASE} ${VERSION} ./dist
+      - run:
+          name: "Publish Package on pip"
+          command: |
+            $HOME/.local/bin/twine check ./dist/*
+            $HOME/.local/bin/twine upload ./dist/*
+      - save_cache:
+          paths:
+            - ~/.local
+          key: lib-{{ checksum "setup.cfg" }}
 
 workflows:
   main:
     jobs:
       - run-on-myself
+        filters:
+          tags:
+            only: /^v.*/
+      - publish
+        requires:
+          - run-on-myself
+        filters:
+          tags:
+            only: /^v.*/
+          branches:
+            ignore: /.*/
