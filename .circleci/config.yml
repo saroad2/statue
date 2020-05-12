@@ -57,11 +57,11 @@ jobs:
 workflows:
   main:
     jobs:
-      - run-on-myself
+      - run-on-myself:
         filters:
           tags:
             only: /^v.*/
-      - publish
+      - publish:
         requires:
           - run-on-myself
         filters:
