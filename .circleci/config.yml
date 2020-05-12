@@ -58,14 +58,14 @@ workflows:
   main:
     jobs:
     - run-on-myself:
-      filters:
-        tags:
-          only: /^v.*/
+        filters:
+          tags:
+            only: /^v.*/
     - publish:
-      requires:
-        - run-on-myself
-      filters:
-        tags:
-          only: /^v.*/
-        branches:
-          ignore: /.*/
+        requires:
+          - run-on-myself
+        filters:
+          tags:
+            only: /^v.*/
+          branches:
+            ignore: /.*/
