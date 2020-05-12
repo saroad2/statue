@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from eddington_static import __version__
-from eddington_static.command import COMMANDS
+from eddington_static.command import COMMANDS, BLACK, FLAKE8, ISORT
 from eddington_static.constants import DESCRIPTION
 
 parser = ArgumentParser(description=DESCRIPTION)
@@ -20,6 +20,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--verbose", action="store_true", default=False, help="Runs verbosely"
+)
+parser.add_argument(
+    "--fast", action="store_true", default=False, help="Include only fast actions."
 )
 parser.add_argument(
     "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
@@ -85,7 +88,10 @@ def main():
     silent = args.silent
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_paths)}")
-    commands = COMMANDS
+    if args.fast:
+        commands = [BLACK, FLAKE8, ISORT]
+    else:
+        commands = COMMANDS
     if args.commands:
         commands = [command for command in commands if command.name in args.commands]
     failed_commands = run(

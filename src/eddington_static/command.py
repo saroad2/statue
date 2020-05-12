@@ -52,40 +52,46 @@ class Command:
         return f"{self.name} - {self.help}"
 
 
+BLACK = Command(
+    name="black",
+    args=lambda input_paths: input_paths,
+    check_arg="--check",
+    help="A code formatter for python",
+)
+FLAKE8 = Command(
+    name="flake8",
+    args=lambda input_paths: [*input_paths, "--max-line-length=88"],
+    help="Code style checker for python",
+)
+ISORT = Command(
+    name="isort",
+    args=lambda input_paths: [
+        *input_paths,
+        "--recursive",
+        "--multi-line=3",
+        "--trailing-comma",
+        "--force-grid-wrap=0",
+        "--use-parentheses",
+        "--lines=88",
+    ],
+    check_arg="--check-only",
+    help="A tool for sorting and cleaning python imports",
+)
+PYLINT = Command(
+    name="pylint",
+    args=lambda input_paths: [*input_paths, "--disable=C0330"],
+    help="Python code linter",
+)
+PYDOCSTYLE = Command(
+    name="pydocstyle",
+    args=lambda input_paths: [*input_paths, "--ignore=D203,D212,D401,D400"],
+    help="A tool for python docstring style enforcing",
+)
+
 COMMANDS = [
-    Command(
-        name="black",
-        args=lambda input_paths: input_paths,
-        check_arg="--check",
-        help="A code formatter for python",
-    ),
-    Command(
-        name="flake8",
-        args=lambda input_paths: [*input_paths, "--max-line-length=88"],
-        help="Code style checker for python",
-    ),
-    Command(
-        name="isort",
-        args=lambda input_paths: [
-            *input_paths,
-            "--recursive",
-            "--multi-line=3",
-            "--trailing-comma",
-            "--force-grid-wrap=0",
-            "--use-parentheses",
-            "--lines=88",
-        ],
-        check_arg="--check-only",
-        help="A tool for sorting and cleaning python imports",
-    ),
-    Command(
-        name="pylint",
-        args=lambda input_paths: [*input_paths, "--disable=C0330"],
-        help="Python code linter",
-    ),
-    Command(
-        name="pydocstyle",
-        args=lambda input_paths: [*input_paths, "--ignore=D203,D212,D401,D400"],
-        help="A tool for python docstring style enforcing",
-    ),
+    BLACK,
+    FLAKE8,
+    ISORT,
+    PYLINT,
+    PYDOCSTYLE,
 ]
