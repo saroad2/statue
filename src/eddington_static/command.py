@@ -24,18 +24,21 @@ class Command:
     help: str
     check_arg: Union[str, None] = field(default=None)
 
-    def execute(self, input_paths, is_format=False, is_silent=False):
+    def execute(self, input_paths, is_format=False, is_silent=False, is_verbose=False):
         """
         Execute the command.
 
         :param is_format: Boolean. Indicates if formatting is required.
         :param is_silent: Boolean. Indicates to run the command without capturing
          output.
+        :param is_verbose: Boolean. Run commands verbosely
         :return: Int. Returns the return code of the command
         """
         args = [self.name, *self.args(input_paths)]
         if not is_format and self.check_arg is not None:
             args.append(self.check_arg)
+        if is_verbose:
+            print(f"Running the following command: \"{' '.join(args)}\"")
         return subprocess.run(
             args, env=os.environ, check=False, capture_output=is_silent,
         ).returncode

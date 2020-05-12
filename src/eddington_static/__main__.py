@@ -15,6 +15,9 @@ parser.add_argument(
     "--silent", action="store_true", default=False, help="Runs silently"
 )
 parser.add_argument(
+    "--verbose", action="store_true", default=False, help="Runs verbosely"
+)
+parser.add_argument(
     "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
 )
 parser.add_argument(
@@ -41,7 +44,7 @@ def print_title(title):
     print("=" * len(title))
 
 
-def run(commands, input_paths, is_format=False, is_silent=False):
+def run(commands, input_paths, is_format=False, is_silent=False, is_verbose=False):
     """
     Run all static analysis commands.
 
@@ -49,6 +52,7 @@ def run(commands, input_paths, is_format=False, is_silent=False):
     :param is_format: Boolean. Indicates if formatting is required.
     :param is_silent: Boolean. Indicates to run the command without capturing
      output.
+    :param is_verbose: Boolean. Run commands verbosely
     :return: List of failed command names.
     """
     failed_commands = []
@@ -56,7 +60,7 @@ def run(commands, input_paths, is_format=False, is_silent=False):
         if not is_silent:
             print_title(command.name)
         return_code = command.execute(
-            input_paths, is_format=is_format, is_silent=is_silent
+            input_paths, is_format=is_format, is_silent=is_silent, is_verbose=is_verbose
         )
         if return_code != 0:
             failed_commands.append(command.name)
@@ -81,7 +85,11 @@ def main():
     if args.commands:
         commands = [command for command in commands if command.name in args.commands]
     failed_commands = run(
-        commands, input_paths, is_format=args.format, is_silent=silent,
+        commands,
+        input_paths,
+        is_format=args.format,
+        is_silent=silent,
+        is_verbose=args.verbose,
     )
     print_title("Summary")
     if len(failed_commands) != 0:
