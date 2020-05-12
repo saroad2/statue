@@ -85,7 +85,7 @@ COMMANDS = [
     ),
     Command(
         name="pydocstyle",
-        args=lambda input_paths: [*input_paths, "--ignore=D203,D212,D401"],
+        args=lambda input_paths: [*input_paths, "--ignore=D203,D212,D401,D400"],
         help="A tool for python docstring style enforcing",
     ),
 ]
