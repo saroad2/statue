@@ -79,7 +79,9 @@ COMMANDS = [
         help="A tool for sorting and cleaning python imports",
     ),
     Command(
-        name="pylint", args=lambda input_paths: input_paths, help="Python code linter",
+        name="pylint",
+        args=lambda input_paths: [*input_paths, "--disable=C0330"],
+        help="Python code linter",
     ),
     Command(
         name="pydocstyle",
