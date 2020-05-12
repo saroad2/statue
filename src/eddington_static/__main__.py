@@ -3,10 +3,14 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
+from eddington_static import __version__
 from eddington_static.command import COMMANDS
 from eddington_static.constants import DESCRIPTION
 
 parser = ArgumentParser(description=DESCRIPTION)
+parser.add_argument(
+    "--version", action="version", version=__version__, help="Show version"
+)
 parser.add_argument("input", nargs="*", type=Path, help="Input path to analyze")
 parser.add_argument(
     "--format", action="store_true", default=False, help="Format code when possible"
