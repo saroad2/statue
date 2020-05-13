@@ -21,18 +21,18 @@ class Command:
 
     name: str
     help: str
-    args: List[str] = field(default=None)
-    test_args: List[str] = field(default=None)
+    args: Union[List[str], None] = field(default=None)
+    test_args: Union[List[str], None] = field(default=None)
     check_arg: Union[str, None] = field(default=None)
 
     def execute(  # pylint: disable=too-many-arguments
         self,
-        input_paths,
-        is_format=False,
-        is_silent=False,
-        is_verbose=False,
-        is_test=False,
-    ):
+        input_paths: List[str],
+        is_format: bool = False,
+        is_silent: bool = False,
+        is_verbose: bool = False,
+        is_test: bool = False,
+    ) -> int:
         """
         Execute the command.
 
@@ -57,7 +57,7 @@ class Command:
             args, env=os.environ, check=False, capture_output=is_silent,
         ).returncode
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Create a representation string for the command.
 
@@ -83,6 +83,11 @@ ISORT = Command(
     check_arg="--check-only",
     help="A tool for sorting and cleaning python imports",
 )
+MYPY = Command(
+    name="mypy",
+    args=["--strict", "--allow-untyped-calls"],
+    help="Validate types using mypy",
+)
 PYLINT = Command(
     name="pylint",
     args=["--disable=C0330,E0401"],
@@ -100,6 +105,7 @@ COMMANDS = [
     BLACK,
     FLAKE8,
     ISORT,
+    MYPY,
     PYLINT,
     PYDOCSTYLE,
 ]

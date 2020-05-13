@@ -38,13 +38,13 @@ parser.add_argument(
 )
 
 
-def print_commands():
+def print_commands() -> None:
     """Print all supported commands."""
     for command in COMMANDS:
         print(command)
 
 
-def print_title(title):
+def print_title(title: str) -> None:
     """
     Print a title with a title line under it.
 
@@ -54,7 +54,7 @@ def print_title(title):
     print("=" * len(title))
 
 
-def main():
+def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
     if args.commands_list:
