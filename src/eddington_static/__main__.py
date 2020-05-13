@@ -31,6 +31,9 @@ parser.add_argument(
     "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
 )
 parser.add_argument(
+    "-r", "--remove", nargs="+", type=str, help="Remove commands from running"
+)
+parser.add_argument(
     "--commands-list",
     action="store_true",
     default=False,
@@ -74,6 +77,8 @@ def main() -> None:
         commands = COMMANDS
     if args.commands:
         commands = [command for command in commands if command.name in args.commands]
+    if args.remove:
+        commands = [command for command in commands if command.name not in args.remove]
     failed_commands = []
     for command in commands:
         if not silent:
