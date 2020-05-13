@@ -85,7 +85,7 @@ ISORT = Command(
 )
 MYPY = Command(
     name="mypy",
-    args=["--strict", "--allow-untyped-calls"],
+    args=["--ignore-missing-imports", "--allow-untyped-calls"],
     help="Validate types using mypy",
 )
 PYLINT = Command(
