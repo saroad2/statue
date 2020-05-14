@@ -34,6 +34,13 @@ parser.add_argument(
     "-r", "--remove", nargs="+", type=str, help="Remove commands from running"
 )
 parser.add_argument(
+    "-s",
+    "--settings",
+    type=Path,
+    default=DEFAULT_COMMANDS_FILE,
+    help="Setting file to read the commands from.",
+)
+parser.add_argument(
     "--commands-list",
     action="store_true",
     default=False,
@@ -60,9 +67,7 @@ def print_title(title: str) -> None:
 def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
-    commands = read_commands(
-        DEFAULT_COMMANDS_FILE, is_test=args.test, is_format=args.format
-    )
+    commands = read_commands(args.settings, is_test=args.test, is_format=args.format)
     if args.commands_list:
         print_commands(commands)
         return
