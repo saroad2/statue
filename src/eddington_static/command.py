@@ -84,9 +84,7 @@ ISORT = Command(
     help="A tool for sorting and cleaning python imports",
 )
 MYPY = Command(
-    name="mypy",
-    args=["--ignore-missing-imports", "--allow-untyped-calls"],
-    help="Validate types using mypy",
+    name="mypy", args=["--ignore-missing-imports"], help="Validate types using mypy",
 )
 PYLINT = Command(
     name="pylint",
