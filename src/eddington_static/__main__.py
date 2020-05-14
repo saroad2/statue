@@ -4,8 +4,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from eddington_static import __version__
-from eddington_static.command import BLACK, COMMANDS, FLAKE8, ISORT
-from eddington_static.constants import DESCRIPTION
+from eddington_static.constants import DESCRIPTION, DEFAULT_COMMANDS_FILE
+from eddington_static.reader import read_commands
 
 parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument(
@@ -41,10 +41,10 @@ parser.add_argument(
 )
 
 
-def print_commands() -> None:
+def print_commands(commands) -> None:
     """Print all supported commands."""
-    for command in COMMANDS:
-        print(command)
+    for command in commands:
+        print(command.name, "-", command.help)
 
 
 def print_title(title: str) -> None:
@@ -60,8 +60,11 @@ def print_title(title: str) -> None:
 def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
+    commands = read_commands(
+        DEFAULT_COMMANDS_FILE, is_test=args.test, is_format=args.format
+    )
     if args.commands_list:
-        print_commands()
+        print_commands(commands)
         return
     input_paths = [str(path) for path in args.input]
     if len(input_paths) == 0:
@@ -72,9 +75,7 @@ def main() -> None:
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_paths)}")
     if args.fast:
-        commands = [BLACK, FLAKE8, ISORT]
-    else:
-        commands = COMMANDS
+        commands = [command for command in commands if command.fast]
     if args.commands:
         commands = [command for command in commands if command.name in args.commands]
     if args.remove:
@@ -84,11 +85,7 @@ def main() -> None:
         if not silent:
             print_title(command.name)
         return_code = command.execute(
-            input_paths,
-            is_format=args.format,
-            is_silent=silent,
-            is_verbose=args.verbose,
-            is_test=args.test,
+            input_paths, is_silent=silent, is_verbose=args.verbose
         )
         if return_code != 0:
             failed_commands.append(command.name)
