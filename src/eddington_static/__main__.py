@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from eddington_static import __version__
-from eddington_static.constants import DESCRIPTION, DEFAULT_COMMANDS_FILE
+from eddington_static.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
 from eddington_static.reader import read_commands
 from eddington_static.validations import validate
 
