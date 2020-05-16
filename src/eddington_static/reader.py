@@ -1,3 +1,4 @@
+"""Reader method for settings."""
 from pathlib import Path
 from typing import List, Union
 
@@ -7,6 +8,13 @@ from eddington_static.command import Command
 
 
 def read_commands(path: Union[str, Path], filters: List[str] = None):
+    """
+    Read commands from a settings file.
+
+    :param path: Path. the path of the settings file
+    :param filters: List of str. a list of filters to choose commands from.
+    :return: a list of :class:`Command`
+    """
     if not isinstance(path, Path):
         path = Path(path)
     config = toml.load(path)
