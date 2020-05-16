@@ -2,6 +2,7 @@
 args = ["--check"]
 help = "Code formatter for python."
 fast = true
+test = true
 
 [black.format]
 args = []
@@ -10,6 +11,7 @@ args = []
 args = ["--max-line-length=88"]
 help="Code style checker for python."
 fast = true
+test = true
 
 [isort]
 args = [
@@ -23,6 +25,7 @@ args = [
 ]
 help = "Tool for sorting and cleaning python imports."
 fast = true
+test = true
 
 [isort.format]
 args = [
@@ -38,6 +41,7 @@ args = [
 args = ["--ignore-missing-imports"]
 help = "Validate types using mypy."
 fast = true
+test = true
 
 [pylint]
 args = ["--disable=C0203,C0330,E0401,E0611,E1130"]
@@ -52,6 +56,4 @@ args = [
 [pydocstyle]
 args = ["--ignore=D203,D212,D400,D401"]
 help = "Tool for python docstring style enforcing"
-
-[pydocstyle.test]
-args = ["--ignore=D100,D101,D102,D103,D104,D107,D203,D212,D400,D401"]
+test = false

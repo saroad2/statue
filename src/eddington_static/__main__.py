@@ -14,19 +14,13 @@ parser.add_argument(
 )
 parser.add_argument("input", nargs="*", type=Path, help="Input path to analyze")
 parser.add_argument(
-    "--format", action="store_true", default=False, help="Format code when possible"
-)
-parser.add_argument(
     "--silent", action="store_true", default=False, help="Runs silently"
 )
 parser.add_argument(
     "--verbose", action="store_true", default=False, help="Runs verbosely"
 )
 parser.add_argument(
-    "--fast", action="store_true", default=False, help="Include only fast actions."
-)
-parser.add_argument(
-    "--test", action="store_true", default=False, help="Evaluate python test files",
+    "-f", "--filters", nargs="*", help="List of filters for commands",
 )
 parser.add_argument(
     "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
@@ -69,7 +63,7 @@ def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
     validate(args)
-    commands = read_commands(args.settings, is_test=args.test, is_format=args.format)
+    commands = read_commands(args.settings, filters=args.filters)
     if args.commands_list:
         print_commands(commands)
         return
@@ -81,8 +75,6 @@ def main() -> None:
     silent = args.silent
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_paths)}")
-    if args.fast:
-        commands = [command for command in commands if command.fast]
     if args.commands:
         commands = [command for command in commands if command.name in args.commands]
     if args.remove:
