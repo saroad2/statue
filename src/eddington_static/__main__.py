@@ -6,6 +6,7 @@ from pathlib import Path
 from eddington_static import __version__
 from eddington_static.constants import DESCRIPTION, DEFAULT_COMMANDS_FILE
 from eddington_static.reader import read_commands
+from eddington_static.validations import validate
 
 parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument(
@@ -67,6 +68,7 @@ def print_title(title: str) -> None:
 def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
+    validate(args)
     commands = read_commands(args.settings, is_test=args.test, is_format=args.format)
     if args.commands_list:
         print_commands(commands)
