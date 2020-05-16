@@ -1,1 +1,1 @@
-recursive-include eddington_static/resources *.toml
+recursive-include src *.toml
