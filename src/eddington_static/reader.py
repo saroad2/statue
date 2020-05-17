@@ -35,6 +35,8 @@ def read_commands(path: Union[str, Path], filters: List[str] = None):
 
 
 def __skip_command(setups: dict, filters: List[str]):
+    if len(filters) == 0:
+        return not setups.get("standard", True)
     for command_filter in filters:
         if not setups.get(command_filter, False):
             return True

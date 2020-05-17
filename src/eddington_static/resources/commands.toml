@@ -9,9 +9,20 @@ args = []
 
 [flake8]
 args = ["--max-line-length=88"]
-help="Code style checker for python."
+help = "Code style checker for python."
 fast = true
 test = true
+
+[autoflake]
+args = [
+    "--in-place",
+    "--recursive",
+    "--expand-star-imports",
+    "--remove-all-unused-imports"
+]
+help = "Remove unused imports and variables"
+format = true
+standard = false
 
 # The isort problem
 # =================
