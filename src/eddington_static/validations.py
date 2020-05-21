@@ -15,5 +15,4 @@ def validate(args):
     ]
     if len(non_existing_input_paths) != 0:
         joined_paths = ", ".join(non_existing_input_paths)
-        raise ValueError(
-            f"The following input paths doesn't exists: {joined_paths}")
+        raise ValueError(f"The following input paths doesn't exists: {joined_paths}")

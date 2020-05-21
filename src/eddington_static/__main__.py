@@ -12,8 +12,7 @@ parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument(
     "--version", action="version", version=__version__, help="Show version"
 )
-parser.add_argument("input", nargs="*", type=Path,
-                    help="Input path to analyze")
+parser.add_argument("input", nargs="*", type=Path, help="Input path to analyze")
 parser.add_argument(
     "--silent", action="store_true", default=False, help="Runs silently"
 )
@@ -77,11 +76,9 @@ def main() -> None:
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_paths)}")
     if args.commands:
-        commands = [
-            command for command in commands if command.name in args.commands]
+        commands = [command for command in commands if command.name in args.commands]
     if args.remove:
-        commands = [
-            command for command in commands if command.name not in args.remove]
+        commands = [command for command in commands if command.name not in args.remove]
     failed_commands = []
     for command in commands:
         if not silent:
