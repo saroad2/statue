@@ -28,7 +28,6 @@ def read_commands(path: Union[str, Path], filters: List[str] = None):
                 name=command,
                 args=__read_args(setups, filters=filters),
                 help=setups["help"],
-                fast=setups.get("fast", False),
             )
         )
     return commands

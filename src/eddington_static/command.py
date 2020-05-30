@@ -13,14 +13,12 @@ class Command:
 
     :param name: The name of the command to run.
     :param args: A list of arguments for the command.
-    :param fast: Indicates if the command is fast.
     :param help: Help string
     """
 
     name: str
     help: str
     args: Union[List[str], None] = field(default=None)
-    fast: bool = field(default=False)
 
     def execute(  # pylint: disable=too-many-arguments
         self, input_paths: List[str], is_silent: bool = False, is_verbose: bool = False,
