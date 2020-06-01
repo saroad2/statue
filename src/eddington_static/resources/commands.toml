@@ -67,11 +67,15 @@ fast = true
 test = true
 
 [pylint]
-args = ["--disable=C0203,C0330,C0411,E0401,E0611,E1130"]
+args = [
+    "--ignore-imports=y",
+    "--disable=C0203,C0330,C0411,E0401,E0611,E1130"
+    ]
 help = "Python code linter"
 
 [pylint.test]
 args = [
+    "--ignore-imports=y",
     "--disable=C0103,C0114,C0115,C0116,C0203,C0204,C0330,C0411",
     "--disable=E1101,E1130,E0401,E0611,E1120,E1139",
     "--disable=R0801,R0902,R0903,R0904,R0913,W0201"]
