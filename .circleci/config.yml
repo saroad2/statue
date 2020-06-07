@@ -13,7 +13,7 @@ jobs:
           command: pip install -e .
       - run:
           name: Run self
-          command: eddington-static src
+          command: statue src
   publish:
     docker:
       - image: circleci/golang:1.14-buster
