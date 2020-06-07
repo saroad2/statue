@@ -3,10 +3,10 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-from eddington_static import __version__
-from eddington_static.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
-from eddington_static.reader import read_commands
-from eddington_static.validations import validate
+from statue import __version__
+from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
+from statue.reader import read_commands
+from statue.validations import validate
 
 parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument(

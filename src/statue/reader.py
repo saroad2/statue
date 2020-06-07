@@ -4,7 +4,7 @@ from typing import List, Union
 
 import toml
 
-from eddington_static.command import Command
+from statue.command import Command
 
 
 def read_commands(path: Union[str, Path], filters: List[str] = None):
