@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import List, Union
 
 
-@dataclass(repr=False)
+@dataclass
 class Command:
     """
     Data class representing a command to run in order to evaluate the code.
