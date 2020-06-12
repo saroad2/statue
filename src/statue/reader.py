@@ -5,6 +5,7 @@ from typing import List, Union
 import toml
 
 from statue.command import Command
+from statue.constants import HELP, ARGS, STANDARD
 
 
 def read_commands(path: Union[str, Path], filters: List[str] = None):
@@ -27,7 +28,7 @@ def read_commands(path: Union[str, Path], filters: List[str] = None):
             Command(
                 name=command,
                 args=__read_args(setups, filters=filters),
-                help=setups["help"],
+                help=setups[HELP],
             )
         )
     return commands
@@ -35,7 +36,7 @@ def read_commands(path: Union[str, Path], filters: List[str] = None):
 
 def __skip_command(setups: dict, filters: List[str]):
     if len(filters) == 0:
-        return not setups.get("standard", True)
+        return not setups.get(STANDARD, True)
     for command_filter in filters:
         if not setups.get(command_filter, False):
             return True
@@ -47,7 +48,7 @@ def __read_args(setups: dict, filters: List[str]):
         filter_obj = setups.get(command_filter, None)
         if not isinstance(filter_obj, dict):
             continue
-        args = filter_obj.get("args", None)
+        args = filter_obj.get(ARGS, None)
         if args is not None:
             return args
-    return setups.get("args", [])
+    return setups.get(ARGS, [])

@@ -13,11 +13,11 @@ def case_no_args() -> CaseData:
     output = dict(
         name=name,
         help=help_string,
-        args=None,
+        args=[],
         command_one_input=[name, INPUT_PATH1],
         command_two_inputs=[name, INPUT_PATH1, INPUT_PATH2],
         print=f'Running the following command: "{name} {INPUT_PATH1} {INPUT_PATH2}"',
-        repr=f"Command(name='{name}', help='{help_string}', args=None)",
+        repr=f"Command(name='{name}', help='{help_string}', args=[])",
     )
     return inp, output, None
 

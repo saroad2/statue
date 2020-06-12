@@ -3,7 +3,7 @@
 import os
 import subprocess
 from dataclasses import dataclass, field
-from typing import List, Union
+from typing import List
 
 
 @dataclass
@@ -18,7 +18,7 @@ class Command:
 
     name: str
     help: str
-    args: Union[List[str], None] = field(default=None)
+    args: List[str] = field(default_factory=list)
 
     def execute(  # pylint: disable=too-many-arguments
         self, input_paths: List[str], is_silent: bool = False, is_verbose: bool = False,
@@ -32,9 +32,7 @@ class Command:
         :param is_verbose: Boolean. Run commands verbosely
         :return: Int. Returns the return code of the command
         """
-        args = [self.name, *input_paths]
-        if self.args is not None:
-            args.extend(self.args)
+        args = [self.name, *input_paths, *self.args]
         if is_verbose:
             print(f"Running the following command: \"{' '.join(args)}\"")
         return subprocess.run(
