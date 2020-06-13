@@ -51,4 +51,7 @@ def __read_args(setups: dict, filters: List[str]):
         args = filter_obj.get(ARGS, None)
         if args is not None:
             return args
+        clear_args = filter_obj.get("clear_args", False)
+        if clear_args:
+            return []
     return setups.get(ARGS, [])
