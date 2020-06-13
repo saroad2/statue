@@ -78,7 +78,7 @@ add_args = [
     "--disable=C0103,C0114,C0115,C0116,C0204",
     "--disable=E1101,E1120,E1139",
     "--disable=R0801,R0902,R0903,R0904,R0913",
-    "--disable=W0201"]
+    "--disable=W0201,W0613,W0621"]
 
 [pydocstyle]
 args = ["--ignore=D203,D212,D400,D401"]
