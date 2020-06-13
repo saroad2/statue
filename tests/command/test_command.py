@@ -131,7 +131,7 @@ def test_command_equals():
     command1 = Command(name=name, help=help_string, args=args)
     command2 = Command(name=name, help=help_string, args=args)
     assert command1 == command2
-    assert not (command1 != command2)
+    assert not command1 != command2  # pylint: disable=C0113
 
 
 def test_command_not_equals_because_of_different_names():
@@ -141,7 +141,7 @@ def test_command_not_equals_because_of_different_names():
     args = ["arg1", "arg2", "arg3"]
     command1 = Command(name=name1, help=help_string, args=args)
     command2 = Command(name=name2, help=help_string, args=args)
-    assert not (command1 == command2)
+    assert not command1 == command2  # pylint: disable=C0113
     assert command1 != command2
 
 
@@ -152,7 +152,7 @@ def test_command_not_equals_because_of_different_helps():
     args = ["arg1", "arg2", "arg3"]
     command1 = Command(name=name, help=help_string1, args=args)
     command2 = Command(name=name, help=help_string2, args=args)
-    assert not (command1 == command2)
+    assert not command1 == command2  # pylint: disable=C0113
     assert command1 != command2
 
 
@@ -163,5 +163,5 @@ def test_command_not_equals_because_of_different_args():
     args2 = ["arg4", "arg5"]
     command1 = Command(name=name, help=help_string, args=args1)
     command2 = Command(name=name, help=help_string, args=args2)
-    assert not (command1 == command2)
+    assert not command1 == command2  # pylint: disable=C0113
     assert command1 != command2
