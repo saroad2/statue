@@ -114,3 +114,12 @@ def test_read_settings_with_overrides_with_clear_args_filter(
     assert commands == [
         Command(name=COMMAND1, help=HELP_STRING1, args=[]),
     ]
+
+
+def test_read_settings_with_overrides_with_add_args_filter(
+    full_settings_with_override_filters,
+):
+    commands = read_commands(SETTINGS_FILE_PATH, filters=[FILTER4])
+    assert commands == [
+        Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2, ARG5]),
+    ]
