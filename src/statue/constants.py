@@ -8,4 +8,5 @@ DEFAULT_COMMANDS_FILE = Path(__file__).parent / "resources" / "commands.toml"
 
 HELP = "help"
 ARGS = "args"
+CLEAR_ARGS = "clear_args"
 STANDARD = "standard"

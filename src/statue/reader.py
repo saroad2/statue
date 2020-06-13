@@ -5,7 +5,7 @@ from typing import List, Union
 import toml
 
 from statue.command import Command
-from statue.constants import HELP, ARGS, STANDARD
+from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS
 
 
 def read_commands(path: Union[str, Path], filters: List[str] = None):
@@ -51,7 +51,7 @@ def __read_args(setups: dict, filters: List[str]):
         args = filter_obj.get(ARGS, None)
         if args is not None:
             return args
-        clear_args = filter_obj.get("clear_args", False)
+        clear_args = filter_obj.get(CLEAR_ARGS, False)
         if clear_args:
             return []
     return setups.get(ARGS, [])

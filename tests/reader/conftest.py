@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from statue.constants import HELP, ARGS, STANDARD
+from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS
 
 
 SETTINGS_FILE_PATH = "settings"
@@ -63,5 +63,6 @@ def full_settings_with_override_filters(toml):
             ARGS: [ARG1, ARG2],
             FILTER1: {ARGS: [ARG3]},
             FILTER2: {ARGS: [ARG4, ARG5]},
+            FILTER3: {CLEAR_ARGS: True},
         },
     }
