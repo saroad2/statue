@@ -27,14 +27,15 @@ standard = false
 # The isort problem
 # =================
 #
-# Unfortunaly, "isort" is very effected by the environments it is running on.
-#This is causing a lot of problems when running isort using tox or in a virtual machine
-#during CI/CD process.
+# Unfortunaly, "isort" is very effected by the environments it is running on in versions
+# less than 5.0.
+# This is causing a lot of problems when running isort using tox or in a virtual machine
+# during CI/CD process.
 #
-#This behavior should be fixed by version 5.0.0, but until than we can not use isort
-#(even though we really want to...).
+# At the moment, "pylint" stricktly requries isort to be with version less than 5.0,
+# which prevents us from using "isort".
 #
-# Once this version is out, we will return using isort.
+# Once "pylint" will remove this requirement, we will return using isort.
 #
 #[isort]
 #args = [
