@@ -1,4 +1,4 @@
-from pytest_cases import cases_data, CaseData, THIS_MODULE
+from pytest_cases import parametrize_with_cases, THIS_MODULE
 
 from statue.command import Command
 
@@ -6,7 +6,7 @@ INPUT_PATH1 = "input_path1"
 INPUT_PATH2 = "input_path2"
 
 
-def case_no_args() -> CaseData:
+def case_no_args():
     name = "command1"
     help_string = "help1"
     inp = Command(name=name, help=help_string)
@@ -19,10 +19,10 @@ def case_no_args() -> CaseData:
         print=f'Running the following command: "{name} {INPUT_PATH1} {INPUT_PATH2}"',
         repr=f"Command(name='{name}', help='{help_string}', args=[])",
     )
-    return inp, output, None
+    return inp, output
 
 
-def case_one_arg() -> CaseData:
+def case_one_arg():
     name = "command2"
     arg1 = "arg1"
     help_string = "help2"
@@ -39,10 +39,10 @@ def case_one_arg() -> CaseData:
         ),
         repr=f"Command(name='{name}', help='{help_string}', args=['{arg1}'])",
     )
-    return inp, output, None
+    return inp, output
 
 
-def case_two_args() -> CaseData:
+def case_two_args():
     name = "command3"
     help_string = "help3"
     arg1 = "arg1"
@@ -60,57 +60,50 @@ def case_two_args() -> CaseData:
         ),
         repr=f"Command(name='{name}', help='{help_string}', args=['{arg1}', '{arg2}'])",
     )
-    return inp, output, None
+    return inp, output
 
 
-@cases_data(module=THIS_MODULE)
-def test_name_is_set(case_data):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_name_is_set(command, out):
     assert command.name == out["name"]
 
 
-@cases_data(module=THIS_MODULE)
-def test_help_is_set(case_data):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_help_is_set(command, out):
     assert command.help == out["help"]
 
 
-@cases_data(module=THIS_MODULE)
-def test_args_are_set(case_data):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_args_are_set(command, out):
     assert command.args == out["args"]
 
 
-@cases_data(module=THIS_MODULE)
-def test_execute_on_one_path(case_data, subprocess_mock, environ):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_execute_on_one_path(command, out, subprocess_mock, environ):
     command.execute([INPUT_PATH1])
     subprocess_mock.assert_called_with(
         out["command_one_input"], env=environ, check=False, capture_output=False
     )
 
 
-@cases_data(module=THIS_MODULE)
-def test_execute_on_two_paths(case_data, subprocess_mock, environ):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_execute_on_two_paths(command, out, subprocess_mock, environ):
     command.execute([INPUT_PATH1, INPUT_PATH2])
     subprocess_mock.assert_called_with(
         out["command_two_inputs"], env=environ, check=False, capture_output=False
     )
 
 
-@cases_data(module=THIS_MODULE)
-def test_execute_silently(case_data, subprocess_mock, environ):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_execute_silently(command, out, subprocess_mock, environ):
     command.execute([INPUT_PATH1, INPUT_PATH2], is_silent=True)
     subprocess_mock.assert_called_with(
         out["command_two_inputs"], env=environ, check=False, capture_output=True
     )
 
 
-@cases_data(module=THIS_MODULE)
-def test_execute_verbosely(case_data, subprocess_mock, environ, print_mock):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_execute_verbosely(command, out, subprocess_mock, environ, print_mock):
     command.execute([INPUT_PATH1, INPUT_PATH2], is_verbose=True)
     subprocess_mock.assert_called_with(
         out["command_two_inputs"], env=environ, check=False, capture_output=False
@@ -118,9 +111,8 @@ def test_execute_verbosely(case_data, subprocess_mock, environ, print_mock):
     print_mock.assert_called_with(out["print"])
 
 
-@cases_data(module=THIS_MODULE)
-def test_representation_string(case_data):
-    command, out, _ = case_data.get()
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_representation_string(command, out):
     assert str(command) == out["repr"]
 
 
