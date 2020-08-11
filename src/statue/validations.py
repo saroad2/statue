@@ -8,8 +8,8 @@ def validate(args):
     :param args: :class:`Namespace` of arguments.
     :raise ValueError: When encountering an error.
     """
-    if not args.settings.exists():
-        raise ValueError(f'Settings file "{args.settings}" doesn\'t exists')
+    if not args.commands_file.exists():
+        raise ValueError(f'Settings file "{args.commands_file}" doesn\'t exists')
     non_existing_input_paths = [
         '"' + str(path) + '"' for path in args.input if not path.exists()
     ]
