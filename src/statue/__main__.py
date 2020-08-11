@@ -29,17 +29,17 @@ parser.add_argument(
     "-r", "--remove", nargs="+", type=str, help="Remove commands from running"
 )
 parser.add_argument(
-    "-s",
-    "--settings",
-    type=Path,
-    default=DEFAULT_COMMANDS_FILE,
-    help="Setting file to read the commands from.",
-)
-parser.add_argument(
+    "-l",
     "--commands-list",
     action="store_true",
     default=False,
     help="Print list of supported commands",
+)
+parser.add_argument(
+    "--commands-file",
+    type=Path,
+    default=DEFAULT_COMMANDS_FILE,
+    help="Setting file to read the commands from.",
 )
 
 
@@ -64,7 +64,7 @@ def main() -> None:
     args = parser.parse_args()
     validate(args)
     commands = read_commands(
-        args.settings,
+        args.commands_file,
         filters=args.filters,
         allow_list=args.commands,
         deny_list=args.remove,
