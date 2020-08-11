@@ -1,6 +1,6 @@
 """Reader method for settings."""
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Optional
 
 import toml
 
@@ -8,12 +8,19 @@ from statue.command import Command
 from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
 
-def read_commands(path: Union[str, Path], filters: List[str] = None):
+def read_commands(
+    path: Union[str, Path],
+    filters: Optional[List[str]] = None,
+    allow_list: Optional[List[str]] = None,
+    deny_list: Optional[List[str]] = None,
+):
     """
     Read commands from a settings file.
 
     :param path: Path. the path of the settings file
     :param filters: List of str. a list of filters to choose commands from.
+    :param allow_list: List of allowed commands. If None, take all commands
+    :param deny_list: List of denied commands. If None, take all commands
     :return: a list of :class:`Command`
     """
     if not isinstance(path, Path):
@@ -21,12 +28,12 @@ def read_commands(path: Union[str, Path], filters: List[str] = None):
     config = toml.load(path)
     commands = []
     filters = [] if filters is None else filters
-    for command, setups in config.items():
-        if __skip_command(setups, filters):
+    for command_name, setups in config.items():
+        if __skip_command(command_name, setups, filters, allow_list, deny_list):
             continue
         commands.append(
             Command(
-                name=command,
+                name=command_name,
                 args=__read_args(setups, filters=filters),
                 help=setups[HELP],
             )
@@ -34,7 +41,17 @@ def read_commands(path: Union[str, Path], filters: List[str] = None):
     return commands
 
 
-def __skip_command(setups: dict, filters: List[str]):
+def __skip_command(
+    commands_name: str,
+    setups: dict,
+    filters: List[str],
+    allow_list: Optional[List[str]],
+    deny_list: Optional[List[str]],
+):
+    if allow_list is not None and commands_name not in allow_list:
+        return True
+    if deny_list is not None and commands_name in deny_list:
+        return True
     if len(filters) == 0:
         return not setups.get(STANDARD, True)
     for command_filter in filters:

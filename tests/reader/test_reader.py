@@ -123,3 +123,19 @@ def test_read_settings_with_overrides_with_add_args_filter(
     assert commands == [
         Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2, ARG5]),
     ]
+
+
+def test_read_commands_with_allow_list(full_settings_with_boolean_filters):
+    commands = read_commands(SETTINGS_FILE_PATH, allow_list=[COMMAND1, COMMAND3])
+    assert commands == [
+        Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2],),
+        Command(name=COMMAND3, help=HELP_STRING3, args=[]),
+    ]
+
+
+def test_read_commands_with_deny_list(full_settings_with_boolean_filters):
+    commands = read_commands(SETTINGS_FILE_PATH, deny_list=[COMMAND1, COMMAND3])
+    assert commands == [
+        Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3],),
+        Command(name=COMMAND4, help=HELP_STRING4, args=[ARG4, ARG5]),
+    ]

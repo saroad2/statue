@@ -63,7 +63,12 @@ def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
     validate(args)
-    commands = read_commands(args.settings, filters=args.filters)
+    commands = read_commands(
+        args.settings,
+        filters=args.filters,
+        allow_list=args.commands,
+        deny_list=args.remove,
+    )
     if args.commands_list:
         print_commands(commands)
         return
@@ -75,10 +80,6 @@ def main() -> None:
     silent = args.silent
     if not silent:
         print(f"Evaluating the following files: {', '.join(input_paths)}")
-    if args.commands:
-        commands = [command for command in commands if command.name in args.commands]
-    if args.remove:
-        commands = [command for command in commands if command.name not in args.remove]
     failed_commands = []
     for command in commands:
         if not silent:
