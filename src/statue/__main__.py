@@ -10,7 +10,6 @@ from statue.commands_map import get_commands_map
 from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
 from statue.commands_reader import read_commands
 from statue.validations import validate
-import sys
 
 parser = ArgumentParser(description=DESCRIPTION)
 parser.add_argument(
