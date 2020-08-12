@@ -1,9 +1,5 @@
-from pathlib import Path
-
 import pytest
 from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
-
-SETTINGS_FILE_PATH = "settings"
 
 
 COMMAND1, HELP_STRING1 = "command1", "This is a help string for command1"
@@ -17,30 +13,23 @@ NOT_EXISTING_CONTEXT = "not_existing_context"
 
 
 @pytest.fixture
-def toml(mocker):
-    toml_mock = mocker.patch("toml.load")
-    yield toml_mock
-    toml_mock.assert_called_with(Path(SETTINGS_FILE_PATH))
+def empty_settings():
+    return {}
 
 
 @pytest.fixture
-def empty_settings(toml):
-    toml.return_value = {}
+def one_command_setting():
+    return {COMMAND1: {HELP: HELP_STRING1}}
 
 
 @pytest.fixture
-def one_command_setting(toml):
-    toml.return_value = {COMMAND1: {HELP: HELP_STRING1}}
+def one_command_with_args_settings():
+    return {COMMAND1: {HELP: HELP_STRING1, ARGS: [ARG1, ARG2]}}
 
 
 @pytest.fixture
-def one_command_with_args_settings(toml):
-    toml.return_value = {COMMAND1: {HELP: HELP_STRING1, ARGS: [ARG1, ARG2]}}
-
-
-@pytest.fixture
-def full_settings_with_boolean_contexts(toml):
-    toml.return_value = {
+def full_settings_with_boolean_contexts():
+    return {
         COMMAND1: {
             HELP: HELP_STRING1,
             ARGS: [ARG1, ARG2],
@@ -55,8 +44,8 @@ def full_settings_with_boolean_contexts(toml):
 
 
 @pytest.fixture
-def full_settings_with_override_contexts(toml):
-    toml.return_value = {
+def full_settings_with_override_contexts():
+    return {
         COMMAND1: {
             HELP: HELP_STRING1,
             ARGS: [ARG1, ARG2],

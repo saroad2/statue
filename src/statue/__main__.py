@@ -3,6 +3,8 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
+import toml
+
 from statue import __version__
 from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
 from statue.reader import read_commands
@@ -67,8 +69,9 @@ def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
     validate(args)
+    commands_configuration = toml.load(args.commands_file)
     commands = read_commands(
-        args.commands_file,
+        commands_configuration,
         contexts=args.contexts,
         allow_list=args.allow_list,
         deny_list=args.deny_list,
