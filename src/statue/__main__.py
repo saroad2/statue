@@ -20,13 +20,17 @@ parser.add_argument(
     "--verbose", action="store_true", default=False, help="Runs verbosely"
 )
 parser.add_argument(
-    "-f", "--filters", nargs="*", help="List of filters for commands",
+    "-c", "--contexts", nargs="*", help="List of contexts for commands",
 )
 parser.add_argument(
-    "-c", "--commands", nargs="+", type=str, help="Specify the commands to run"
+    "-a", "--allow_list", nargs="+", type=str, help="Specify which commands to run"
 )
 parser.add_argument(
-    "-r", "--remove", nargs="+", type=str, help="Remove commands from running"
+    "-d",
+    "--deny-list",
+    nargs="+",
+    type=str,
+    help="specify which commands to avoid running",
 )
 parser.add_argument(
     "-l",
@@ -65,9 +69,9 @@ def main() -> None:
     validate(args)
     commands = read_commands(
         args.commands_file,
-        filters=args.filters,
-        allow_list=args.commands,
-        deny_list=args.remove,
+        contexts=args.contexts,
+        allow_list=args.allow_list,
+        deny_list=args.deny_list,
     )
     if args.commands_list:
         print_commands(commands)
