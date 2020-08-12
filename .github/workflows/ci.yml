@@ -52,4 +52,4 @@ jobs:
         statue src
     - name: Run self on tests
       run: |
-        statue tests --filter test
+        statue tests --contexts test
