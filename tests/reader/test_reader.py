@@ -91,7 +91,9 @@ def test_read_settings_with_overrides_without_contexts(
     ]
 
 
-def test_read_settings_with_overrides_with_context(full_settings_with_override_contexts,):
+def test_read_settings_with_overrides_with_context(
+    full_settings_with_override_contexts,
+):
     commands = read_commands(SETTINGS_FILE_PATH, contexts=[CONTEXT1])
     assert commands == [
         Command(name=COMMAND1, help=HELP_STRING1, args=[ARG3]),
