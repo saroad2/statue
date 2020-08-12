@@ -43,9 +43,9 @@ def __skip_command(
     allow_list: Optional[List[str]],
     deny_list: Optional[List[str]],
 ):
-    if allow_list is not None and commands_name not in allow_list:
-        return True
     if deny_list is not None and commands_name in deny_list:
+        return True
+    if allow_list is not None and commands_name not in allow_list:
         return True
     if len(contexts) == 0:
         return not setups.get(STANDARD, True)

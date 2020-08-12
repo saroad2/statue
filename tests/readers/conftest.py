@@ -1,7 +1,16 @@
+from pathlib import Path
+
 import pytest
 from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
 
+SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5 = (
+    "source1",
+    "source2",
+    "source3",
+    "source4",
+    "source5",
+)
 COMMAND1, HELP_STRING1 = "command1", "This is a help string for command1"
 COMMAND2, HELP_STRING2 = "command2", "This is a help string for command2"
 COMMAND3, HELP_STRING3 = "command3", "This is a help string for command3"
@@ -10,6 +19,44 @@ COMMAND5, HELP_STRING5 = "command5", "This is a help string for command5"
 ARG1, ARG2, ARG3, ARG4, ARG5 = "arg1", "arg2", "arg3", "arg4", "arg5"
 CONTEXT1, CONTEXT2, CONTEXT3, CONTEXT4 = "context1", "context2", "context3", "context4"
 NOT_EXISTING_CONTEXT = "not_existing_context"
+ENCODING = "utf8"
+
+
+@pytest.fixture
+def cwd_fixture(tmpdir, mocker):
+    cwd = mocker.patch.object(Path, "cwd")
+    cwd.return_value = tmpdir
+    yield tmpdir
+    cwd.assert_called_once()
+
+
+@pytest.fixture
+def empty_config(cwd_fixture):
+    config = cwd_fixture / "statue.toml"
+    Path(config).touch()
+    return config
+
+
+@pytest.fixture
+def non_empty_sources_config(empty_config):
+    empty_config.write_text(
+        f"""[{SOURCE1}]
+
+[{SOURCE2}]
+contexts = ["{CONTEXT1}"]
+
+[{SOURCE3}]
+contexts = ["{CONTEXT2}"]
+
+[{SOURCE4}]
+allow_list = ["{COMMAND1}", "{COMMAND3}", "{COMMAND4}"]
+
+[{SOURCE5}]
+deny_list = ["{COMMAND5}"]
+""",
+        encoding=ENCODING,
+    )
+    return empty_config
 
 
 @pytest.fixture
