@@ -7,7 +7,7 @@ import toml
 
 from statue import __version__
 from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
-from statue.reader import read_commands
+from statue.commands_reader import read_commands
 from statue.validations import validate
 
 parser = ArgumentParser(description=DESCRIPTION)
