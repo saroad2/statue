@@ -1,6 +1,6 @@
 from statue.command import Command
-from statue.reader import read_commands
-from tests.reader.conftest import (
+from statue.commands_reader import read_commands
+from tests.readers.conftest import (
     COMMAND1,
     COMMAND2,
     COMMAND3,

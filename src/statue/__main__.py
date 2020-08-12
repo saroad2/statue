@@ -2,13 +2,13 @@
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
-from typing import Any, MutableMapping
 
 import toml
 
 from statue import __version__
+from statue.commands_map import get_commands_map
 from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
-from statue.reader import read_commands
+from statue.commands_reader import read_commands
 from statue.validations import validate
 
 parser = ArgumentParser(description=DESCRIPTION)
@@ -56,52 +56,71 @@ def print_commands(commands) -> None:
         print(command.name, "-", command.help)
 
 
-def print_title(title: str) -> None:
+def print_title(title: str, underline: str = "=") -> None:
     """
     Print a title with a title line under it.
 
     :param title: The title to print
     """
     print(title.title())
-    print("=" * len(title))
+    print(underline * len(title))
 
 
 def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
     validate(args)
-    commands_configuration: MutableMapping[str, Any] = toml.load(args.commands_file)
-    commands = read_commands(
-        commands_configuration,
-        contexts=args.contexts,
-        allow_list=args.allow_list,
-        deny_list=args.deny_list,
-    )
+    commands_configuration = toml.load(args.commands_file)
+    contexts, allow_list, deny_list = args.contexts, args.allow_list, args.deny_list
     if args.commands_list:
+        commands = read_commands(
+            commands_configuration,
+            contexts=contexts,
+            allow_list=allow_list,
+            deny_list=deny_list,
+        )
         print_commands(commands)
         return
-    input_paths = [str(path) for path in args.input]
-    if len(input_paths) == 0:
+    commands_map = get_commands_map(
+        args.input,
+        commands_configuration,
+        contexts=contexts,
+        allow_list=allow_list,
+        deny_list=deny_list,
+    )
+    if commands_map is None:
         parser.print_help()
         return
 
     silent = args.silent
-    if not silent:
-        print(f"Evaluating the following files: {', '.join(input_paths)}")
-    failed_commands = []
-    for command in commands:
+    failed_paths = dict()
+    print_title("Evaluation")
+    for input_path, commands in commands_map.items():
         if not silent:
-            print_title(command.name)
-        return_code = command.execute(
-            input_paths, is_silent=silent, is_verbose=args.verbose
-        )
-        if return_code != 0:
-            failed_commands.append(command.name)
+            print()
+            print(f"Evaluating {input_path}")
+        failed_commands = []
+        for command in commands:
+            if not silent:
+                print_title(command.name, underline="-")
+            return_code = command.execute(
+                input_path, is_silent=silent, is_verbose=args.verbose
+            )
+            if return_code != 0:
+                failed_commands.append(command.name)
+        if len(failed_commands) != 0:
+            failed_paths[input_path] = failed_commands
+    print()
     print_title("Summary")
-    if len(failed_commands) != 0:
-        print(f"The following commands failed: {', '.join(failed_commands)}")
+    if len(failed_paths) != 0:
+        print("Statue has failed on the following commands:")
+        print()
+        for input_path, failed_commands in failed_paths.items():
+            print(f"{input_path}:")
+            print(f"\t{', '.join(failed_commands)}")
         sys.exit(1)
-    print("Static code analysis successful")
+    else:
+        print("Statue finished successfully!")
 
 
 if __name__ == "__main__":
