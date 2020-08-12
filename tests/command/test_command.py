@@ -2,8 +2,7 @@ from pytest_cases import parametrize_with_cases, THIS_MODULE
 
 from statue.command import Command
 
-INPUT_PATH1 = "input_path1"
-INPUT_PATH2 = "input_path2"
+INPUT_PATH = "input_path"
 
 
 def case_no_args():
@@ -14,9 +13,8 @@ def case_no_args():
         name=name,
         help=help_string,
         args=[],
-        command_one_input=[name, INPUT_PATH1],
-        command_two_inputs=[name, INPUT_PATH1, INPUT_PATH2],
-        print=f'Running the following command: "{name} {INPUT_PATH1} {INPUT_PATH2}"',
+        command_input=[name, INPUT_PATH],
+        print=f'Running the following command: "{name} {INPUT_PATH}"',
         repr=f"Command(name='{name}', help='{help_string}', args=[])",
     )
     return inp, output
@@ -31,12 +29,8 @@ def case_one_arg():
         name=name,
         help=help_string,
         args=[arg1],
-        command_one_input=[name, INPUT_PATH1, arg1],
-        command_two_inputs=[name, INPUT_PATH1, INPUT_PATH2, arg1],
-        print=(
-            "Running the following command: "
-            f'"{name} {INPUT_PATH1} {INPUT_PATH2} {arg1}"'
-        ),
+        command_input=[name, INPUT_PATH, arg1],
+        print=f'Running the following command: "{name} {INPUT_PATH} {arg1}"',
         repr=f"Command(name='{name}', help='{help_string}', args=['{arg1}'])",
     )
     return inp, output
@@ -52,11 +46,9 @@ def case_two_args():
         name=name,
         help=help_string,
         args=[arg1, arg2],
-        command_one_input=[name, INPUT_PATH1, arg1, arg2],
-        command_two_inputs=[name, INPUT_PATH1, INPUT_PATH2, arg1, arg2],
+        command_input=[name, INPUT_PATH, arg1, arg2],
         print=(
-            "Running the following command: "
-            f'"{name} {INPUT_PATH1} {INPUT_PATH2} {arg1} {arg2}"'
+            "Running the following command: " f'"{name} {INPUT_PATH} {arg1} {arg2}"'
         ),
         repr=f"Command(name='{name}', help='{help_string}', args=['{arg1}', '{arg2}'])",
     )
@@ -79,34 +71,26 @@ def test_args_are_set(command, out):
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_on_one_path(command, out, subprocess_mock, environ):
-    command.execute([INPUT_PATH1])
+def test_execute(command, out, subprocess_mock, environ):
+    command.execute(INPUT_PATH)
     subprocess_mock.assert_called_with(
-        out["command_one_input"], env=environ, check=False, capture_output=False
-    )
-
-
-@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_on_two_paths(command, out, subprocess_mock, environ):
-    command.execute([INPUT_PATH1, INPUT_PATH2])
-    subprocess_mock.assert_called_with(
-        out["command_two_inputs"], env=environ, check=False, capture_output=False
+        out["command_input"], env=environ, check=False, capture_output=False
     )
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute_silently(command, out, subprocess_mock, environ):
-    command.execute([INPUT_PATH1, INPUT_PATH2], is_silent=True)
+    command.execute(INPUT_PATH, is_silent=True)
     subprocess_mock.assert_called_with(
-        out["command_two_inputs"], env=environ, check=False, capture_output=True
+        out["command_input"], env=environ, check=False, capture_output=True
     )
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute_verbosely(command, out, subprocess_mock, environ, print_mock):
-    command.execute([INPUT_PATH1, INPUT_PATH2], is_verbose=True)
+    command.execute(INPUT_PATH, is_verbose=True)
     subprocess_mock.assert_called_with(
-        out["command_two_inputs"], env=environ, check=False, capture_output=False
+        out["command_input"], env=environ, check=False, capture_output=False
     )
     print_mock.assert_called_with(out["print"])
 
