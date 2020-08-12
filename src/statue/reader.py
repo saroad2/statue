@@ -1,15 +1,12 @@
 """Reader method for settings."""
-from pathlib import Path
-from typing import List, Union, Optional
-
-import toml
+from typing import List, Optional, Any, MutableMapping
 
 from statue.command import Command
 from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
 
 def read_commands(
-    path: Union[str, Path],
+    commands_configuration: MutableMapping[str, Any],
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
@@ -17,18 +14,16 @@ def read_commands(
     """
     Read commands from a settings file.
 
-    :param path: Path. the path of the settings file
+    :param commands_configuration: Dictionary. commands configuration read from
+     commands.toml
     :param contexts: List of str. a list of contexts to choose commands from.
     :param allow_list: List of allowed commands. If None, take all commands
     :param deny_list: List of denied commands. If None, take all commands
     :return: a list of :class:`Command`
     """
-    if not isinstance(path, Path):
-        path = Path(path)
-    config = toml.load(path)
     commands = []
     contexts = [] if contexts is None else contexts
-    for command_name, setups in config.items():
+    for command_name, setups in commands_configuration.items():
         if __skip_command(command_name, setups, contexts, allow_list, deny_list):
             continue
         commands.append(
