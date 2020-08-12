@@ -2,6 +2,7 @@
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
+from typing import Any, MutableMapping
 
 import toml
 
@@ -69,7 +70,7 @@ def main() -> None:
     """A main function of Eddington-Static."""
     args = parser.parse_args()
     validate(args)
-    commands_configuration = toml.load(args.commands_file)
+    commands_configuration: MutableMapping[str, Any] = toml.load(args.commands_file)
     commands = read_commands(
         commands_configuration,
         contexts=args.contexts,

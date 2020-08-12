@@ -1,13 +1,12 @@
 """Reader method for settings."""
-from typing import List, Optional, Dict
-
+from typing import List, Optional, Any, MutableMapping
 
 from statue.command import Command
 from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
 
 def read_commands(
-    commands_configuration: Dict[str, Dict],
+    commands_configuration: MutableMapping[str, Any],
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
