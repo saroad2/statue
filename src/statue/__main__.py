@@ -1,4 +1,4 @@
-"""Main of Eddington Static."""
+"""Main of Statue."""
 import sys
 from argparse import ArgumentParser
 from pathlib import Path
@@ -67,7 +67,7 @@ def print_title(title: str, underline: str = "=") -> None:
 
 
 def main() -> None:
-    """A main function of Eddington-Static."""
+    """A main function of Statue."""
     args = parser.parse_args()
     validate(args)
     commands_configuration = toml.load(args.commands_file)

@@ -2,7 +2,7 @@
 from pathlib import Path
 
 DESCRIPTION = """
-Eddington Static is a static analysis tool used by the Eddington platform repositories.
+Statue is a static code analysis tool combining all the tools you love in one place.
 """
 DEFAULT_COMMANDS_FILE = Path(__file__).parent / "resources" / "commands.toml"
 
