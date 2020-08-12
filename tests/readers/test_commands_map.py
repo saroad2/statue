@@ -21,6 +21,7 @@ from tests.readers.conftest import (
     SOURCE4,
     SOURCE5,
 )
+import os
 
 
 def assert_sources(commands_map, sources):
