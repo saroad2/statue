@@ -10,7 +10,7 @@ from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
 def read_commands(
     path: Union[str, Path],
-    filters: Optional[List[str]] = None,
+    contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
 ):
@@ -18,7 +18,7 @@ def read_commands(
     Read commands from a settings file.
 
     :param path: Path. the path of the settings file
-    :param filters: List of str. a list of filters to choose commands from.
+    :param contexts: List of str. a list of contexts to choose commands from.
     :param allow_list: List of allowed commands. If None, take all commands
     :param deny_list: List of denied commands. If None, take all commands
     :return: a list of :class:`Command`
@@ -27,14 +27,14 @@ def read_commands(
         path = Path(path)
     config = toml.load(path)
     commands = []
-    filters = [] if filters is None else filters
+    contexts = [] if contexts is None else contexts
     for command_name, setups in config.items():
-        if __skip_command(command_name, setups, filters, allow_list, deny_list):
+        if __skip_command(command_name, setups, contexts, allow_list, deny_list):
             continue
         commands.append(
             Command(
                 name=command_name,
-                args=__read_args(setups, filters=filters),
+                args=__read_args(setups, contexts=contexts),
                 help=setups[HELP],
             )
         )
@@ -44,7 +44,7 @@ def read_commands(
 def __skip_command(
     commands_name: str,
     setups: dict,
-    filters: List[str],
+    contexts: List[str],
     allow_list: Optional[List[str]],
     deny_list: Optional[List[str]],
 ):
@@ -52,27 +52,27 @@ def __skip_command(
         return True
     if deny_list is not None and commands_name in deny_list:
         return True
-    if len(filters) == 0:
+    if len(contexts) == 0:
         return not setups.get(STANDARD, True)
-    for command_filter in filters:
-        if not setups.get(command_filter, False):
+    for command_context in contexts:
+        if not setups.get(command_context, False):
             return True
     return False
 
 
-def __read_args(setups: dict, filters: List[str]):
+def __read_args(setups: dict, contexts: List[str]):
     base_args = setups.get(ARGS, [])
-    for command_filter in filters:
-        filter_obj = setups.get(command_filter, None)
-        if not isinstance(filter_obj, dict):
+    for command_context in contexts:
+        context_obj = setups.get(command_context, None)
+        if not isinstance(context_obj, dict):
             continue
-        args = filter_obj.get(ARGS, None)
+        args = context_obj.get(ARGS, None)
         if args is not None:
             return args
-        add_args = filter_obj.get(ADD_ARGS, None)
+        add_args = context_obj.get(ADD_ARGS, None)
         if add_args is not None:
             base_args.extend(add_args)
-        clear_args = filter_obj.get(CLEAR_ARGS, False)
+        clear_args = context_obj.get(CLEAR_ARGS, False)
         if clear_args:
             return []
     return base_args
