@@ -23,45 +23,21 @@ ENCODING = "utf8"
 
 
 @pytest.fixture
-def cwd_fixture(tmpdir, mocker):
-    cwd = mocker.patch.object(Path, "cwd")
-    cwd.return_value = tmpdir
-    yield tmpdir
-    cwd.assert_called_once()
-
-
-@pytest.fixture
-def empty_config(cwd_fixture):
-    config = cwd_fixture / "statue.toml"
-    Path(config).touch()
-    return config
-
-
-@pytest.fixture
-def non_empty_sources_config(empty_config):
-    empty_config.write_text(
-        f"""[{SOURCE1}]
-
-[{SOURCE2}]
-contexts = ["{CONTEXT1}"]
-
-[{SOURCE3}]
-contexts = ["{CONTEXT2}"]
-
-[{SOURCE4}]
-allow_list = ["{COMMAND1}", "{COMMAND3}", "{COMMAND4}"]
-
-[{SOURCE5}]
-deny_list = ["{COMMAND5}"]
-""",
-        encoding=ENCODING,
-    )
-    return empty_config
-
-
-@pytest.fixture
 def empty_settings():
     return {}
+
+
+@pytest.fixture
+def non_empty_sources_config():
+    return dict(
+        sources={
+            SOURCE1: {},
+            SOURCE2: dict(contexts=[CONTEXT1]),
+            SOURCE3: dict(contexts=[CONTEXT2]),
+            SOURCE4: dict(allow_list=[COMMAND1, COMMAND3, COMMAND4]),
+            SOURCE5: dict(deny_list=[COMMAND5]),
+        }
+    )
 
 
 @pytest.fixture
@@ -75,7 +51,7 @@ def one_command_with_args_settings():
 
 
 @pytest.fixture
-def full_settings_with_boolean_contexts():
+def full_commands_settings_with_boolean_contexts():
     return {
         COMMAND1: {
             HELP: HELP_STRING1,
@@ -91,7 +67,7 @@ def full_settings_with_boolean_contexts():
 
 
 @pytest.fixture
-def full_settings_with_override_contexts():
+def full_commands_settings_with_override_contexts():
     return {
         COMMAND1: {
             HELP: HELP_STRING1,

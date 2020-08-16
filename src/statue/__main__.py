@@ -3,10 +3,10 @@ import sys
 from argparse import ArgumentParser
 from pathlib import Path
 
-import toml
 
 from statue import __version__
 from statue.commands_map import get_commands_map
+from statue.configuration import get_configuration
 from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
 from statue.commands_reader import read_commands
 from statue.validations import validate
@@ -48,6 +48,9 @@ parser.add_argument(
     default=DEFAULT_COMMANDS_FILE,
     help="Setting file to read the commands from.",
 )
+parser.add_argument(
+    "--config-file", type=Path, default=None, help="Statue configuration file.",
+)
 
 
 def print_commands(commands) -> None:
@@ -70,11 +73,17 @@ def main() -> None:
     """A main function of Statue."""
     args = parser.parse_args()
     validate(args)
-    commands_configuration = toml.load(args.commands_file)
+    commands_configuration_file = args.commands_file
+    statue_configuration_file = args.config_file
+    if statue_configuration_file is None:
+        statue_configuration_file = Path.cwd() / "statue.toml"
+    statue_configuration = get_configuration(
+        statue_configuration_file, commands_configuration_file
+    )
     contexts, allow_list, deny_list = args.contexts, args.allow_list, args.deny_list
     if args.commands_list:
         commands = read_commands(
-            commands_configuration,
+            statue_configuration["commands"],
             contexts=contexts,
             allow_list=allow_list,
             deny_list=deny_list,
@@ -83,7 +92,7 @@ def main() -> None:
         return
     commands_map = get_commands_map(
         args.input,
-        commands_configuration,
+        statue_configuration,
         contexts=contexts,
         allow_list=allow_list,
         deny_list=deny_list,
