@@ -122,7 +122,7 @@ def list_commands(
         print(command.name, "-", command.help)
 
 
-@statue.command()
+@statue.command("install")
 @click.pass_obj
 @contexts_option
 @allow_option
@@ -130,7 +130,7 @@ def list_commands(
 @verbosity_option
 @silent_option
 @verbose_option
-def install(
+def install_commands(
     statue_configuration: MutableMapping[str, Any],
     context: Optional[List[str]],
     allow: Optional[List[str]],
@@ -160,7 +160,7 @@ def install(
 )
 @verbosity_option
 @silent_option
-@verbose_option
+@verbose_option  # pylint: disable=R0913
 def run(
     ctx: click.Context,
     sources: List[Union[Path, str]],
@@ -222,4 +222,4 @@ def run(
 
 
 if __name__ == "__main__":
-    statue()
+    statue()  # pylint: disable=E1120
