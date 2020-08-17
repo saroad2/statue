@@ -1,4 +1,5 @@
 [sources.src]
+contexts = ["strict"]
 
 [sources.tests]
 contexts = ["test"]

@@ -25,20 +25,22 @@ class Command:
     help: str
     args: List[str] = field(default_factory=list)
 
-    def installed(self):
+    def installed(self) -> bool:
         """
         Is this command installed.
 
         :return: Boolean.
         """
-        return self.name in {pkg.key for pkg in self.available_packages()}
+        return self.name in {
+            pkg.key for pkg in self.available_packages()  # type: ignore
+        }
 
     @classmethod
-    def available_packages(cls):
+    def available_packages(cls):  # type: ignore
         """Get all available packages via pip."""
         return list(pkg_resources.working_set)  # pragma: no cover
 
-    def install(self, verbosity: str = DEFAULT_VERBOSITY):
+    def install(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
         """
         Install command using pip.
 

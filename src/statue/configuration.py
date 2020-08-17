@@ -1,5 +1,6 @@
 """Get Statue global configuration."""
 from pathlib import Path
+from typing import Optional, Any, MutableMapping
 
 import toml
 
@@ -9,7 +10,7 @@ from statue.constants import COMMANDS, DEFAULT_COMMANDS_FILE
 def get_configuration(
     statue_configuration_path: Path,
     commands_configuration_path: Path = DEFAULT_COMMANDS_FILE,
-):
+) -> Optional[MutableMapping[str, Any]]:
     """
     Get statue configuration.
 

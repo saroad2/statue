@@ -7,6 +7,7 @@ from typing import List, Optional, MutableMapping, Any, Union
 import click
 
 from statue import __version__
+from statue.command import Command
 from statue.commands_map import get_commands_map
 from statue.configuration import get_configuration
 from statue.constants import COMMANDS
@@ -26,7 +27,9 @@ def print_title(title: str, underline: str = "=") -> None:
     print(underline * len(title))
 
 
-def install_commands_if_missing(commands_list, verbosity: str = DEFAULT_VERBOSITY):
+def install_commands_if_missing(
+    commands_list: List[Command], verbosity: str = DEFAULT_VERBOSITY
+) -> None:
     """
     Install commands if missing using `pip install`.
 
@@ -91,9 +94,7 @@ verbose_option = click.option(
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )
-def statue(
-    ctx: click.Context, config: str,
-):
+def statue(ctx: click.Context, config: str,) -> None:
     """Statue is a static code analysis tools orchestrator."""
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
@@ -110,7 +111,7 @@ def list_commands(
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
-):
+) -> None:
     """List matching commands to contexts, allow list and deny list."""
     commands = read_commands(
         statue_configuration[COMMANDS],
@@ -136,7 +137,7 @@ def install_commands(
     allow: Optional[List[str]],
     deny: Optional[List[str]],
     verbosity: str,
-):
+) -> None:
     """Install missing commands."""
     install_commands_if_missing(
         read_commands(
@@ -169,7 +170,7 @@ def run(
     deny: Optional[List[str]],
     install: bool,
     verbosity: str,
-):
+) -> None:
     """
     Run static code analysis commands on sources.
 
