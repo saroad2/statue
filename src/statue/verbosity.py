@@ -7,7 +7,7 @@ VERBOSITIES = [NORMAL, SILENT, VERBOSE]
 DEFAULT_VERBOSITY = NORMAL
 
 
-def is_silent(verbosity):
+def is_silent(verbosity: str) -> bool:
     """
     Validates if verbosity is silent.
 
@@ -17,7 +17,7 @@ def is_silent(verbosity):
     return verbosity == SILENT
 
 
-def is_verbose(verbosity):
+def is_verbose(verbosity: str) -> bool:
     """
     Validates if verbosity is verbose.
 

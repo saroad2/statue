@@ -1,7 +1,6 @@
 """Commands map allow us to know which commands to run on each source."""
 from pathlib import Path
-from typing import Optional, List, MutableMapping, Any, Dict, Union
-
+from typing import Optional, List, MutableMapping, Any, Dict, Union, Set
 
 from statue.command import Command
 from statue.commands_reader import read_commands
@@ -58,7 +57,9 @@ def get_commands_map(
     return commands_map
 
 
-def __combine_if_possible(list1, list2):
+def __combine_if_possible(
+    list1: Optional[List[str]], list2: Optional[List[str]]
+) -> Optional[List[str]]:
     if list1 is None and list2 is None:
         return None
     list1 = list(list1) if list1 else []
@@ -66,11 +67,13 @@ def __combine_if_possible(list1, list2):
     return list1 + list2
 
 
-def __intersect_if_possible(list1, list2):
+def __intersect_if_possible(
+    list1: Optional[List[str]], list2: Optional[List[str]]
+) -> Optional[List[str]]:
     if list1 is None:
         return list2
     if list2 is None:
         return list1
-    list1 = set(list1) if list1 else set()
-    list2 = set(list2) if list2 else set()
-    return list(list1.intersection(list2))
+    set1: Set[str] = set(list1) if list1 else set()
+    set2: Set[str] = set(list2) if list2 else set()
+    return list(set1.intersection(set2))

@@ -10,7 +10,7 @@ def read_commands(
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
-):
+) -> List[Command]:
     """
     Read commands from a settings file.
 
@@ -38,11 +38,11 @@ def read_commands(
 
 def __skip_command(
     commands_name: str,
-    setups: dict,
+    setups: MutableMapping[str, Any],
     contexts: Optional[List[str]],
     allow_list: Optional[List[str]],
     deny_list: Optional[List[str]],
-):
+) -> bool:
     if deny_list is not None and commands_name in deny_list:
         return True
     if (
@@ -59,13 +59,13 @@ def __skip_command(
     return False
 
 
-def __read_args(setups: dict, contexts: List[str]):
+def __read_args(setups: MutableMapping[str, Any], contexts: List[str]) -> List[str]:
     base_args = list(setups.get(ARGS, []))
     for command_context in contexts:
         context_obj = setups.get(command_context, None)
         if not isinstance(context_obj, dict):
             continue
-        args = context_obj.get(ARGS, None)
+        args: List[str] = context_obj.get(ARGS, None)
         if args is not None:
             return args
         add_args = context_obj.get(ADD_ARGS, None)
