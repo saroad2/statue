@@ -2,8 +2,11 @@
 # pylint: disable=missing-module-docstring
 import os
 import subprocess
+import sys
 from dataclasses import dataclass, field
 from typing import List
+
+import pkg_resources
 
 from statue.verbosity import DEFAULT_VERBOSITY, is_verbose, is_silent
 
@@ -21,6 +24,34 @@ class Command:
     name: str
     help: str
     args: List[str] = field(default_factory=list)
+
+    def installed(self):
+        """
+        Is this command installed.
+
+        :return: Boolean.
+        """
+        return self.name in {pkg.key for pkg in self.available_packages()}
+
+    @classmethod
+    def available_packages(cls):
+        """Get all available packages via pip."""
+        return list(pkg_resources.working_set)  # pragma: no cover
+
+    def install(self, verbosity: str = DEFAULT_VERBOSITY):
+        """
+        Install command using pip.
+
+        :param verbosity: String. Verbosity level.
+        """
+        if not is_silent(verbosity):
+            print(f"Installing {self.name}")
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", self.name],
+            env=os.environ,
+            check=False,
+            capture_output=is_silent(verbosity),
+        )
 
     def execute(  # pylint: disable=too-many-arguments
         self, source: str, verbosity: str = DEFAULT_VERBOSITY,

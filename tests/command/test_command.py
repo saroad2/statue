@@ -1,57 +1,69 @@
+import sys
+from argparse import Namespace
+
 from pytest_cases import parametrize_with_cases, THIS_MODULE
 
 from statue.command import Command
 from statue.verbosity import SILENT, VERBOSE
+from tests.conftest import (
+    ARG1,
+    ARG2,
+    COMMAND1,
+    COMMAND2,
+    COMMAND3,
+    HELP_STRING1,
+    HELP_STRING2,
+    HELP_STRING3,
+    SOURCE1,
+)
 
-INPUT_PATH = "input_path"
+COMMANDS = [COMMAND1, COMMAND2, COMMAND3]
+
+
+def packages(commands_list):
+    return [Namespace(key=command) for command in commands_list]
 
 
 def case_no_args():
-    name = "command1"
-    help_string = "help1"
-    inp = Command(name=name, help=help_string)
+    inp = Command(name=COMMAND1, help=HELP_STRING1)
     output = dict(
-        name=name,
-        help=help_string,
+        name=COMMAND1,
+        help=HELP_STRING1,
         args=[],
-        command_input=[name, INPUT_PATH],
-        print=f'Running the following command: "{name} {INPUT_PATH}"',
-        repr=f"Command(name='{name}', help='{help_string}', args=[])",
+        command_input=[COMMAND1, SOURCE1],
+        print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
+        repr=f"Command(name='{COMMAND1}', help='{HELP_STRING1}', args=[])",
     )
     return inp, output
 
 
 def case_one_arg():
-    name = "command2"
-    arg1 = "arg1"
-    help_string = "help2"
-    inp = Command(name=name, help=help_string, args=[arg1])
+    inp = Command(name=COMMAND2, help=HELP_STRING2, args=[ARG1])
     output = dict(
-        name=name,
-        help=help_string,
-        args=[arg1],
-        command_input=[name, INPUT_PATH, arg1],
-        print=f'Running the following command: "{name} {INPUT_PATH} {arg1}"',
-        repr=f"Command(name='{name}', help='{help_string}', args=['{arg1}'])",
+        name=COMMAND2,
+        help=HELP_STRING2,
+        args=[ARG1],
+        command_input=[COMMAND2, SOURCE1, ARG1],
+        print=f'Running the following command: "{COMMAND2} {SOURCE1} {ARG1}"',
+        repr=f"Command(name='{COMMAND2}', help='{HELP_STRING2}', args=['{ARG1}'])",
     )
     return inp, output
 
 
 def case_two_args():
-    name = "command3"
-    help_string = "help3"
-    arg1 = "arg1"
-    arg2 = "arg2"
-    inp = Command(name=name, help=help_string, args=[arg1, arg2])
+    inp = Command(name=COMMAND3, help=HELP_STRING3, args=[ARG1, ARG2])
     output = dict(
-        name=name,
-        help=help_string,
-        args=[arg1, arg2],
-        command_input=[name, INPUT_PATH, arg1, arg2],
+        name=COMMAND3,
+        help=HELP_STRING3,
+        args=[ARG1, ARG2],
+        command_input=[COMMAND3, SOURCE1, ARG1, ARG2],
         print=(
-            "Running the following command: " f'"{name} {INPUT_PATH} {arg1} {arg2}"'
+            "Running the following command: " f'"{COMMAND3} {SOURCE1} {ARG1} {ARG2}"'
         ),
-        repr=f"Command(name='{name}', help='{help_string}', args=['{arg1}', '{arg2}'])",
+        repr=(
+            f"Command(name='{COMMAND3}', help='{HELP_STRING3}',"
+            f" args=['{ARG1}', '{ARG2}'])"
+        ),
     )
     return inp, output
 
@@ -73,7 +85,7 @@ def test_args_are_set(command, out):
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute(command, out, subprocess_mock, environ):
-    command.execute(INPUT_PATH)
+    command.execute(SOURCE1)
     subprocess_mock.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=False
     )
@@ -81,7 +93,7 @@ def test_execute(command, out, subprocess_mock, environ):
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute_silently(command, out, subprocess_mock, environ):
-    command.execute(INPUT_PATH, verbosity=SILENT)
+    command.execute(SOURCE1, verbosity=SILENT)
     subprocess_mock.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=True
     )
@@ -89,7 +101,7 @@ def test_execute_silently(command, out, subprocess_mock, environ):
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute_verbosely(command, out, subprocess_mock, environ, print_mock):
-    command.execute(INPUT_PATH, verbosity=VERBOSE)
+    command.execute(SOURCE1, verbosity=VERBOSE)
     subprocess_mock.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=False
     )
@@ -99,6 +111,48 @@ def test_execute_verbosely(command, out, subprocess_mock, environ, print_mock):
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_representation_string(command, out):
     assert str(command) == out["repr"]
+
+
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_installed_returns_true(command, out, available_packages_mock):
+    available_packages_mock.return_value = packages(COMMANDS)
+    assert command.installed(), "Command where supposed to be installed, but it wasn't"
+
+
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_installed_returns_false(command, out, available_packages_mock):
+    commands = list(COMMANDS)
+    commands.remove(command.name)
+    available_packages_mock.return_value = packages(commands)
+    assert (
+        not command.installed()
+    ), "Command where supposed not to be installed, but it was"
+
+
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_install_command_with_normal_verbosity(
+    command, out, subprocess_mock, environ, print_mock
+):
+    command.install()
+    subprocess_mock.assert_called_with(
+        [sys.executable, "-m", "pip", "install", command.name],
+        env=environ,
+        check=False,
+        capture_output=False,
+    )
+    print_mock.assert_called_with(f"Installing {command.name}")
+
+
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_install_command_silently(command, out, subprocess_mock, environ, print_mock):
+    command.install(verbosity=SILENT)
+    subprocess_mock.assert_called_with(
+        [sys.executable, "-m", "pip", "install", command.name],
+        env=environ,
+        check=False,
+        capture_output=True,
+    )
+    print_mock.assert_not_called()
 
 
 def test_command_equals():

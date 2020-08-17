@@ -1,5 +1,6 @@
 """Main of Statue."""
 import sys
+from itertools import chain
 from pathlib import Path
 from typing import List, Optional, MutableMapping, Any, Union
 
@@ -25,6 +26,31 @@ def print_title(title: str, underline: str = "=") -> None:
     print(underline * len(title))
 
 
+def install_commands_if_missing(commands_list, verbosity: str = DEFAULT_VERBOSITY):
+    """
+    Install commands if missing using `pip install`.
+
+    :param commands_list: list of :class:`Command` items
+    :param verbosity: String. Verbosity level
+    """
+    uninstalled_commands = [
+        command for command in commands_list if not command.installed()
+    ]
+    if len(uninstalled_commands) == 0:
+        print("All commands are installed!")
+    else:
+        installed = []
+        print(
+            "The following commands are not installed: "
+            f"{', '.join([command.name for command in uninstalled_commands])}"
+        )
+        for command in uninstalled_commands:
+            if command.name in installed:
+                continue
+            command.install(verbosity)
+            installed.append(command.name)
+
+
 contexts_option = click.option(
     "-c",
     "--context",
@@ -38,6 +64,20 @@ allow_option = click.option(
 )
 deny_option = click.option(
     "-d", "--deny", type=str, default=None, multiple=True, help="Denied command."
+)
+verbosity_option = click.option(
+    "--verbosity",
+    type=click.Choice(VERBOSITIES, case_sensitive=False),
+    default=DEFAULT_VERBOSITY,
+    show_default=True,
+)
+
+silent_option = click.option(
+    "--silent", "verbosity", flag_value=SILENT, help=f'Set verbosity to "{SILENT}".'
+)
+
+verbose_option = click.option(
+    "--verbose", "verbosity", flag_value=VERBOSE, help=f'Set verbosity to "{VERBOSE}".'
 )
 
 
@@ -83,29 +123,51 @@ def list_commands(
 
 
 @statue.command()
+@click.pass_obj
+@contexts_option
+@allow_option
+@deny_option
+@verbosity_option
+@silent_option
+@verbose_option
+def install(
+    statue_configuration: MutableMapping[str, Any],
+    context: Optional[List[str]],
+    allow: Optional[List[str]],
+    deny: Optional[List[str]],
+    verbosity: str,
+):
+    """Install missing commands."""
+    install_commands_if_missing(
+        read_commands(
+            statue_configuration[COMMANDS],
+            contexts=context,
+            allow_list=allow,
+            deny_list=deny,
+        ),
+        verbosity=verbosity,
+    )
+
+
+@statue.command()
 @click.pass_context
 @click.argument("sources", nargs=-1)
 @contexts_option
 @allow_option
 @deny_option
 @click.option(
-    "--verbosity",
-    type=click.Choice(VERBOSITIES, case_sensitive=False),
-    default=DEFAULT_VERBOSITY,
-    show_default=True,
+    "-i", "--install", is_flag=True, help="Install commands before running if missing",
 )
-@click.option(
-    "--silent", "verbosity", flag_value=SILENT, help=f'Set verbosity to "{SILENT}".'
-)
-@click.option(
-    "--verbose", "verbosity", flag_value=VERBOSE, help=f'Set verbosity to "{VERBOSE}".'
-)
+@verbosity_option
+@silent_option
+@verbose_option
 def run(
     ctx: click.Context,
     sources: List[Union[Path, str]],
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
+    install: bool,
     verbosity: str,
 ):
     """
@@ -127,6 +189,10 @@ def run(
         click.echo(ctx.get_help())
         return
 
+    if install:
+        install_commands_if_missing(
+            list(chain.from_iterable(commands_map.values())), verbosity=verbosity
+        )
     failed_paths = dict()
     print_title("Evaluation")
     for input_path, commands in commands_map.items():
