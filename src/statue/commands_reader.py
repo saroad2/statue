@@ -39,15 +39,19 @@ def read_commands(
 def __skip_command(
     commands_name: str,
     setups: dict,
-    contexts: List[str],
+    contexts: Optional[List[str]],
     allow_list: Optional[List[str]],
     deny_list: Optional[List[str]],
 ):
     if deny_list is not None and commands_name in deny_list:
         return True
-    if allow_list is not None and commands_name not in allow_list:
+    if (
+        allow_list is not None
+        and len(allow_list) != 0  # noqa: W503
+        and commands_name not in allow_list  # noqa: W503
+    ):
         return True
-    if len(contexts) == 0:
+    if contexts is None or len(contexts) == 0:
         return not setups.get(STANDARD, True)
     for command_context in contexts:
         if not setups.get(command_context, False):

@@ -154,7 +154,23 @@ def test_read_settings_with_overrides_with_add_args_context(
     ]
 
 
-def test_read_commands_with_allow_list(full_commands_settings_with_boolean_contexts):
+def test_read_commands_with_empty_allow_list(
+    full_commands_settings_with_boolean_contexts,
+):
+    commands = read_commands(
+        full_commands_settings_with_boolean_contexts, allow_list=[]
+    )
+    assert commands == [
+        Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
+        Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
+        Command(name=COMMAND3, help=HELP_STRING3),
+        Command(name=COMMAND4, help=HELP_STRING4, args=[ARG4, ARG5]),
+    ]
+
+
+def test_read_commands_with_non_empty_allow_list(
+    full_commands_settings_with_boolean_contexts,
+):
     commands = read_commands(
         full_commands_settings_with_boolean_contexts, allow_list=[COMMAND1, COMMAND3]
     )
