@@ -41,7 +41,7 @@ def get_commands_map(
         return dict.fromkeys([str(source) for source in sources], commands)
     commands_map = dict()
     for source, instructions in statue_configuration.get(SOURCES, {}).items():
-        commands_map[str(source)] = read_commands(
+        commands = read_commands(
             commands_configuration,
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(
@@ -51,6 +51,8 @@ def get_commands_map(
                 deny_list, instructions.get(DENY_LIST, None)
             ),
         )
+        if len(commands) != 0:
+            commands_map[str(source)] = commands
     if len(commands_map) == 0:
         return None
     return commands_map
@@ -59,8 +61,8 @@ def get_commands_map(
 def __combine_if_possible(list1, list2):
     if list1 is None and list2 is None:
         return None
-    list1 = list1 if list1 else []
-    list2 = list2 if list2 else []
+    list1 = list(list1) if list1 else []
+    list2 = list(list2) if list2 else []
     return list1 + list2
 
 

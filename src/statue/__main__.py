@@ -1,120 +1,143 @@
 """Main of Statue."""
 import sys
-from argparse import ArgumentParser
 from pathlib import Path
+from typing import List, Optional, MutableMapping, Any, Union
 
+import click
 
 from statue import __version__
 from statue.commands_map import get_commands_map
 from statue.configuration import get_configuration
-from statue.constants import DEFAULT_COMMANDS_FILE, DESCRIPTION
+from statue.constants import COMMANDS
 from statue.commands_reader import read_commands
-from statue.validations import validate
 
-parser = ArgumentParser(description=DESCRIPTION)
-parser.add_argument(
-    "--version", action="version", version=__version__, help="Show version"
-)
-parser.add_argument("input", nargs="*", type=Path, help="Input path to analyze")
-parser.add_argument(
-    "--silent", action="store_true", default=False, help="Runs silently"
-)
-parser.add_argument(
-    "--verbose", action="store_true", default=False, help="Runs verbosely"
-)
-parser.add_argument(
-    "-c", "--contexts", nargs="*", help="List of contexts for commands",
-)
-parser.add_argument(
-    "-a", "--allow_list", nargs="+", type=str, help="Specify which commands to run"
-)
-parser.add_argument(
-    "-d",
-    "--deny-list",
-    nargs="+",
-    type=str,
-    help="specify which commands to avoid running",
-)
-parser.add_argument(
-    "-l",
-    "--commands-list",
-    action="store_true",
-    default=False,
-    help="Print list of supported commands",
-)
-parser.add_argument(
-    "--commands-file",
-    type=Path,
-    default=DEFAULT_COMMANDS_FILE,
-    help="Setting file to read the commands from.",
-)
-parser.add_argument(
-    "--config-file", type=Path, default=None, help="Statue configuration file.",
-)
-
-
-def print_commands(commands) -> None:
-    """Print all supported commands."""
-    for command in commands:
-        print(command.name, "-", command.help)
+from statue.verbosity import VERBOSITIES, DEFAULT_VERBOSITY, SILENT, VERBOSE, is_silent
 
 
 def print_title(title: str, underline: str = "=") -> None:
     """
     Print a title with a title line under it.
 
+    :param underline: Character to use as underline to the title
     :param title: The title to print
     """
     print(title.title())
     print(underline * len(title))
 
 
-def main() -> None:
-    """A main function of Statue."""
-    args = parser.parse_args()
-    validate(args)
-    commands_configuration_file = args.commands_file
-    statue_configuration_file = args.config_file
-    if statue_configuration_file is None:
-        statue_configuration_file = Path.cwd() / "statue.toml"
-    statue_configuration = get_configuration(
-        statue_configuration_file, commands_configuration_file
+contexts_option = click.option(
+    "-c",
+    "--context",
+    type=str,
+    default=None,
+    multiple=True,
+    help="Context in which to evaluate the commands.",
+)
+allow_option = click.option(
+    "-a", "--allow", type=str, default=None, multiple=True, help="Allowed command."
+)
+deny_option = click.option(
+    "-d", "--deny", type=str, default=None, multiple=True, help="Denied command."
+)
+
+
+@click.group(invoke_without_command=True)
+@click.pass_context
+@click.version_option(version=__version__)
+@click.option(
+    "--config",
+    envvar="STATUE_CONFIG",
+    default=lambda: Path.cwd() / "statue.toml",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Statue configuration file.",
+)
+def statue(
+    ctx: click.Context, config: str,
+):
+    """Statue is a static code analysis tools orchestrator."""
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+    ctx.obj = get_configuration(Path(config))
+
+
+@statue.command("list")
+@click.pass_obj
+@contexts_option
+@allow_option
+@deny_option
+def list_commands(
+    statue_configuration: MutableMapping[str, Any],
+    context: Optional[List[str]],
+    allow: Optional[List[str]],
+    deny: Optional[List[str]],
+):
+    """List matching commands to contexts, allow list and deny list."""
+    commands = read_commands(
+        statue_configuration[COMMANDS],
+        contexts=context,
+        allow_list=allow,
+        deny_list=deny,
     )
-    contexts, allow_list, deny_list = args.contexts, args.allow_list, args.deny_list
-    if args.commands_list:
-        commands = read_commands(
-            statue_configuration["commands"],
-            contexts=contexts,
-            allow_list=allow_list,
-            deny_list=deny_list,
-        )
-        print_commands(commands)
-        return
+    for command in commands:
+        print(command.name, "-", command.help)
+
+
+@statue.command()
+@click.pass_context
+@click.argument("sources", nargs=-1)
+@contexts_option
+@allow_option
+@deny_option
+@click.option(
+    "--verbosity",
+    type=click.Choice(VERBOSITIES, case_sensitive=False),
+    default=DEFAULT_VERBOSITY,
+    show_default=True,
+)
+@click.option(
+    "--silent", "verbosity", flag_value=SILENT, help=f'Set verbosity to "{SILENT}".'
+)
+@click.option(
+    "--verbose", "verbosity", flag_value=VERBOSE, help=f'Set verbosity to "{VERBOSE}".'
+)
+def run(
+    ctx: click.Context,
+    sources: List[Union[Path, str]],
+    context: Optional[List[str]],
+    allow: Optional[List[str]],
+    deny: Optional[List[str]],
+    verbosity: str,
+):
+    """
+    Run static code analysis commands on sources.
+
+    Source files to run Statue on can be presented as positional arguments.
+    When no source files are presented, will use configuration file to determine on
+    which files to run
+    """
+    statue_configuration = ctx.obj
     commands_map = get_commands_map(
-        args.input,
+        sources,
         statue_configuration,
-        contexts=contexts,
-        allow_list=allow_list,
-        deny_list=deny_list,
+        contexts=context,
+        allow_list=allow,
+        deny_list=deny,
     )
     if commands_map is None:
-        parser.print_help()
+        click.echo(ctx.get_help())
         return
 
-    silent = args.silent
     failed_paths = dict()
     print_title("Evaluation")
     for input_path, commands in commands_map.items():
-        if not silent:
+        if not is_silent(verbosity):
             print()
             print(f"Evaluating {input_path}")
         failed_commands = []
         for command in commands:
-            if not silent:
+            if not is_silent(verbosity):
                 print_title(command.name, underline="-")
-            return_code = command.execute(
-                input_path, is_silent=silent, is_verbose=args.verbose
-            )
+            return_code = command.execute(input_path, verbosity)
             if return_code != 0:
                 failed_commands.append(command.name)
         if len(failed_commands) != 0:
@@ -133,4 +156,4 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    statue()

@@ -1,6 +1,7 @@
 from pytest_cases import parametrize_with_cases, THIS_MODULE
 
 from statue.command import Command
+from statue.verbosity import SILENT, VERBOSE
 
 INPUT_PATH = "input_path"
 
@@ -80,7 +81,7 @@ def test_execute(command, out, subprocess_mock, environ):
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute_silently(command, out, subprocess_mock, environ):
-    command.execute(INPUT_PATH, is_silent=True)
+    command.execute(INPUT_PATH, verbosity=SILENT)
     subprocess_mock.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=True
     )
@@ -88,7 +89,7 @@ def test_execute_silently(command, out, subprocess_mock, environ):
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_execute_verbosely(command, out, subprocess_mock, environ, print_mock):
-    command.execute(INPUT_PATH, is_verbose=True)
+    command.execute(INPUT_PATH, verbosity=VERBOSE)
     subprocess_mock.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=False
     )

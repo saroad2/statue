@@ -3,11 +3,12 @@ from pathlib import Path
 
 import toml
 
-from statue.constants import COMMANDS
+from statue.constants import COMMANDS, DEFAULT_COMMANDS_FILE
 
 
 def get_configuration(
-    statue_configuration_path: Path, commands_configuration_path: Path
+    statue_configuration_path: Path,
+    commands_configuration_path: Path = DEFAULT_COMMANDS_FILE,
 ):
     """
     Get statue configuration.
