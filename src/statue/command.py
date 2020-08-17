@@ -1,7 +1,7 @@
 # noqa: D100
 # pylint: disable=missing-module-docstring
 import os
-import subprocess
+import subprocess  # nosec
 import sys
 from dataclasses import dataclass, field
 from typing import List
@@ -46,7 +46,7 @@ class Command:
         """
         if not is_silent(verbosity):
             print(f"Installing {self.name}")
-        subprocess.run(
+        subprocess.run(  # nosec
             [sys.executable, "-m", "pip", "install", self.name],
             env=os.environ,
             check=False,
@@ -66,6 +66,6 @@ class Command:
         args = [self.name, source, *self.args]
         if is_verbose(verbosity):
             print(f"Running the following command: \"{' '.join(args)}\"")
-        return subprocess.run(
+        return subprocess.run(  # nosec
             args, env=os.environ, check=False, capture_output=is_silent(verbosity),
         ).returncode
