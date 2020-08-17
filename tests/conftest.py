@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
