@@ -81,6 +81,13 @@ add_args = [
     "--disable=R0801,R0902,R0903,R0904,R0913",
     "--disable=W0201,W0613,W0621"]
 
+[bandit]
+args = ["-r"]
+help = "Python security checks tool."
+
+[bandit.test]
+add_args = ["--skip=B101"]
+
 [pydocstyle]
 args = ["--ignore=D203,D212,D400,D401"]
 help = "Tool for python docstring style enforcing"
