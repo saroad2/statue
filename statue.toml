@@ -1,4 +1,4 @@
-[src]
+[sources.src]
 
-[tests]
+[sources.tests]
 contexts = ["test"]
