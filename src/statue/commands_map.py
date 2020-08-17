@@ -6,6 +6,7 @@ import toml
 
 from statue.command import Command
 from statue.commands_reader import read_commands
+from statue.constants import CONTEXTS, ALLOW_LIST, DENY_LIST
 
 
 def get_commands_map(
@@ -45,14 +46,12 @@ def get_commands_map(
     for source, instructions in statue_configuration.items():
         commands_map[str(source)] = read_commands(
             commands_configuration,
-            contexts=__combine_if_possible(
-                contexts, instructions.get("contexts", None)
-            ),
+            contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(
-                allow_list, instructions.get("allow_list", None)
+                allow_list, instructions.get(ALLOW_LIST, None)
             ),
             deny_list=__combine_if_possible(
-                deny_list, instructions.get("deny_list", None)
+                deny_list, instructions.get(DENY_LIST, None)
             ),
         )
     if len(commands_map) == 0:
