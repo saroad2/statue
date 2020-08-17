@@ -60,7 +60,7 @@ def __skip_command(
 
 
 def __read_args(setups: dict, contexts: List[str]):
-    base_args = setups.get(ARGS, [])
+    base_args = list(setups.get(ARGS, []))
     for command_context in contexts:
         context_obj = setups.get(command_context, None)
         if not isinstance(context_obj, dict):
