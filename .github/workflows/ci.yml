@@ -49,4 +49,4 @@ jobs:
         pip install -e .
     - name: Run self on source
       run: |
-        statue
+        statue run
