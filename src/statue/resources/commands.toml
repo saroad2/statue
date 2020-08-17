@@ -85,6 +85,9 @@ add_args = [
 args = ["-r"]
 help = "Python security checks tool."
 
+[bandit.test]
+add_args = ["--skip=B101"]
+
 [pydocstyle]
 args = ["--ignore=D203,D212,D400,D401"]
 help = "Tool for python docstring style enforcing"
