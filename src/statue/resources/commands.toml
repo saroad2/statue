@@ -34,6 +34,7 @@ args = [
 help = "Tool for sorting and cleaning python imports."
 fast = true
 test = true
+strict = true
 
 [isort.format]
 args = [
