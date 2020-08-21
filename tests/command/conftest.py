@@ -1,6 +1,6 @@
-import pytest
 import os
 
+import pytest
 
 from statue.command import Command
 

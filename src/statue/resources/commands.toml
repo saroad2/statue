@@ -26,42 +26,20 @@ help = "Remove unused imports and variables"
 format = true
 standard = false
 
-# The isort problem
-# =================
-#
-# Unfortunaly, "isort" is very effected by the environments it is running on in versions
-# less than 5.0.
-# This is causing a lot of problems when running isort using tox or in a virtual machine
-# during CI/CD process.
-#
-# At the moment, "pylint" stricktly requries isort to be with version less than 5.0,
-# which prevents us from using "isort".
-#
-# Once "pylint" will remove this requirement, we will return using isort.
-#
-#[isort]
-#args = [
-#    "--recursive",
-#    "--multi-line=3",
-#    "--trailing-comma",
-#    "--force-grid-wrap=0",
-#    "--use-parentheses",
-#    "--lines=88",
-#    "--check-only"
-#]
-#help = "Tool for sorting and cleaning python imports."
-#fast = true
-#test = true
-#
-#[isort.format]
-#args = [
-#    "--recursive",
-#    "--multi-line=3",
-#    "--trailing-comma",
-#    "--force-grid-wrap=0",
-#    "--use-parentheses",
-#    "--lines=88"
-#]
+[isort]
+args = [
+    "--profile=black",
+    "--check-only"
+]
+help = "Tool for sorting and cleaning python imports."
+fast = true
+test = true
+strict = true
+
+[isort.format]
+args = [
+    "--profile=black"
+]
 
 [mypy]
 args = ["--ignore-missing-imports"]

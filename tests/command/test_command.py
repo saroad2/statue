@@ -1,7 +1,7 @@
 import sys
 from argparse import Namespace
 
-from pytest_cases import parametrize_with_cases, THIS_MODULE
+from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import Command
 from statue.verbosity import SILENT, VERBOSE

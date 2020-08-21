@@ -2,18 +2,17 @@
 import sys
 from itertools import chain
 from pathlib import Path
-from typing import List, Optional, MutableMapping, Any, Union
+from typing import Any, List, MutableMapping, Optional, Union
 
 import click
 
 from statue import __version__
 from statue.command import Command
 from statue.commands_map import get_commands_map
+from statue.commands_reader import read_commands
 from statue.configuration import get_configuration
 from statue.constants import COMMANDS
-from statue.commands_reader import read_commands
-
-from statue.verbosity import VERBOSITIES, DEFAULT_VERBOSITY, SILENT, VERBOSE, is_silent
+from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES, is_silent
 
 
 def print_title(title: str, underline: str = "=") -> None:

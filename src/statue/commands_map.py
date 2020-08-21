@@ -1,10 +1,10 @@
 """Commands map allow us to know which commands to run on each source."""
 from pathlib import Path
-from typing import Optional, List, MutableMapping, Any, Dict, Union, Set
+from typing import Any, Dict, List, MutableMapping, Optional, Set, Union
 
 from statue.command import Command
 from statue.commands_reader import read_commands
-from statue.constants import COMMANDS, SOURCES, CONTEXTS, ALLOW_LIST, DENY_LIST
+from statue.constants import ALLOW_LIST, COMMANDS, CONTEXTS, DENY_LIST, SOURCES
 
 
 def get_commands_map(

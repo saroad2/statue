@@ -1,8 +1,8 @@
 """Reader method for settings."""
-from typing import List, Optional, Any, MutableMapping
+from typing import Any, List, MutableMapping, Optional
 
 from statue.command import Command
-from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
+from statue.constants import ADD_ARGS, ARGS, CLEAR_ARGS, HELP, STANDARD
 
 
 def read_commands(
