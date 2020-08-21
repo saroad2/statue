@@ -1,6 +1,6 @@
 """Get Statue global configuration."""
 from pathlib import Path
-from typing import Optional, Any, MutableMapping
+from typing import Any, MutableMapping, Optional
 
 import toml
 

@@ -8,7 +8,7 @@ from typing import List
 
 import pkg_resources
 
-from statue.verbosity import DEFAULT_VERBOSITY, is_verbose, is_silent
+from statue.verbosity import DEFAULT_VERBOSITY, is_silent, is_verbose
 
 
 @dataclass

@@ -1,6 +1,6 @@
 import pytest
-from statue.constants import HELP, ARGS, STANDARD, CLEAR_ARGS, ADD_ARGS
 
+from statue.constants import ADD_ARGS, ARGS, CLEAR_ARGS, HELP, STANDARD
 
 SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5 = (
     "source1",
