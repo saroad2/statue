@@ -4,7 +4,7 @@ from typing import Any, MutableMapping, Optional
 
 import toml
 
-from statue.constants import COMMANDS, DEFAULT_CONFIGURATION_FILE
+from statue.constants import COMMANDS, DEFAULT_CONFIGURATION_FILE, CONTEXTS
 
 
 def get_configuration(
@@ -30,4 +30,5 @@ def get_configuration(
     if default_configuration_path.exists():
         default_configuration = toml.load(default_configuration_path)
     statue_config[COMMANDS] = default_configuration.get(COMMANDS, {})
+    statue_config[CONTEXTS] = default_configuration.get(CONTEXTS, {})
     return statue_config

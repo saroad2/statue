@@ -11,9 +11,9 @@ from tests.conftest import (
     COMMAND1,
     COMMAND2,
     COMMAND3,
-    HELP_STRING1,
-    HELP_STRING2,
-    HELP_STRING3,
+    COMMAND_HELP_STRING1,
+    COMMAND_HELP_STRING2,
+    COMMAND_HELP_STRING3,
     SOURCE1,
 )
 
@@ -25,43 +25,43 @@ def packages(commands_list):
 
 
 def case_no_args():
-    inp = Command(name=COMMAND1, help=HELP_STRING1)
+    inp = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
     output = dict(
         name=COMMAND1,
-        help=HELP_STRING1,
+        help=COMMAND_HELP_STRING1,
         args=[],
         command_input=[COMMAND1, SOURCE1],
         print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
-        repr=f"Command(name='{COMMAND1}', help='{HELP_STRING1}', args=[])",
+        repr=f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', args=[])",
     )
     return inp, output
 
 
 def case_one_arg():
-    inp = Command(name=COMMAND2, help=HELP_STRING2, args=[ARG1])
+    inp = Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1])
     output = dict(
         name=COMMAND2,
-        help=HELP_STRING2,
+        help=COMMAND_HELP_STRING2,
         args=[ARG1],
         command_input=[COMMAND2, SOURCE1, ARG1],
         print=f'Running the following command: "{COMMAND2} {SOURCE1} {ARG1}"',
-        repr=f"Command(name='{COMMAND2}', help='{HELP_STRING2}', args=['{ARG1}'])",
+        repr=f"Command(name='{COMMAND2}', help='{COMMAND_HELP_STRING2}', args=['{ARG1}'])",
     )
     return inp, output
 
 
 def case_two_args():
-    inp = Command(name=COMMAND3, help=HELP_STRING3, args=[ARG1, ARG2])
+    inp = Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[ARG1, ARG2])
     output = dict(
         name=COMMAND3,
-        help=HELP_STRING3,
+        help=COMMAND_HELP_STRING3,
         args=[ARG1, ARG2],
         command_input=[COMMAND3, SOURCE1, ARG1, ARG2],
         print=(
             "Running the following command: " f'"{COMMAND3} {SOURCE1} {ARG1} {ARG2}"'
         ),
         repr=(
-            f"Command(name='{COMMAND3}', help='{HELP_STRING3}',"
+            f"Command(name='{COMMAND3}', help='{COMMAND_HELP_STRING3}',"
             f" args=['{ARG1}', '{ARG2}'])"
         ),
     )

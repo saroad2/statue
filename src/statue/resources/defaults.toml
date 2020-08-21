@@ -1,3 +1,15 @@
+[contexts.fast]
+help = "Run short-time commands. Good for smoke tests"
+
+[contexts.strict]
+help = "Strict checks, for ones who never compromise!"
+
+[contexts.test]
+help = "Checks for test files."
+
+[contexts.format]
+help = "Reformating commands, with in-file replacements."
+
 [commands.black]
 args = ["--check"]
 help = "Code formatter for python."

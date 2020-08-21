@@ -11,7 +11,7 @@ from statue.command import Command
 from statue.commands_map import get_commands_map
 from statue.commands_reader import read_commands
 from statue.configuration import get_configuration
-from statue.constants import COMMANDS
+from statue.constants import COMMANDS, CONTEXTS, HELP
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES, is_silent
 
 
@@ -147,6 +147,13 @@ def install_commands(
         ),
         verbosity=verbosity,
     )
+
+
+@statue.command()
+@click.pass_obj
+def contexts(statue_configuration: MutableMapping[str, Any]):
+    for context_name, context in statue_configuration[CONTEXTS].items():
+        click.echo(f"{context_name} - {context[HELP]}")
 
 
 @statue.command()
