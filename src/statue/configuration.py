@@ -4,7 +4,7 @@ from typing import Any, MutableMapping, Optional
 
 import toml
 
-from statue.constants import COMMANDS, DEFAULT_CONFIGURATION_FILE, CONTEXTS
+from statue.constants import COMMANDS, CONTEXTS, DEFAULT_CONFIGURATION_FILE
 
 
 def get_configuration(

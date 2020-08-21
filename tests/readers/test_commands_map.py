@@ -11,11 +11,11 @@ from tests.conftest import (
     COMMAND2,
     COMMAND3,
     COMMAND4,
-    CONTEXT2,
     COMMAND_HELP_STRING1,
     COMMAND_HELP_STRING2,
     COMMAND_HELP_STRING3,
     COMMAND_HELP_STRING4,
+    CONTEXT2,
     SOURCE1,
     SOURCE2,
     SOURCE3,
@@ -110,7 +110,7 @@ def test_get_commands_map_with_existing_config_file(
         [
             Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
             Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5], ),
+            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
         ],
     )
     assert_commands(
@@ -120,7 +120,7 @@ def test_get_commands_map_with_existing_config_file(
             Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
             Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
             Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5], ),
+            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
         ],
     )
 

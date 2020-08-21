@@ -45,7 +45,10 @@ def case_one_arg():
         args=[ARG1],
         command_input=[COMMAND2, SOURCE1, ARG1],
         print=f'Running the following command: "{COMMAND2} {SOURCE1} {ARG1}"',
-        repr=f"Command(name='{COMMAND2}', help='{COMMAND_HELP_STRING2}', args=['{ARG1}'])",
+        repr=(
+            f"Command(name='{COMMAND2}', help='{COMMAND_HELP_STRING2}', "
+            f"args=['{ARG1}'])"
+        ),
     )
     return inp, output
 
