@@ -28,13 +28,14 @@ def empty_settings():
 @pytest.fixture
 def non_empty_sources_config():
     return dict(
+        commands={},
         sources={
             SOURCE1: {},
             SOURCE2: dict(contexts=[CONTEXT1]),
             SOURCE3: dict(contexts=[CONTEXT2]),
             SOURCE4: dict(allow_list=[COMMAND1, COMMAND3, COMMAND4]),
             SOURCE5: dict(deny_list=[COMMAND5]),
-        }
+        },
     )
 
 

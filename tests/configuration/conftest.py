@@ -1,6 +1,8 @@
 import pytest
 import toml
 
+from statue.constants import COMMANDS
+
 
 @pytest.fixture
 def non_existing_statue_configuration(tmpdir):
@@ -17,14 +19,14 @@ def existing_statue_configuration(
 
 
 @pytest.fixture
-def non_existing_commands_configuration(tmpdir):
-    return tmpdir / "commands.toml"
+def non_existing_default_configuration(tmpdir):
+    return tmpdir / "defaults.toml"
 
 
 @pytest.fixture
-def existing_commands_configuration(
-    non_existing_commands_configuration, full_commands_settings_with_boolean_contexts
+def existing_default_configuration(
+    non_existing_default_configuration, full_commands_settings_with_boolean_contexts
 ):
-    with open(non_existing_commands_configuration, mode="w") as f:
-        toml.dump(full_commands_settings_with_boolean_contexts, f)
-    return non_existing_commands_configuration
+    with open(non_existing_default_configuration, mode="w") as f:
+        toml.dump({COMMANDS: full_commands_settings_with_boolean_contexts}, f)
+    return non_existing_default_configuration

@@ -14,8 +14,7 @@ def read_commands(
     """
     Read commands from a settings file.
 
-    :param commands_configuration: Dictionary. commands configuration read from
-     commands.toml
+    :param commands_configuration: Dictionary. Commands configuration.
     :param contexts: List of str. a list of contexts to choose commands from.
     :param allow_list: List of allowed commands. If None, take all commands
     :param deny_list: List of denied commands. If None, take all commands

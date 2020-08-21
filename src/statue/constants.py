@@ -1,7 +1,7 @@
 """Constants module."""
 from pathlib import Path
 
-DEFAULT_COMMANDS_FILE = Path(__file__).parent / "resources" / "commands.toml"
+DEFAULT_CONFIGURATION_FILE = Path(__file__).parent / "resources" / "defaults.toml"
 
 HELP = "help"
 ARGS = "args"
