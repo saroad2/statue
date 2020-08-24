@@ -11,11 +11,11 @@ from tests.conftest import (
     COMMAND2,
     COMMAND3,
     COMMAND4,
+    COMMAND_HELP_STRING1,
+    COMMAND_HELP_STRING2,
+    COMMAND_HELP_STRING3,
+    COMMAND_HELP_STRING4,
     CONTEXT2,
-    HELP_STRING1,
-    HELP_STRING2,
-    HELP_STRING3,
-    HELP_STRING4,
     SOURCE1,
     SOURCE2,
     SOURCE3,
@@ -49,7 +49,7 @@ def test_get_commands_map_on_none_empty_source_list(one_command_with_args_settin
     assert_commands(
         commands_map,
         SOURCE1,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
 
 
@@ -85,42 +85,42 @@ def test_get_commands_map_with_existing_config_file(
         commands_map,
         SOURCE1,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=HELP_STRING4, args=[ARG4, ARG5]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
+            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE2,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
     assert_commands(
         commands_map,
         SOURCE3,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE4,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=HELP_STRING4, args=[ARG4, ARG5],),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
+            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE5,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=HELP_STRING4, args=[ARG4, ARG5],),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
+            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
         ],
     )
 
@@ -140,34 +140,34 @@ def test_get_commands_map_with_global_context(
         commands_map,
         SOURCE1,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE2,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
     assert_commands(
         commands_map,
         SOURCE3,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE4,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
     assert_commands(
         commands_map,
         SOURCE5,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
         ],
     )
 
@@ -187,26 +187,26 @@ def test_get_commands_map_with_global_allow_list(
         commands_map,
         SOURCE1,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE2,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
     assert_commands(
         commands_map,
         SOURCE3,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
     assert_commands(
         commands_map,
         SOURCE5,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
         ],
     )
 
@@ -226,30 +226,30 @@ def test_get_commands_map_with_global_deny_list(
         commands_map,
         SOURCE1,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE2,
-        [Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2])],
+        [Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])],
     )
     assert_commands(
         commands_map,
         SOURCE3,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
         ],
     )
     assert_commands(
         commands_map,
         SOURCE5,
         [
-            Command(name=COMMAND1, help=HELP_STRING1, args=[ARG1, ARG2]),
-            Command(name=COMMAND2, help=HELP_STRING2, args=[ARG3]),
-            Command(name=COMMAND3, help=HELP_STRING3, args=[]),
+            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
+            Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
         ],
     )
