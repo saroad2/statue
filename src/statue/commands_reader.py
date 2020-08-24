@@ -62,7 +62,9 @@ def read_command(
     command_setups = commands_configuration.get(command_name, None)
     if command_setups is None:
         raise UnknownCommand(command_name)
-    if __skip_command(command_name, command_setups, contexts, allow_list, deny_list):
+    if is_command_matching(
+        command_name, command_setups, contexts, allow_list, deny_list
+    ):
         raise InvalidCommand(
             command_name=command_name,
             contexts=contexts,
@@ -76,7 +78,7 @@ def read_command(
     )
 
 
-def __skip_command(
+def is_command_matching(
     commands_name: str,
     setups: MutableMapping[str, Any],
     contexts: Optional[List[str]],
