@@ -56,7 +56,6 @@ args = [
 [commands.mypy]
 args = ["--ignore-missing-imports"]
 help = "Validate types using mypy."
-fast = true
 test = true
 
 [commands.mypy.strict]
