@@ -97,6 +97,6 @@ def show_command(
         click.echo(f"Name - {command_instance.name}")
         click.echo(f"Description - {command_instance.help}")
         click.echo(f"Arguments - {command_instance.args}")
-    except (UnknownCommand, InvalidCommand) as e:
-        click.echo(str(e))
+    except (UnknownCommand, InvalidCommand) as error:
+        click.echo(str(error))
         ctx.exit(1)

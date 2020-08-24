@@ -79,18 +79,28 @@ def read_command(
 
 
 def is_command_matching(
-    commands_name: str,
+    command_name: str,
     setups: MutableMapping[str, Any],
     contexts: Optional[List[str]],
     allow_list: Optional[List[str]],
     deny_list: Optional[List[str]],
 ) -> bool:
-    if deny_list is not None and commands_name in deny_list:
+    """
+    Check whether a command fits the restrictions or not.
+
+    :param command_name: the name of the command to read.
+    :param setups: Dictionary. The command's configuration.
+    :param contexts: List of str. a list of contexts.
+    :param allow_list: List of allowed commands.
+    :param deny_list: List of denied commands.
+    :return: Boolean. Does the command fit the restrictions
+    """
+    if deny_list is not None and command_name in deny_list:
         return True
     if (
         allow_list is not None
         and len(allow_list) != 0  # noqa: W503
-        and commands_name not in allow_list  # noqa: W503
+        and command_name not in allow_list  # noqa: W503
     ):
         return True
     if contexts is None or len(contexts) == 0:
