@@ -24,7 +24,7 @@ from tests.conftest import (
 )
 
 
-def test_read_empty_settings(empty_settings):
+def test_read_commands_with_empty_settings(empty_settings):
     commands = read_commands(empty_settings)
     assert commands == []
 
@@ -103,69 +103,52 @@ def test_read_commands_with_non_standard_command(
     ]
 
 
-def test_read_commands_with_overrides_without_contexts(
-    full_commands_settings_with_override_contexts,
-):
-    commands = read_commands(full_commands_settings_with_override_contexts)
+def test_read_commands_with_overrides_without_contexts(full_commands_settings,):
+    commands = read_commands(full_commands_settings)
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
     ]
 
 
-def test_read_commands_with_overrides_with_context(
-    full_commands_settings_with_override_contexts,
-):
-    commands = read_commands(
-        full_commands_settings_with_override_contexts, contexts=[CONTEXT1]
-    )
+def test_read_commands_with_overrides_with_context(full_commands_settings,):
+    commands = read_commands(full_commands_settings, contexts=[CONTEXT1])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG3]),
     ]
 
 
-def test_read_commands_with_overrides_with_another_context(
-    full_commands_settings_with_override_contexts,
-):
-    commands = read_commands(
-        full_commands_settings_with_override_contexts, contexts=[CONTEXT2]
-    )
+def test_read_commands_with_overrides_with_another_context(full_commands_settings,):
+    commands = read_commands(full_commands_settings, contexts=[CONTEXT2])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG4, ARG5]),
+        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3, ARG5],),
     ]
 
 
-def test_read_commands_with_overrides_with_clear_args_context(
-    full_commands_settings_with_override_contexts,
-):
-    commands = read_commands(
-        full_commands_settings_with_override_contexts, contexts=[CONTEXT3]
-    )
+def test_read_commands_with_overrides_with_clear_args_context(full_commands_settings,):
+    commands = read_commands(full_commands_settings, contexts=[CONTEXT3])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
     ]
 
 
-def test_read_commands_with_overrides_with_add_args_context(
-    full_commands_settings_with_override_contexts,
-):
-    commands = read_commands(
-        full_commands_settings_with_override_contexts, contexts=[CONTEXT4]
-    )
+def test_read_commands_with_overrides_with_add_args_context(full_commands_settings,):
+    commands = read_commands(full_commands_settings, contexts=[CONTEXT4])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2, ARG5]),
+        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[]),
     ]
 
 
 def test_read_commands_twice_with_overrides_with_add_args_context(
-    full_commands_settings_with_override_contexts,
+    full_commands_settings,
 ):
-    commands1 = read_commands(
-        full_commands_settings_with_override_contexts, contexts=[CONTEXT4]
-    )
+    commands1 = read_commands(full_commands_settings, contexts=[CONTEXT4])
     assert commands1 == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2, ARG5]),
+        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[]),
     ]
-    commands2 = read_commands(full_commands_settings_with_override_contexts)
+    commands2 = read_commands(full_commands_settings)
     assert commands2 == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
     ]

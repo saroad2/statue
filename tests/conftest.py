@@ -75,7 +75,7 @@ def full_commands_settings_with_boolean_contexts():
 
 
 @pytest.fixture
-def full_commands_settings_with_override_contexts():
+def full_commands_settings():
     return {
         COMMAND1: {
             HELP: COMMAND_HELP_STRING1,
@@ -84,6 +84,13 @@ def full_commands_settings_with_override_contexts():
             CONTEXT2: {ARGS: [ARG4, ARG5]},
             CONTEXT3: {CLEAR_ARGS: True},
             CONTEXT4: {ADD_ARGS: [ARG5]},
+        },
+        COMMAND2: {
+            HELP: COMMAND_HELP_STRING2,
+            ARGS: [],
+            STANDARD: False,
+            CONTEXT2: {ADD_ARGS: [ARG3, ARG5]},
+            CONTEXT4: True,
         },
     }
 
