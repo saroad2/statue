@@ -3,6 +3,7 @@ from typing import Any, List, MutableMapping, Optional
 
 from statue.command import Command
 from statue.constants import ADD_ARGS, ARGS, CLEAR_ARGS, HELP, STANDARD
+from statue.excptions import InvalidCommand, UnknownCommand
 
 
 def read_commands(
@@ -22,17 +23,57 @@ def read_commands(
     """
     commands = []
     contexts = [] if contexts is None else contexts
-    for command_name, setups in commands_configuration.items():
-        if __skip_command(command_name, setups, contexts, allow_list, deny_list):
-            continue
-        commands.append(
-            Command(
-                name=command_name,
-                args=__read_args(setups, contexts=contexts),
-                help=setups[HELP],
+    for command_name in commands_configuration.keys():
+        try:
+            commands.append(
+                read_command(
+                    command_name=command_name,
+                    commands_configuration=commands_configuration,
+                    contexts=contexts,
+                    allow_list=allow_list,
+                    deny_list=deny_list,
+                )
             )
-        )
+        except InvalidCommand:
+            continue
     return commands
+
+
+def read_command(
+    command_name: str,
+    commands_configuration: MutableMapping[str, Any],
+    contexts: Optional[List[str]] = None,
+    allow_list: Optional[List[str]] = None,
+    deny_list: Optional[List[str]] = None,
+) -> Command:
+    """
+    Read command from a settings file.
+
+    :param command_name: the name of the command to read.
+    :param commands_configuration: Dictionary. Commands configuration.
+    :param contexts: List of str. a list of contexts to choose commands from.
+    :param allow_list: List of allowed commands. If None, take all commands
+    :param deny_list: List of denied commands. If None, take all commands
+    :return: a :class:`Command` instance
+    :raises: :class:`UnknownCommand` if command is missing from settings file.
+    :class:`InvalidCommand` of command doesn't fit the given contexts, allow list and
+    deny list
+    """
+    command_setups = commands_configuration.get(command_name, None)
+    if command_setups is None:
+        raise UnknownCommand(command_name)
+    if __skip_command(command_name, command_setups, contexts, allow_list, deny_list):
+        raise InvalidCommand(
+            command_name=command_name,
+            contexts=contexts,
+            allow_list=allow_list,
+            deny_list=deny_list,
+        )
+    return Command(
+        name=command_name,
+        args=__read_args(command_setups, contexts=contexts),
+        help=command_setups[HELP],
+    )
 
 
 def __skip_command(
