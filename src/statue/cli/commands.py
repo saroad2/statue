@@ -19,7 +19,7 @@ from statue.excptions import InvalidCommand, UnknownCommand
 
 
 @statue_cli.group("command")
-def command():
+def command() -> None:
     """Commands related actions such as list, install, show, etc."""
 
 
@@ -42,7 +42,7 @@ def list_commands(
         deny_list=deny,
     )
     for command_instance in commands:
-        click.echo(command_instance.name, "-", command_instance.help)
+        click.echo(f"{command_instance.name} - {command_instance.help}")
 
 
 @command.command("install")

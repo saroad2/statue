@@ -111,8 +111,12 @@ def is_command_matching(
     return False
 
 
-def __read_args(setups: MutableMapping[str, Any], contexts: List[str]) -> List[str]:
+def __read_args(
+    setups: MutableMapping[str, Any], contexts: Optional[List[str]]
+) -> List[str]:
     base_args = list(setups.get(ARGS, []))
+    if contexts is None:
+        return base_args
     for command_context in contexts:
         context_obj = setups.get(command_context, None)
         if not isinstance(context_obj, dict):

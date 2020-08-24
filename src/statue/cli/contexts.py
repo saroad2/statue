@@ -15,7 +15,7 @@ def context() -> None:
 
 @context.command("list")
 @click.pass_obj
-def contexts_list(statue_configuration: MutableMapping[str, Any]):
+def contexts_list(statue_configuration: MutableMapping[str, Any]) -> None:
     """Print all available contexts."""
     for context_name, context_instance in statue_configuration[CONTEXTS].items():
         click.echo(f"{context_name} - {context_instance[HELP]}")
@@ -24,7 +24,7 @@ def contexts_list(statue_configuration: MutableMapping[str, Any]):
 @context.command("show")
 @click.pass_context
 @click.argument("context_name", type=str)
-def show_contexts(ctx: click.Context, context_name: str):
+def show_contexts(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
     statue_configuration = ctx.obj
     context_instance = statue_configuration[CONTEXTS].get(context_name, None)
