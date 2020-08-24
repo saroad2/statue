@@ -69,8 +69,8 @@ def run(
     print_title("Evaluation")
     for input_path, commands in commands_map.items():
         if not is_silent(verbosity):
-            print()
-            print(f"Evaluating {input_path}")
+            click.echo()
+            click.echo(f"Evaluating {input_path}")
         failed_commands = []
         for command in commands:
             if not is_silent(verbosity):
@@ -80,14 +80,14 @@ def run(
                 failed_commands.append(command.name)
         if len(failed_commands) != 0:
             failed_paths[input_path] = failed_commands
-    print()
+    click.echo()
     print_title("Summary")
     if len(failed_paths) != 0:
-        print("Statue has failed on the following commands:")
-        print()
+        click.echo("Statue has failed on the following commands:")
+        click.echo()
         for input_path, failed_commands in failed_paths.items():
-            print(f"{input_path}:")
-            print(f"\t{', '.join(failed_commands)}")
+            click.echo(f"{input_path}:")
+            click.echo(f"\t{', '.join(failed_commands)}")
         sys.exit(1)
     else:
-        print("Statue finished successfully!")
+        click.echo("Statue finished successfully!")
