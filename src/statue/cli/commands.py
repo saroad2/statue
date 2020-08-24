@@ -13,9 +13,9 @@ from statue.cli.util import (
     verbose_option,
     verbosity_option,
 )
-from statue.commands_reader import read_commands, read_command
+from statue.commands_reader import read_command, read_commands
 from statue.constants import COMMANDS
-from statue.excptions import UnknownCommand, InvalidCommand
+from statue.excptions import InvalidCommand, UnknownCommand
 
 
 @statue_cli.group("command")

@@ -5,7 +5,7 @@ import click
 
 from statue.cli.cli import statue as statue_cli
 from statue.commands_reader import read_commands
-from statue.constants import CONTEXTS, HELP, COMMANDS
+from statue.constants import COMMANDS, CONTEXTS, HELP
 
 
 @statue_cli.group()
