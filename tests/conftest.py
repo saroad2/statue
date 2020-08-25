@@ -1,6 +1,7 @@
 import pytest
 
-from statue.constants import ARGS, HELP
+from statue.configuration import Configuration
+from statue.constants import ARGS, HELP, COMMANDS, SOURCES
 from tests.constants import (
     ARG1,
     ARG2,
@@ -30,12 +31,23 @@ def one_command_setting():
 
 @pytest.fixture
 def one_command_with_args_settings():
-    return {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}}
+    configuration = {
+        COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}}
+    }
+    Configuration.statue_configuration = configuration
+    yield configuration
+    Configuration.reset_configuration()
 
 
 @pytest.fixture
 def full_commands_settings_with_boolean_contexts():
-    return BOOLEAN_COMMANDS_CONFIGURATION
+    configuration = {
+        SOURCES: SOURCES_CONFIGURATION,
+        COMMANDS: BOOLEAN_COMMANDS_CONFIGURATION,
+    }
+    Configuration.statue_configuration = configuration
+    yield configuration
+    Configuration.reset_configuration()
 
 
 @pytest.fixture

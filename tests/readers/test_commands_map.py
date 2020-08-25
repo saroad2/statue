@@ -1,7 +1,7 @@
 from statue.command import Command
 from statue.commands_map import get_commands_map
 from statue.constants import COMMANDS
-from tests.conftest import (
+from tests.constants import (
     ARG1,
     ARG2,
     ARG3,
@@ -24,11 +24,6 @@ from tests.conftest import (
 )
 
 
-def add_commands_section(statue_config, commands_config):
-    statue_config[COMMANDS] = commands_config
-    return statue_config
-
-
 def assert_sources(commands_map, sources):
     assert (
         list(commands_map.keys()) == sources
@@ -42,9 +37,7 @@ def assert_commands(commands_map, source, commands):
 
 
 def test_get_commands_map_on_none_empty_source_list(one_command_with_args_settings):
-    commands_map = get_commands_map(
-        [SOURCE1], add_commands_section({}, one_command_with_args_settings)
-    )
+    commands_map = get_commands_map([SOURCE1])
     assert_sources(commands_map, [SOURCE1])
     assert_commands(
         commands_map,
@@ -56,30 +49,14 @@ def test_get_commands_map_on_none_empty_source_list(one_command_with_args_settin
 def test_get_commands_map_with_no_sources_list_and_in_input_and_config(
     one_command_with_args_settings,
 ):
-    commands_map = get_commands_map(
-        [], add_commands_section({}, one_command_with_args_settings)
-    )
-    assert commands_map is None
-
-
-def test_get_commands_map_with_no_sources_and_empty_settings(
-    one_command_with_args_settings, empty_settings
-):
-    commands_map = get_commands_map(
-        [], add_commands_section(empty_settings, one_command_with_args_settings)
-    )
+    commands_map = get_commands_map([])
     assert commands_map is None
 
 
 def test_get_commands_map_with_existing_config_file(
-    non_empty_sources_config, full_commands_settings_with_boolean_contexts
+    full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map(
-        [],
-        add_commands_section(
-            non_empty_sources_config, full_commands_settings_with_boolean_contexts
-        ),
-    )
+    commands_map = get_commands_map([],)
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
@@ -126,15 +103,9 @@ def test_get_commands_map_with_existing_config_file(
 
 
 def test_get_commands_map_with_global_context(
-    non_empty_sources_config, full_commands_settings_with_boolean_contexts
+    full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map(
-        [],
-        add_commands_section(
-            non_empty_sources_config, full_commands_settings_with_boolean_contexts
-        ),
-        contexts=[CONTEXT2],
-    )
+    commands_map = get_commands_map([], contexts=[CONTEXT2],)
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
@@ -173,15 +144,9 @@ def test_get_commands_map_with_global_context(
 
 
 def test_get_commands_map_with_global_allow_list(
-    non_empty_sources_config, full_commands_settings_with_boolean_contexts
+    full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map(
-        [],
-        add_commands_section(
-            non_empty_sources_config, full_commands_settings_with_boolean_contexts
-        ),
-        allow_list=[COMMAND1, COMMAND3],
-    )
+    commands_map = get_commands_map([], allow_list=[COMMAND1, COMMAND3],)
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
@@ -212,15 +177,9 @@ def test_get_commands_map_with_global_allow_list(
 
 
 def test_get_commands_map_with_global_deny_list(
-    non_empty_sources_config, full_commands_settings_with_boolean_contexts
+    full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map(
-        [],
-        add_commands_section(
-            non_empty_sources_config, full_commands_settings_with_boolean_contexts
-        ),
-        deny_list=[COMMAND4],
-    )
+    commands_map = get_commands_map([], deny_list=[COMMAND4],)
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
