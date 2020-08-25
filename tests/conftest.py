@@ -52,7 +52,10 @@ def full_commands_settings_with_boolean_contexts():
 
 @pytest.fixture
 def full_commands_settings():
-    return OVERRIDE_COMMANDS_CONFIGURATION
+    configuration = {COMMANDS: OVERRIDE_COMMANDS_CONFIGURATION}
+    Configuration.statue_configuration = configuration
+    yield configuration
+    Configuration.reset_configuration()
 
 
 @pytest.fixture
