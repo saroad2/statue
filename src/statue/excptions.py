@@ -6,6 +6,14 @@ class StatueException(Exception):
     """Exceptions base for Statue."""
 
 
+class EmptyConfiguration(StatueException):
+    """Configuration must be set."""
+
+    def __init__(self) -> None:
+        """Exception constructor."""
+        super().__init__("Statue configuration is empty!")
+
+
 class UnknownCommand(StatueException):
     """Command isn't recognized."""
 

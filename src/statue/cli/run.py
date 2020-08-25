@@ -49,13 +49,8 @@ def run(
     When no source files are presented, will use configuration file to determine on
     which files to run
     """
-    statue_configuration = ctx.obj
     commands_map = get_commands_map(
-        sources,
-        statue_configuration,
-        contexts=context,
-        allow_list=allow,
-        deny_list=deny,
+        sources, contexts=context, allow_list=allow, deny_list=deny,
     )
     if commands_map is None:
         click.echo(ctx.get_help())
