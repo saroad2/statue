@@ -23,6 +23,7 @@ CONTEXT2, CONTEXT_HELP_STRING2 = name_and_help_string("context2")
 CONTEXT3, CONTEXT_HELP_STRING3 = name_and_help_string("context3")
 CONTEXT4, CONTEXT_HELP_STRING4 = name_and_help_string("context4")
 NOT_EXISTING_CONTEXT = "not_existing_context"
+NOT_EXISTING_COMMAND = "not_existing_command"
 ENCODING = "utf8"
 
 

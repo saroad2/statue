@@ -39,9 +39,9 @@ def list_commands(
 @contexts_option
 @allow_option
 @deny_option
-@verbosity_option
 @silent_option
 @verbose_option
+@verbosity_option
 def install_commands(
     context: Optional[List[str]],
     allow: Optional[List[str]],
