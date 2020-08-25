@@ -1,5 +1,5 @@
 """Commands CLI."""
-from typing import Any, List, MutableMapping, Optional
+from typing import List, Optional
 
 import click
 
@@ -14,7 +14,6 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_reader import read_command, read_commands
-from statue.constants import COMMANDS
 from statue.excptions import InvalidCommand, UnknownCommand
 
 
