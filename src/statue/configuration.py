@@ -75,7 +75,7 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
 
     def load_configuration(self, statue_configuration_path: Path,) -> None:
         """
-        load statue configuration.
+        Load statue configuration.
 
         This method combines default configuration with user-defined configuration, read
         from configuration file.
@@ -97,7 +97,7 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
 
     def reset_configuration(self) -> None:
         """Reset the general statue configuration."""
-        self.default_configuration = None  # type: ignore
+        self.default_configuration = None
         self.statue_configuration = None  # type: ignore
 
 

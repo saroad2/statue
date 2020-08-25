@@ -23,15 +23,15 @@ def test_configuration_doesnt_exists(non_existing_default_config):
     ), "Default configuration should be None"
 
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.statue_configuration
+        Configuration.statue_configuration  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.commands_configuration
+        Configuration.commands_configuration  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.commands_names_list
+        Configuration.commands_names_list  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.contexts_configuration
+        Configuration.contexts_configuration  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.sources_configuration
+        Configuration.sources_configuration  # pylint: disable=pointless-statement
 
 
 def test_default_configuration_exists_and_empty(existing_empty_default_config):
