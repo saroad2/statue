@@ -1,7 +1,7 @@
 """Get Statue global configuration."""
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, MutableMapping, Optional, List
+from typing import Any, List, MutableMapping, Optional
 
 import toml
 
