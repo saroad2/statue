@@ -16,7 +16,9 @@ from tests.constants import (
 
 @pytest.fixture
 def empty_settings():
-    return {}
+    Configuration.statue_configuration = {}
+    yield
+    Configuration.reset_configuration()
 
 
 @pytest.fixture
@@ -25,8 +27,11 @@ def non_empty_sources_config():
 
 
 @pytest.fixture
-def one_command_setting():
-    return {COMMAND1: {HELP: COMMAND_HELP_STRING1}}
+def one_command_without_args_setting():
+    configuration = {COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1}}}
+    Configuration.statue_configuration = configuration
+    yield configuration
+    Configuration.reset_configuration()
 
 
 @pytest.fixture
