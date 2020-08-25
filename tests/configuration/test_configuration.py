@@ -1,0 +1,108 @@
+import pytest
+
+from statue.configuration import Configuration
+from statue.constants import COMMANDS, CONTEXTS, SOURCES
+from statue.excptions import EmptyConfiguration
+from tests.configuration.conftest import DEFAULT_CONFIG
+from tests.constants import (
+    BOOLEAN_COMMANDS_CONFIGURATION,
+    COMMAND1,
+    COMMAND2,
+    COMMAND3,
+    COMMAND4,
+    COMMAND5,
+    CONTEXTS_CONFIGURATION,
+    SOURCES_CONFIGURATION,
+    SOURCES_CONFIGURATION2,
+)
+
+
+def test_configuration_doesnt_exists(non_existing_default_config):
+    assert (
+        Configuration.default_configuration is None
+    ), "Default configuration should be None"
+
+    with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
+        Configuration.statue_configuration
+    with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
+        Configuration.commands_configuration
+    with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
+        Configuration.commands_names_list
+    with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
+        Configuration.contexts_configuration
+    with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
+        Configuration.sources_configuration
+
+
+def test_default_configuration_exists_and_empty(existing_empty_default_config):
+    assert (
+        Configuration.default_configuration == {}
+    ), "Default configuration should be empty."
+    assert (
+        Configuration.statue_configuration == {}
+    ), "Statue configuration should be empty."
+    assert (
+        Configuration.commands_configuration is None
+    ), "Commands configuration should be None."
+    assert Configuration.commands_names_list == [], "Commands list should be empty."
+    assert (
+        Configuration.contexts_configuration is None
+    ), "Contexts configuration should be None."
+    assert (
+        Configuration.sources_configuration is None
+    ), "Sources configuration should be None."
+
+
+def test_default_configuration_exists_and_non_empty(existing_non_empty_default_config):
+    assert (
+        Configuration.default_configuration == DEFAULT_CONFIG
+    ), "Default configuration not loaded."
+    assert (
+        Configuration.statue_configuration == DEFAULT_CONFIG
+    ), "Statue configuration is different than expected."
+    assert (
+        Configuration.commands_configuration == BOOLEAN_COMMANDS_CONFIGURATION
+    ), "Commands configuration is different than expected."
+    assert Configuration.commands_names_list == [
+        COMMAND1,
+        COMMAND2,
+        COMMAND3,
+        COMMAND4,
+        COMMAND5,
+    ], "Commands list is different than expected."
+    assert (
+        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION
+    ), "Contexts configuration is different than expected."
+    assert (
+        Configuration.sources_configuration == SOURCES_CONFIGURATION
+    ), "Sources configuration is different than expected."
+
+
+def test_statue_configuration_different_than_default(
+    existing_file, existing_non_empty_statue_config
+):
+    Configuration.load_configuration(existing_file)
+    assert (
+        Configuration.default_configuration == DEFAULT_CONFIG
+    ), "Default configuration not loaded."
+    assert Configuration.statue_configuration == {
+        COMMANDS: BOOLEAN_COMMANDS_CONFIGURATION,
+        SOURCES: SOURCES_CONFIGURATION2,
+        CONTEXTS: CONTEXTS_CONFIGURATION,
+    }, "Statue configuration is different than expected."
+    assert (
+        Configuration.commands_configuration == BOOLEAN_COMMANDS_CONFIGURATION
+    ), "Commands configuration is different than expected."
+    assert Configuration.commands_names_list == [
+        COMMAND1,
+        COMMAND2,
+        COMMAND3,
+        COMMAND4,
+        COMMAND5,
+    ], "Commands list is different than expected."
+    assert (
+        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION
+    ), "Contexts configuration is different than expected."
+    assert (
+        Configuration.sources_configuration == SOURCES_CONFIGURATION2
+    ), "Sources configuration is different than expected."

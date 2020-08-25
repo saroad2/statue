@@ -5,7 +5,7 @@ from typing import Any, List, MutableMapping, Optional
 
 import toml
 
-from statue.constants import COMMANDS, CONTEXTS, DEFAULT_CONFIGURATION_FILE, SOURCES
+import statue.constants as consts
 from statue.excptions import EmptyConfiguration
 
 __all__ = ["Configuration"]
@@ -49,7 +49,7 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
     @property
     def commands_configuration(self) -> Optional[MutableMapping[str, Any]]:
         """Getter of the commands configuration."""
-        return self.statue_configuration.get(COMMANDS, None)
+        return self.statue_configuration.get(consts.COMMANDS, None)
 
     @property
     def commands_names_list(self) -> List[str]:
@@ -61,15 +61,17 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
     @property
     def sources_configuration(self) -> Optional[MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
-        return self.statue_configuration.get(SOURCES, None)
+        return self.statue_configuration.get(consts.SOURCES, None)
 
     @property
     def contexts_configuration(self) -> Optional[MutableMapping[str, Any]]:
         """Getter of the contexts configuration."""
-        return self.statue_configuration.get(CONTEXTS, None)
+        return self.statue_configuration.get(consts.CONTEXTS, None)
 
     def __load_default_configuration(self) -> None:
-        self.__default_configuration = toml.load(DEFAULT_CONFIGURATION_FILE)
+        if not consts.DEFAULT_CONFIGURATION_FILE.exists():
+            return
+        self.default_configuration = toml.load(consts.DEFAULT_CONFIGURATION_FILE)
 
     def load_configuration(self, statue_configuration_path: Path,) -> None:
         """
@@ -85,13 +87,18 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
             return
         statue_config = toml.load(statue_configuration_path)
         if self.default_configuration is not None:
-            statue_config[COMMANDS] = self.default_configuration.get(COMMANDS, {})
-            statue_config[CONTEXTS] = self.default_configuration.get(CONTEXTS, {})
+            statue_config[consts.COMMANDS] = self.default_configuration.get(
+                consts.COMMANDS, {}
+            )
+            statue_config[consts.CONTEXTS] = self.default_configuration.get(
+                consts.CONTEXTS, {}
+            )
         self.statue_configuration = statue_config
 
     def reset_configuration(self) -> None:
         """Reset the general statue configuration."""
-        self.statue_configuration = None  # type:ignore
+        self.default_configuration = None  # type: ignore
+        self.statue_configuration = None  # type: ignore
 
 
 Configuration = __ConfigurationMetaclass()
