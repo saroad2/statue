@@ -1,7 +1,7 @@
 import pytest
 
 from statue.configuration import Configuration
-from statue.constants import ARGS, HELP, COMMANDS, SOURCES
+from statue.constants import ARGS, COMMANDS, HELP, SOURCES
 from tests.constants import (
     ARG1,
     ARG2,
