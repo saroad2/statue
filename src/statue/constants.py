@@ -1,6 +1,8 @@
 """Constants module."""
 from pathlib import Path
 
+STATUE = "STATUE"
+
 DEFAULT_CONFIGURATION_FILE = Path(__file__).parent / "resources" / "defaults.toml"
 
 HELP = "help"
@@ -14,3 +16,5 @@ DENY_LIST = "deny_list"
 COMMANDS = "commands"
 CONTEXTS = "contexts"
 SOURCES = "sources"
+
+OVERRIDE = "OVERRIDE"

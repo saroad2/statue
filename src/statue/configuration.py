@@ -83,17 +83,39 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         :param statue_configuration_path: User-defined file path containing
         repository-specific configurations
         """
+        self.statue_configuration = self.__build_configuration(  # type: ignore
+            statue_configuration_path
+        )
+
+    def __build_configuration(
+        self, statue_configuration_path: Path,
+    ) -> Optional[MutableMapping[str, Any]]:
+        """
+        Build statue configuration.
+
+        This method combines default configuration with user-defined configuration, read
+        from configuration file.
+
+        :param statue_configuration_path: User-defined file path containing
+        repository-specific configurations
+        """
         if not statue_configuration_path.exists():
-            return
+            return None
         statue_config = toml.load(statue_configuration_path)
-        if self.default_configuration is not None:
-            statue_config[consts.COMMANDS] = self.default_configuration.get(
-                consts.COMMANDS, {}
-            )
-            statue_config[consts.CONTEXTS] = self.default_configuration.get(
-                consts.CONTEXTS, {}
-            )
-        self.statue_configuration = statue_config
+        if self.default_configuration is None:
+            return statue_config
+        general_settings = statue_config.get(consts.STATUE, None)
+        if general_settings is not None and general_settings.get(
+            consts.OVERRIDE, False
+        ):
+            return statue_config
+        statue_config[consts.COMMANDS] = self.default_configuration.get(
+            consts.COMMANDS, {}
+        )
+        statue_config[consts.CONTEXTS] = self.default_configuration.get(
+            consts.CONTEXTS, {}
+        )
+        return statue_config
 
     def reset_configuration(self) -> None:
         """Reset the general statue configuration."""
