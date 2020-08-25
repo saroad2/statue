@@ -24,29 +24,19 @@ def command() -> None:
 
 
 @command.command("list")
-@click.pass_obj
 @contexts_option
 @allow_option
 @deny_option
 def list_commands(
-    statue_configuration: MutableMapping[str, Any],
-    context: Optional[List[str]],
-    allow: Optional[List[str]],
-    deny: Optional[List[str]],
+    context: Optional[List[str]], allow: Optional[List[str]], deny: Optional[List[str]],
 ) -> None:
     """List matching commands to contexts, allow list and deny list."""
-    commands = read_commands(
-        statue_configuration[COMMANDS],
-        contexts=context,
-        allow_list=allow,
-        deny_list=deny,
-    )
+    commands = read_commands(contexts=context, allow_list=allow, deny_list=deny,)
     for command_instance in commands:
         click.echo(f"{command_instance.name} - {command_instance.help}")
 
 
 @command.command("install")
-@click.pass_obj
 @contexts_option
 @allow_option
 @deny_option
@@ -54,7 +44,6 @@ def list_commands(
 @silent_option
 @verbose_option
 def install_commands(
-    statue_configuration: MutableMapping[str, Any],
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
@@ -62,12 +51,7 @@ def install_commands(
 ) -> None:
     """Install missing commands."""
     install_commands_if_missing(
-        read_commands(
-            statue_configuration[COMMANDS],
-            contexts=context,
-            allow_list=allow,
-            deny_list=deny,
-        ),
+        read_commands(contexts=context, allow_list=allow, deny_list=deny,),
         verbosity=verbosity,
     )
 
@@ -89,7 +73,6 @@ def show_command(
     try:
         command_instance = read_command(
             command_name=command_name,
-            commands_configuration=ctx.obj[COMMANDS],
             contexts=context,
             allow_list=allow,
             deny_list=deny,

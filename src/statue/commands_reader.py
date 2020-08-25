@@ -2,12 +2,12 @@
 from typing import Any, List, MutableMapping, Optional
 
 from statue.command import Command
+from statue.configuration import Configuration
 from statue.constants import ADD_ARGS, ARGS, CLEAR_ARGS, HELP, STANDARD
 from statue.excptions import InvalidCommand, UnknownCommand
 
 
 def read_commands(
-    commands_configuration: MutableMapping[str, Any],
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
@@ -15,7 +15,6 @@ def read_commands(
     """
     Read commands from a settings file.
 
-    :param commands_configuration: Dictionary. Commands configuration.
     :param contexts: List of str. a list of contexts to choose commands from.
     :param allow_list: List of allowed commands. If None, take all commands
     :param deny_list: List of denied commands. If None, take all commands
@@ -23,12 +22,11 @@ def read_commands(
     """
     commands = []
     contexts = [] if contexts is None else contexts
-    for command_name in commands_configuration.keys():
+    for command_name in Configuration.commands_names_list:
         try:
             commands.append(
                 read_command(
                     command_name=command_name,
-                    commands_configuration=commands_configuration,
                     contexts=contexts,
                     allow_list=allow_list,
                     deny_list=deny_list,
@@ -41,7 +39,6 @@ def read_commands(
 
 def read_command(
     command_name: str,
-    commands_configuration: MutableMapping[str, Any],
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
@@ -50,7 +47,6 @@ def read_command(
     Read command from a settings file.
 
     :param command_name: the name of the command to read.
-    :param commands_configuration: Dictionary. Commands configuration.
     :param contexts: List of str. a list of contexts to choose commands from.
     :param allow_list: List of allowed commands. If None, take all commands
     :param deny_list: List of denied commands. If None, take all commands
@@ -59,6 +55,9 @@ def read_command(
     :class:`InvalidCommand` of command doesn't fit the given contexts, allow list and
     deny list
     """
+    commands_configuration = Configuration.commands_configuration
+    if commands_configuration is None:
+        raise UnknownCommand(command_name)
     command_setups = commands_configuration.get(command_name, None)
     if command_setups is None:
         raise UnknownCommand(command_name)
