@@ -35,6 +35,16 @@ def one_command_without_args_setting():
 
 
 @pytest.fixture
+def configuration_without_commands():
+    configuration = {
+        SOURCES: SOURCES_CONFIGURATION,
+    }
+    Configuration.statue_configuration = configuration
+    yield configuration
+    Configuration.reset_configuration()
+
+
+@pytest.fixture
 def one_command_with_args_settings():
     configuration = {
         COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}}

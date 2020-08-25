@@ -1,6 +1,5 @@
 from statue.command import Command
 from statue.commands_map import get_commands_map
-from statue.constants import COMMANDS
 from tests.constants import (
     ARG1,
     ARG2,
@@ -49,6 +48,11 @@ def test_get_commands_map_on_none_empty_source_list(one_command_with_args_settin
 def test_get_commands_map_with_no_sources_list_and_in_input_and_config(
     one_command_with_args_settings,
 ):
+    commands_map = get_commands_map([])
+    assert commands_map is None
+
+
+def test_get_commands_map_with_no_commands(configuration_without_commands,):
     commands_map = get_commands_map([])
     assert commands_map is None
 
