@@ -78,6 +78,34 @@ def test_default_configuration_exists_and_non_empty(existing_non_empty_default_c
     ), "Sources configuration is different than expected."
 
 
+def test_load_non_existing_statue_configuration(
+    non_existing_file, existing_non_empty_statue_config
+):
+    Configuration.load_configuration(non_existing_file)
+    assert (
+        Configuration.default_configuration == DEFAULT_CONFIG
+    ), "Default configuration not loaded."
+    assert (
+        Configuration.statue_configuration == DEFAULT_CONFIG
+    ), "Statue configuration is different than expected."
+    assert (
+        Configuration.commands_configuration == BOOLEAN_COMMANDS_CONFIGURATION
+    ), "Commands configuration is different than expected."
+    assert Configuration.commands_names_list == [
+        COMMAND1,
+        COMMAND2,
+        COMMAND3,
+        COMMAND4,
+        COMMAND5,
+    ], "Commands list is different than expected."
+    assert (
+        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION
+    ), "Contexts configuration is different than expected."
+    assert (
+        Configuration.sources_configuration == SOURCES_CONFIGURATION
+    ), "Sources configuration is different than expected."
+
+
 def test_statue_configuration_different_than_default(
     existing_file, existing_non_empty_statue_config
 ):
