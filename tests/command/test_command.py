@@ -5,7 +5,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import Command
 from statue.verbosity import SILENT, VERBOSE
-from tests.conftest import (
+from tests.constants import (
     ARG1,
     ARG2,
     COMMAND1,
