@@ -8,6 +8,8 @@ import toml
 from statue.constants import COMMANDS, CONTEXTS, DEFAULT_CONFIGURATION_FILE, SOURCES
 from statue.excptions import EmptyConfiguration
 
+__all__ = ["Configuration"]
+
 
 class __ConfigurationMetaclass:
 
@@ -21,11 +23,13 @@ class __ConfigurationMetaclass:
         return deepcopy(self.__default_configuration)
 
     @default_configuration.setter
-    def default_configuration(self, default_configuration) -> None:
+    def default_configuration(
+        self, default_configuration: Optional[MutableMapping[str, Any]]
+    ) -> None:
         self.__default_configuration = default_configuration
 
     @property
-    def statue_configuration(self) -> Optional[MutableMapping[str, Any]]:
+    def statue_configuration(self) -> MutableMapping[str, Any]:
         if self.__statue_configuration is not None:
             return deepcopy(self.__statue_configuration)
         if self.default_configuration is not None:
@@ -33,7 +37,9 @@ class __ConfigurationMetaclass:
         raise EmptyConfiguration()
 
     @statue_configuration.setter
-    def statue_configuration(self, statue_configuration) -> None:
+    def statue_configuration(
+        self, statue_configuration: Optional[MutableMapping[str, Any]]
+    ) -> None:
         self.__statue_configuration = statue_configuration
 
     @property
@@ -54,7 +60,7 @@ class __ConfigurationMetaclass:
     def contexts_configuration(self) -> Optional[MutableMapping[str, Any]]:
         return self.statue_configuration.get(CONTEXTS, None)
 
-    def __load_default_configuration(self):
+    def __load_default_configuration(self) -> None:
         self.__default_configuration = toml.load(DEFAULT_CONFIGURATION_FILE)
 
     def load_configuration(self, statue_configuration_path: Path,) -> None:
@@ -76,8 +82,8 @@ class __ConfigurationMetaclass:
             statue_config[CONTEXTS] = self.default_configuration.get(CONTEXTS, {})
         self.statue_configuration = statue_config
 
-    def reset_configuration(self):
-        self.statue_configuration = None
+    def reset_configuration(self) -> None:
+        self.statue_configuration = None  # type:ignore
 
 
 Configuration = __ConfigurationMetaclass()

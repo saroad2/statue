@@ -9,7 +9,7 @@ class StatueException(Exception):
 class EmptyConfiguration(StatueException):
     """Configuration must be set."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__("Statue configuration is empty!")
 
 
