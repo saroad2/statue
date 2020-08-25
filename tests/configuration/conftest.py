@@ -1,9 +1,10 @@
+from copy import deepcopy
 from unittest.mock import Mock
 
 import pytest
 
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, SOURCES
+from statue.constants import COMMANDS, CONTEXTS, OVERRIDE, SOURCES, STATUE
 from tests.constants import (
     BOOLEAN_COMMANDS_CONFIGURATION,
     CONTEXTS_CONFIGURATION,
@@ -76,8 +77,23 @@ def existing_empty_default_config(existing_default_config, toml_load_mock):
 
 
 @pytest.fixture
-def existing_non_empty_statue_config(toml_load_mock):
+def direct_set_default_config():
     Configuration.default_configuration = DEFAULT_CONFIG
-    toml_load_mock.return_value = STATUE_CONFIGURATION
+    yield
+    Configuration.reset_configuration()
+
+
+@pytest.fixture
+def existing_non_empty_statue_config(toml_load_mock):
+    toml_load_mock.return_value = deepcopy(STATUE_CONFIGURATION)
+    yield
+    Configuration.reset_configuration()
+
+
+@pytest.fixture
+def existing_non_empty_statue_config_with_general_override(toml_load_mock):
+    configuration = deepcopy(STATUE_CONFIGURATION)
+    configuration[STATUE] = {OVERRIDE: True}
+    toml_load_mock.return_value = configuration
     yield
     Configuration.reset_configuration()
