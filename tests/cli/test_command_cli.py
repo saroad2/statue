@@ -1,3 +1,7 @@
+from unittest.mock import Mock
+
+import pytest
+
 from statue.cli import statue as statue_cli
 from statue.command import Command
 from statue.verbosity import DEFAULT_VERBOSITY
@@ -17,6 +21,13 @@ from tests.constants import (
     COMMAND_HELP_STRING4,
     NOT_EXISTING_COMMAND,
 )
+
+
+@pytest.fixture
+def mock_install_if_missing(monkeypatch):
+    install_mock = Mock()
+    monkeypatch.setattr("statue.cli.commands.install_commands_if_missing", install_mock)
+    return install_mock
 
 
 def test_commands_list(cli_runner, full_configuration):

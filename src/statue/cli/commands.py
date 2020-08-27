@@ -18,11 +18,11 @@ from statue.excptions import InvalidCommand, UnknownCommand
 
 
 @statue_cli.group("command")
-def command() -> None:
+def commands_cli() -> None:
     """Commands related actions such as list, install, show, etc."""
 
 
-@command.command("list")
+@commands_cli.command("list")
 @contexts_option
 @allow_option
 @deny_option
@@ -35,7 +35,7 @@ def list_commands(
         click.echo(f"{command_instance.name} - {command_instance.help}")
 
 
-@command.command("install")
+@commands_cli.command("install")
 @contexts_option
 @allow_option
 @deny_option
@@ -55,7 +55,7 @@ def install_commands(
     )
 
 
-@command.command("show")
+@commands_cli.command("show")
 @click.pass_context
 @click.argument("command_name", type=str)
 @contexts_option

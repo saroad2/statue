@@ -1,5 +1,7 @@
 from statue.cli import statue as statue_cli
 from tests.constants import (
+    COMMAND1,
+    COMMAND2,
     CONTEXT1,
     CONTEXT2,
     CONTEXT3,
@@ -8,8 +10,6 @@ from tests.constants import (
     CONTEXT_HELP_STRING2,
     CONTEXT_HELP_STRING3,
     CONTEXT_HELP_STRING4,
-    COMMAND1,
-    COMMAND2,
     NOT_EXISTING_CONTEXT,
 )
 
