@@ -73,7 +73,10 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
             return
         self.default_configuration = toml.load(consts.DEFAULT_CONFIGURATION_FILE)
 
-    def load_configuration(self, statue_configuration_path: Path,) -> None:
+    def load_configuration(
+        self,
+        statue_configuration_path: Path,
+    ) -> None:
         """
         Load statue configuration.
 
@@ -88,7 +91,8 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         )
 
     def __build_configuration(
-        self, statue_configuration_path: Path,
+        self,
+        statue_configuration_path: Path,
     ) -> Optional[MutableMapping[str, Any]]:
         """
         Build statue configuration.

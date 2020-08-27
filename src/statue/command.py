@@ -56,7 +56,9 @@ class Command:
         )
 
     def execute(  # pylint: disable=too-many-arguments
-        self, source: str, verbosity: str = DEFAULT_VERBOSITY,
+        self,
+        source: str,
+        verbosity: str = DEFAULT_VERBOSITY,
     ) -> int:
         """
         Execute the command.
@@ -73,5 +75,8 @@ class Command:
     @classmethod
     def _run_subprocess(cls, args: List[str], verbosity: str) -> int:
         return subprocess.run(  # nosec
-            args, env=os.environ, check=False, capture_output=is_silent(verbosity),
+            args,
+            env=os.environ,
+            check=False,
+            capture_output=is_silent(verbosity),
         ).returncode

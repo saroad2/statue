@@ -47,10 +47,22 @@ def test_commands_install(cli_runner, mock_install_if_missing, full_configuratio
     assert result.output == "", "show output is different than expected."
     mock_install_if_missing.assert_called_with(
         [
-            Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2],),
-            Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3],),
+            Command(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                args=[ARG1, ARG2],
+            ),
+            Command(
+                name=COMMAND2,
+                help=COMMAND_HELP_STRING2,
+                args=[ARG3],
+            ),
             Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
+            Command(
+                name=COMMAND4,
+                help=COMMAND_HELP_STRING4,
+                args=[ARG4, ARG5],
+            ),
         ],
         verbosity=DEFAULT_VERBOSITY,
     )

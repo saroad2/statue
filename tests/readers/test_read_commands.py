@@ -93,36 +93,50 @@ def test_read_commands_with_non_standard_command(
     ]
 
 
-def test_read_commands_with_overrides_without_contexts(full_commands_settings,):
+def test_read_commands_with_overrides_without_contexts(
+    full_commands_settings,
+):
     commands = read_commands()
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
     ]
 
 
-def test_read_commands_with_overrides_with_context(full_commands_settings,):
+def test_read_commands_with_overrides_with_context(
+    full_commands_settings,
+):
     commands = read_commands(contexts=[CONTEXT1])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG3]),
     ]
 
 
-def test_read_commands_with_overrides_with_another_context(full_commands_settings,):
+def test_read_commands_with_overrides_with_another_context(
+    full_commands_settings,
+):
     commands = read_commands(contexts=[CONTEXT2])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG4, ARG5]),
-        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3, ARG5],),
+        Command(
+            name=COMMAND2,
+            help=COMMAND_HELP_STRING2,
+            args=[ARG3, ARG5],
+        ),
     ]
 
 
-def test_read_commands_with_overrides_with_clear_args_context(full_commands_settings,):
+def test_read_commands_with_overrides_with_clear_args_context(
+    full_commands_settings,
+):
     commands = read_commands(contexts=[CONTEXT3])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
     ]
 
 
-def test_read_commands_with_overrides_with_add_args_context(full_commands_settings,):
+def test_read_commands_with_overrides_with_add_args_context(
+    full_commands_settings,
+):
     commands = read_commands(contexts=[CONTEXT4])
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2, ARG5]),
@@ -161,7 +175,11 @@ def test_read_commands_with_non_empty_allow_list(
 ):
     commands = read_commands(allow_list=[COMMAND1, COMMAND3])
     assert commands == [
-        Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2],),
+        Command(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            args=[ARG1, ARG2],
+        ),
         Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
     ]
 
@@ -169,6 +187,10 @@ def test_read_commands_with_non_empty_allow_list(
 def test_read_commands_with_deny_list(full_commands_settings_with_boolean_contexts):
     commands = read_commands(deny_list=[COMMAND1, COMMAND3])
     assert commands == [
-        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3],),
+        Command(
+            name=COMMAND2,
+            help=COMMAND_HELP_STRING2,
+            args=[ARG3],
+        ),
         Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5]),
     ]

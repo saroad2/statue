@@ -27,7 +27,10 @@ from statue.verbosity import is_silent
 @allow_option
 @deny_option
 @click.option(
-    "-i", "--install", is_flag=True, help="Install commands before running if missing",
+    "-i",
+    "--install",
+    is_flag=True,
+    help="Install commands before running if missing",
 )
 @silent_option
 @verbose_option  # pylint: disable=R0913
@@ -49,7 +52,10 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = get_commands_map(
-        sources, contexts=context, allow_list=allow, deny_list=deny,
+        sources,
+        contexts=context,
+        allow_list=allow,
+        deny_list=deny,
     )
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
