@@ -34,6 +34,16 @@ def mock_install_if_missing(monkeypatch):
 
 
 @pytest.fixture
+def empty_configuration(cwd_mock):
+    configuration = {
+        STATUE: {OVERRIDE: True},
+    }
+    toml.dump(configuration, cwd_mock / "statue.toml")
+    yield configuration
+    Configuration.reset_configuration()
+
+
+@pytest.fixture
 def full_configuration(cwd_mock):
     configuration = {
         STATUE: {OVERRIDE: True},
