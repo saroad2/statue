@@ -167,7 +167,9 @@ def test_statue_configuration_different_than_default_with_general_override(
 
 
 def test_statue_configuration_exists_and_default_does_not(
-    non_existing_default_config, existing_file, existing_non_empty_statue_config,
+    non_existing_default_config,
+    existing_file,
+    existing_non_empty_statue_config,
 ):
     Configuration.load_configuration(existing_file)
     assert (

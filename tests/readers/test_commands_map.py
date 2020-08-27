@@ -52,7 +52,9 @@ def test_get_commands_map_with_no_sources_list_and_in_input_and_config(
     assert commands_map is None
 
 
-def test_get_commands_map_with_no_commands(configuration_without_commands,):
+def test_get_commands_map_with_no_commands(
+    configuration_without_commands,
+):
     commands_map = get_commands_map([])
     assert commands_map is None
 
@@ -60,7 +62,9 @@ def test_get_commands_map_with_no_commands(configuration_without_commands,):
 def test_get_commands_map_with_existing_config_file(
     full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map([],)
+    commands_map = get_commands_map(
+        [],
+    )
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
@@ -91,7 +95,11 @@ def test_get_commands_map_with_existing_config_file(
         [
             Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
             Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
+            Command(
+                name=COMMAND4,
+                help=COMMAND_HELP_STRING4,
+                args=[ARG4, ARG5],
+            ),
         ],
     )
     assert_commands(
@@ -101,7 +109,11 @@ def test_get_commands_map_with_existing_config_file(
             Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
             Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]),
             Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
-            Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5],),
+            Command(
+                name=COMMAND4,
+                help=COMMAND_HELP_STRING4,
+                args=[ARG4, ARG5],
+            ),
         ],
     )
 
@@ -109,7 +121,10 @@ def test_get_commands_map_with_existing_config_file(
 def test_get_commands_map_with_global_context(
     full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map([], contexts=[CONTEXT2],)
+    commands_map = get_commands_map(
+        [],
+        contexts=[CONTEXT2],
+    )
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
@@ -150,7 +165,10 @@ def test_get_commands_map_with_global_context(
 def test_get_commands_map_with_global_allow_list(
     full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map([], allow_list=[COMMAND1, COMMAND3],)
+    commands_map = get_commands_map(
+        [],
+        allow_list=[COMMAND1, COMMAND3],
+    )
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,
@@ -183,7 +201,10 @@ def test_get_commands_map_with_global_allow_list(
 def test_get_commands_map_with_global_deny_list(
     full_commands_settings_with_boolean_contexts,
 ):
-    commands_map = get_commands_map([], deny_list=[COMMAND4],)
+    commands_map = get_commands_map(
+        [],
+        deny_list=[COMMAND4],
+    )
     assert_sources(commands_map, [SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5])
     assert_commands(
         commands_map,

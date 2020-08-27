@@ -1,5 +1,4 @@
 """Run CLI."""
-import sys
 from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Union
@@ -21,19 +20,22 @@ from statue.commands_map import get_commands_map
 from statue.verbosity import is_silent
 
 
-@statue_cli.command()
+@statue_cli.command("run")
 @click.pass_context
 @click.argument("sources", nargs=-1)
 @contexts_option
 @allow_option
 @deny_option
 @click.option(
-    "-i", "--install", is_flag=True, help="Install commands before running if missing",
+    "-i",
+    "--install",
+    is_flag=True,
+    help="Install commands before running if missing",
 )
-@verbosity_option
 @silent_option
 @verbose_option  # pylint: disable=R0913
-def run(
+@verbosity_option
+def run_cli(  # pylint: disable=too-many-arguments
     ctx: click.Context,
     sources: List[Union[Path, str]],
     context: Optional[List[str]],
@@ -50,9 +52,12 @@ def run(
     which files to run
     """
     commands_map = get_commands_map(
-        sources, contexts=context, allow_list=allow, deny_list=deny,
+        sources,
+        contexts=context,
+        allow_list=allow,
+        deny_list=deny,
     )
-    if commands_map is None:
+    if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
 
@@ -83,6 +88,6 @@ def run(
         for input_path, failed_commands in failed_paths.items():
             click.echo(f"{input_path}:")
             click.echo(f"\t{', '.join(failed_commands)}")
-        sys.exit(1)
+        ctx.exit(1)
     else:
         click.echo("Statue finished successfully!")

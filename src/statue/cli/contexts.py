@@ -8,12 +8,12 @@ from statue.configuration import Configuration
 from statue.constants import HELP
 
 
-@statue_cli.group()
-def context() -> None:
+@statue_cli.group("context")
+def context_cli() -> None:
     """Contexts related actions such as list, show, etc."""
 
 
-@context.command("list")
+@context_cli.command("list")
 @click.pass_context
 def contexts_list(ctx: click.Context) -> None:
     """Print all available contexts."""
@@ -25,7 +25,7 @@ def contexts_list(ctx: click.Context) -> None:
         click.echo(f"{context_name} - {context_instance[HELP]}")
 
 
-@context.command("show")
+@context_cli.command("show")
 @click.pass_context
 @click.argument("context_name", type=str)
 def show_contexts(ctx: click.Context, context_name: str) -> None:

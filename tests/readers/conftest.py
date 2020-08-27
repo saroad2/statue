@@ -23,7 +23,11 @@ def empty_settings():
 
 @pytest.fixture
 def non_empty_sources_config():
-    return dict(contexts={}, commands={}, sources=SOURCES_CONFIGURATION,)
+    return dict(
+        contexts={},
+        commands={},
+        sources=SOURCES_CONFIGURATION,
+    )
 
 
 @pytest.fixture

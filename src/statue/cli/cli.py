@@ -17,7 +17,10 @@ from statue.configuration import Configuration
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )
-def statue(ctx: click.Context, config: str,) -> None:
+def statue(
+    ctx: click.Context,
+    config: str,
+) -> None:
     """Statue is a static code analysis tools orchestrator."""
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())

@@ -18,30 +18,36 @@ from statue.excptions import InvalidCommand, UnknownCommand
 
 
 @statue_cli.group("command")
-def command() -> None:
+def commands_cli() -> None:
     """Commands related actions such as list, install, show, etc."""
 
 
-@command.command("list")
+@commands_cli.command("list")
 @contexts_option
 @allow_option
 @deny_option
 def list_commands(
-    context: Optional[List[str]], allow: Optional[List[str]], deny: Optional[List[str]],
+    context: Optional[List[str]],
+    allow: Optional[List[str]],
+    deny: Optional[List[str]],
 ) -> None:
     """List matching commands to contexts, allow list and deny list."""
-    commands = read_commands(contexts=context, allow_list=allow, deny_list=deny,)
+    commands = read_commands(
+        contexts=context,
+        allow_list=allow,
+        deny_list=deny,
+    )
     for command_instance in commands:
         click.echo(f"{command_instance.name} - {command_instance.help}")
 
 
-@command.command("install")
+@commands_cli.command("install")
 @contexts_option
 @allow_option
 @deny_option
-@verbosity_option
 @silent_option
 @verbose_option
+@verbosity_option
 def install_commands(
     context: Optional[List[str]],
     allow: Optional[List[str]],
@@ -50,12 +56,16 @@ def install_commands(
 ) -> None:
     """Install missing commands."""
     install_commands_if_missing(
-        read_commands(contexts=context, allow_list=allow, deny_list=deny,),
+        read_commands(
+            contexts=context,
+            allow_list=allow,
+            deny_list=deny,
+        ),
         verbosity=verbosity,
     )
 
 
-@command.command("show")
+@commands_cli.command("show")
 @click.pass_context
 @click.argument("command_name", type=str)
 @contexts_option

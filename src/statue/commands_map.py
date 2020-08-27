@@ -29,7 +29,9 @@ def get_commands_map(
     """
     if len(sources) != 0:
         commands = read_commands(
-            contexts=contexts, allow_list=allow_list, deny_list=deny_list,
+            contexts=contexts,
+            allow_list=allow_list,
+            deny_list=deny_list,
         )
         return dict.fromkeys([str(source) for source in sources], commands)
     commands_map = dict()
