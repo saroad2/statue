@@ -13,7 +13,7 @@ from statue.cli.util import (
     verbose_option,
     verbosity_option,
 )
-from statue.commands_reader import read_command, read_commands
+from statue.configuration import Configuration
 from statue.excptions import InvalidCommand, UnknownCommand
 
 
@@ -32,7 +32,7 @@ def list_commands(
     deny: Optional[List[str]],
 ) -> None:
     """List matching commands to contexts, allow list and deny list."""
-    commands = read_commands(
+    commands = Configuration.read_commands(
         contexts=context,
         allow_list=allow,
         deny_list=deny,
@@ -56,7 +56,7 @@ def install_commands(
 ) -> None:
     """Install missing commands."""
     install_commands_if_missing(
-        read_commands(
+        Configuration.read_commands(
             contexts=context,
             allow_list=allow,
             deny_list=deny,
@@ -80,7 +80,7 @@ def show_command(
 ) -> None:
     """Show information about specific command."""
     try:
-        command_instance = read_command(
+        command_instance = Configuration.read_command(
             command_name=command_name,
             contexts=context,
             allow_list=allow,

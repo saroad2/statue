@@ -14,6 +14,14 @@ class EmptyConfiguration(StatueException):
         super().__init__("Statue configuration is empty!")
 
 
+class MissingConfiguration(StatueException):
+    """Part of the Statue configuration is missing."""
+
+    def __init__(self, part_name: str) -> None:
+        """Exception constructor."""
+        super().__init__(f'"{part_name}" is missing from Statue configuration.')
+
+
 class UnknownCommand(StatueException):
     """Command isn't recognized."""
 
@@ -37,3 +45,11 @@ class InvalidCommand(StatueException):
             f'The command "{command_name}" does not match the restrictions: '
             f"contexts={contexts}, allow_list={allow_list}, deny_list={deny_list}"
         )
+
+
+class UnknownContext(StatueException):
+    """Context isn't recognized."""
+
+    def __init__(self, context_name: str) -> None:
+        """Exception constructor."""
+        super().__init__(f'Could not find context named "{context_name}".')

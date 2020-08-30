@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Union
 
 from statue.command import Command
-from statue.commands_reader import read_commands
 from statue.configuration import Configuration
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 
@@ -28,7 +27,7 @@ def get_commands_map(
     :return: Dictionary from source file to the commands to run on it.
     """
     if len(sources) != 0:
-        commands = read_commands(
+        commands = Configuration.read_commands(
             contexts=contexts,
             allow_list=allow_list,
             deny_list=deny_list,
@@ -39,7 +38,7 @@ def get_commands_map(
     if sources_configuration is None:
         return None
     for source, instructions in sources_configuration.items():
-        commands = read_commands(
+        commands = Configuration.read_commands(
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(
                 allow_list, instructions.get(ALLOW_LIST, None)

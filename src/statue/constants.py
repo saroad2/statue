@@ -12,6 +12,7 @@ ADD_ARGS = "add_args"
 STANDARD = "standard"
 ALLOW_LIST = "allow_list"
 DENY_LIST = "deny_list"
+PARENT = "parent"
 
 COMMANDS = "commands"
 CONTEXTS = "contexts"

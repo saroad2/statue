@@ -17,6 +17,7 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_map import get_commands_map
+from statue.excptions import UnknownContext
 from statue.verbosity import is_silent
 
 
@@ -51,12 +52,16 @@ def run_cli(  # pylint: disable=too-many-arguments
     When no source files are presented, will use configuration file to determine on
     which files to run
     """
-    commands_map = get_commands_map(
-        sources,
-        contexts=context,
-        allow_list=allow,
-        deny_list=deny,
-    )
+    try:
+        commands_map = get_commands_map(
+            sources,
+            contexts=context,
+            allow_list=allow,
+            deny_list=deny,
+        )
+    except UnknownContext as error:
+        click.echo(error)
+        ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return

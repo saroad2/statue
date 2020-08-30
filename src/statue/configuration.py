@@ -6,7 +6,14 @@ from typing import Any, List, MutableMapping, Optional
 import toml
 
 import statue.constants as consts
-from statue.excptions import EmptyConfiguration
+from statue.command import Command
+from statue.excptions import (
+    EmptyConfiguration,
+    InvalidCommand,
+    MissingConfiguration,
+    UnknownCommand,
+    UnknownContext,
+)
 
 __all__ = ["Configuration"]
 
@@ -63,15 +70,96 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         """Getter of the sources configuration."""
         return self.statue_configuration.get(consts.SOURCES, None)
 
+    def get_context_configuration(
+        self, context_name: str
+    ) -> Optional[MutableMapping[str, Any]]:
+        """
+        Get configuration dictionary of a context.
+
+        :param context_name: Name of the desired context.
+        :type context_name: str
+        :return: configuration dictionary.
+        :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
+        set.
+        """
+        if self.contexts_configuration is None:
+            raise MissingConfiguration(consts.CONTEXTS)
+        return self.contexts_configuration.get(context_name, None)
+
     @property
     def contexts_configuration(self) -> Optional[MutableMapping[str, Any]]:
         """Getter of the contexts configuration."""
         return self.statue_configuration.get(consts.CONTEXTS, None)
 
-    def __load_default_configuration(self) -> None:
-        if not consts.DEFAULT_CONFIGURATION_FILE.exists():
-            return
-        self.default_configuration = toml.load(consts.DEFAULT_CONFIGURATION_FILE)
+    def read_commands(
+        self,
+        contexts: Optional[List[str]] = None,
+        allow_list: Optional[List[str]] = None,
+        deny_list: Optional[List[str]] = None,
+    ) -> List[Command]:
+        """
+        Read commands from a settings file.
+
+        :param contexts: List of str. a list of contexts to choose commands from.
+        :param allow_list: List of allowed commands. If None, take all commands
+        :param deny_list: List of denied commands. If None, take all commands
+        :return: a list of :class:`Command`
+        """
+        commands = []
+        contexts = [] if contexts is None else contexts
+        for command_name in Configuration.commands_names_list:
+            try:
+                commands.append(
+                    self.read_command(
+                        command_name=command_name,
+                        contexts=contexts,
+                        allow_list=allow_list,
+                        deny_list=deny_list,
+                    )
+                )
+            except InvalidCommand:
+                continue
+        return commands
+
+    def read_command(
+        self,
+        command_name: str,
+        contexts: Optional[List[str]] = None,
+        allow_list: Optional[List[str]] = None,
+        deny_list: Optional[List[str]] = None,
+    ) -> Command:
+        """
+        Read command from a settings file.
+
+        :param command_name: the name of the command to read.
+        :param contexts: List of str. a list of contexts to choose commands from.
+        :param allow_list: List of allowed commands. If None, take all commands
+        :param deny_list: List of denied commands. If None, take all commands
+        :return: a :class:`Command` instance
+        :raises: :class:`UnknownCommand` if command is missing from settings file.
+        :class:`InvalidCommand` of command doesn't fit the given contexts, allow list
+         and deny list
+        """
+        commands_configuration = self.commands_configuration
+        if commands_configuration is None:
+            raise UnknownCommand(command_name)
+        command_setups = commands_configuration.get(command_name, None)
+        if command_setups is None:
+            raise UnknownCommand(command_name)
+        if not self.__is_command_matching(
+            command_name, command_setups, contexts, allow_list, deny_list
+        ):
+            raise InvalidCommand(
+                command_name=command_name,
+                contexts=contexts,
+                allow_list=allow_list,
+                deny_list=deny_list,
+            )
+        return Command(
+            name=command_name,
+            args=self.__read_command_args(command_setups, contexts=contexts),
+            help=command_setups[consts.HELP],
+        )
 
     def load_configuration(
         self,
@@ -89,6 +177,16 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         self.statue_configuration = self.__build_configuration(  # type: ignore
             statue_configuration_path
         )
+
+    def reset_configuration(self) -> None:
+        """Reset the general statue configuration."""
+        self.default_configuration = None
+        self.statue_configuration = None  # type: ignore
+
+    def __load_default_configuration(self) -> None:
+        if not consts.DEFAULT_CONFIGURATION_FILE.exists():
+            return
+        self.default_configuration = toml.load(consts.DEFAULT_CONFIGURATION_FILE)
 
     def __build_configuration(
         self,
@@ -121,10 +219,79 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         )
         return statue_config
 
-    def reset_configuration(self) -> None:
-        """Reset the general statue configuration."""
-        self.default_configuration = None
-        self.statue_configuration = None  # type: ignore
+    def __is_command_matching(  # pylint: disable=too-many-arguments
+        self,
+        command_name: str,
+        setups: MutableMapping[str, Any],
+        contexts: Optional[List[str]],
+        allow_list: Optional[List[str]],
+        deny_list: Optional[List[str]],
+    ) -> bool:
+        """
+        Check whether a command fits the restrictions or not.
+
+        :param command_name: the name of the command to read.
+        :param setups: Dictionary. The command's configuration.
+        :param contexts: List of str. a list of contexts.
+        :param allow_list: List of allowed commands.
+        :param deny_list: List of denied commands.
+        :return: Boolean. Does the command fit the restrictions
+        """
+        if deny_list is not None and command_name in deny_list:
+            return False
+        if (
+            allow_list is not None
+            and len(allow_list) != 0  # noqa: W503
+            and command_name not in allow_list  # noqa: W503
+        ):
+            return False
+        if contexts is None or len(contexts) == 0:
+            return self.__command_match_default_context(setups)
+        for command_context in contexts:
+            if not self.__command_match_context(setups, command_context):
+                return False
+        return True
+
+    def __command_match_context(
+        self, setups: MutableMapping[str, Any], context_name: str
+    ) -> bool:
+        if context_name == consts.STANDARD:
+            return self.__command_match_default_context(setups)
+        context_configuration = self.get_context_configuration(context_name)
+        if context_configuration is None:
+            raise UnknownContext(context_name)
+        if setups.get(context_name, False):
+            return True
+        parent_context = context_configuration.get(consts.PARENT, None)
+        if parent_context is not None:
+            return self.__command_match_context(setups, parent_context)
+        return False
+
+    @classmethod
+    def __command_match_default_context(cls, setups: MutableMapping[str, Any]) -> bool:
+        return setups.get(consts.STANDARD, True)
+
+    @classmethod
+    def __read_command_args(
+        cls, setups: MutableMapping[str, Any], contexts: Optional[List[str]]
+    ) -> List[str]:
+        base_args = list(setups.get(consts.ARGS, []))
+        if contexts is None:
+            return base_args
+        for command_context in contexts:
+            context_obj = setups.get(command_context, None)
+            if not isinstance(context_obj, dict):
+                continue
+            args: List[str] = context_obj.get(consts.ARGS, None)
+            if args is not None:
+                return args
+            add_args = context_obj.get(consts.ADD_ARGS, None)
+            if add_args is not None:
+                base_args.extend(add_args)
+            clear_args = context_obj.get(consts.CLEAR_ARGS, False)
+            if clear_args:
+                return []
+        return base_args
 
 
 Configuration = __ConfigurationMetaclass()

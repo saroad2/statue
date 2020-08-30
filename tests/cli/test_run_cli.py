@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 
 from statue.cli import statue as statue_cli
-from tests.constants import COMMAND1, SOURCE1
+from tests.constants import COMMAND1, NOT_EXISTING_CONTEXT, SOURCE1
 
 SIMPLE_RUN_OUTPUT = (
     "Evaluation\n"
@@ -189,3 +189,15 @@ def test_command_failure(cli_runner, full_configuration, mock_command_execute):
         "source1:\n"
         "\tcommand1\n"
     ), "run command output is different than expected."
+
+
+def test_run_with_unknown_context(
+    cli_runner, full_configuration, mock_command_execute, mock_install_if_missing
+):
+    mock_command_execute.return_value = 0
+    result = cli_runner.invoke(statue_cli, ["run", "-c", NOT_EXISTING_CONTEXT])
+    assert result.exit_code == 1, "run command should exit with failure."
+    assert (
+        result.output == f'Could not find context named "{NOT_EXISTING_CONTEXT}".\n'
+    ), "run command output is different than expected."
+    mock_install_if_missing.assert_not_called()
