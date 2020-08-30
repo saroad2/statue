@@ -73,6 +73,9 @@ file:
     [sources.tests]
     contexts = ["test"]
 
+Now you can simply run ``statue run`` and *Statue* will evaluate you repository without
+contexts problems.
+
 Contributing
 ------------
 
