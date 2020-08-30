@@ -3,7 +3,6 @@
 import click
 
 from statue.cli.cli import statue as statue_cli
-from statue.commands_reader import read_commands
 from statue.configuration import Configuration
 from statue.constants import HELP
 
@@ -40,7 +39,7 @@ def show_contexts(ctx: click.Context, context_name: str) -> None:
         ctx.exit(1)
     click.echo(f"Name - {context_name}")
     click.echo(f"Description - {context_instance[HELP]}")
-    commands = read_commands(contexts=[context_name])
+    commands = Configuration.read_commands(contexts=[context_name])
     click.echo(
         f"Matching commands - {', '.join([command.name for command in commands])}"
     )

@@ -1,7 +1,7 @@
 import pytest
 
 from statue.command import Command
-from statue.commands_reader import read_command
+from statue.configuration import Configuration
 from statue.excptions import InvalidCommand, UnknownCommand
 from tests.constants import (
     ARG1,
@@ -26,7 +26,7 @@ from tests.constants import (
 def test_read_command_with_no_contexts(
     full_commands_settings_with_boolean_contexts,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
     )
     assert command == Command(
@@ -44,7 +44,7 @@ def test_read_command_with_non_passing_context(
             fr"contexts=\['{NOT_EXISTING_CONTEXT}'\], allow_list=None, deny_list=None"
         ),
     ):
-        read_command(
+        Configuration.read_command(
             command_name=COMMAND1,
             contexts=[NOT_EXISTING_CONTEXT],
         )
@@ -53,7 +53,7 @@ def test_read_command_with_non_passing_context(
 def test_read_command_with_passing_context(
     full_commands_settings_with_boolean_contexts,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT2],
     )
@@ -63,7 +63,7 @@ def test_read_command_with_passing_context(
 
 
 def test_read_command_with_two_contexts(full_commands_settings_with_boolean_contexts):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT1, CONTEXT2],
     )
@@ -75,7 +75,7 @@ def test_read_command_with_two_contexts(full_commands_settings_with_boolean_cont
 def test_read_command_with_non_standard_command(
     full_commands_settings_with_boolean_contexts,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND5,
         contexts=[CONTEXT4],
     )
@@ -87,7 +87,7 @@ def test_read_command_with_non_standard_command(
 def test_read_command_with_overrides_without_contexts(
     full_commands_settings,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
     )
     assert command == Command(
@@ -98,7 +98,7 @@ def test_read_command_with_overrides_without_contexts(
 def test_read_command_with_overrides_with_context(
     full_commands_settings,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT1],
     )
@@ -110,7 +110,7 @@ def test_read_command_with_overrides_with_context(
 def test_read_command_with_overrides_with_another_context(
     full_commands_settings,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT2],
     )
@@ -122,7 +122,7 @@ def test_read_command_with_overrides_with_another_context(
 def test_read_command_with_overrides_with_clear_args_context(
     full_commands_settings,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT3],
     )
@@ -134,7 +134,7 @@ def test_read_command_with_overrides_with_clear_args_context(
 def test_read_command_with_overrides_with_add_args_context(
     full_commands_settings,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT4],
     )
@@ -146,14 +146,14 @@ def test_read_command_with_overrides_with_add_args_context(
 def test_read_command_twice_with_overrides_with_add_args_context(
     full_commands_settings,
 ):
-    command1 = read_command(
+    command1 = Configuration.read_command(
         command_name=COMMAND1,
         contexts=[CONTEXT4],
     )
     assert command1 == Command(
         name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2, ARG5]
     ), "Command is different than expected in first read."
-    command2 = read_command(
+    command2 = Configuration.read_command(
         command_name=COMMAND1,
     )
     assert command2 == Command(
@@ -164,7 +164,7 @@ def test_read_command_twice_with_overrides_with_add_args_context(
 def test_read_command_with_empty_allow_list(
     full_commands_settings_with_boolean_contexts,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         allow_list=[],
     )
@@ -176,7 +176,7 @@ def test_read_command_with_empty_allow_list(
 def test_read_command_in_allow_list(
     full_commands_settings_with_boolean_contexts,
 ):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         allow_list=[COMMAND1, COMMAND3],
     )
@@ -197,14 +197,14 @@ def test_read_command_not_in_allow_list(
             fr"contexts=None, allow_list=\['{COMMAND2}', '{COMMAND3}'\], deny_list=None"
         ),
     ):
-        read_command(
+        Configuration.read_command(
             command_name=COMMAND1,
             allow_list=[COMMAND2, COMMAND3],
         )
 
 
 def test_read_command_not_in_deny_list(full_commands_settings_with_boolean_contexts):
-    command = read_command(
+    command = Configuration.read_command(
         command_name=COMMAND1,
         deny_list=[COMMAND2, COMMAND3],
     )
@@ -223,7 +223,7 @@ def test_read_command_in_deny_list(full_commands_settings_with_boolean_contexts)
             fr"contexts=None, allow_list=None, deny_list=\['{COMMAND1}', '{COMMAND3}'\]"
         ),
     ):
-        read_command(
+        Configuration.read_command(
             command_name=COMMAND1,
             deny_list=[COMMAND1, COMMAND3],
         )
@@ -234,7 +234,7 @@ def test_read_command_non_existing(full_commands_settings):
         UnknownCommand,
         match=f'^Could not find command named "{COMMAND5}".$',
     ):
-        read_command(
+        Configuration.read_command(
             command_name=COMMAND5,
         )
 
@@ -244,6 +244,6 @@ def test_read_command_with_no_commands_configuration(configuration_without_comma
         UnknownCommand,
         match=f'^Could not find command named "{COMMAND5}".$',
     ):
-        read_command(
+        Configuration.read_command(
             command_name=COMMAND5,
         )
