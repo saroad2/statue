@@ -12,7 +12,7 @@ from tests.constants import (
     COMMAND4,
     COMMAND5,
     CONTEXTS_CONFIGURATION,
-    CONTEXTS_CONFIGURATION2,
+    CONTEXTS_INHERITANCE_CONFIGURATION,
     OVERRIDE_COMMANDS_CONFIGURATION,
     SOURCES_CONFIGURATION,
     SOURCES_CONFIGURATION2,
@@ -157,9 +157,10 @@ def test_statue_configuration_different_than_default_with_general_override(
     assert Configuration.commands_names_list == [
         COMMAND1,
         COMMAND2,
+        COMMAND3,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION2
+        Configuration.contexts_configuration == CONTEXTS_INHERITANCE_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
         Configuration.sources_configuration == SOURCES_CONFIGURATION2
@@ -184,9 +185,10 @@ def test_statue_configuration_exists_and_default_does_not(
     assert Configuration.commands_names_list == [
         COMMAND1,
         COMMAND2,
+        COMMAND3,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION2
+        Configuration.contexts_configuration == CONTEXTS_INHERITANCE_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
         Configuration.sources_configuration == SOURCES_CONFIGURATION2

@@ -3,6 +3,7 @@ help = "Run short-time commands. Good for smoke tests"
 
 [contexts.strict]
 help = "Strict checks, for ones who never compromise!"
+parent = "standard"
 
 [contexts.test]
 help = "Checks for test files."
@@ -15,7 +16,6 @@ args = ["--check"]
 help = "Code formatter for python."
 fast = true
 test = true
-strict = true
 
 [commands.black.format]
 clear_args = true
@@ -25,7 +25,6 @@ args = ["--max-line-length=88", "--ignore=E203"]
 help = "Code style checker for python."
 fast = true
 test = true
-strict = true
 
 [commands.autoflake]
 args = [
@@ -46,7 +45,6 @@ args = [
 help = "Tool for sorting and cleaning python imports."
 fast = true
 test = true
-strict = true
 
 [commands.isort.format]
 args = [
@@ -64,7 +62,6 @@ add_args = ["--strict"]
 [commands.pylint]
 args = ["--ignore-imports=y", "--disable=bad-continuation"]
 help = "Python code linter"
-strict = true
 
 [commands.pylint.test]
 add_args = [
@@ -76,11 +73,9 @@ add_args = [
 [commands.bandit]
 args = ["-r"]
 help = "Python security checks tool."
-strict = true
 test = false
 
 [commands.pydocstyle]
 args = ["--ignore=D203,D212,D400,D401"]
 help = "Tool for python docstring style enforcing"
 test = false
-strict = true

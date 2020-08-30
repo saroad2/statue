@@ -7,7 +7,13 @@ import toml
 
 import statue.constants as consts
 from statue.command import Command
-from statue.excptions import EmptyConfiguration, InvalidCommand, UnknownCommand
+from statue.excptions import (
+    EmptyConfiguration,
+    InvalidCommand,
+    MissingConfiguration,
+    UnknownCommand,
+    UnknownContext,
+)
 
 __all__ = ["Configuration"]
 
@@ -63,6 +69,22 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
     def sources_configuration(self) -> Optional[MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
         return self.statue_configuration.get(consts.SOURCES, None)
+
+    def get_context_configuration(
+        self, context_name: str
+    ) -> Optional[MutableMapping[str, Any]]:
+        """
+        Get configuration dictionary of a context.
+
+        :param context_name: Name of the desired context.
+        :type context_name: str
+        :return: configuration dictionary.
+        :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
+        set.
+        """
+        if self.contexts_configuration is None:
+            raise MissingConfiguration(consts.CONTEXTS)
+        return self.contexts_configuration.get(context_name, None)
 
     @property
     def contexts_configuration(self) -> Optional[MutableMapping[str, Any]]:
@@ -135,7 +157,7 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
             )
         return Command(
             name=command_name,
-            args=self.__read_commands_args(command_setups, contexts=contexts),
+            args=self.__read_command_args(command_setups, contexts=contexts),
             help=command_setups[consts.HELP],
         )
 
@@ -197,9 +219,8 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         )
         return statue_config
 
-    @classmethod
     def __is_command_matching(  # pylint: disable=too-many-arguments
-        cls,
+        self,
         command_name: str,
         setups: MutableMapping[str, Any],
         contexts: Optional[List[str]],
@@ -225,14 +246,33 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         ):
             return False
         if contexts is None or len(contexts) == 0:
-            return setups.get(consts.STANDARD, True)
+            return self.__command_match_default_context(setups)
         for command_context in contexts:
-            if not setups.get(command_context, False):
+            if not self.__command_match_context(setups, command_context):
                 return False
         return True
 
+    def __command_match_context(
+        self, setups: MutableMapping[str, Any], context_name: str
+    ) -> bool:
+        if context_name == consts.STANDARD:
+            return self.__command_match_default_context(setups)
+        context_configuration = self.get_context_configuration(context_name)
+        if context_configuration is None:
+            raise UnknownContext(context_name)
+        if setups.get(context_name, False):
+            return True
+        parent_context = context_configuration.get(consts.PARENT, None)
+        if parent_context is not None:
+            return self.__command_match_context(setups, parent_context)
+        return False
+
     @classmethod
-    def __read_commands_args(
+    def __command_match_default_context(cls, setups: MutableMapping[str, Any]) -> bool:
+        return setups.get(consts.STANDARD, True)
+
+    @classmethod
+    def __read_command_args(
         cls, setups: MutableMapping[str, Any], contexts: Optional[List[str]]
     ) -> List[str]:
         base_args = list(setups.get(consts.ARGS, []))

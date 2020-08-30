@@ -1,5 +1,8 @@
+import pytest
+
 from statue.command import Command
 from statue.configuration import Configuration
+from statue.excptions import UnknownContext
 from tests.constants import (
     ARG1,
     ARG2,
@@ -56,8 +59,11 @@ def test_read_commands_with_multiple_commands(
 def test_read_commands_with_non_passing_context(
     full_commands_settings_with_boolean_contexts,
 ):
-    commands = Configuration.read_commands(contexts=[NOT_EXISTING_CONTEXT])
-    assert commands == []
+    with pytest.raises(
+        UnknownContext,
+        match=f'^Could not find context named "{NOT_EXISTING_CONTEXT}".$',
+    ):
+        Configuration.read_commands(contexts=[NOT_EXISTING_CONTEXT])
 
 
 def test_read_commands_with_one_passing_context(
@@ -99,6 +105,7 @@ def test_read_commands_with_overrides_without_contexts(
     commands = Configuration.read_commands()
     assert commands == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+        Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
     ]
 
 
@@ -155,6 +162,7 @@ def test_read_commands_twice_with_overrides_with_add_args_context(
     commands2 = Configuration.read_commands()
     assert commands2 == [
         Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+        Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
     ]
 
 
@@ -194,3 +202,42 @@ def test_read_commands_with_deny_list(full_commands_settings_with_boolean_contex
         ),
         Command(name=COMMAND4, help=COMMAND_HELP_STRING4, args=[ARG4, ARG5]),
     ]
+
+
+def test_read_commands_with_no_context_in_context_inheritance(
+    commands_settings_with_context_inheritance,
+):
+    commands = Configuration.read_commands(contexts=[])
+    assert commands == [
+        Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2]),
+        Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
+    ], "Commands are different than expected."
+
+
+def test_read_commands_with_root_context(commands_settings_with_context_inheritance):
+    commands = Configuration.read_commands(contexts=[CONTEXT3])
+    assert commands == [
+        Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+        Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
+    ], "Commands are different than expected."
+
+
+def test_read_commands_with_override_context(
+    commands_settings_with_context_inheritance,
+):
+    commands = Configuration.read_commands(contexts=[CONTEXT2])
+    assert commands == [
+        Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG4, ARG5]),
+        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3, ARG5]),
+    ], "Commands are different than expected."
+
+
+def test_read_commands_with_double_inheritance_context(
+    commands_settings_with_context_inheritance,
+):
+    commands = Configuration.read_commands(contexts=[CONTEXT4])
+    assert commands == [
+        Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2, ARG5]),
+        Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[]),
+        Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[]),
+    ], "Commands are different than expected."
