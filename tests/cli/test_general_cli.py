@@ -1,7 +1,7 @@
 from statue.cli import statue as statue_cli
 
 
-def test_statue_cli_with_command(cli_runner, full_configuration):
+def test_statue_cli_without_command(cli_runner, full_configuration):
     result = cli_runner.invoke(statue_cli, [])
     assert result.exit_code == 0, "return code should exit with success."
     assert result.output == (
