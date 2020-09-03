@@ -21,51 +21,51 @@ from tests.constants import (
 
 def test_configuration_doesnt_exists(non_existing_default_config):
     assert (
-        Configuration.default_configuration is None
+        Configuration.default_configuration() is None
     ), "Default configuration should be None"
 
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.statue_configuration  # pylint: disable=pointless-statement
+        Configuration.statue_configuration()  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.commands_configuration  # pylint: disable=pointless-statement
+        Configuration.commands_configuration()  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.commands_names_list  # pylint: disable=pointless-statement
+        Configuration.commands_names_list()  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.contexts_configuration  # pylint: disable=pointless-statement
+        Configuration.contexts_configuration()  # pylint: disable=pointless-statement
     with pytest.raises(EmptyConfiguration, match="^Statue configuration is empty!$"):
-        Configuration.sources_configuration  # pylint: disable=pointless-statement
+        Configuration.sources_configuration()  # pylint: disable=pointless-statement
 
 
 def test_default_configuration_exists_and_empty(existing_empty_default_config):
     assert (
-        Configuration.default_configuration == {}
+        Configuration.default_configuration() == {}
     ), "Default configuration should be empty."
     assert (
-        Configuration.statue_configuration == {}
+        Configuration.statue_configuration() == {}
     ), "Statue configuration should be empty."
     assert (
-        Configuration.commands_configuration is None
+        Configuration.commands_configuration() is None
     ), "Commands configuration should be None."
-    assert Configuration.commands_names_list == [], "Commands list should be empty."
+    assert Configuration.commands_names_list() == [], "Commands list should be empty."
     assert (
-        Configuration.contexts_configuration is None
+        Configuration.contexts_configuration() is None
     ), "Contexts configuration should be None."
     assert (
-        Configuration.sources_configuration is None
+        Configuration.sources_configuration() is None
     ), "Sources configuration should be None."
 
 
 def test_default_configuration_exists_and_non_empty(existing_non_empty_default_config):
     assert (
-        Configuration.default_configuration == DEFAULT_CONFIG
+        Configuration.default_configuration() == DEFAULT_CONFIG
     ), "Default configuration not loaded."
     assert (
-        Configuration.statue_configuration == DEFAULT_CONFIG
+        Configuration.statue_configuration() == DEFAULT_CONFIG
     ), "Statue configuration is different than expected."
     assert (
-        Configuration.commands_configuration == BOOLEAN_COMMANDS_CONFIGURATION
+        Configuration.commands_configuration() == BOOLEAN_COMMANDS_CONFIGURATION
     ), "Commands configuration is different than expected."
-    assert Configuration.commands_names_list == [
+    assert Configuration.commands_names_list() == [
         COMMAND1,
         COMMAND2,
         COMMAND3,
@@ -73,10 +73,10 @@ def test_default_configuration_exists_and_non_empty(existing_non_empty_default_c
         COMMAND5,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION
+        Configuration.contexts_configuration() == CONTEXTS_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
-        Configuration.sources_configuration == SOURCES_CONFIGURATION
+        Configuration.sources_configuration() == SOURCES_CONFIGURATION
     ), "Sources configuration is different than expected."
 
 
@@ -85,15 +85,15 @@ def test_load_non_existing_statue_configuration(
 ):
     Configuration.load_configuration(non_existing_file)
     assert (
-        Configuration.default_configuration == DEFAULT_CONFIG
+        Configuration.default_configuration() == DEFAULT_CONFIG
     ), "Default configuration not loaded."
     assert (
-        Configuration.statue_configuration == DEFAULT_CONFIG
+        Configuration.statue_configuration() == DEFAULT_CONFIG
     ), "Statue configuration is different than expected."
     assert (
-        Configuration.commands_configuration == BOOLEAN_COMMANDS_CONFIGURATION
+        Configuration.commands_configuration() == BOOLEAN_COMMANDS_CONFIGURATION
     ), "Commands configuration is different than expected."
-    assert Configuration.commands_names_list == [
+    assert Configuration.commands_names_list() == [
         COMMAND1,
         COMMAND2,
         COMMAND3,
@@ -101,10 +101,10 @@ def test_load_non_existing_statue_configuration(
         COMMAND5,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION
+        Configuration.contexts_configuration() == CONTEXTS_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
-        Configuration.sources_configuration == SOURCES_CONFIGURATION
+        Configuration.sources_configuration() == SOURCES_CONFIGURATION
     ), "Sources configuration is different than expected."
 
 
@@ -113,17 +113,17 @@ def test_statue_configuration_different_than_default(
 ):
     Configuration.load_configuration(existing_file)
     assert (
-        Configuration.default_configuration == DEFAULT_CONFIG
+        Configuration.default_configuration() == DEFAULT_CONFIG
     ), "Default configuration not loaded."
-    assert Configuration.statue_configuration == {
+    assert Configuration.statue_configuration() == {
         COMMANDS: BOOLEAN_COMMANDS_CONFIGURATION,
         SOURCES: SOURCES_CONFIGURATION2,
         CONTEXTS: CONTEXTS_CONFIGURATION,
     }, "Statue configuration is different than expected."
     assert (
-        Configuration.commands_configuration == BOOLEAN_COMMANDS_CONFIGURATION
+        Configuration.commands_configuration() == BOOLEAN_COMMANDS_CONFIGURATION
     ), "Commands configuration is different than expected."
-    assert Configuration.commands_names_list == [
+    assert Configuration.commands_names_list() == [
         COMMAND1,
         COMMAND2,
         COMMAND3,
@@ -131,10 +131,10 @@ def test_statue_configuration_different_than_default(
         COMMAND5,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_CONFIGURATION
+        Configuration.contexts_configuration() == CONTEXTS_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
-        Configuration.sources_configuration == SOURCES_CONFIGURATION2
+        Configuration.sources_configuration() == SOURCES_CONFIGURATION2
     ), "Sources configuration is different than expected."
 
 
@@ -145,25 +145,25 @@ def test_statue_configuration_different_than_default_with_general_override(
 ):
     Configuration.load_configuration(existing_file)
     assert (
-        Configuration.default_configuration == DEFAULT_CONFIG
+        Configuration.default_configuration() == DEFAULT_CONFIG
     ), "Default configuration not loaded."
-    assert Configuration.statue_configuration == {
+    assert Configuration.statue_configuration() == {
         STATUE: {OVERRIDE: True},
         **STATUE_CONFIGURATION,
     }, "Statue configuration is different than expected."
     assert (
-        Configuration.commands_configuration == OVERRIDE_COMMANDS_CONFIGURATION
+        Configuration.commands_configuration() == OVERRIDE_COMMANDS_CONFIGURATION
     ), "Commands configuration is different than expected."
-    assert Configuration.commands_names_list == [
+    assert Configuration.commands_names_list() == [
         COMMAND1,
         COMMAND2,
         COMMAND3,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_INHERITANCE_CONFIGURATION
+        Configuration.contexts_configuration() == CONTEXTS_INHERITANCE_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
-        Configuration.sources_configuration == SOURCES_CONFIGURATION2
+        Configuration.sources_configuration() == SOURCES_CONFIGURATION2
     ), "Sources configuration is different than expected."
 
 
@@ -174,22 +174,22 @@ def test_statue_configuration_exists_and_default_does_not(
 ):
     Configuration.load_configuration(existing_file)
     assert (
-        Configuration.default_configuration is None
+        Configuration.default_configuration() is None
     ), "Default configuration should be None."
     assert (
-        Configuration.statue_configuration == STATUE_CONFIGURATION
+        Configuration.statue_configuration() == STATUE_CONFIGURATION
     ), "Statue configuration is different than expected."
     assert (
-        Configuration.commands_configuration == OVERRIDE_COMMANDS_CONFIGURATION
+        Configuration.commands_configuration() == OVERRIDE_COMMANDS_CONFIGURATION
     ), "Commands configuration is different than expected."
-    assert Configuration.commands_names_list == [
+    assert Configuration.commands_names_list() == [
         COMMAND1,
         COMMAND2,
         COMMAND3,
     ], "Commands list is different than expected."
     assert (
-        Configuration.contexts_configuration == CONTEXTS_INHERITANCE_CONFIGURATION
+        Configuration.contexts_configuration() == CONTEXTS_INHERITANCE_CONFIGURATION
     ), "Contexts configuration is different than expected."
     assert (
-        Configuration.sources_configuration == SOURCES_CONFIGURATION2
+        Configuration.sources_configuration() == SOURCES_CONFIGURATION2
     ), "Sources configuration is different than expected."

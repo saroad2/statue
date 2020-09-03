@@ -34,7 +34,7 @@ def get_commands_map(
         )
         return dict.fromkeys([str(source) for source in sources], commands)
     commands_map = dict()
-    sources_configuration = Configuration.sources_configuration
+    sources_configuration = Configuration.sources_configuration()
     if sources_configuration is None:
         return None
     for source, instructions in sources_configuration.items():

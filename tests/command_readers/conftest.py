@@ -23,7 +23,7 @@ def clear_configuration():
 
 @pytest.fixture
 def empty_settings(clear_configuration):
-    Configuration.statue_configuration = {}
+    Configuration.set_statue_configuration({})
     yield
 
 
@@ -39,7 +39,7 @@ def non_empty_sources_config():
 @pytest.fixture
 def one_command_without_args_setting(clear_configuration):
     configuration = {COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1}}}
-    Configuration.statue_configuration = configuration
+    Configuration.set_statue_configuration(configuration)
     return configuration
 
 
@@ -48,7 +48,7 @@ def configuration_without_commands(clear_configuration):
     configuration = {
         SOURCES: SOURCES_CONFIGURATION,
     }
-    Configuration.statue_configuration = configuration
+    Configuration.set_statue_configuration(configuration)
     return configuration
 
 
@@ -57,7 +57,7 @@ def one_command_with_args_settings(clear_configuration):
     configuration = {
         COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}}
     }
-    Configuration.statue_configuration = configuration
+    Configuration.set_statue_configuration(configuration)
     return configuration
 
 
@@ -68,7 +68,7 @@ def full_commands_settings_with_boolean_contexts(clear_configuration):
         SOURCES: SOURCES_CONFIGURATION,
         COMMANDS: BOOLEAN_COMMANDS_CONFIGURATION,
     }
-    Configuration.statue_configuration = configuration
+    Configuration.set_statue_configuration(configuration)
     return configuration
 
 
@@ -78,7 +78,7 @@ def full_commands_settings(clear_configuration):
         CONTEXTS: CONTEXTS_CONFIGURATION,
         COMMANDS: OVERRIDE_COMMANDS_CONFIGURATION,
     }
-    Configuration.statue_configuration = configuration
+    Configuration.set_statue_configuration(configuration)
     return configuration
 
 
@@ -88,7 +88,7 @@ def commands_settings_with_context_inheritance(clear_configuration):
         CONTEXTS: CONTEXTS_INHERITANCE_CONFIGURATION,
         COMMANDS: OVERRIDE_COMMANDS_CONFIGURATION,
     }
-    Configuration.statue_configuration = configuration
+    Configuration.set_statue_configuration(configuration)
     return configuration
 
 

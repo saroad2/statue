@@ -15,63 +15,65 @@ from statue.excptions import (
     UnknownContext,
 )
 
-__all__ = ["Configuration"]
 
-
-class __ConfigurationMetaclass:  # pylint: disable=invalid-name
+class Configuration:
+    """Configuration singleton for statue."""
 
     __default_configuration: Optional[MutableMapping[str, Any]] = None
     __statue_configuration: Optional[MutableMapping[str, Any]] = None
 
-    @property
-    def default_configuration(self) -> Optional[MutableMapping[str, Any]]:
+    @classmethod
+    def default_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of default configuration."""
-        if self.__default_configuration is None:
-            self.__load_default_configuration()
-        return deepcopy(self.__default_configuration)
+        if cls.__default_configuration is None:
+            cls.__load_default_configuration()
+        return deepcopy(cls.__default_configuration)
 
-    @default_configuration.setter
-    def default_configuration(
-        self, default_configuration: Optional[MutableMapping[str, Any]]
+    @classmethod
+    def set_default_configuration(
+        cls, default_configuration: Optional[MutableMapping[str, Any]]
     ) -> None:
         """Setter of default configuration."""
-        self.__default_configuration = default_configuration
+        cls.__default_configuration = default_configuration
 
-    @property
-    def statue_configuration(self) -> MutableMapping[str, Any]:
+    @classmethod
+    def statue_configuration(cls) -> MutableMapping[str, Any]:
         """Getter of general statue configuration."""
-        if self.__statue_configuration is not None:
-            return deepcopy(self.__statue_configuration)
-        if self.default_configuration is not None:
-            return self.default_configuration
+        if cls.__statue_configuration is not None:
+            return deepcopy(cls.__statue_configuration)
+        default_configuration = cls.default_configuration()
+        if default_configuration is not None:
+            return default_configuration
         raise EmptyConfiguration()
 
-    @statue_configuration.setter
-    def statue_configuration(
-        self, statue_configuration: Optional[MutableMapping[str, Any]]
+    @classmethod
+    def set_statue_configuration(
+        cls, statue_configuration: Optional[MutableMapping[str, Any]]
     ) -> None:
         """Setter of general statue configuration."""
-        self.__statue_configuration = statue_configuration
+        cls.__statue_configuration = statue_configuration
 
-    @property
-    def commands_configuration(self) -> Optional[MutableMapping[str, Any]]:
+    @classmethod
+    def commands_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the commands configuration."""
-        return self.statue_configuration.get(consts.COMMANDS, None)
+        return cls.statue_configuration().get(consts.COMMANDS, None)
 
-    @property
-    def commands_names_list(self) -> List[str]:
+    @classmethod
+    def commands_names_list(cls) -> List[str]:
         """Getter of the commands list."""
-        if self.commands_configuration is None:
+        commands_configuration = cls.commands_configuration()
+        if commands_configuration is None:
             return []
-        return list(self.commands_configuration.keys())
+        return list(commands_configuration.keys())
 
-    @property
-    def sources_configuration(self) -> Optional[MutableMapping[str, Any]]:
+    @classmethod
+    def sources_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
-        return self.statue_configuration.get(consts.SOURCES, None)
+        return cls.statue_configuration().get(consts.SOURCES, None)
 
+    @classmethod
     def get_context_configuration(
-        self, context_name: str
+        cls, context_name: str
     ) -> Optional[MutableMapping[str, Any]]:
         """
         Get configuration dictionary of a context.
@@ -82,17 +84,19 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
         set.
         """
-        if self.contexts_configuration is None:
+        contexts_configuration = cls.contexts_configuration()
+        if contexts_configuration is None:
             raise MissingConfiguration(consts.CONTEXTS)
-        return self.contexts_configuration.get(context_name, None)
+        return contexts_configuration.get(context_name, None)
 
-    @property
-    def contexts_configuration(self) -> Optional[MutableMapping[str, Any]]:
+    @classmethod
+    def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the contexts configuration."""
-        return self.statue_configuration.get(consts.CONTEXTS, None)
+        return cls.statue_configuration().get(consts.CONTEXTS, None)
 
+    @classmethod
     def read_commands(
-        self,
+        cls,
         contexts: Optional[List[str]] = None,
         allow_list: Optional[List[str]] = None,
         deny_list: Optional[List[str]] = None,
@@ -107,10 +111,10 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         """
         commands = []
         contexts = [] if contexts is None else contexts
-        for command_name in Configuration.commands_names_list:
+        for command_name in cls.commands_names_list():
             try:
                 commands.append(
-                    self.read_command(
+                    cls.read_command(
                         command_name=command_name,
                         contexts=contexts,
                         allow_list=allow_list,
@@ -121,8 +125,9 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
                 continue
         return commands
 
+    @classmethod
     def read_command(
-        self,
+        cls,
         command_name: str,
         contexts: Optional[List[str]] = None,
         allow_list: Optional[List[str]] = None,
@@ -140,13 +145,13 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         :class:`InvalidCommand` of command doesn't fit the given contexts, allow list
          and deny list
         """
-        commands_configuration = self.commands_configuration
+        commands_configuration = cls.commands_configuration()
         if commands_configuration is None:
             raise UnknownCommand(command_name)
         command_setups = commands_configuration.get(command_name, None)
         if command_setups is None:
             raise UnknownCommand(command_name)
-        if not self.__is_command_matching(
+        if not cls.__is_command_matching(
             command_name, command_setups, contexts, allow_list, deny_list
         ):
             raise InvalidCommand(
@@ -157,12 +162,13 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
             )
         return Command(
             name=command_name,
-            args=self.__read_command_args(command_setups, contexts=contexts),
+            args=cls.__read_command_args(command_setups, contexts=contexts),
             help=command_setups[consts.HELP],
         )
 
+    @classmethod
     def load_configuration(
-        self,
+        cls,
         statue_configuration_path: Path,
     ) -> None:
         """
@@ -174,22 +180,25 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         :param statue_configuration_path: User-defined file path containing
         repository-specific configurations
         """
-        self.statue_configuration = self.__build_configuration(  # type: ignore
-            statue_configuration_path
+        cls.set_statue_configuration(
+            cls.__build_configuration(statue_configuration_path)
         )
 
-    def reset_configuration(self) -> None:
+    @classmethod
+    def reset_configuration(cls) -> None:
         """Reset the general statue configuration."""
-        self.default_configuration = None
-        self.statue_configuration = None  # type: ignore
+        cls.set_default_configuration(None)
+        cls.set_statue_configuration(None)
 
-    def __load_default_configuration(self) -> None:
+    @classmethod
+    def __load_default_configuration(cls) -> None:
         if not consts.DEFAULT_CONFIGURATION_FILE.exists():
             return
-        self.default_configuration = toml.load(consts.DEFAULT_CONFIGURATION_FILE)
+        cls.set_default_configuration(toml.load(consts.DEFAULT_CONFIGURATION_FILE))
 
+    @classmethod
     def __build_configuration(
-        self,
+        cls,
         statue_configuration_path: Path,
     ) -> Optional[MutableMapping[str, Any]]:
         """
@@ -204,23 +213,21 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         if not statue_configuration_path.exists():
             return None
         statue_config = toml.load(statue_configuration_path)
-        if self.default_configuration is None:
+        default_configuration = cls.default_configuration()
+        if default_configuration is None:
             return statue_config
         general_settings = statue_config.get(consts.STATUE, None)
         if general_settings is not None and general_settings.get(
             consts.OVERRIDE, False
         ):
             return statue_config
-        statue_config[consts.COMMANDS] = self.default_configuration.get(
-            consts.COMMANDS, {}
-        )
-        statue_config[consts.CONTEXTS] = self.default_configuration.get(
-            consts.CONTEXTS, {}
-        )
+        statue_config[consts.COMMANDS] = default_configuration.get(consts.COMMANDS, {})
+        statue_config[consts.CONTEXTS] = default_configuration.get(consts.CONTEXTS, {})
         return statue_config
 
+    @classmethod
     def __is_command_matching(  # pylint: disable=too-many-arguments
-        self,
+        cls,
         command_name: str,
         setups: MutableMapping[str, Any],
         contexts: Optional[List[str]],
@@ -246,25 +253,26 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
         ):
             return False
         if contexts is None or len(contexts) == 0:
-            return self.__command_match_default_context(setups)
+            return cls.__command_match_default_context(setups)
         for command_context in contexts:
-            if not self.__command_match_context(setups, command_context):
+            if not cls.__command_match_context(setups, command_context):
                 return False
         return True
 
+    @classmethod
     def __command_match_context(
-        self, setups: MutableMapping[str, Any], context_name: str
+        cls, setups: MutableMapping[str, Any], context_name: str
     ) -> bool:
         if context_name == consts.STANDARD:
-            return self.__command_match_default_context(setups)
-        context_configuration = self.get_context_configuration(context_name)
+            return cls.__command_match_default_context(setups)
+        context_configuration = cls.get_context_configuration(context_name)
         if context_configuration is None:
             raise UnknownContext(context_name)
         if setups.get(context_name, False):
             return True
         parent_context = context_configuration.get(consts.PARENT, None)
         if parent_context is not None:
-            return self.__command_match_context(setups, parent_context)
+            return cls.__command_match_context(setups, parent_context)
         return False
 
     @classmethod
@@ -292,6 +300,3 @@ class __ConfigurationMetaclass:  # pylint: disable=invalid-name
             if clear_args:
                 return []
         return base_args
-
-
-Configuration = __ConfigurationMetaclass()
