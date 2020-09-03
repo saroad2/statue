@@ -16,7 +16,7 @@ def context_cli() -> None:
 @click.pass_context
 def contexts_list(ctx: click.Context) -> None:
     """Print all available contexts."""
-    contexts_configuration = Configuration.contexts_configuration
+    contexts_configuration = Configuration.contexts_configuration()
     if contexts_configuration is None:
         click.echo("No contexts were found.")
         ctx.exit(1)
@@ -29,7 +29,7 @@ def contexts_list(ctx: click.Context) -> None:
 @click.argument("context_name", type=str)
 def show_contexts(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
-    contexts_configuration = Configuration.contexts_configuration
+    contexts_configuration = Configuration.contexts_configuration()
     if contexts_configuration is None:
         click.echo("No contexts were found.")
         ctx.exit(1)

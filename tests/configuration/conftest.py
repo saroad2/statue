@@ -78,7 +78,7 @@ def existing_empty_default_config(existing_default_config, toml_load_mock):
 
 @pytest.fixture
 def direct_set_default_config():
-    Configuration.default_configuration = DEFAULT_CONFIG
+    Configuration.set_default_configuration(DEFAULT_CONFIG)
     yield
     Configuration.reset_configuration()
 

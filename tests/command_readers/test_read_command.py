@@ -220,7 +220,7 @@ def test_read_command_with_no_commands_configuration(configuration_without_comma
 def test_read_command_with_context_when_no_context_configuration_was_set(
     clear_configuration,
 ):
-    Configuration.statue_configuration = {COMMANDS: OVERRIDE_COMMANDS_CONFIGURATION}
+    Configuration.set_statue_configuration({COMMANDS: OVERRIDE_COMMANDS_CONFIGURATION})
     with pytest.raises(
         MissingConfiguration,
         match=f'^"{CONTEXTS}" is missing from Statue configuration.$',
