@@ -67,3 +67,8 @@ def mock_read_command(mocker, mock_load_configuration):
 @pytest.fixture
 def mock_read_commands(mocker, mock_load_configuration):
     return mocker.patch.object(Configuration, "read_commands")
+
+
+@pytest.fixture
+def mock_contexts_configuration(mocker, mock_load_configuration):
+    return mocker.patch.object(Configuration, "contexts_configuration")
