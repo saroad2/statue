@@ -52,3 +52,18 @@ def full_configuration(cwd_mock):
 @pytest.fixture
 def mock_command_execute(mocker):
     return mocker.patch.object(Command, "_run_subprocess")
+
+
+@pytest.fixture
+def mock_load_configuration(mocker, empty_configuration):
+    return mocker.patch.object(Configuration, "load_configuration")
+
+
+@pytest.fixture
+def mock_read_command(mocker, mock_load_configuration):
+    return mocker.patch.object(Configuration, "read_command")
+
+
+@pytest.fixture
+def mock_read_commands(mocker, mock_load_configuration):
+    return mocker.patch.object(Configuration, "read_commands")

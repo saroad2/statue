@@ -13,7 +13,7 @@ from statue.configuration import Configuration
 @click.option(
     "--config",
     envvar="STATUE_CONFIG",
-    default=lambda: Path.cwd() / "statue.toml",
+    default=lambda: str(Path.cwd() / "statue.toml"),
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )

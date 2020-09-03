@@ -36,9 +36,9 @@ class InvalidCommand(StatueException):
     def __init__(
         self,
         command_name: str,
-        contexts: Optional[List[str]],
-        allow_list: Optional[List[str]],
-        deny_list: Optional[List[str]],
+        contexts: Optional[List[str]] = None,
+        allow_list: Optional[List[str]] = None,
+        deny_list: Optional[List[str]] = None,
     ) -> None:
         """Exception constructor."""
         super().__init__(
