@@ -1,6 +1,5 @@
 from statue.cli import statue as statue_cli
 from statue.command import Command
-from statue.constants import HELP
 from tests.constants import (
     COMMAND1,
     COMMAND2,

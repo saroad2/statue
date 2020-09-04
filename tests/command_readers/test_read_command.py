@@ -28,20 +28,15 @@ from tests.constants import (
     COMMAND1,
     COMMAND2,
     COMMAND3,
-    COMMAND5,
     COMMAND_HELP_STRING1,
     COMMAND_HELP_STRING2,
-    COMMAND_HELP_STRING3,
-    COMMAND_HELP_STRING5,
     CONTEXT1,
     CONTEXT2,
     CONTEXT3,
-    CONTEXT4,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
     CONTEXTS_CONFIGURATION,
     NOT_EXISTING_CONTEXT,
-    OVERRIDE_COMMANDS_CONFIGURATION,
 )
 
 # Success cases
@@ -403,24 +398,24 @@ def case_failure_non_existing_command():
             COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG5]},
         },
     }
-    kwargs = dict(command_name=COMMAND5)
+    kwargs = dict(command_name=COMMAND3)
     return (
         configuration,
         kwargs,
         UnknownCommand,
-        f'^Could not find command named "{COMMAND5}".$',
+        f'^Could not find command named "{COMMAND3}".$',
     )
 
 
 # TODO: this should raise MissingConfiguration exception
 def case_failure_with_no_commands_configuration():
     configuration = {CONTEXTS: CONTEXTS_CONFIGURATION}
-    kwargs = dict(command_name=COMMAND5)
+    kwargs = dict(command_name=COMMAND3)
     return (
         configuration,
         kwargs,
         UnknownCommand,
-        f'^Could not find command named "{COMMAND5}".$',
+        f'^Could not find command named "{COMMAND3}".$',
     )
 
 

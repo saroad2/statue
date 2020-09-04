@@ -3,26 +3,13 @@ from unittest import mock
 from statue.commands_map import get_commands_map
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from tests.constants import (
-    ARG1,
-    ARG2,
-    ARG3,
-    ARG4,
-    ARG5,
     COMMAND1,
     COMMAND2,
     COMMAND3,
-    COMMAND4,
-    COMMAND_HELP_STRING1,
-    COMMAND_HELP_STRING2,
-    COMMAND_HELP_STRING3,
-    COMMAND_HELP_STRING4,
     CONTEXT1,
     CONTEXT2,
     SOURCE1,
     SOURCE2,
-    SOURCE3,
-    SOURCE4,
-    SOURCE5,
 )
 
 

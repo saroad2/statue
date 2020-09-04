@@ -3,17 +3,12 @@ from unittest.mock import Mock
 import pytest
 
 from statue.cli import statue as statue_cli
-from statue.command import Command
-from statue.configuration import Configuration
-from statue.constants import COMMANDS, HELP, SOURCES
 from statue.excptions import UnknownContext
 from statue.verbosity import DEFAULT_VERBOSITY
 from tests.constants import (
     COMMAND1,
     COMMAND2,
     COMMAND3,
-    COMMAND_HELP_STRING1,
-    COMMAND_HELP_STRING2,
     NOT_EXISTING_CONTEXT,
     SOURCE1,
     SOURCE2,
