@@ -211,8 +211,8 @@ def test_read_command_non_existing(full_commands_settings):
 
 def test_read_command_with_no_commands_configuration(configuration_without_commands):
     with pytest.raises(
-        UnknownCommand,
-        match=f'^Could not find command named "{COMMAND5}".$',
+        MissingConfiguration,
+        match=f'^"{COMMANDS}" is missing from Statue configuration.$',
     ):
         Configuration.read_command(command_name=COMMAND5)
 
