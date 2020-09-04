@@ -67,9 +67,32 @@ class Configuration:
         return list(commands_configuration.keys())
 
     @classmethod
+    def get_command_configuration(
+        cls, command_name: str
+    ) -> Optional[MutableMapping[str, Any]]:
+        """
+        Get configuration dictionary of a context.
+
+        :param command_name: Name of the desired command.
+        :type command_name: str
+        :return: configuration dictionary.
+        :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
+        set.
+        """
+        commands_configuration = cls.commands_configuration()
+        if commands_configuration is None:
+            raise MissingConfiguration(consts.COMMANDS)
+        return commands_configuration.get(command_name, None)
+
+    @classmethod
     def sources_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
         return cls.statue_configuration().get(consts.SOURCES, None)
+
+    @classmethod
+    def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
+        """Getter of the contexts configuration."""
+        return cls.statue_configuration().get(consts.CONTEXTS, None)
 
     @classmethod
     def get_context_configuration(
@@ -88,11 +111,6 @@ class Configuration:
         if contexts_configuration is None:
             raise MissingConfiguration(consts.CONTEXTS)
         return contexts_configuration.get(context_name, None)
-
-    @classmethod
-    def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
-        """Getter of the contexts configuration."""
-        return cls.statue_configuration().get(consts.CONTEXTS, None)
 
     @classmethod
     def read_commands(
@@ -145,14 +163,11 @@ class Configuration:
         :class:`InvalidCommand` of command doesn't fit the given contexts, allow list
          and deny list
         """
-        commands_configuration = cls.commands_configuration()
-        if commands_configuration is None:
-            raise UnknownCommand(command_name)
-        command_setups = commands_configuration.get(command_name, None)
-        if command_setups is None:
+        command_configuration = cls.get_command_configuration(command_name)
+        if command_configuration is None:
             raise UnknownCommand(command_name)
         if not cls.__is_command_matching(
-            command_name, command_setups, contexts, allow_list, deny_list
+            command_name, command_configuration, contexts, allow_list, deny_list
         ):
             raise InvalidCommand(
                 command_name=command_name,
@@ -162,8 +177,8 @@ class Configuration:
             )
         return Command(
             name=command_name,
-            args=cls.__read_command_args(command_setups, contexts=contexts),
-            help=command_setups[consts.HELP],
+            args=cls.__read_command_args(command_configuration, contexts=contexts),
+            help=command_configuration[consts.HELP],
         )
 
     @classmethod

@@ -407,15 +407,14 @@ def case_failure_non_existing_command():
     )
 
 
-# TODO: this should raise MissingConfiguration exception
 def case_failure_with_no_commands_configuration():
     configuration = {CONTEXTS: CONTEXTS_CONFIGURATION}
     kwargs = dict(command_name=COMMAND3)
     return (
         configuration,
         kwargs,
-        UnknownCommand,
-        f'^Could not find command named "{COMMAND3}".$',
+        MissingConfiguration,
+        f'^"{COMMANDS}" is missing from Statue configuration.$',
     )
 
 
