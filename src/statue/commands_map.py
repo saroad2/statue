@@ -47,7 +47,7 @@ def get_commands_map(
                 deny_list, instructions.get(DENY_LIST, None)
             ),
         )
-        if len(commands) != 0:
+        if commands is not None and len(commands) != 0:
             commands_map[str(source)] = commands
     if len(commands_map) == 0:
         return None
