@@ -18,7 +18,9 @@ from tests.constants import (
 )
 
 
-def test_contexts_list_of_full_configuration(cli_runner, mock_contexts_configuration):
+def test_contexts_list_of_full_configuration(
+    cli_runner, empty_configuration, mock_contexts_configuration
+):
     mock_contexts_configuration.return_value = CONTEXTS_CONFIGURATION
     result = cli_runner.invoke(statue_cli, ["context", "list"])
     assert result.exit_code == 0, "list contexts should exit with success."
@@ -31,7 +33,7 @@ def test_contexts_list_of_full_configuration(cli_runner, mock_contexts_configura
 
 
 def test_contexts_list_of_an_empty_configuration(
-    cli_runner, mock_contexts_configuration
+    cli_runner, empty_configuration, mock_contexts_configuration
 ):
     mock_contexts_configuration.return_value = None
     result = cli_runner.invoke(statue_cli, ["context", "list"])
@@ -42,7 +44,7 @@ def test_contexts_list_of_an_empty_configuration(
 
 
 def test_contexts_show_of_existing_context(
-    cli_runner, mock_contexts_configuration, mock_read_commands
+    cli_runner, empty_configuration, mock_contexts_configuration, mock_read_commands
 ):
     mock_contexts_configuration.return_value = CONTEXTS_CONFIGURATION
     mock_read_commands.return_value = [
@@ -59,7 +61,9 @@ def test_contexts_show_of_existing_context(
     mock_read_commands.assert_called_once_with(contexts=[CONTEXT2])
 
 
-def test_contexts_show_of_empty_configuration(cli_runner, mock_contexts_configuration):
+def test_contexts_show_of_empty_configuration(
+    cli_runner, empty_configuration, mock_contexts_configuration
+):
     mock_contexts_configuration.return_value = None
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
     assert result.exit_code == 1, "show context should exit with failure."
@@ -68,7 +72,9 @@ def test_contexts_show_of_empty_configuration(cli_runner, mock_contexts_configur
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_non_existing_context(cli_runner, mock_contexts_configuration):
+def test_contexts_show_of_non_existing_context(
+    cli_runner, empty_configuration, mock_contexts_configuration
+):
     mock_contexts_configuration.return_value = CONTEXTS_CONFIGURATION
     result = cli_runner.invoke(statue_cli, ["context", "show", NOT_EXISTING_CONTEXT])
     assert result.exit_code == 1, "show context should exit with failure."

@@ -27,7 +27,7 @@ def mock_install_if_missing(monkeypatch):
     return install_mock
 
 
-def test_commands_list(cli_runner, mock_read_commands):
+def test_commands_list(cli_runner, empty_configuration, mock_read_commands):
     mock_read_commands.return_value = [
         Command(COMMAND1, help=COMMAND_HELP_STRING1),
         Command(COMMAND2, help=COMMAND_HELP_STRING2),
@@ -47,7 +47,9 @@ def test_commands_list(cli_runner, mock_read_commands):
     )
 
 
-def test_commands_install(cli_runner, mock_install_if_missing, mock_read_commands):
+def test_commands_install(
+    cli_runner, empty_configuration, mock_install_if_missing, mock_read_commands
+):
     commands = [mock.Mock(), mock.Mock(), mock.Mock()]
     mock_read_commands.return_value = commands
     result = cli_runner.invoke(statue_cli, ["command", "install"])
@@ -56,7 +58,9 @@ def test_commands_install(cli_runner, mock_install_if_missing, mock_read_command
     mock_install_if_missing.assert_called_with(commands, verbosity=DEFAULT_VERBOSITY)
 
 
-def test_commands_show_existing_command(cli_runner, mock_read_command):
+def test_commands_show_existing_command(
+    cli_runner, empty_configuration, mock_read_command
+):
     mock_read_command.return_value = Command(
         COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]
     )
@@ -69,7 +73,9 @@ def test_commands_show_existing_command(cli_runner, mock_read_command):
     ), "Show output is different than expected."
 
 
-def test_commands_show_unknown_command_side_effect(cli_runner, mock_read_command):
+def test_commands_show_unknown_command_side_effect(
+    cli_runner, empty_configuration, mock_read_command
+):
     mock_read_command.side_effect = UnknownCommand(NOT_EXISTING_COMMAND)
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
@@ -78,7 +84,9 @@ def test_commands_show_unknown_command_side_effect(cli_runner, mock_read_command
     ), "Show output is different than expected."
 
 
-def test_commands_show_invalid_command_side_effect(cli_runner, mock_read_command):
+def test_commands_show_invalid_command_side_effect(
+    cli_runner, empty_configuration, mock_read_command
+):
     mock_read_command.side_effect = InvalidCommand(NOT_EXISTING_COMMAND)
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
