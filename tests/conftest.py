@@ -30,11 +30,6 @@ def empty_configuration(cwd_mock, clear_configuration):
 
 
 @pytest.fixture
-def mock_load_configuration(mocker, empty_configuration):
-    return mocker.patch.object(Configuration, "load_configuration")
-
-
-@pytest.fixture
 def mock_read_command(mocker, empty_configuration):
     return mocker.patch.object(Configuration, "read_command")
 
