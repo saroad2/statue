@@ -5,8 +5,21 @@ from typing import Any, List, MutableMapping, Optional
 
 import toml
 
-import statue.constants as consts
 from statue.command import Command
+from statue.constants import (
+    ADD_ARGS,
+    ARGS,
+    CLEAR_ARGS,
+    COMMANDS,
+    CONTEXTS,
+    DEFAULT_CONFIGURATION_FILE,
+    HELP,
+    OVERRIDE,
+    PARENT,
+    SOURCES,
+    STANDARD,
+    STATUE,
+)
 from statue.excptions import (
     EmptyConfiguration,
     InvalidCommand,
@@ -56,7 +69,7 @@ class Configuration:
     @classmethod
     def commands_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the commands configuration."""
-        return cls.statue_configuration().get(consts.COMMANDS, None)
+        return cls.statue_configuration().get(COMMANDS, None)
 
     @classmethod
     def commands_names_list(cls) -> List[str]:
@@ -81,13 +94,13 @@ class Configuration:
         """
         commands_configuration = cls.commands_configuration()
         if commands_configuration is None:
-            raise MissingConfiguration(consts.COMMANDS)
+            raise MissingConfiguration(COMMANDS)
         return commands_configuration.get(command_name, None)
 
     @classmethod
     def sources_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
-        return cls.statue_configuration().get(consts.SOURCES, None)
+        return cls.statue_configuration().get(SOURCES, None)
 
     @classmethod
     def sources_list(cls) -> List[str]:
@@ -110,13 +123,13 @@ class Configuration:
         """
         source_configuration = cls.sources_configuration()
         if source_configuration is None:
-            raise MissingConfiguration(consts.SOURCES)
+            raise MissingConfiguration(SOURCES)
         return source_configuration[source]
 
     @classmethod
     def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of the contexts configuration."""
-        return cls.statue_configuration().get(consts.CONTEXTS, None)
+        return cls.statue_configuration().get(CONTEXTS, None)
 
     @classmethod
     def get_context_configuration(
@@ -133,7 +146,7 @@ class Configuration:
         """
         contexts_configuration = cls.contexts_configuration()
         if contexts_configuration is None:
-            raise MissingConfiguration(consts.CONTEXTS)
+            raise MissingConfiguration(CONTEXTS)
         return contexts_configuration.get(context_name, None)
 
     @classmethod
@@ -202,7 +215,7 @@ class Configuration:
         return Command(
             name=command_name,
             args=cls.__read_command_args(command_configuration, contexts=contexts),
-            help=command_configuration[consts.HELP],
+            help=command_configuration[HELP],
         )
 
     @classmethod
@@ -231,9 +244,9 @@ class Configuration:
 
     @classmethod
     def __load_default_configuration(cls) -> None:
-        if not consts.DEFAULT_CONFIGURATION_FILE.exists():
+        if not DEFAULT_CONFIGURATION_FILE.exists():
             return
-        cls.set_default_configuration(toml.load(consts.DEFAULT_CONFIGURATION_FILE))
+        cls.set_default_configuration(toml.load(DEFAULT_CONFIGURATION_FILE))
 
     @classmethod
     def __build_configuration(
@@ -255,13 +268,11 @@ class Configuration:
         default_configuration = cls.default_configuration()
         if default_configuration is None:
             return statue_config
-        general_settings = statue_config.get(consts.STATUE, None)
-        if general_settings is not None and general_settings.get(
-            consts.OVERRIDE, False
-        ):
+        general_settings = statue_config.get(STATUE, None)
+        if general_settings is not None and general_settings.get(OVERRIDE, False):
             return statue_config
-        statue_config[consts.COMMANDS] = default_configuration.get(consts.COMMANDS, {})
-        statue_config[consts.CONTEXTS] = default_configuration.get(consts.CONTEXTS, {})
+        statue_config[COMMANDS] = default_configuration.get(COMMANDS, {})
+        statue_config[CONTEXTS] = default_configuration.get(CONTEXTS, {})
         return statue_config
 
     @classmethod
@@ -302,40 +313,40 @@ class Configuration:
     def __command_match_context(
         cls, setups: MutableMapping[str, Any], context_name: str
     ) -> bool:
-        if context_name == consts.STANDARD:
+        if context_name == STANDARD:
             return cls.__command_match_default_context(setups)
         context_configuration = cls.get_context_configuration(context_name)
         if context_configuration is None:
             raise UnknownContext(context_name)
         if setups.get(context_name, False):
             return True
-        parent_context = context_configuration.get(consts.PARENT, None)
+        parent_context = context_configuration.get(PARENT, None)
         if parent_context is not None:
             return cls.__command_match_context(setups, parent_context)
         return False
 
     @classmethod
     def __command_match_default_context(cls, setups: MutableMapping[str, Any]) -> bool:
-        return setups.get(consts.STANDARD, True)
+        return setups.get(STANDARD, True)
 
     @classmethod
     def __read_command_args(
         cls, setups: MutableMapping[str, Any], contexts: Optional[List[str]]
     ) -> List[str]:
-        base_args = list(setups.get(consts.ARGS, []))
+        base_args = list(setups.get(ARGS, []))
         if contexts is None:
             return base_args
         for command_context in contexts:
             context_obj = setups.get(command_context, None)
             if not isinstance(context_obj, dict):
                 continue
-            args: List[str] = context_obj.get(consts.ARGS, None)
+            args: List[str] = context_obj.get(ARGS, None)
             if args is not None:
                 return args
-            add_args = context_obj.get(consts.ADD_ARGS, None)
+            add_args = context_obj.get(ADD_ARGS, None)
             if add_args is not None:
                 base_args.extend(add_args)
-            clear_args = context_obj.get(consts.CLEAR_ARGS, False)
+            clear_args = context_obj.get(CLEAR_ARGS, False)
             if clear_args:
                 return []
         return base_args
