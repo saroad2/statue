@@ -4,6 +4,11 @@ from statue.configuration import Configuration
 
 
 @pytest.fixture
+def mock_toml_load(mocker):
+    return mocker.patch("toml.load")
+
+
+@pytest.fixture
 def clear_configuration():
     yield
     Configuration.reset_configuration()

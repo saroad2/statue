@@ -10,11 +10,6 @@ def mock_default_configuration_path(mocker):
     return mocker.patch("statue.configuration.DEFAULT_CONFIGURATION_FILE")
 
 
-@pytest.fixture
-def mock_toml_load(mocker):
-    return mocker.patch("toml.load")
-
-
 def test_set_default_configuration(clear_configuration):
     Configuration.set_default_configuration(DUMMY_CONFIGURATION)
     assert (
