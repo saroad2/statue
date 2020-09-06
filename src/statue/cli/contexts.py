@@ -16,12 +16,14 @@ def context_cli() -> None:
 @click.pass_context
 def contexts_list(ctx: click.Context) -> None:
     """Print all available contexts."""
-    contexts_configuration = Configuration.contexts_configuration()
-    if contexts_configuration is None:
+    contexts = Configuration.contexts_list()
+    if len(contexts) == 0:
         click.echo("No contexts were found.")
         ctx.exit(1)
-    for context_name, context_instance in contexts_configuration.items():
-        click.echo(f"{context_name} - {context_instance[HELP]}")
+    for context in contexts:
+        click.echo(
+            f"{context} - {Configuration.get_context_configuration(context)[HELP]}"
+        )
 
 
 @context_cli.command("show")

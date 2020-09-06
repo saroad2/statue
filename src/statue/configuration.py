@@ -121,6 +121,14 @@ class Configuration:
         return cls.statue_configuration().get(consts.CONTEXTS, None)
 
     @classmethod
+    def contexts_list(cls) -> List[str]:
+        """Getter of the sources configuration."""
+        contexts_configuration = cls.contexts_configuration()
+        if contexts_configuration is None:
+            return []
+        return list(contexts_configuration.keys())
+
+    @classmethod
     def get_context_configuration(
         cls, context_name: str
     ) -> Optional[MutableMapping[str, Any]]:
