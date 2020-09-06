@@ -4,14 +4,7 @@ import pytest
 import toml
 from click.testing import CliRunner
 
-from statue.command import Command
-from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, OVERRIDE, SOURCES, STATUE
-from tests.constants import (
-    BOOLEAN_COMMANDS_CONFIGURATION,
-    CONTEXTS_CONFIGURATION,
-    SOURCES_CONFIGURATION,
-)
+from statue.constants import OVERRIDE, STATUE
 
 
 @pytest.fixture
@@ -27,28 +20,9 @@ def cwd_mock(mocker, tmpdir):
 
 
 @pytest.fixture
-def empty_configuration(cwd_mock):
+def empty_configuration(cwd_mock, clear_configuration):
     configuration = {
         STATUE: {OVERRIDE: True},
     }
     toml.dump(configuration, cwd_mock / "statue.toml")
-    yield configuration
-    Configuration.reset_configuration()
-
-
-@pytest.fixture
-def full_configuration(cwd_mock):
-    configuration = {
-        STATUE: {OVERRIDE: True},
-        COMMANDS: BOOLEAN_COMMANDS_CONFIGURATION,
-        SOURCES: SOURCES_CONFIGURATION,
-        CONTEXTS: CONTEXTS_CONFIGURATION,
-    }
-    toml.dump(configuration, cwd_mock / "statue.toml")
-    yield configuration
-    Configuration.reset_configuration()
-
-
-@pytest.fixture
-def mock_command_execute(mocker):
-    return mocker.patch.object(Command, "_run_subprocess")
+    return configuration

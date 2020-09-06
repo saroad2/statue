@@ -34,10 +34,8 @@ def get_commands_map(
         )
         return dict.fromkeys([str(source) for source in sources], commands)
     commands_map = dict()
-    sources_configuration = Configuration.sources_configuration()
-    if sources_configuration is None:
-        return None
-    for source, instructions in sources_configuration.items():
+    for source in Configuration.sources_list():
+        instructions = Configuration.get_source_configuration(source)
         commands = Configuration.read_commands(
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(
@@ -47,7 +45,7 @@ def get_commands_map(
                 deny_list, instructions.get(DENY_LIST, None)
             ),
         )
-        if len(commands) != 0:
+        if commands is not None and len(commands) != 0:
             commands_map[str(source)] = commands
     if len(commands_map) == 0:
         return None
