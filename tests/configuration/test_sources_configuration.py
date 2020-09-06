@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 import pytest
 
 from statue.configuration import Configuration
@@ -5,7 +7,7 @@ from statue.constants import SOURCES
 from statue.excptions import MissingConfiguration
 from tests.constants import SOURCE1, SOURCE2, SOURCE3
 
-SOURCES_CONFIGURATION = {SOURCE1: {}, SOURCE2: {}, SOURCE3: {}}
+SOURCES_CONFIGURATION: Dict[str, Any] = {SOURCE1: {}, SOURCE2: {}, SOURCE3: {}}
 
 
 def test_simple_sources_configuration(clear_configuration):

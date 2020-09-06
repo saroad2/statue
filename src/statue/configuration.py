@@ -98,7 +98,9 @@ class Configuration:
         return commands_configuration.get(command_name, None)
 
     @classmethod
-    def sources_configuration(cls) -> Optional[MutableMapping[str, Any]]:
+    def sources_configuration(
+        cls,
+    ) -> Optional[MutableMapping[str, MutableMapping[str, Any]]]:
         """Getter of the sources configuration."""
         return cls.statue_configuration().get(SOURCES, None)
 
