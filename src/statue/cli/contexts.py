@@ -21,9 +21,10 @@ def contexts_list(ctx: click.Context) -> None:
         click.echo("No contexts were found.")
         ctx.exit(1)
     for context in contexts:
-        click.echo(
-            f"{context} - {Configuration.get_context_configuration(context)[HELP]}"
-        )
+        context_configuration = Configuration.get_context_configuration(context)
+        if context_configuration is None:
+            continue
+        click.echo(f"{context} - {context_configuration[HELP]}")
 
 
 @context_cli.command("show")

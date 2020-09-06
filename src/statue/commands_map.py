@@ -36,6 +36,8 @@ def get_commands_map(
     commands_map = dict()
     for source in Configuration.sources_list():
         instructions = Configuration.get_source_configuration(source)
+        if instructions is None:
+            continue
         commands = Configuration.read_commands(
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(
