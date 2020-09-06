@@ -72,6 +72,37 @@ class Configuration:
         return cls.statue_configuration().get(consts.SOURCES, None)
 
     @classmethod
+    def sources_list(cls) -> List[str]:
+        """Getter of the sources configuration."""
+        sources_configuration = cls.sources_configuration()
+        if sources_configuration is None:
+            return []
+        return list(sources_configuration.keys())
+
+    @classmethod
+    def get_source_configuration(
+        cls, source: str
+    ) -> Optional[MutableMapping[str, Any]]:
+        """
+        Get configuration dictionary of a context.
+
+        :param source: Name of the desired context.
+        :type source: str
+        :return: configuration dictionary.
+        :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
+        set.
+        """
+        sources_configuration = cls.sources_configuration()
+        if sources_configuration is None:
+            raise MissingConfiguration(consts.CONTEXTS)
+        return sources_configuration.get(source, None)
+
+    @classmethod
+    def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
+        """Getter of the contexts configuration."""
+        return cls.statue_configuration().get(consts.CONTEXTS, None)
+
+    @classmethod
     def get_context_configuration(
         cls, context_name: str
     ) -> Optional[MutableMapping[str, Any]]:
@@ -88,11 +119,6 @@ class Configuration:
         if contexts_configuration is None:
             raise MissingConfiguration(consts.CONTEXTS)
         return contexts_configuration.get(context_name, None)
-
-    @classmethod
-    def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
-        """Getter of the contexts configuration."""
-        return cls.statue_configuration().get(consts.CONTEXTS, None)
 
     @classmethod
     def read_commands(
