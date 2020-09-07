@@ -23,6 +23,7 @@ from statue.constants import (
 from statue.excptions import (
     EmptyConfiguration,
     InvalidCommand,
+    InvalidStatueConfiguration,
     MissingConfiguration,
     UnknownCommand,
     UnknownContext,
@@ -279,7 +280,12 @@ class Configuration:
         )
         if commands_configuration is not None:
             statue_config[COMMANDS] = commands_configuration
-        statue_config[CONTEXTS] = default_configuration.get(CONTEXTS, {})
+        contexts_configuration = cls.__build_contexts_configuration(
+            statue_contexts_configuration=statue_config.get(CONTEXTS, None),
+            default_contexts_configuration=default_configuration.get(CONTEXTS, None),
+        )
+        if contexts_configuration is not None:
+            statue_config[CONTEXTS] = contexts_configuration
         return statue_config
 
     @classmethod
@@ -299,6 +305,25 @@ class Configuration:
             else:
                 commands_configuration[command_name] = command_setups
         return commands_configuration
+
+    @classmethod
+    def __build_contexts_configuration(
+        cls,
+        statue_contexts_configuration: Optional[MutableMapping[str, Any]],
+        default_contexts_configuration: Optional[MutableMapping[str, Any]],
+    ) -> Optional[MutableMapping[str, Any]]:
+        if statue_contexts_configuration is None:
+            return default_contexts_configuration
+        if default_contexts_configuration is None:
+            return statue_contexts_configuration
+        contexts = deepcopy(default_contexts_configuration)
+        for context_name, context_setup in statue_contexts_configuration.items():
+            if context_name in contexts:
+                raise InvalidStatueConfiguration(
+                    f'"{context_name}" is a predefined context and cannot be override'
+                )
+            contexts[context_name] = context_setup
+        return contexts
 
     @classmethod
     def __is_command_matching(  # pylint: disable=too-many-arguments
