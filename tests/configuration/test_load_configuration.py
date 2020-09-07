@@ -6,6 +6,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 from statue.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, OVERRIDE, STATUE
 from statue.excptions import EmptyConfiguration
+from tests.constants import COMMAND1, COMMAND2, CONTEXT1, CONTEXT2
 
 
 def case_default_configuration_doesnt_exist():
@@ -21,16 +22,52 @@ def case_configuration_with_override():
 
 
 def case_commands_taken_from_default():
-    default_configuration = {COMMANDS: {"a": "b"}}
+    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
     statue_configuration = {"c": "d"}
-    result = {COMMANDS: {"a": "b"}, "c": "d", CONTEXTS: {}}
+    result = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}, "c": "d", CONTEXTS: {}}
+    return default_configuration, statue_configuration, result
+
+
+def case_commands_taken_from_user():
+    default_configuration = {}
+    statue_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
+    result = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}, CONTEXTS: {}}
     return default_configuration, statue_configuration, result
 
 
 def case_contexts_taken_from_default():
     default_configuration = {CONTEXTS: {"a": "b"}}
     statue_configuration = {"c": "d"}
-    result = {CONTEXTS: {"a": "b"}, "c": "d", COMMANDS: {}}
+    result = {CONTEXTS: {"a": "b"}, "c": "d"}
+    return default_configuration, statue_configuration, result
+
+
+def case_marge_commands_from_user_and_default():
+    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
+    statue_configuration = {"c": "d", COMMANDS: {COMMAND2: {"e": "f"}}}
+    result = {
+        COMMANDS: {COMMAND1: {CONTEXT1: "b"}, COMMAND2: {"e": "f"}},
+        "c": "d",
+        CONTEXTS: {},
+    }
+    return default_configuration, statue_configuration, result
+
+
+def case_user_override_default_command_in_context():
+    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "c"}}}
+    statue_configuration = {"c": "d", COMMANDS: {COMMAND1: {CONTEXT1: "f"}}}
+    result = {COMMANDS: {COMMAND1: {CONTEXT1: "f"}}, "c": "d", CONTEXTS: {}}
+    return default_configuration, statue_configuration, result
+
+
+def case_user_add_context_to_command():
+    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "c"}}}
+    statue_configuration = {"c": "d", COMMANDS: {COMMAND1: {CONTEXT2: "f"}}}
+    result = {
+        COMMANDS: {COMMAND1: {CONTEXT1: "c", CONTEXT2: "f"}},
+        "c": "d",
+        CONTEXTS: {},
+    }
     return default_configuration, statue_configuration, result
 
 

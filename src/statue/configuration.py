@@ -273,9 +273,32 @@ class Configuration:
         general_settings = statue_config.get(STATUE, None)
         if general_settings is not None and general_settings.get(OVERRIDE, False):
             return statue_config
-        statue_config[COMMANDS] = default_configuration.get(COMMANDS, {})
+        commands_configuration = cls.__build_commands_configuration(
+            statue_commands_configuration=statue_config.get(COMMANDS, None),
+            default_commands_configuration=default_configuration.get(COMMANDS, None),
+        )
+        if commands_configuration is not None:
+            statue_config[COMMANDS] = commands_configuration
         statue_config[CONTEXTS] = default_configuration.get(CONTEXTS, {})
         return statue_config
+
+    @classmethod
+    def __build_commands_configuration(
+        cls,
+        statue_commands_configuration: Optional[MutableMapping[str, Any]],
+        default_commands_configuration: Optional[MutableMapping[str, Any]],
+    ) -> Optional[MutableMapping[str, Any]]:
+        if statue_commands_configuration is None:
+            return default_commands_configuration
+        if default_commands_configuration is None:
+            return statue_commands_configuration
+        commands_configuration = deepcopy(default_commands_configuration)
+        for command_name, command_setups in statue_commands_configuration.items():
+            if command_name in commands_configuration:
+                commands_configuration[command_name].update(command_setups)
+            else:
+                commands_configuration[command_name] = command_setups
+        return commands_configuration
 
     @classmethod
     def __is_command_matching(  # pylint: disable=too-many-arguments
