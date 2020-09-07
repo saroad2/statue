@@ -23,6 +23,7 @@ from statue.constants import (
 from statue.excptions import (
     EmptyConfiguration,
     InvalidCommand,
+    InvalidStatueConfiguration,
     MissingConfiguration,
     UnknownCommand,
     UnknownContext,
@@ -273,9 +274,56 @@ class Configuration:
         general_settings = statue_config.get(STATUE, None)
         if general_settings is not None and general_settings.get(OVERRIDE, False):
             return statue_config
-        statue_config[COMMANDS] = default_configuration.get(COMMANDS, {})
-        statue_config[CONTEXTS] = default_configuration.get(CONTEXTS, {})
+        commands_configuration = cls.__build_commands_configuration(
+            statue_commands_configuration=statue_config.get(COMMANDS, None),
+            default_commands_configuration=default_configuration.get(COMMANDS, None),
+        )
+        if commands_configuration is not None:
+            statue_config[COMMANDS] = commands_configuration
+        contexts_configuration = cls.__build_contexts_configuration(
+            statue_contexts_configuration=statue_config.get(CONTEXTS, None),
+            default_contexts_configuration=default_configuration.get(CONTEXTS, None),
+        )
+        if contexts_configuration is not None:
+            statue_config[CONTEXTS] = contexts_configuration
         return statue_config
+
+    @classmethod
+    def __build_commands_configuration(
+        cls,
+        statue_commands_configuration: Optional[MutableMapping[str, Any]],
+        default_commands_configuration: Optional[MutableMapping[str, Any]],
+    ) -> Optional[MutableMapping[str, Any]]:
+        if statue_commands_configuration is None:
+            return default_commands_configuration
+        if default_commands_configuration is None:
+            return statue_commands_configuration
+        commands_configuration = deepcopy(default_commands_configuration)
+        for command_name, command_setups in statue_commands_configuration.items():
+            if command_name in commands_configuration:
+                commands_configuration[command_name].update(command_setups)
+            else:
+                commands_configuration[command_name] = command_setups
+        return commands_configuration
+
+    @classmethod
+    def __build_contexts_configuration(
+        cls,
+        statue_contexts_configuration: Optional[MutableMapping[str, Any]],
+        default_contexts_configuration: Optional[MutableMapping[str, Any]],
+    ) -> Optional[MutableMapping[str, Any]]:
+        if statue_contexts_configuration is None:
+            return default_contexts_configuration
+        if default_contexts_configuration is None:
+            return statue_contexts_configuration
+        contexts = deepcopy(default_contexts_configuration)
+        for context_name, context_setup in statue_contexts_configuration.items():
+            if context_name in contexts:
+                raise InvalidStatueConfiguration(
+                    f'"{context_name}" is a predefined context and cannot be override'
+                )
+            contexts[context_name] = context_setup
+        return contexts
 
     @classmethod
     def __is_command_matching(  # pylint: disable=too-many-arguments

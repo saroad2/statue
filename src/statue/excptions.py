@@ -14,7 +14,11 @@ class EmptyConfiguration(StatueException):
         super().__init__("Statue configuration is empty!")
 
 
-class MissingConfiguration(StatueException):
+class InvalidStatueConfiguration(StatueException):
+    """User-Defined Statue configuration is invalid."""
+
+
+class MissingConfiguration(InvalidStatueConfiguration):
     """Part of the Statue configuration is missing."""
 
     def __init__(self, part_name: str) -> None:
