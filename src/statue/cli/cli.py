@@ -1,5 +1,6 @@
 """Main CLI for statue."""
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -13,15 +14,17 @@ from statue.configuration import Configuration
 @click.option(
     "--config",
     envvar="STATUE_CONFIG",
-    default=lambda: str(Path.cwd() / "statue.toml"),
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )
 def statue(
     ctx: click.Context,
-    config: str,
+    config: Optional[str],
 ) -> None:
     """Statue is a static code analysis tools orchestrator."""
     if ctx.invoked_subcommand is None:
         click.echo(ctx.get_help())
-    Configuration.load_configuration(Path(config))
+    if config is not None:
+        Configuration.load_configuration(Path(config))
+    else:
+        Configuration.load_configuration(Path.cwd() / "statue.toml")
