@@ -7,17 +7,6 @@ from statue.command import Command
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES
 
 
-def print_title(title: str, underline: str = "=") -> None:
-    """
-    Print a title with a title line under it.
-
-    :param underline: Character to use as underline to the title
-    :param title: The title to print
-    """
-    print(title.title())
-    print(underline * len(title))
-
-
 def install_commands_if_missing(
     commands_list: List[Command], verbosity: str = DEFAULT_VERBOSITY
 ) -> None:

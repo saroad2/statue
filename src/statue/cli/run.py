@@ -11,14 +11,14 @@ from statue.cli.util import (
     contexts_option,
     deny_option,
     install_commands_if_missing,
-    print_title,
     silent_option,
     verbose_option,
     verbosity_option,
 )
 from statue.commands_map import get_commands_map
+from statue.evaluation import evaluate_commands_map
 from statue.excptions import UnknownContext
-from statue.verbosity import is_silent
+from statue.print_util import print_title
 
 
 @statue_cli.command("run")
@@ -70,21 +70,10 @@ def run_cli(  # pylint: disable=too-many-arguments
         install_commands_if_missing(
             list(chain.from_iterable(commands_map.values())), verbosity=verbosity
         )
-    failed_paths = dict()
     print_title("Evaluation")
-    for input_path, commands in commands_map.items():
-        if not is_silent(verbosity):
-            click.echo()
-            click.echo(f"Evaluating {input_path}")
-        failed_commands = []
-        for command in commands:
-            if not is_silent(verbosity):
-                print_title(command.name, underline="-")
-            return_code = command.execute(input_path, verbosity)
-            if return_code != 0:
-                failed_commands.append(command.name)
-        if len(failed_commands) != 0:
-            failed_paths[input_path] = failed_commands
+    failed_paths = evaluate_commands_map(
+        commands_map=commands_map, verbosity=verbosity, print_method=click.echo
+    )
     click.echo()
     print_title("Summary")
     if len(failed_paths) != 0:
