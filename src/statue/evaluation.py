@@ -17,11 +17,13 @@ class CommandEvaluation:
     success: bool
 
     def as_json(self) -> Dict[str, Any]:
+        """Return command evaluation as json dictionary."""
         return dict(command=asdict(self.command), success=self.success)
 
     @classmethod
     def from_json(cls, command_evaluation):
         # type: (Dict[str, Any]) -> CommandEvaluation
+        """Read command evaluation from json dictionary."""
         return CommandEvaluation(
             command=Command(**command_evaluation["command"]),
             success=command_evaluation["success"],
@@ -35,6 +37,7 @@ class SourceEvaluation:
     commands_evaluations: List[CommandEvaluation] = field(default_factory=list)
 
     def as_json(self) -> List[Dict[str, Any]]:
+        """Return source evaluation as json dictionary."""
         return [
             command_evaluation.as_json()
             for command_evaluation in self.commands_evaluations
@@ -43,6 +46,7 @@ class SourceEvaluation:
     @classmethod
     def from_json(cls, source_evaluation):
         # type: ( List[Dict[str, Any]]) -> SourceEvaluation
+        """Read source evaluation from json list."""
         return SourceEvaluation(
             commands_evaluations=[
                 CommandEvaluation.from_json(command_evaluation)
@@ -58,33 +62,41 @@ class Evaluation:
     sources_evaluations: Dict[str, SourceEvaluation] = field(default_factory=dict)
 
     def __iter__(self) -> Iterator[str]:
+        """Iterate over evaluation."""
         return iter(self.sources_evaluations)
 
     def __getitem__(self, item: str) -> SourceEvaluation:
+        """Get source evaluation."""
         return self.sources_evaluations[item]
 
     def __setitem__(self, key: str, value: SourceEvaluation) -> None:
+        """Set source evaluation."""
         self.sources_evaluations[key] = value
 
     def items(self) -> ItemsView[str, SourceEvaluation]:
+        """Get sources evaluations."""
         return self.sources_evaluations.items()
 
     def as_json(self) -> Dict[str, List[Dict[str, Any]]]:
+        """Return evaluation as json dictionary."""
         return {key: value.as_json() for key, value in self.items()}
 
     def save_as_json(self, output: Path) -> None:
+        """Save evaluation as json."""
         with open(output, mode="w") as output_file:
             json.dump(self.as_json(), output_file, indent=2)
 
     @classmethod
     def load_from_json(cls, input_path):
         # type: (Path) -> Evaluation
+        """Load evaluation from json file."""
         with open(input_path, mode="r") as input_file:
             return Evaluation.from_json(json.load(input_file))
 
     @classmethod
     def from_json(cls, evaluation):
         # type: (Dict[str, List[Dict[str, Any]]]) -> Evaluation
+        """Read evaluation from json dictionary."""
         return Evaluation(
             sources_evaluations={
                 input_path: SourceEvaluation.from_json(source_evaluation)
