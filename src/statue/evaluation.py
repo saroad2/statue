@@ -19,6 +19,13 @@ class CommandEvaluation:
     def as_json(self):
         return dict(command=asdict(self.command), success=self.success)
 
+    @classmethod
+    def from_json(cls, command_evaluation):
+        return CommandEvaluation(
+            command=Command(**command_evaluation["command"]),
+            success=command_evaluation["success"],
+        )
+
 
 @dataclass
 class SourceEvaluation:
@@ -31,6 +38,15 @@ class SourceEvaluation:
             command_evaluation.as_json()
             for command_evaluation in self.commands_evaluations
         ]
+
+    @classmethod
+    def from_json(cls, source_evaluation):
+        return SourceEvaluation(
+            commands_evaluations=[
+                CommandEvaluation.from_json(command_evaluation)
+                for command_evaluation in source_evaluation
+            ]
+        )
 
 
 @dataclass
@@ -57,6 +73,20 @@ class Evaluation:
     def save_as_json(self, output: Path):
         with open(output, mode="w") as output_file:
             json.dump(self.as_json(), output_file, indent=2)
+
+    @classmethod
+    def load_from_json(cls, input_path: Path):
+        with open(input_path, mode="r") as input_file:
+            return Evaluation.from_json(json.load(input_file))
+
+    @classmethod
+    def from_json(cls, evaluation):
+        return Evaluation(
+            sources_evaluations={
+                input_path: SourceEvaluation.from_json(source_evaluation)
+                for input_path, source_evaluation in evaluation.items()
+            }
+        )
 
 
 def evaluate_commands_map(
@@ -89,7 +119,7 @@ def evaluate_commands_map(
     return evaluation
 
 
-def get_failure_map(evaluation: Dict[str, SourceEvaluation]) -> Dict[str, List[str]]:
+def get_failure_map(evaluation: Evaluation) -> Dict[str, List[Command]]:
     """
     Get a map from input paths to failed commands.
 
@@ -99,7 +129,7 @@ def get_failure_map(evaluation: Dict[str, SourceEvaluation]) -> Dict[str, List[s
     failure_dict = dict()
     for input_path, source_valuation in evaluation.items():
         failed_commands = [
-            command_evaluation.command.name
+            command_evaluation.command
             for command_evaluation in source_valuation.commands_evaluations
             if not command_evaluation.success
         ]

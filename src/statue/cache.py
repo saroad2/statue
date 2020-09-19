@@ -12,3 +12,7 @@ class Cache:
     @classmethod
     def cache_file(cls, file_name):
         return cls.cache_dir() / file_name
+
+    @classmethod
+    def last_evaluation_path(cls):
+        return cls.cache_file("evaluation.json")
