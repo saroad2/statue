@@ -29,16 +29,11 @@ from statue.print_util import print_title
 @allow_option
 @deny_option
 @click.option(
-    "-i",
-    "--install",
-    is_flag=True,
-    help="Install commands before running if missing",
+    "-i", "--install", is_flag=True, help="Install commands before running if missing"
 )
+@click.option("-f", "--failed", is_flag=True, help="Run failed commands")
 @click.option(
-    "-f",
-    "--failed",
-    is_flag=True,
-    help="Run failed commands",
+    "--cache/--no-cache", default=True, help="Save evaluation to cache or not"
 )
 @silent_option
 @verbose_option  # pylint: disable=R0913
@@ -51,6 +46,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     deny: Optional[List[str]],
     failed: bool,
     install: bool,
+    cache: bool,
     verbosity: str,
 ) -> None:
     """
@@ -88,7 +84,8 @@ def run_cli(  # pylint: disable=too-many-arguments
     evaluation = evaluate_commands_map(
         commands_map=commands_map, verbosity=verbosity, print_method=click.echo
     )
-    evaluation.save_as_json(Cache.last_evaluation_path())
+    if cache:
+        evaluation.save_as_json(Cache.last_evaluation_path())
     click.echo()
     print_title("Summary")
     failure_map = get_failure_map(evaluation)
