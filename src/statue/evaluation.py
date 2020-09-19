@@ -1,5 +1,7 @@
 """Evaluation of commands map."""
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from typing import Callable, Dict, List
 
 from statue.command import Command
@@ -14,12 +16,21 @@ class CommandEvaluation:
     command: Command
     success: bool
 
+    def as_json(self):
+        return dict(command=asdict(self.command), success=self.success)
+
 
 @dataclass
 class SourceEvaluation:
     """Evaluation result of a source."""
 
     commands_evaluations: List[CommandEvaluation] = field(default_factory=list)
+
+    def as_json(self):
+        return [
+            command_evaluation.as_json()
+            for command_evaluation in self.commands_evaluations
+        ]
 
 
 @dataclass
@@ -39,6 +50,13 @@ class Evaluation:
 
     def items(self):
         return self.sources_evaluations.items()
+
+    def as_json(self):
+        return {key: value.as_json() for key, value in self.items()}
+
+    def save_as_json(self, output: Path):
+        with open(output, mode="w") as output_file:
+            json.dump(self.as_json(), output_file, indent=2)
 
 
 def evaluate_commands_map(

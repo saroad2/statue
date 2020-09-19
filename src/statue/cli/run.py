@@ -5,6 +5,7 @@ from typing import List, Optional, Union
 
 import click
 
+from statue.cache import Cache
 from statue.cli.cli import statue as statue_cli
 from statue.cli.util import (
     allow_option,
@@ -74,6 +75,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     evaluation = evaluate_commands_map(
         commands_map=commands_map, verbosity=verbosity, print_method=click.echo
     )
+    evaluation.save_as_json(Cache.cache_file("evaluation.json"))
     click.echo()
     print_title("Summary")
     failed_paths = get_failure_map(evaluation)
