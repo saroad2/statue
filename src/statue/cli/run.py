@@ -16,7 +16,7 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_map import get_commands_map
-from statue.evaluation import evaluate_commands_map
+from statue.evaluation import evaluate_commands_map, get_failure_map
 from statue.excptions import UnknownContext
 from statue.print_util import print_title
 
@@ -71,11 +71,12 @@ def run_cli(  # pylint: disable=too-many-arguments
             list(chain.from_iterable(commands_map.values())), verbosity=verbosity
         )
     print_title("Evaluation")
-    failed_paths = evaluate_commands_map(
+    evaluation = evaluate_commands_map(
         commands_map=commands_map, verbosity=verbosity, print_method=click.echo
     )
     click.echo()
     print_title("Summary")
+    failed_paths = get_failure_map(evaluation)
     if len(failed_paths) != 0:
         click.echo("Statue has failed on the following commands:")
         click.echo()
