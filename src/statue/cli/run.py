@@ -62,7 +62,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     """
     commands_map = None
     try:
-        if failed:
+        if failed and Cache.last_evaluation_path().exists():
             commands_map = get_failure_map(
                 Evaluation.load_from_json(Cache.last_evaluation_path())
             )
