@@ -13,16 +13,16 @@ def cli_runner():
 
 
 @pytest.fixture
-def cwd_mock(mocker, tmpdir):
+def dummy_cwd(mocker, tmpdir):
     cwd = mocker.patch.object(Path, "cwd")
     cwd.return_value = tmpdir
     return tmpdir
 
 
 @pytest.fixture
-def empty_configuration(cwd_mock, clear_configuration):
+def empty_configuration(dummy_cwd, clear_configuration):
     configuration = {
         STATUE: {OVERRIDE: True},
     }
-    toml.dump(configuration, cwd_mock / "statue.toml")
+    toml.dump(configuration, dummy_cwd / "statue.toml")
     return configuration
