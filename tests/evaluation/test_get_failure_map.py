@@ -1,19 +1,19 @@
-from pytest_cases import parametrize_with_cases, THIS_MODULE
+from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.evaluation import (
-    Evaluation,
-    get_failure_map,
-    SourceEvaluation,
     CommandEvaluation,
+    Evaluation,
+    SourceEvaluation,
+    get_failure_map,
 )
 from tests.constants import (
-    SOURCE1,
-    SOURCE2,
     COMMAND1,
     COMMAND2,
     COMMAND3,
     COMMAND4,
     COMMAND5,
+    SOURCE1,
+    SOURCE2,
 )
 
 

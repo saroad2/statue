@@ -4,15 +4,15 @@ from unittest import mock
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import Command
-from statue.evaluation import Evaluation, SourceEvaluation, CommandEvaluation
+from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
 from tests.constants import (
-    SOURCE1,
-    COMMAND1,
-    COMMAND_HELP_STRING1,
-    COMMAND2,
-    COMMAND_HELP_STRING2,
     ARG1,
     ARG2,
+    COMMAND1,
+    COMMAND2,
+    COMMAND_HELP_STRING1,
+    COMMAND_HELP_STRING2,
+    SOURCE1,
     SOURCE2,
 )
 
