@@ -87,7 +87,7 @@ class Evaluation:
             json.dump(self.as_json(), output_file, indent=2)
 
     @classmethod
-    def load_from_json(cls, input_path):
+    def load_from_file(cls, input_path):
         # type: (Path) -> Evaluation
         """Load evaluation from json file."""
         with open(input_path, mode="r") as input_file:
