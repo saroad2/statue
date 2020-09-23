@@ -7,7 +7,7 @@ from statue.configuration import Configuration
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 
 
-def get_commands_map(
+def read_commands_map(
     sources: List[Union[Path, str]],
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,

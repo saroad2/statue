@@ -1,6 +1,6 @@
 from unittest import mock
 
-from statue.commands_map import get_commands_map
+from statue.commands_map import read_commands_map
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from tests.constants import (
     COMMAND1,
@@ -38,7 +38,7 @@ def assert_read_commands(read_commands, *calls):
 def test_get_commands_map_on_none_empty_source_list(mock_read_commands):
     command = mock.Mock()
     mock_read_commands.return_value = [command]
-    commands_map = get_commands_map([SOURCE1])
+    commands_map = read_commands_map([SOURCE1])
     assert_sources(commands_map, [SOURCE1])
     assert_commands(commands_map, SOURCE1, [command])
 
@@ -47,7 +47,7 @@ def test_get_commands_map_with_no_sources(
     mock_sources_configuration, mock_read_commands
 ):
     mock_sources_configuration.return_value = None
-    commands_map = get_commands_map([])
+    commands_map = read_commands_map([])
     assert commands_map is None
     mock_read_commands.assert_not_called()
 
@@ -58,7 +58,7 @@ def test_get_commands_map_with_no_commands(
     kwargs = dict(allow_list=[COMMAND1], deny_list=[COMMAND3], contexts=[CONTEXT2])
     mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
     mock_read_commands.return_value = None
-    commands_map = get_commands_map([], **kwargs)
+    commands_map = read_commands_map([], **kwargs)
     assert commands_map is None
     assert_read_commands(mock_read_commands, kwargs, kwargs)
 
@@ -69,7 +69,7 @@ def test_get_commands_map_with_commands_without_directives(
     command1, command2, command3 = mock.Mock(), mock.Mock(), mock.Mock()
     mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
     mock_read_commands.side_effect = [[command1], [command2, command3]]
-    commands_map = get_commands_map([])
+    commands_map = read_commands_map([])
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1])
     assert_commands(commands_map, SOURCE2, [command2, command3])
@@ -84,7 +84,7 @@ def test_get_commands_map_with_commands_and_directives(
     kwargs = dict(allow_list=[COMMAND1], deny_list=[COMMAND3], contexts=[CONTEXT2])
     mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
     mock_read_commands.side_effect = [[command1], [command2, command3]]
-    commands_map = get_commands_map([], **kwargs)
+    commands_map = read_commands_map([], **kwargs)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1])
     assert_commands(commands_map, SOURCE2, [command2, command3])
@@ -101,7 +101,7 @@ def test_get_commands_map_with_source_context(
         SOURCE2: {},
     }
     mock_read_commands.side_effect = [[command1, command2], [command3]]
-    commands_map = get_commands_map([], **kwargs)
+    commands_map = read_commands_map([], **kwargs)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1, command2])
     assert_commands(commands_map, SOURCE2, [command3])
@@ -126,7 +126,7 @@ def test_get_commands_map_with_source_allow_list(
         SOURCE2: {ALLOW_LIST: [COMMAND2]},
     }
     mock_read_commands.side_effect = [[command1], [command2]]
-    commands_map = get_commands_map([], **kwargs)
+    commands_map = read_commands_map([], **kwargs)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1])
     assert_commands(commands_map, SOURCE2, [command2])
@@ -152,7 +152,7 @@ def test_get_commands_map_with_source_deny_list(
         SOURCE2: {DENY_LIST: [COMMAND2]},
     }
     mock_read_commands.side_effect = [[command1, command2], [command3, command4]]
-    commands_map = get_commands_map([], **kwargs)
+    commands_map = read_commands_map([], **kwargs)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1, command2])
     assert_commands(commands_map, SOURCE2, [command3, command4])

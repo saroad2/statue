@@ -5,19 +5,21 @@ from typing import List, Optional, Union
 
 import click
 
+from statue.cache import Cache
 from statue.cli.cli import statue as statue_cli
 from statue.cli.util import (
     allow_option,
     contexts_option,
     deny_option,
     install_commands_if_missing,
-    print_title,
     silent_option,
     verbose_option,
     verbosity_option,
 )
-from statue.commands_map import get_commands_map
+from statue.commands_map import read_commands_map
+from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
 from statue.excptions import UnknownContext
+from statue.print_util import print_title
 from statue.verbosity import is_silent
 
 
@@ -28,10 +30,11 @@ from statue.verbosity import is_silent
 @allow_option
 @deny_option
 @click.option(
-    "-i",
-    "--install",
-    is_flag=True,
-    help="Install commands before running if missing",
+    "-i", "--install", is_flag=True, help="Install commands before running if missing"
+)
+@click.option("-f", "--failed", is_flag=True, help="Run failed commands")
+@click.option(
+    "--cache/--no-cache", default=True, help="Save evaluation to cache or not"
 )
 @silent_option
 @verbose_option  # pylint: disable=R0913
@@ -42,7 +45,9 @@ def run_cli(  # pylint: disable=too-many-arguments
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
+    failed: bool,
     install: bool,
+    cache: bool,
     verbosity: str,
 ) -> None:
     """
@@ -52,16 +57,22 @@ def run_cli(  # pylint: disable=too-many-arguments
     When no source files are presented, will use configuration file to determine on
     which files to run
     """
-    try:
-        commands_map = get_commands_map(
-            sources,
-            contexts=context,
-            allow_list=allow,
-            deny_list=deny,
+    commands_map = None
+    if failed and Cache.last_evaluation_path().exists():
+        commands_map = get_failure_map(
+            Evaluation.load_from_file(Cache.last_evaluation_path())
         )
-    except UnknownContext as error:
-        click.echo(error)
-        ctx.exit(1)
+    if commands_map is None or len(commands_map) == 0:
+        try:
+            commands_map = read_commands_map(
+                sources,
+                contexts=context,
+                allow_list=allow,
+                deny_list=deny,
+            )
+        except UnknownContext as error:
+            click.echo(error)
+            ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
@@ -70,29 +81,23 @@ def run_cli(  # pylint: disable=too-many-arguments
         install_commands_if_missing(
             list(chain.from_iterable(commands_map.values())), verbosity=verbosity
         )
-    failed_paths = dict()
-    print_title("Evaluation")
-    for input_path, commands in commands_map.items():
-        if not is_silent(verbosity):
-            click.echo()
-            click.echo(f"Evaluating {input_path}")
-        failed_commands = []
-        for command in commands:
-            if not is_silent(verbosity):
-                print_title(command.name, underline="-")
-            return_code = command.execute(input_path, verbosity)
-            if return_code != 0:
-                failed_commands.append(command.name)
-        if len(failed_commands) != 0:
-            failed_paths[input_path] = failed_commands
+    if not is_silent(verbosity):
+        print_title("Evaluation")
+    evaluation = evaluate_commands_map(
+        commands_map=commands_map, verbosity=verbosity, print_method=click.echo
+    )
+    if cache:
+        evaluation.save_as_json(Cache.last_evaluation_path())
     click.echo()
-    print_title("Summary")
-    if len(failed_paths) != 0:
+    if not is_silent(verbosity):
+        print_title("Summary")
+    failure_map = get_failure_map(evaluation)
+    if len(failure_map) != 0:
         click.echo("Statue has failed on the following commands:")
         click.echo()
-        for input_path, failed_commands in failed_paths.items():
+        for input_path, failed_commands in failure_map.items():
             click.echo(f"{input_path}:")
-            click.echo(f"\t{', '.join(failed_commands)}")
+            click.echo(f"\t{', '.join([command.name for command in failed_commands])}")
         ctx.exit(1)
     else:
         click.echo("Statue finished successfully!")

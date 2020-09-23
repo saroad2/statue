@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from statue.configuration import Configuration
@@ -47,3 +49,8 @@ def mock_sources_configuration(mocker, clear_configuration):
 @pytest.fixture
 def mock_load_configuration(mocker, clear_configuration):
     return mocker.patch.object(Configuration, "load_configuration")
+
+
+@pytest.fixture
+def mock_cwd(mocker):
+    return mocker.patch.object(Path, "cwd").return_value

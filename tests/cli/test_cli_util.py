@@ -1,14 +1,6 @@
-from unittest.mock import Mock
-
 from statue.cli.util import install_commands_if_missing
 from tests.constants import COMMAND1, COMMAND2, COMMAND3
-
-
-def command_mock(name, installed=True):
-    mock = Mock()
-    mock.name = name
-    mock.installed.return_value = installed
-    return mock
+from tests.util import command_mock
 
 
 def test_install_commands_when_all_installed():
