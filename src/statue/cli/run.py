@@ -20,6 +20,7 @@ from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
 from statue.excptions import UnknownContext
 from statue.print_util import print_title
+from statue.verbosity import is_silent
 
 
 @statue_cli.command("run")
@@ -57,21 +58,21 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = None
-    try:
-        if failed and Cache.last_evaluation_path().exists():
-            commands_map = get_failure_map(
-                Evaluation.load_from_file(Cache.last_evaluation_path())
-            )
-        if commands_map is None or len(commands_map) == 0:
+    if failed and Cache.last_evaluation_path().exists():
+        commands_map = get_failure_map(
+            Evaluation.load_from_file(Cache.last_evaluation_path())
+        )
+    if commands_map is None or len(commands_map) == 0:
+        try:
             commands_map = read_commands_map(
                 sources,
                 contexts=context,
                 allow_list=allow,
                 deny_list=deny,
             )
-    except UnknownContext as error:
-        click.echo(error)
-        ctx.exit(1)
+        except UnknownContext as error:
+            click.echo(error)
+            ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
@@ -80,14 +81,16 @@ def run_cli(  # pylint: disable=too-many-arguments
         install_commands_if_missing(
             list(chain.from_iterable(commands_map.values())), verbosity=verbosity
         )
-    print_title("Evaluation")
+    if not is_silent(verbosity):
+        print_title("Evaluation")
     evaluation = evaluate_commands_map(
         commands_map=commands_map, verbosity=verbosity, print_method=click.echo
     )
     if cache:
         evaluation.save_as_json(Cache.last_evaluation_path())
     click.echo()
-    print_title("Summary")
+    if not is_silent(verbosity):
+        print_title("Summary")
     failure_map = get_failure_map(evaluation)
     if len(failure_map) != 0:
         click.echo("Statue has failed on the following commands:")
