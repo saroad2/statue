@@ -14,7 +14,7 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.configuration import Configuration
-from statue.excptions import InvalidCommand, UnknownCommand
+from statue.exceptions import InvalidCommand, UnknownCommand
 
 
 @statue_cli.group("command")

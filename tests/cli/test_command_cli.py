@@ -4,7 +4,7 @@ import pytest
 
 from statue.cli import statue as statue_cli
 from statue.command import Command
-from statue.excptions import InvalidCommand, UnknownCommand
+from statue.exceptions import InvalidCommand, UnknownCommand
 from statue.verbosity import DEFAULT_VERBOSITY
 from tests.constants import (
     ARG3,

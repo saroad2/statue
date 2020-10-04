@@ -5,7 +5,7 @@ from statue.cache import Cache
 from statue.cli import statue as statue_cli
 from statue.command import Command
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
-from statue.excptions import UnknownContext
+from statue.exceptions import UnknownContext
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT
 from tests.constants import (
     COMMAND1,

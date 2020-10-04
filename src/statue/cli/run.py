@@ -18,7 +18,7 @@ from statue.cli.util import (
 )
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
-from statue.excptions import UnknownContext
+from statue.exceptions import UnknownContext
 from statue.print_util import print_title
 from statue.verbosity import is_silent
 

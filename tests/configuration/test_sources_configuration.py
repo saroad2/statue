@@ -4,7 +4,7 @@ import pytest
 
 from statue.configuration import Configuration
 from statue.constants import SOURCES
-from statue.excptions import MissingConfiguration
+from statue.exceptions import MissingConfiguration
 from tests.constants import SOURCE1, SOURCE2, SOURCE3
 
 SOURCES_CONFIGURATION: Dict[str, Any] = {SOURCE1: {}, SOURCE2: {}, SOURCE3: {}}
