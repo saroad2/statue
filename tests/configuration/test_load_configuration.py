@@ -5,7 +5,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, HELP, OVERRIDE, STATUE
-from statue.excptions import EmptyConfiguration, InvalidStatueConfiguration
+from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
 from tests.constants import (
     COMMAND1,
     COMMAND2,

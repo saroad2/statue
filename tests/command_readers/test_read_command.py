@@ -13,7 +13,7 @@ from statue.constants import (
     PARENT,
     STANDARD,
 )
-from statue.excptions import (
+from statue.exceptions import (
     InvalidCommand,
     MissingConfiguration,
     UnknownCommand,

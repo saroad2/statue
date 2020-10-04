@@ -1,9 +1,11 @@
 import sys
 from argparse import Namespace
 
+import pytest
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import Command
+from statue.exceptions import CommandExecutionError
 from statue.verbosity import SILENT, VERBOSE
 from tests.constants import (
     ARG1,
@@ -92,6 +94,16 @@ def test_execute(command, out, subprocess_mock, environ):
     subprocess_mock.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=False
     )
+
+
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_execute_raises_error(command, out, subprocess_mock, environ):
+    subprocess_mock.side_effect = FileNotFoundError()
+    with pytest.raises(
+        CommandExecutionError,
+        match=f'^Cannot execute "{command.name}" because it is not installed.$',
+    ):
+        command.execute(SOURCE1)
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)

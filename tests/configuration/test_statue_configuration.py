@@ -1,7 +1,7 @@
 import pytest
 
 from statue.configuration import Configuration
-from statue.excptions import EmptyConfiguration
+from statue.exceptions import EmptyConfiguration
 
 DUMMY_CONFIGURATION = {"a": "b"}
 

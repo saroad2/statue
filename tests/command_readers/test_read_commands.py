@@ -1,6 +1,6 @@
 from statue.command import Command
 from statue.configuration import Configuration
-from statue.excptions import InvalidCommand
+from statue.exceptions import InvalidCommand
 from tests.constants import (
     ARG1,
     ARG2,

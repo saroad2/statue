@@ -8,6 +8,7 @@ from typing import List
 
 import pkg_resources
 
+from statue.exceptions import CommandExecutionError
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent, is_verbose
 
 
@@ -72,11 +73,13 @@ class Command:
             print(f"Running the following command: \"{' '.join(args)}\"")
         return self._run_subprocess(args, verbosity)
 
-    @classmethod
-    def _run_subprocess(cls, args: List[str], verbosity: str) -> int:
-        return subprocess.run(  # nosec
-            args,
-            env=os.environ,
-            check=False,
-            capture_output=is_silent(verbosity),
-        ).returncode
+    def _run_subprocess(self, args: List[str], verbosity: str) -> int:
+        try:
+            return subprocess.run(  # nosec
+                args,
+                env=os.environ,
+                check=False,
+                capture_output=is_silent(verbosity),
+            ).returncode
+        except FileNotFoundError as error:
+            raise CommandExecutionError(self.name) from error

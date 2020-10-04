@@ -20,7 +20,7 @@ from statue.constants import (
     STANDARD,
     STATUE,
 )
-from statue.excptions import (
+from statue.exceptions import (
     EmptyConfiguration,
     InvalidCommand,
     InvalidStatueConfiguration,
