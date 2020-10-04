@@ -57,3 +57,13 @@ class UnknownContext(StatueException):
     def __init__(self, context_name: str) -> None:
         """Exception constructor."""
         super().__init__(f'Could not find context named "{context_name}".')
+
+
+class CommandExecutionError(StatueException):
+    """Command cannot be executed."""
+
+    def __init__(self, command_name: str) -> None:
+        """Exception constructor."""
+        super().__init__(
+            f'Cannot execute "{command_name}" because it is not installed.'
+        )

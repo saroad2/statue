@@ -5,7 +5,7 @@ from statue.cache import Cache
 from statue.cli import statue as statue_cli
 from statue.command import Command
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
-from statue.exceptions import UnknownContext
+from statue.exceptions import CommandExecutionError, UnknownContext
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT
 from tests.constants import (
     COMMAND1,
@@ -384,3 +384,20 @@ def test_read_commands_map_raise_unknown_context_error(
         f'Could not find context named "{NOT_EXISTING_CONTEXT}".',
         "",
     ], "Run output is different than expected."
+
+
+def test_evaluate_commands_map_raise_execution_error(
+    cli_runner, empty_configuration, mock_read_commands_map, mock_evaluate_commands_map
+):
+    mock_read_commands_map.return_value = COMMANDS_MAP
+    mock_evaluate_commands_map.side_effect = CommandExecutionError(
+        command_name=COMMAND1
+    )
+    result = cli_runner.invoke(statue_cli, ["run"])
+    assert result.exit_code == 1, "Run should exit with 1."
+    assert result.output == (
+        "Evaluation\n"
+        "==========\n"
+        'Cannot execute "command1" because it is not installed.\n'
+        'Try to rerun with the "-i" flag\n'
+    ), "Output is different than expected"

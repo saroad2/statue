@@ -18,7 +18,7 @@ from statue.cli.util import (
 )
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
-from statue.exceptions import UnknownContext
+from statue.exceptions import CommandExecutionError, UnknownContext
 from statue.print_util import print_title
 from statue.verbosity import is_silent
 
@@ -37,7 +37,7 @@ from statue.verbosity import is_silent
     "--cache/--no-cache", default=True, help="Save evaluation to cache or not"
 )
 @silent_option
-@verbose_option  # pylint: disable=R0913
+@verbose_option  # pylint: disable=too-many-locals
 @verbosity_option
 def run_cli(  # pylint: disable=too-many-arguments
     ctx: click.Context,
@@ -82,10 +82,16 @@ def run_cli(  # pylint: disable=too-many-arguments
             list(chain.from_iterable(commands_map.values())), verbosity=verbosity
         )
     if not is_silent(verbosity):
-        print_title("Evaluation")
-    evaluation = evaluate_commands_map(
-        commands_map=commands_map, verbosity=verbosity, print_method=click.echo
-    )
+        print_title("Evaluation", print_method=click.echo)
+    evaluation = None
+    try:
+        evaluation = evaluate_commands_map(
+            commands_map=commands_map, verbosity=verbosity, print_method=click.echo
+        )
+    except CommandExecutionError as error:
+        click.echo(str(error))
+        click.echo('Try to rerun with the "-i" flag')
+        ctx.exit(1)
     if cache:
         evaluation.save_as_json(Cache.last_evaluation_path())
     click.echo()
