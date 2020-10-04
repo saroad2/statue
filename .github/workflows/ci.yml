@@ -39,9 +39,9 @@ jobs:
     needs: unit_tests
     runs-on: ubuntu-latest
     strategy:
-      max_parallel: 4
+      max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7]
+        python-version: [ 3.6, 3.7 ]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
