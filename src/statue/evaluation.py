@@ -123,7 +123,9 @@ def evaluate_commands_map(
         source_evaluation = SourceEvaluation()
         if not is_silent(verbosity):
             print_method("")
-            print_method(f"Evaluating {input_path}")
+            print_method("")
+            print_title(input_path, transform=False, print_method=print_method)
+            print_method("")
         for command in commands:
             if not is_silent(verbosity):
                 print_title(command.name, underline="-", print_method=print_method)

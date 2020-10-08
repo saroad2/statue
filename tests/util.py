@@ -8,3 +8,14 @@ def command_mock(name, installed=True, return_code=None):
     if return_code is not None:
         mock.execute.return_value = return_code
     return mock
+
+
+def assert_calls(mock_obj, calls):
+    assert mock_obj.call_count == len(
+        calls
+    ), f"Expected {len(calls)} calls, got {mock_obj.call_count}"
+    for i, expected_call in enumerate(calls):
+        actual_call = mock_obj.call_args_list[i]
+        assert (
+            actual_call == expected_call
+        ), f"Call {i} is different than expected. {actual_call} != {expected_call}"

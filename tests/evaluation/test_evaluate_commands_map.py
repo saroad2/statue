@@ -10,7 +10,7 @@ from statue.evaluation import (
 )
 from statue.verbosity import SILENT
 from tests.constants import COMMAND1, COMMAND2, COMMAND3, SOURCE1, SOURCE2
-from tests.util import command_mock
+from tests.util import assert_calls, command_mock
 
 
 def case_empty_commands_map():
@@ -28,7 +28,15 @@ def case_one_source_one_command():
         [CommandEvaluation(command=command1, success=True)]
     )
 
-    prints = ["", f"Evaluating {SOURCE1}", "Command1", "--------"]
+    prints = [
+        call(""),
+        call(""),
+        call("source1"),
+        call("======="),
+        call(""),
+        call("Command1"),
+        call("--------"),
+    ]
     return commands_map, evaluation, prints
 
 
@@ -46,12 +54,15 @@ def case_one_source_two_commands():
     )
 
     prints = [
-        "",
-        f"Evaluating {SOURCE1}",
-        "Command1",
-        "--------",
-        "Command2",
-        "--------",
+        call(""),
+        call(""),
+        call("source1"),
+        call("======="),
+        call(""),
+        call("Command1"),
+        call("--------"),
+        call("Command2"),
+        call("--------"),
     ]
     return commands_map, evaluation, prints
 
@@ -71,14 +82,17 @@ def case_one_source_three_commands():
         ]
     )
     prints = [
-        "",
-        f"Evaluating {SOURCE1}",
-        "Command1",
-        "--------",
-        "Command2",
-        "--------",
-        "Command3",
-        "--------",
+        call(""),
+        call(""),
+        call("source1"),
+        call("======="),
+        call(""),
+        call("Command1"),
+        call("--------"),
+        call("Command2"),
+        call("--------"),
+        call("Command3"),
+        call("--------"),
     ]
     return commands_map, evaluation, prints
 
@@ -96,14 +110,20 @@ def case_two_sources_two_commands():
         [CommandEvaluation(command=command2, success=False)]
     )
     prints = [
-        "",
-        f"Evaluating {SOURCE1}",
-        "Command1",
-        "--------",
-        "",
-        f"Evaluating {SOURCE2}",
-        "Command2",
-        "--------",
+        call(""),
+        call(""),
+        call("source1"),
+        call("======="),
+        call(""),
+        call("Command1"),
+        call("--------"),
+        call(""),
+        call(""),
+        call("source2"),
+        call("======="),
+        call(""),
+        call("Command2"),
+        call("--------"),
     ]
     return commands_map, evaluation, prints
 
@@ -120,11 +140,7 @@ def test_evaluate_commands_map_result(commands_map, evaluation):
 def test_evaluate_commands_map_prints(commands_map, evaluation, prints):
     print_mock = Mock()
     evaluate_commands_map(commands_map, print_method=print_mock)
-    assert print_mock.call_count == len(prints)
-    for i, print_text in enumerate(prints):
-        assert print_mock.call_args_list[i] == call(
-            print_text
-        ), f"Print call {i} is different than expected"
+    assert_calls(print_mock, prints)
 
 
 @parametrize_with_cases(

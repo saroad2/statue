@@ -19,7 +19,7 @@ from statue.cli.util import (
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
 from statue.exceptions import CommandExecutionError, UnknownContext
-from statue.print_util import print_title
+from statue.print_util import print_boxed
 from statue.verbosity import is_silent
 
 
@@ -82,7 +82,7 @@ def run_cli(  # pylint: disable=too-many-arguments
             list(chain.from_iterable(commands_map.values())), verbosity=verbosity
         )
     if not is_silent(verbosity):
-        print_title("Evaluation", print_method=click.echo)
+        print_boxed("Evaluation", print_method=click.echo)
     evaluation = None
     try:
         evaluation = evaluate_commands_map(
@@ -96,7 +96,8 @@ def run_cli(  # pylint: disable=too-many-arguments
         evaluation.save_as_json(Cache.last_evaluation_path())
     click.echo()
     if not is_silent(verbosity):
-        print_title("Summary")
+        print_boxed("Summary", print_method=click.echo)
+        click.echo()
     failure_map = get_failure_map(evaluation)
     if len(failure_map) != 0:
         click.echo("Statue has failed on the following commands:")
