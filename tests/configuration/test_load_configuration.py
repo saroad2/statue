@@ -5,27 +5,27 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.configuration import Configuration
 from statue.constants import (
+    ADD_ARGS,
+    ARGS,
+    CLEAR_ARGS,
     COMMANDS,
     CONTEXTS,
     HELP,
     OVERRIDE,
     STATUE,
-    ARGS,
-    ADD_ARGS,
-    CLEAR_ARGS,
 )
 from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
 from tests.constants import (
+    ARG1,
+    ARG2,
+    ARG3,
+    ARG5,
     COMMAND1,
     COMMAND2,
     CONTEXT1,
     CONTEXT2,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
-    ARG1,
-    ARG2,
-    ARG3,
-    ARG5,
 )
 
 # Success cases

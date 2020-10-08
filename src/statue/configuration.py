@@ -392,13 +392,9 @@ class Configuration:
     @classmethod
     def __combine_command_setups(
         cls,
-        base_setup: Optional[MutableMapping[str, Any]],
-        setup: Optional[MutableMapping[str, Any]],
-    ):
-        if base_setup is None:
-            return setup
-        if setup is None:
-            return base_setup
+        base_setup: MutableMapping[str, Any],
+        setup: MutableMapping[str, Any],
+    ) -> MutableMapping[str, Any]:
         new_setup = cls.__remove_args_keys(base_setup)
         args = cls.__combine_command_args(base_setup.get(ARGS, None), setup)
         if args is not None:
@@ -409,7 +405,7 @@ class Configuration:
     @classmethod
     def __combine_command_args(
         cls, base_args: Optional[List[str]], command_setup: MutableMapping[str, Any]
-    ):
+    ) -> Optional[List[str]]:
         base_args = [] if base_args is None else base_args
         args: List[str] = command_setup.get(ARGS, None)
         if args is not None:
@@ -425,7 +421,9 @@ class Configuration:
         return base_args
 
     @classmethod
-    def __remove_args_keys(cls, command_setup: MutableMapping[str, Any]):
+    def __remove_args_keys(
+        cls, command_setup: MutableMapping[str, Any]
+    ) -> MutableMapping[str, Any]:
         return {
             key: value
             for key, value in command_setup.items()
