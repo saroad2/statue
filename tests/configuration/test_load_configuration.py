@@ -22,6 +22,7 @@ from tests.constants import (
     ARG5,
     COMMAND1,
     COMMAND2,
+    COMMAND_HELP_STRING1,
     CONTEXT1,
     CONTEXT2,
     CONTEXT_HELP_STRING1,
@@ -102,6 +103,13 @@ def case_success_user_clear_command_args():
     default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
     statue_configuration = {COMMANDS: {COMMAND1: {CLEAR_ARGS: True}}}
     result = {COMMANDS: {COMMAND1: {}}}
+    return default_configuration, statue_configuration, result
+
+
+def case_success_command_args_are_not_affected():
+    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
+    statue_configuration = {COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1}}}
+    result = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2], HELP: COMMAND_HELP_STRING1}}}
     return default_configuration, statue_configuration, result
 
 
