@@ -4,7 +4,16 @@ import pytest
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, HELP, OVERRIDE, STATUE
+from statue.constants import (
+    COMMANDS,
+    CONTEXTS,
+    HELP,
+    OVERRIDE,
+    STATUE,
+    ARGS,
+    ADD_ARGS,
+    CLEAR_ARGS,
+)
 from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
 from tests.constants import (
     COMMAND1,
@@ -13,6 +22,10 @@ from tests.constants import (
     CONTEXT2,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
+    ARG1,
+    ARG2,
+    ARG3,
+    ARG5,
 )
 
 # Success cases
@@ -68,6 +81,27 @@ def case_success_user_add_context_to_command():
         COMMANDS: {COMMAND1: {CONTEXT1: "c", CONTEXT2: "f"}},
         "c": "d",
     }
+    return default_configuration, statue_configuration, result
+
+
+def case_success_user_override_command_args():
+    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
+    statue_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG3, ARG5]}}}
+    result = {COMMANDS: {COMMAND1: {ARGS: [ARG3, ARG5]}}}
+    return default_configuration, statue_configuration, result
+
+
+def case_success_user_add_command_args():
+    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
+    statue_configuration = {COMMANDS: {COMMAND1: {ADD_ARGS: [ARG3, ARG5]}}}
+    result = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2, ARG3, ARG5]}}}
+    return default_configuration, statue_configuration, result
+
+
+def case_success_user_clear_command_args():
+    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
+    statue_configuration = {COMMANDS: {COMMAND1: {CLEAR_ARGS: True}}}
+    result = {COMMANDS: {COMMAND1: {}}}
     return default_configuration, statue_configuration, result
 
 

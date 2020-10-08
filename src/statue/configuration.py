@@ -215,9 +215,17 @@ class Configuration:
                 allow_list=allow_list,
                 deny_list=deny_list,
             )
+        contexts = [] if contexts is None else contexts
+        for context in contexts:
+            context_obj = command_configuration.get(context, None)
+            if not isinstance(context_obj, dict):
+                continue
+            command_configuration = cls.__combine_command_setups(
+                command_configuration, context_obj
+            )
         return Command(
             name=command_name,
-            args=cls.__read_command_args(command_configuration, contexts=contexts),
+            args=command_configuration.get(ARGS, []),
             help=command_configuration[HELP],
         )
 
@@ -301,7 +309,9 @@ class Configuration:
         commands_configuration = deepcopy(default_commands_configuration)
         for command_name, command_setups in statue_commands_configuration.items():
             if command_name in commands_configuration:
-                commands_configuration[command_name].update(command_setups)
+                commands_configuration[command_name] = cls.__combine_command_setups(
+                    commands_configuration[command_name], command_setups
+                )
             else:
                 commands_configuration[command_name] = command_setups
         return commands_configuration
@@ -380,23 +390,44 @@ class Configuration:
         return setups.get(STANDARD, True)
 
     @classmethod
-    def __read_command_args(
-        cls, setups: MutableMapping[str, Any], contexts: Optional[List[str]]
-    ) -> List[str]:
-        base_args = list(setups.get(ARGS, []))
-        if contexts is None:
-            return base_args
-        for command_context in contexts:
-            context_obj = setups.get(command_context, None)
-            if not isinstance(context_obj, dict):
-                continue
-            args: List[str] = context_obj.get(ARGS, None)
-            if args is not None:
-                return args
-            add_args = context_obj.get(ADD_ARGS, None)
-            if add_args is not None:
-                base_args.extend(add_args)
-            clear_args = context_obj.get(CLEAR_ARGS, False)
-            if clear_args:
-                return []
+    def __combine_command_setups(
+        cls,
+        base_setup: Optional[MutableMapping[str, Any]],
+        setup: Optional[MutableMapping[str, Any]],
+    ):
+        if base_setup is None:
+            return setup
+        if setup is None:
+            return base_setup
+        new_setup = cls.__remove_args_keys(base_setup)
+        args = cls.__combine_command_args(base_setup.get(ARGS, None), setup)
+        if args is not None:
+            new_setup[ARGS] = args
+        new_setup.update(cls.__remove_args_keys(setup))
+        return new_setup
+
+    @classmethod
+    def __combine_command_args(
+        cls, base_args: Optional[List[str]], command_setup: MutableMapping[str, Any]
+    ):
+        base_args = [] if base_args is None else base_args
+        args: List[str] = command_setup.get(ARGS, None)
+        if args is not None:
+            return args
+        add_args = command_setup.get(ADD_ARGS, None)
+        if add_args is not None:
+            return base_args + add_args
+        clear_args = command_setup.get(CLEAR_ARGS, False)
+        if clear_args:
+            return None
+        if len(base_args) == 0:
+            return None
         return base_args
+
+    @classmethod
+    def __remove_args_keys(cls, command_setup: MutableMapping[str, Any]):
+        return {
+            key: value
+            for key, value in command_setup.items()
+            if key not in [ARGS, ADD_ARGS, CLEAR_ARGS]
+        }
