@@ -24,11 +24,14 @@ from tests.constants import (
 )
 
 NONE_SILENT_PRINT_INTRO = [
-    "Evaluation",
-    "==========",
+    "##############",
+    "# Evaluation #",
+    "##############",
     "",
-    "Summary",
-    "=======",
+    "###########",
+    "# Summary #",
+    "###########",
+    "",
 ]
 
 COMMAND_INSTANCE1 = Command(COMMAND1, help=COMMAND_HELP_STRING1)
@@ -396,8 +399,9 @@ def test_evaluate_commands_map_raise_execution_error(
     result = cli_runner.invoke(statue_cli, ["run"])
     assert result.exit_code == 1, "Run should exit with 1."
     assert result.output == (
-        "Evaluation\n"
-        "==========\n"
+        "##############\n"
+        "# Evaluation #\n"
+        "##############\n"
         'Cannot execute "command1" because it is not installed.\n'
         'Try to rerun with the "-i" flag\n'
     ), "Output is different than expected"
