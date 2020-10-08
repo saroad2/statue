@@ -17,4 +17,4 @@ parsers:
 comment: false
 
 fixes:
-   - "/home/runner/work/statue/::"
+   - "/home/runner/work/statue/statue/::"
