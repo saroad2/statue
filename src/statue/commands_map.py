@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Sequence, Set, Union
 from statue.command import Command
 from statue.configuration import Configuration
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
+from statue.exceptions import MissingConfiguration
 
 
 def read_commands_map(
@@ -30,7 +31,10 @@ def read_commands_map(
         sources = Configuration.sources_list()
     commands_map = dict()
     for source in sources:
-        instructions = Configuration.get_source_configuration(source)
+        try:
+            instructions = Configuration.get_source_configuration(source)
+        except MissingConfiguration:
+            instructions = dict()
         commands = Configuration.read_commands(
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(

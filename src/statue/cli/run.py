@@ -17,8 +17,13 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_map import read_commands_map
+from statue.constants import SOURCES
 from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
-from statue.exceptions import CommandExecutionError, UnknownContext
+from statue.exceptions import (
+    CommandExecutionError,
+    MissingConfiguration,
+    UnknownContext,
+)
 from statue.print_util import print_boxed
 from statue.verbosity import is_silent
 
@@ -73,6 +78,16 @@ def run_cli(  # pylint: disable=too-many-arguments
         except UnknownContext as error:
             click.echo(error)
             ctx.exit(1)
+        except MissingConfiguration:
+            click.echo(
+                '"Run" command cannot be run without specified source '
+                "or sources configuration."
+            )
+            click.echo(
+                'Please consider adding "statue.toml" configuration file '
+                f'with "{SOURCES}" section.'
+            )
+            ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
@@ -99,12 +114,12 @@ def run_cli(  # pylint: disable=too-many-arguments
         print_boxed("Summary", print_method=click.echo)
         click.echo()
     failure_map = get_failure_map(evaluation)
-    if len(failure_map) != 0:
-        click.echo("Statue has failed on the following commands:")
-        click.echo()
-        for input_path, failed_commands in failure_map.items():
-            click.echo(f"{input_path}:")
-            click.echo(f"\t{', '.join([command.name for command in failed_commands])}")
-        ctx.exit(1)
-    else:
+    if len(failure_map) == 0:
         click.echo("Statue finished successfully!")
+        ctx.exit(0)
+    click.echo("Statue has failed on the following commands:")
+    click.echo()
+    for input_path, failed_commands in failure_map.items():
+        click.echo(f"{input_path}:")
+        click.echo(f"\t{', '.join([command.name for command in failed_commands])}")
+    ctx.exit(1)

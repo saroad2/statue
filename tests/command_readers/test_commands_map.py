@@ -1,7 +1,10 @@
 from unittest.mock import Mock, call
 
+import pytest
+
 from statue.commands_map import read_commands_map
-from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
+from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST, SOURCES
+from statue.exceptions import MissingConfiguration
 from tests.constants import (
     COMMAND1,
     COMMAND2,
@@ -60,13 +63,30 @@ def test_get_commands_map_source_not_from_config(
     )
 
 
+def test_get_commands_map_source_with_no_config(
+    mock_read_commands, mock_sources_configuration
+):
+    command = Mock()
+    mock_sources_configuration.side_effect = MissingConfiguration(SOURCES)
+    mock_read_commands.return_value = [command]
+    commands_map = read_commands_map([SOURCE1])
+    assert_sources(commands_map, [SOURCE1])
+    assert_commands(commands_map, SOURCE1, [command])
+    assert_calls(
+        mock_read_commands,
+        [call(allow_list=None, deny_list=None, contexts=None)],
+    )
+
+
 def test_get_commands_map_with_no_sources(
     mock_sources_configuration, mock_read_commands
 ):
-    mock_sources_configuration.return_value = None
-    commands_map = read_commands_map([])
-    assert commands_map is None
-    mock_read_commands.assert_not_called()
+    mock_sources_configuration.side_effect = MissingConfiguration(SOURCES)
+    with pytest.raises(
+        MissingConfiguration,
+        match=f'^"{SOURCES}" is missing from Statue configuration.$',
+    ):
+        read_commands_map([])
 
 
 def test_get_commands_map_with_no_commands(

@@ -4,8 +4,13 @@ from pytest_cases import THIS_MODULE, fixture, parametrize, parametrize_with_cas
 from statue.cache import Cache
 from statue.cli import statue as statue_cli
 from statue.command import Command
+from statue.constants import SOURCES
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
-from statue.exceptions import CommandExecutionError, UnknownContext
+from statue.exceptions import (
+    CommandExecutionError,
+    MissingConfiguration,
+    UnknownContext,
+)
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT
 from tests.constants import (
     COMMAND1,
@@ -385,6 +390,21 @@ def test_read_commands_map_raise_unknown_context_error(
     assert result.exit_code == 1, "Run should exit with 1."
     assert result.output.split("\n") == [
         f'Could not find context named "{NOT_EXISTING_CONTEXT}".',
+        "",
+    ], "Run output is different than expected."
+
+
+def test_read_commands_map_raise_missing_configuration_error(
+    cli_runner, empty_configuration, mock_read_commands_map
+):
+    mock_read_commands_map.side_effect = MissingConfiguration(SOURCES)
+    result = cli_runner.invoke(statue_cli, ["run"])
+    assert result.exit_code == 1, "Run should exit with 1."
+    assert result.output.split("\n") == [
+        '"Run" command cannot be run without specified source or sources '
+        "configuration.",
+        f'Please consider adding "statue.toml" configuration file with "{SOURCES}" '
+        "section.",
         "",
     ], "Run output is different than expected."
 

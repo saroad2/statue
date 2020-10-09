@@ -101,17 +101,19 @@ class Configuration:
     @classmethod
     def sources_configuration(
         cls,
-    ) -> Optional[MutableMapping[str, MutableMapping[str, Any]]]:
+    ) -> MutableMapping[str, MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
-        return cls.statue_configuration().get(SOURCES, None)
+        sources_configuration: Optional[
+            MutableMapping[str, MutableMapping[str, Any]]
+        ] = cls.statue_configuration().get(SOURCES, None)
+        if sources_configuration is None:
+            raise MissingConfiguration(SOURCES)
+        return sources_configuration
 
     @classmethod
     def sources_list(cls) -> List[str]:
         """Getter of the commands list."""
-        sources_configuration = cls.sources_configuration()
-        if sources_configuration is None:
-            return []
-        return list(sources_configuration.keys())
+        return list(cls.sources_configuration().keys())
 
     @classmethod
     def get_source_configuration(
@@ -127,8 +129,6 @@ class Configuration:
         set.
         """
         source_configuration = cls.sources_configuration()
-        if source_configuration is None:
-            raise MissingConfiguration(SOURCES)
         if isinstance(source, Path):
             source = str(source)
         return source_configuration.get(source, {})
