@@ -1,7 +1,7 @@
 """Get Statue global configuration."""
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, List, MutableMapping, Optional
+from typing import Any, List, MutableMapping, Optional, Union
 
 import toml
 
@@ -114,7 +114,9 @@ class Configuration:
         return list(sources_configuration.keys())
 
     @classmethod
-    def get_source_configuration(cls, source: str) -> MutableMapping[str, Any]:
+    def get_source_configuration(
+        cls, source: Union[Path, str]
+    ) -> MutableMapping[str, Any]:
         """
         Get configuration dictionary of a context.
 
@@ -127,7 +129,9 @@ class Configuration:
         source_configuration = cls.sources_configuration()
         if source_configuration is None:
             raise MissingConfiguration(SOURCES)
-        return source_configuration[source]
+        if isinstance(source, Path):
+            source = str(source)
+        return source_configuration.get(source, {})
 
     @classmethod
     def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:

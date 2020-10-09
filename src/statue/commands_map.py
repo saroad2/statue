@@ -1,6 +1,6 @@
 """Commands map allow us to know which commands to run on each source."""
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, List, Optional, Sequence, Set, Union
 
 from statue.command import Command
 from statue.configuration import Configuration
@@ -8,7 +8,7 @@ from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 
 
 def read_commands_map(
-    sources: List[Union[Path, str]],
+    sources: Sequence[Union[Path, str]],
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
@@ -26,15 +26,10 @@ def read_commands_map(
      Added to the denied commands in the configuration file if there are any.
     :return: Dictionary from source file to the commands to run on it.
     """
-    if len(sources) != 0:
-        commands = Configuration.read_commands(
-            contexts=contexts,
-            allow_list=allow_list,
-            deny_list=deny_list,
-        )
-        return dict.fromkeys([str(source) for source in sources], commands)
+    if len(sources) == 0:
+        sources = Configuration.sources_list()
     commands_map = dict()
-    for source in Configuration.sources_list():
+    for source in sources:
         instructions = Configuration.get_source_configuration(source)
         commands = Configuration.read_commands(
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
