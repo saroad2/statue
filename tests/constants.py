@@ -24,6 +24,7 @@ CONTEXT3, CONTEXT_HELP_STRING3 = name_and_help_string("context3")
 CONTEXT4, CONTEXT_HELP_STRING4 = name_and_help_string("context4")
 NOT_EXISTING_CONTEXT = "not_existing_context"
 NOT_EXISTING_COMMAND = "not_existing_command"
+NOT_EXISTING_SOURCE = "not_existing_source"
 ENCODING = "utf8"
 
 COMMANDS_CONFIGURATION = {
