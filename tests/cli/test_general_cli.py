@@ -28,6 +28,7 @@ def test_statue_cli_without_command(cli_runner, empty_configuration):
         "\n"
         "Commands:\n"
         "  command  Commands related actions such as list, install, show, etc.\n"
+        "  config   Configuration related actions.\n"
         "  context  Contexts related actions such as list, show, etc.\n"
         "  dummy    I'm just a dummy command\n"
         "  run      Run static code analysis commands on sources.\n"
