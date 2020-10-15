@@ -18,7 +18,7 @@ jobs:
         os: [ ubuntu-latest, windows-latest, mac-latest ]
     runs-on: ${{ matrix.os }}
     if: ${{ matrix.os != ubuntu-latest}}
-      needs: unit_tests-ubuntu-latest
+      needs: [unit_tests-ubuntu-latest]
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
