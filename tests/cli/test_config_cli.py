@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest import mock
 
 from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
@@ -24,6 +25,11 @@ def case_empty_sources():
 def case_regular_sources():
     src = "src"
     return [src], {SOURCES: {src: {CONTEXTS: []}}}
+
+
+def case_internal_path():
+    """Paths should always be written as posix paths, even in windows"""
+    return [Path("src", "package")], {SOURCES: {"src/package": {CONTEXTS: []}}}
 
 
 def case_test_sources():
