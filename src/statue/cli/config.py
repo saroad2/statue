@@ -1,4 +1,5 @@
 """Config CLI."""
+from collections import OrderedDict
 from pathlib import Path
 
 import click
@@ -20,12 +21,15 @@ def config_cli():
     "-d",
     "--directory",
     type=click.Path(dir_okay=True, file_okay=False, exists=True),
-    default=Path.cwd,
 )
 def init_config(directory):
     """Initialize configuration path."""
-    sources = sorted(find_sources(Path(directory)))
-    config = {SOURCES: {}}
+    if directory is None:
+        directory = Path.cwd()
+    if isinstance(directory, str):
+        directory = Path(directory)
+    sources = sorted(find_sources(directory))
+    config = {SOURCES: OrderedDict()}
     for source in sources:
         contexts = __get_default_contexts(source)
         config[SOURCES][source.relative_to(directory).as_posix()] = {CONTEXTS: contexts}

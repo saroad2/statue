@@ -11,6 +11,11 @@ def mock_toml_load(mocker):
 
 
 @pytest.fixture
+def mock_toml_dump(mocker):
+    return mocker.patch("toml.dump")
+
+
+@pytest.fixture
 def clear_configuration():
     yield
     Configuration.reset_configuration()
