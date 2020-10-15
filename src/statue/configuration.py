@@ -38,6 +38,7 @@ class Configuration:
 
     @classmethod
     def configuration_path(cls, directory: Union[Path, str]) -> Path:
+        """Get default path of configuration file in directory."""
         if isinstance(directory, str):
             directory = Path(directory)
         return directory / "statue.toml"
