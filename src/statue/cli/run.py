@@ -80,12 +80,12 @@ def run_cli(  # pylint: disable=too-many-arguments
             ctx.exit(1)
         except MissingConfiguration:
             click.echo(
-                '"Run" command cannot be run without specified source '
-                "or sources configuration."
+                '"Run" command cannot be run without a specified source '
+                "or a sources section in Statue's configuration."
             )
             click.echo(
-                'Please consider adding "statue.toml" configuration file '
-                f'with "{SOURCES}" section.'
+                'Please consider running "statue config init" in order to initialize '
+                "default configuration."
             )
             ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
