@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from unittest import mock
 
 import pytest
 from pytest_cases import THIS_MODULE, parametrize_with_cases
@@ -148,7 +148,7 @@ def case_success_user_add_new_context():
     cases=THIS_MODULE,
     prefix="case_success_",
 )
-def test_load_configuration_successful(
+def test_load_configuration_from_file_as_path_successful(
     default_configuration,
     statue_configuration,
     result,
@@ -156,7 +156,7 @@ def test_load_configuration_successful(
     mock_toml_load,
     clear_configuration,
 ):
-    statue_path = Mock()
+    statue_path = mock.Mock()
     statue_path.exists.return_value = True
     mock_default_configuration.return_value = default_configuration
     mock_toml_load.return_value = statue_configuration
@@ -165,6 +165,61 @@ def test_load_configuration_successful(
     assert (
         Configuration.statue_configuration() == result
     ), "Configuration is different than expected."
+
+
+@parametrize_with_cases(
+    argnames="default_configuration, statue_configuration, result",
+    cases=THIS_MODULE,
+    prefix="case_success_",
+)
+def test_load_configuration_from_file_as_string_successful(
+    default_configuration,
+    statue_configuration,
+    result,
+    mock_default_configuration,
+    mock_toml_load,
+    clear_configuration,
+):
+    statue_path = "/path/to/configuration.toml"
+    statue_path_obj = mock.Mock()
+    statue_path_obj.exists.return_value = True
+    mock_default_configuration.return_value = default_configuration
+    mock_toml_load.return_value = statue_configuration
+
+    with mock.patch("statue.configuration.Path") as mock_path:
+        mock_path.return_value = statue_path_obj
+        Configuration.load_configuration(statue_path)
+        mock_path.assert_called_with(statue_path)
+    assert (
+        Configuration.statue_configuration() == result
+    ), "Configuration is different than expected."
+
+
+@parametrize_with_cases(
+    argnames="default_configuration, statue_configuration, result",
+    cases=THIS_MODULE,
+    prefix="case_success_",
+)
+def test_load_configuration_from_default_path_successful(
+    default_configuration,
+    statue_configuration,
+    result,
+    mock_default_configuration,
+    mock_toml_load,
+    mock_cwd,
+    clear_configuration,
+):
+    statue_path = mock.Mock()
+    statue_path.exists.return_value = True
+    mock_cwd.__truediv__.return_value = statue_path
+    mock_default_configuration.return_value = default_configuration
+    mock_toml_load.return_value = statue_configuration
+
+    Configuration.load_configuration()
+    assert (
+        Configuration.statue_configuration() == result
+    ), "Configuration is different than expected."
+    mock_cwd.__truediv__.asert_called_once_with("statue.toml")
 
 
 # Failure cases
@@ -200,7 +255,7 @@ def test_load_configuration_failure(
     mock_toml_load,
     clear_configuration,
 ):
-    statue_path = Mock()
+    statue_path = mock.Mock()
     statue_path.exists.return_value = True
     mock_default_configuration.return_value = default_configuration
     mock_toml_load.return_value = statue_configuration
@@ -212,9 +267,11 @@ def test_load_configuration_failure(
 # Additional cases
 
 
-def test_load_configuration_fail(mock_default_configuration):
+def test_load_configuration_fail_because_of_empty_configuration(
+    mock_default_configuration,
+):
     mock_default_configuration.return_value = None
-    statue_path = Mock()
+    statue_path = mock.Mock()
     statue_path.exists.return_value = False
 
     Configuration.load_configuration(statue_path)
