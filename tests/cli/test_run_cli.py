@@ -1,7 +1,4 @@
-import sys
-
 import click
-import pytest
 from pytest_cases import THIS_MODULE, fixture, parametrize, parametrize_with_cases
 
 from statue.cache import Cache
@@ -397,7 +394,6 @@ def test_read_commands_map_raise_unknown_context_error(
     ], "Run output is different than expected."
 
 
-@pytest.mark.skipif(sys.platform == "win32", reason="You should skip me")
 def test_read_commands_map_raise_missing_configuration_error(
     cli_runner, empty_configuration, mock_read_commands_map
 ):
