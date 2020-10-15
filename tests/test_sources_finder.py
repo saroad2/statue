@@ -1,7 +1,8 @@
 from pathlib import Path
 
 from git import Repo
-from pytest_cases import parametrize_with_cases, THIS_MODULE, fixture
+from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
+
 from statue.sources_finder import find_sources
 
 

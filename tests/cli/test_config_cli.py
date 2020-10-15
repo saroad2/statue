@@ -1,9 +1,10 @@
-from statue.cli.cli import statue as statue_cli
-from pytest_cases import fixture, parametrize_with_cases, THIS_MODULE
 from unittest import mock
 
+from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
+
+from statue.cli.cli import statue as statue_cli
 from statue.configuration import Configuration
-from statue.constants import SOURCES, CONTEXTS
+from statue.constants import CONTEXTS, SOURCES
 
 
 @fixture
