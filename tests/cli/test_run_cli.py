@@ -401,10 +401,10 @@ def test_read_commands_map_raise_missing_configuration_error(
     result = cli_runner.invoke(statue_cli, ["run"])
     assert result.exit_code == 1, "Run should exit with 1."
     assert result.output.split("\n") == [
-        '"Run" command cannot be run without specified source or sources '
+        '"Run" command cannot be run without a specified source '
+        "or a sources section in Statue's configuration.",
+        'Please consider running "statue config init" in order to initialize default '
         "configuration.",
-        f'Please consider adding "statue.toml" configuration file with "{SOURCES}" '
-        "section.",
         "",
     ], "Run output is different than expected."
 

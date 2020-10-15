@@ -12,7 +12,11 @@ on:
 jobs:
   unit_tests:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        os: [ ubuntu-latest, windows-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python 3.8
@@ -29,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: coverage-report
+          name: coverage-report-${{ matrix.os }}
           path: ./coverage.xml
 
   backward_compatibility:

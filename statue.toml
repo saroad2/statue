@@ -1,5 +1,8 @@
-[sources.src]
-contexts = ["strict"]
+[sources."setup.py"]
+contexts = [ "fast",]
+
+[sources."src/statue"]
+contexts = []
 
 [sources.tests]
-contexts = ["test"]
+contexts = [ "test",]

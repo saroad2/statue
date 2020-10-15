@@ -28,23 +28,25 @@ def test_statue_cli_without_command(cli_runner, empty_configuration):
         "\n"
         "Commands:\n"
         "  command  Commands related actions such as list, install, show, etc.\n"
+        "  config   Configuration related actions.\n"
         "  context  Contexts related actions such as list, show, etc.\n"
         "  dummy    I'm just a dummy command\n"
         "  run      Run static code analysis commands on sources.\n"
     ), "Output is different than expected."
 
 
-def test_statue_cli_without_config(cli_runner, dummy_cwd, mock_load_configuration):
+def test_statue_cli_without_config(cli_runner, mock_load_configuration):
     result = cli_runner.invoke(statue_cli, ["dummy"])
     assert result.exit_code == 0, "return code should exit with success."
     assert result.output == f"{DUMMY_STR}\n", "Output is different than expected."
-    mock_load_configuration.assert_called_with(dummy_cwd / "statue.toml")
+    mock_load_configuration.assert_called_with(None)
 
 
 def test_statue_cli_with_config(cli_runner, mock_load_configuration, tmpdir):
-    config = Path(tmpdir) / "statue.toml"
+    config = Path(tmpdir) / "dummy.toml"
     config.touch()
-    result = cli_runner.invoke(statue_cli, ["--config", str(config), "dummy"])
+    config = str(config)
+    result = cli_runner.invoke(statue_cli, ["--config", config, "dummy"])
     assert result.exit_code == 0, "return code should exit with success."
     assert result.output == f"{DUMMY_STR}\n", "Output is different than expected."
     mock_load_configuration.assert_called_with(config)
