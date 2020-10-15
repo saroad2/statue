@@ -24,11 +24,11 @@ def config_cli():
 )
 def init_config(directory):
     """Initialize configuration path."""
-    sources = find_sources(Path(directory))
+    sources = sorted(find_sources(Path(directory)))
     config = {SOURCES: {}}
     for source in sources:
         contexts = __get_default_contexts(source)
-        config[SOURCES][str(source.relative_to(directory))] = {CONTEXTS: contexts}
+        config[SOURCES][source.relative_to(directory).as_posix()] = {CONTEXTS: contexts}
     with open(Configuration.configuration_path(directory), mode="w") as config_file:
         toml.dump(config, config_file)
 
