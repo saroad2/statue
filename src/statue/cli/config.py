@@ -5,6 +5,7 @@ import click
 import toml
 
 from statue.cli.cli import statue as statue_cli
+from statue.configuration import Configuration
 from statue.constants import CONTEXTS, SOURCES
 from statue.sources_finder import find_sources
 
@@ -28,7 +29,7 @@ def init_config(directory):
     for source in sources:
         contexts = __get_default_contexts(source)
         config[SOURCES][str(source.relative_to(directory))] = {CONTEXTS: contexts}
-    with open(directory / "statue.toml", mode="w") as config_file:
+    with open(Configuration.configuration_path(directory), mode="w") as config_file:
         toml.dump(config, config_file)
 
 

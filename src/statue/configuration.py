@@ -37,6 +37,12 @@ class Configuration:
     __statue_configuration: Optional[MutableMapping[str, Any]] = None
 
     @classmethod
+    def configuration_path(cls, directory: Union[Path, str]) -> Path:
+        if isinstance(directory, str):
+            directory = Path(directory)
+        return directory / "statue.toml"
+
+    @classmethod
     def default_configuration(cls) -> Optional[MutableMapping[str, Any]]:
         """Getter of default configuration."""
         if cls.__default_configuration is None:
@@ -236,7 +242,7 @@ class Configuration:
     @classmethod
     def load_configuration(
         cls,
-        statue_configuration_path: Path,
+        statue_configuration_path: Optional[Union[str, Path]] = None,
     ) -> None:
         """
         Load statue configuration.
@@ -247,6 +253,10 @@ class Configuration:
         :param statue_configuration_path: User-defined file path containing
         repository-specific configurations
         """
+        if statue_configuration_path is None:
+            statue_configuration_path = cls.configuration_path(Path.cwd())
+        if isinstance(statue_configuration_path, str):
+            statue_configuration_path = Path(statue_configuration_path)
         cls.set_statue_configuration(
             cls.__build_configuration(statue_configuration_path)
         )
