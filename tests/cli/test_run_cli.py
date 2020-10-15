@@ -403,7 +403,7 @@ def test_read_commands_map_raise_missing_configuration_error(
     assert result.output.split("\n") == [
         '"Run" command cannot be run without a specified source '
         "or a sources section in Statue's configuration.",
-        f'Please consider running "statue config init" in order to initialize default '
+        'Please consider running "statue config init" in order to initialize default '
         "configuration.",
         "",
     ], "Run output is different than expected."

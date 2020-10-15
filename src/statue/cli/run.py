@@ -17,7 +17,6 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_map import read_commands_map
-from statue.constants import SOURCES
 from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
 from statue.exceptions import (
     CommandExecutionError,
