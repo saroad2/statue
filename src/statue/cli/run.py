@@ -41,8 +41,14 @@ from statue.verbosity import is_silent
     "--cache/--no-cache", default=True, help="Save evaluation to cache or not"
 )
 @silent_option
-@verbose_option  # pylint: disable=too-many-locals
+@verbose_option
 @verbosity_option
+@click.option(
+    "-o",
+    "--output",
+    type=click.Path(dir_okay=False),
+    help="Output path to save evaluation result",
+)
 def run_cli(  # pylint: disable=too-many-arguments
     ctx: click.Context,
     sources: List[Union[Path, str]],
@@ -53,6 +59,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     install: bool,
     cache: bool,
     verbosity: str,
+    output: Optional[str],
 ) -> None:
     """
     Run static code analysis commands on sources.
@@ -62,31 +69,23 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = None
-    if failed and Cache.last_evaluation_path().exists():
-        commands_map = get_failure_map(
-            Evaluation.load_from_file(Cache.last_evaluation_path())
+    try:
+        commands_map = __get_commands_map(
+            sources=sources, context=context, allow=allow, deny=deny, failed=failed
         )
-    if commands_map is None or len(commands_map) == 0:
-        try:
-            commands_map = read_commands_map(
-                sources,
-                contexts=context,
-                allow_list=allow,
-                deny_list=deny,
-            )
-        except UnknownContext as error:
-            click.echo(error)
-            ctx.exit(1)
-        except MissingConfiguration:
-            click.echo(
-                '"Run" command cannot be run without a specified source '
-                "or a sources section in Statue's configuration."
-            )
-            click.echo(
-                'Please consider running "statue config init" in order to initialize '
-                "default configuration."
-            )
-            ctx.exit(1)
+    except UnknownContext as error:
+        click.echo(error)
+        ctx.exit(1)
+    except MissingConfiguration:
+        click.echo(
+            '"Run" command cannot be run without a specified source '
+            "or a sources section in Statue's configuration."
+        )
+        click.echo(
+            'Please consider running "statue config init" in order to initialize '
+            "default configuration."
+        )
+        ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
@@ -108,17 +107,42 @@ def run_cli(  # pylint: disable=too-many-arguments
         ctx.exit(1)
     if cache:
         evaluation.save_as_json(Cache.last_evaluation_path())
+    if output is not None:
+        evaluation.save_as_json(output)
     click.echo()
     if not is_silent(verbosity):
         print_boxed("Summary", print_method=click.echo)
         click.echo()
     failure_map = get_failure_map(evaluation)
+    ctx.exit(__evaluate_failure_map(failure_map))
+
+
+def __evaluate_failure_map(failure_map):
+    """Returns exit code."""
     if len(failure_map) == 0:
         click.echo("Statue finished successfully!")
-        ctx.exit(0)
+        return 0
     click.echo("Statue has failed on the following commands:")
     click.echo()
     for input_path, failed_commands in failure_map.items():
         click.echo(f"{input_path}:")
         click.echo(f"\t{', '.join([command.name for command in failed_commands])}")
-    ctx.exit(1)
+    return 1
+
+
+def __get_commands_map(  # pylint: disable=too-many-arguments
+    sources, context, allow, deny, failed
+):
+    commands_map = None
+    if failed and Cache.last_evaluation_path().exists():
+        commands_map = get_failure_map(
+            Evaluation.load_from_file(Cache.last_evaluation_path())
+        )
+    if commands_map is None or len(commands_map) == 0:
+        commands_map = read_commands_map(
+            sources,
+            contexts=context,
+            allow_list=allow,
+            deny_list=deny,
+        )
+    return commands_map

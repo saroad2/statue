@@ -2,7 +2,7 @@
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, ItemsView, Iterator, List
+from typing import Any, Callable, Dict, ItemsView, Iterator, List, Union
 
 from statue.command import Command
 from statue.print_util import print_title
@@ -81,7 +81,7 @@ class Evaluation:
         """Return evaluation as json dictionary."""
         return {key: value.as_json() for key, value in self.items()}
 
-    def save_as_json(self, output: Path) -> None:
+    def save_as_json(self, output: Union[Path, str]) -> None:
         """Save evaluation as json."""
         with open(output, mode="w") as output_file:
             json.dump(self.as_json(), output_file, indent=2)
