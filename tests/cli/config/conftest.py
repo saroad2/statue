@@ -1,4 +1,5 @@
 from pytest_cases import fixture
+
 from statue.configuration import Configuration
 
 

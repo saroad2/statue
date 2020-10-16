@@ -1,8 +1,9 @@
 from unittest import mock
-from pytest_cases import parametrize_with_cases, THIS_MODULE
+
+from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.cli import statue as statue_cli
-from statue.constants import SOURCES, CONTEXTS, STANDARD
+from statue.constants import CONTEXTS, SOURCES, STANDARD
 
 
 def mock_path(posix_path, is_dir=False):

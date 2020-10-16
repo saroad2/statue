@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest import mock
-from git import InvalidGitRepositoryError
 
+from git import InvalidGitRepositoryError
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.cli import statue as statue_cli
