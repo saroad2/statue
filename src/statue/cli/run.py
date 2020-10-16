@@ -1,4 +1,5 @@
 """Run CLI."""
+import os
 from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Union
