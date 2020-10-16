@@ -2,26 +2,10 @@ from pathlib import Path
 from unittest import mock
 from git import InvalidGitRepositoryError
 
-from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
+from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.cli import statue as statue_cli
-from statue.configuration import Configuration
 from statue.constants import CONTEXTS, SOURCES, STANDARD
-
-
-@fixture
-def mock_find_sources(mocker):
-    return mocker.patch("statue.cli.config.find_sources")
-
-
-@fixture
-def mock_configuration_path(mocker):
-    return mocker.patch.object(Configuration, "configuration_path")
-
-
-@fixture
-def mock_git_repo(mocker):
-    return mocker.patch("git.Repo")
 
 
 def case_empty_sources():

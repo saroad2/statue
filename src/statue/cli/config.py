@@ -50,9 +50,9 @@ def init_config(directory, interactive):
         repo = git.Repo(directory)
     except git.InvalidGitRepositoryError:
         pass
-    sources = sorted(
-        [source.relative_to(directory) for source in find_sources(directory, repo=repo)]
-    )
+    sources = [
+        source.relative_to(directory) for source in find_sources(directory, repo=repo)
+    ]
     sources_map = OrderedDict()
     __update_sources_map(
         sources_map,
@@ -81,7 +81,7 @@ def __update_sources_map(sources_map, sources, repo=None, interactive=False):
         if option in EXPEND:
             __update_sources_map(
                 sources_map,
-                sorted(expend(source, repo=repo)),
+                expend(source, repo=repo),
                 repo=repo,
                 interactive=interactive,
             )

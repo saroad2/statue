@@ -24,7 +24,7 @@ def expend(path, repo=None):
     sources = []
     for inner_path in inner_files:
         sources.extend(find_sources(inner_path, repo=repo))
-    return sources
+    return sorted(sources)
 
 
 def is_python(path: Path) -> bool:
