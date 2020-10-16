@@ -1,11 +1,12 @@
 from pathlib import Path
 from unittest import mock
+from git import InvalidGitRepositoryError
 
 from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
 
 from statue.cli.cli import statue as statue_cli
 from statue.configuration import Configuration
-from statue.constants import CONTEXTS, SOURCES
+from statue.constants import CONTEXTS, SOURCES, STANDARD
 
 
 @fixture
@@ -18,18 +19,23 @@ def mock_configuration_path(mocker):
     return mocker.patch.object(Configuration, "configuration_path")
 
 
+@fixture
+def mock_git_repo(mocker):
+    return mocker.patch("git.Repo")
+
+
 def case_empty_sources():
     return [], {SOURCES: {}}
 
 
 def case_regular_sources():
     src = "src"
-    return [src], {SOURCES: {src: {CONTEXTS: []}}}
+    return [src], {SOURCES: {src: {CONTEXTS: [STANDARD]}}}
 
 
 def case_internal_path():
     """Paths should always be written as posix paths, even in windows"""
-    return [Path("src", "package")], {SOURCES: {"src/package": {CONTEXTS: []}}}
+    return [Path("src", "package")], {SOURCES: {"src/package": {CONTEXTS: [STANDARD]}}}
 
 
 def case_test_sources():
@@ -45,7 +51,7 @@ def case_setup_sources():
 def case_all_sources():
     return ["src", "test", "setup.py"], {
         SOURCES: {
-            "src": {CONTEXTS: []},
+            "src": {CONTEXTS: [STANDARD]},
             "test": {CONTEXTS: ["test"]},
             "setup.py": {CONTEXTS: ["fast"]},
         }
@@ -61,6 +67,7 @@ def test_config_init(
     dummy_cwd,
     mock_find_sources,
     mock_toml_dump,
+    mock_git_repo,
     cli_runner,
 ):
     mock_find_sources.return_value = [dummy_cwd / source for source in sources]
@@ -71,7 +78,34 @@ def test_config_init(
             mock_configuration_path.return_value, mode="w"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(dummy_cwd)
+    mock_find_sources.assert_called_once_with(
+        dummy_cwd, repo=mock_git_repo.return_value
+    )
+    assert result.exit_code == 0
+
+
+@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
+def test_config_init_without_repo(
+    sources,
+    expected_config,
+    mock_load_configuration,
+    mock_configuration_path,
+    dummy_cwd,
+    mock_find_sources,
+    mock_toml_dump,
+    mock_git_repo,
+    cli_runner,
+):
+    mock_git_repo.side_effect = InvalidGitRepositoryError()
+    mock_find_sources.return_value = [dummy_cwd / source for source in sources]
+    mock_open = mock.mock_open()
+    with mock.patch("statue.cli.config.open", mock_open):
+        result = cli_runner.invoke(statue_cli, ["config", "init"])
+        mock_open.assert_called_once_with(
+            mock_configuration_path.return_value, mode="w"
+        )
+        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
+    mock_find_sources.assert_called_once_with(dummy_cwd, repo=None)
     assert result.exit_code == 0
 
 
@@ -84,6 +118,7 @@ def test_config_init_with_directory(
     tmp_path,
     mock_find_sources,
     mock_toml_dump,
+    mock_git_repo,
     cli_runner,
 ):
     mock_find_sources.return_value = [tmp_path / source for source in sources]
@@ -94,5 +129,5 @@ def test_config_init_with_directory(
             mock_configuration_path.return_value, mode="w"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(tmp_path)
+    mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)
     assert result.exit_code == 0
