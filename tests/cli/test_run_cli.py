@@ -1,3 +1,5 @@
+from unittest import mock
+
 import click
 from pytest_cases import THIS_MODULE, fixture, parametrize, parametrize_with_cases
 
@@ -27,6 +29,7 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
+from tests.util import assert_calls
 
 NONE_SILENT_PRINT_INTRO = [
     "##############",
@@ -208,13 +211,24 @@ def mock_evaluation_load_from_file(mocker):
 
 
 @fixture
+def mock_evaluation_save_as_json(mocker):
+    return mocker.patch.object(Evaluation, "save_as_json")
+
+
+@fixture
 def mock_install_commands_if_missing(mocker):
     return mocker.patch("statue.cli.run.install_commands_if_missing")
 
 
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
 def case_simple_run(
-    evaluation, exit_code, prints, mock_read_commands_map, mock_evaluate_commands_map
+    evaluation,
+    exit_code,
+    prints,
+    mock_read_commands_map,
+    mock_evaluate_commands_map,
+    mock_cache_last_evaluation_path,
+    mock_evaluation_save_as_json,
 ):
     extra_args = []
 
@@ -225,14 +239,23 @@ def case_simple_run(
     mock_read_commands_map.assert_called_with(
         (), contexts=(), allow_list=(), deny_list=()
     )
-    mock_evaluate_commands_map.assert_called_with(
+    mock_evaluate_commands_map.assert_called_once_with(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
+    )
+    mock_evaluation_save_as_json.assert_called_once_with(
+        mock_cache_last_evaluation_path
     )
 
 
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
 def case_run_silently(
-    evaluation, exit_code, prints, mock_read_commands_map, mock_evaluate_commands_map
+    evaluation,
+    exit_code,
+    prints,
+    mock_read_commands_map,
+    mock_evaluate_commands_map,
+    mock_cache_last_evaluation_path,
+    mock_evaluation_save_as_json,
 ):
     extra_args = ["--silent"]
 
@@ -246,6 +269,9 @@ def case_run_silently(
     mock_evaluate_commands_map.assert_called_with(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=SILENT
     )
+    mock_evaluation_save_as_json.assert_called_once_with(
+        mock_cache_last_evaluation_path
+    )
 
 
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
@@ -256,6 +282,7 @@ def case_run_failed_with_non_existing_last_evaluation(
     mock_read_commands_map,
     mock_evaluate_commands_map,
     mock_cache_last_evaluation_path,
+    mock_evaluation_save_as_json,
 ):
     extra_args = ["--failed"]
 
@@ -270,6 +297,9 @@ def case_run_failed_with_non_existing_last_evaluation(
     mock_evaluate_commands_map.assert_called_with(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
+    mock_evaluation_save_as_json.assert_called_once_with(
+        mock_cache_last_evaluation_path
+    )
 
 
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
@@ -281,6 +311,7 @@ def case_run_failed_with_successful_last_evaluation(
     mock_evaluate_commands_map,
     mock_cache_last_evaluation_path,
     mock_evaluation_load_from_file,
+    mock_evaluation_save_as_json,
 ):
     extra_args = ["--failed"]
 
@@ -296,6 +327,9 @@ def case_run_failed_with_successful_last_evaluation(
     mock_evaluate_commands_map.assert_called_with(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
+    mock_evaluation_save_as_json.assert_called_once_with(
+        mock_cache_last_evaluation_path
+    )
 
 
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
@@ -307,6 +341,7 @@ def case_run_failed_with_failure_last_evaluation(
     mock_evaluate_commands_map,
     mock_cache_last_evaluation_path,
     mock_evaluation_load_from_file,
+    mock_evaluation_save_as_json,
 ):
     extra_args = ["--failed"]
 
@@ -319,6 +354,9 @@ def case_run_failed_with_failure_last_evaluation(
     mock_evaluate_commands_map.assert_called_with(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
+    mock_evaluation_save_as_json.assert_called_once_with(
+        mock_cache_last_evaluation_path
+    )
 
 
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
@@ -329,6 +367,8 @@ def case_run_and_install(
     mock_read_commands_map,
     mock_evaluate_commands_map,
     mock_install_commands_if_missing,
+    mock_cache_last_evaluation_path,
+    mock_evaluation_save_as_json,
 ):
     extra_args = ["-i"]
 
@@ -351,6 +391,62 @@ def case_run_and_install(
     )
     mock_evaluate_commands_map.assert_called_with(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
+    )
+    mock_evaluation_save_as_json.assert_called_once_with(
+        mock_cache_last_evaluation_path
+    )
+
+
+@parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
+def case_no_cache(
+    evaluation,
+    exit_code,
+    prints,
+    mock_read_commands_map,
+    mock_evaluate_commands_map,
+    mock_evaluation_save_as_json,
+):
+    extra_args = ["--no-cache"]
+
+    mock_read_commands_map.return_value = COMMANDS_MAP
+    mock_evaluate_commands_map.return_value = evaluation
+
+    yield extra_args, exit_code, NONE_SILENT_PRINT_INTRO + prints
+    mock_read_commands_map.assert_called_with(
+        (), contexts=(), allow_list=(), deny_list=()
+    )
+    mock_evaluate_commands_map.assert_called_once_with(
+        commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
+    )
+    mock_evaluation_save_as_json.assert_not_called()
+
+
+@parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
+def case_save_output(
+    evaluation,
+    exit_code,
+    prints,
+    mock_read_commands_map,
+    mock_evaluate_commands_map,
+    mock_cache_last_evaluation_path,
+    mock_evaluation_save_as_json,
+):
+    output_path = "/path/to/output"
+    extra_args = ["-o", output_path]
+
+    mock_read_commands_map.return_value = COMMANDS_MAP
+    mock_evaluate_commands_map.return_value = evaluation
+
+    yield extra_args, exit_code, NONE_SILENT_PRINT_INTRO + prints
+    mock_read_commands_map.assert_called_with(
+        (), contexts=(), allow_list=(), deny_list=()
+    )
+    mock_evaluate_commands_map.assert_called_with(
+        commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
+    )
+    assert_calls(
+        mock_evaluation_save_as_json,
+        [mock.call(mock_cache_last_evaluation_path), mock.call(output_path)],
     )
 
 

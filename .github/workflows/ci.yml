@@ -74,4 +74,9 @@ jobs:
         pip install -e .
     - name: Run self on source
       run: |
-        statue run -i
+        statue run -i -o statue-report.json
+    - uses: actions/upload-artifact@v2
+      if: ${{ always() }}
+      with:
+        name: statue-report
+        path: ./statue-report.json
