@@ -15,6 +15,7 @@ from statue.sources_finder import expend, find_sources
 YES = ["y", "yes"]
 NO = ["n", "no"]
 EXPEND = ["e", "expend"]
+DEFAULT_OPTION = "yes"
 
 
 @statue_cli.group("config")
@@ -40,7 +41,15 @@ def config_cli():
     help="Run interactively in order to determine tracked sources and contexts.",
 )
 def init_config(directory, interactive):
-    """Initialize configuration path."""
+    """
+    Initialize configuration for Statue.
+
+    By default, this command searches for sources files in the given directory (cwd by
+     default) and sets them with default contexts.
+
+    You can run this command with the "-i" flag in order to choose interactively which
+     source files to track and which contexts to assign to them.
+    """
     if directory is None:
         directory = Path.cwd()
     if isinstance(directory, str):
@@ -74,9 +83,12 @@ def __update_sources_map(sources_map, sources, repo=None, interactive=False):
                 choices.extend(EXPEND)
                 choices_string += ", [E]xpend"
             option = click.prompt(
-                f'Would you like to track "{source}" ({choices_string})',
+                f'Would you like to track "{source}" ({choices_string}. '
+                f"default: {DEFAULT_OPTION})",
                 type=click.Choice(choices, case_sensitive=False),
                 show_choices=False,
+                show_default=False,
+                default=DEFAULT_OPTION,
             ).lower()
         if option in EXPEND:
             __update_sources_map(

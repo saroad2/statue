@@ -17,6 +17,12 @@ def case_empty_sources():
     return [], [], {SOURCES: {}}
 
 
+def case_one_source_with_default_yes():
+    src_path = "src"
+    src = mock_path(src_path)
+    return [src], ["", ""], {SOURCES: {src_path: {CONTEXTS: [STANDARD]}}}
+
+
 def case_one_source_with_yes():
     src_path = "src"
     src = mock_path(src_path)
@@ -60,7 +66,7 @@ def case_expend_with_one_no(mock_expend, mock_git_repo):
     src = mock_path(src_path, is_dir=True)
     one, two, three = "src/one", "src/two", "src/three"
     mock_expend.return_value = [mock_path(path) for path in [one, two, three]]
-    yield [src], ["e", "y", "", "n", "", "y", ""], {
+    yield [src], ["e", "y", "", "n", "y", ""], {
         SOURCES: {one: {CONTEXTS: [STANDARD]}, three: {CONTEXTS: [STANDARD]}}
     }
     mock_expend.assert_called_once_with(src, repo=mock_git_repo.return_value)
