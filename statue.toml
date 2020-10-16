@@ -2,7 +2,7 @@
 contexts = [ "fast",]
 
 [sources."src/statue"]
-contexts = []
+contexts = [ "standard",]
 
 [sources.tests]
 contexts = [ "test",]

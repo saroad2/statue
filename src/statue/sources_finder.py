@@ -1,7 +1,7 @@
 """Find all python sources in a directory."""
 from pathlib import Path
 
-from git import InvalidGitRepositoryError, Repo
+from git import Repo
 
 
 def find_sources(path: Path, repo: Repo = None):
@@ -10,12 +10,12 @@ def find_sources(path: Path, repo: Repo = None):
         return [path]
     if not path.is_dir():
         return []
+    return expend(path, repo)
+
+
+def expend(path, repo=None):
+    """Find all sources inside a directory which are not ignored."""
     inner_files = list(path.iterdir())
-    if repo is None:
-        try:
-            repo = Repo(path)
-        except InvalidGitRepositoryError:
-            pass
     if repo is not None:
         ignored_files = [Path(ignored) for ignored in repo.ignored(inner_files)]
         inner_files = [
