@@ -108,24 +108,24 @@ class Configuration:
     @classmethod
     def sources_configuration(
         cls,
-    ) -> MutableMapping[str, MutableMapping[str, Any]]:
+    ) -> MutableMapping[Path, MutableMapping[str, Any]]:
         """Getter of the sources configuration."""
         sources_configuration: Optional[
-            MutableMapping[str, MutableMapping[str, Any]]
+            MutableMapping[Path, MutableMapping[str, Any]]
         ] = cls.statue_configuration().get(SOURCES, None)
         if sources_configuration is None:
             raise MissingConfiguration(SOURCES)
         return sources_configuration
 
     @classmethod
-    def sources_list(cls) -> List[str]:
+    def sources_list(cls) -> List[Path]:
         """Getter of the commands list."""
         return list(cls.sources_configuration().keys())
 
     @classmethod
     def get_source_configuration(
         cls, source: Union[Path, str]
-    ) -> MutableMapping[str, Any]:
+    ) -> Optional[MutableMapping[str, Any]]:
         """
         Get configuration dictionary of a context.
 
@@ -135,10 +135,16 @@ class Configuration:
         :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
         set.
         """
-        source_configuration = cls.sources_configuration()
-        if isinstance(source, Path):
-            source = str(source)
-        return source_configuration.get(source, {})
+        sources_configuration = cls.sources_configuration()
+        if not isinstance(source, Path):
+            source = Path(source)
+        for source_path, setup in sources_configuration.items():
+            try:
+                source.relative_to(source_path)
+                return setup
+            except ValueError:
+                continue
+        return None
 
     @classmethod
     def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
@@ -309,6 +315,10 @@ class Configuration:
         )
         if contexts_configuration is not None:
             statue_config[CONTEXTS] = contexts_configuration
+        if SOURCES in statue_config:
+            statue_config[SOURCES] = {
+                Path(source): setup for source, setup in statue_config[SOURCES].items()
+            }
         return statue_config
 
     @classmethod

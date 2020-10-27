@@ -64,4 +64,6 @@ def test_get_source_as_path(clear_configuration):
 def test_get_non_existing_source(clear_configuration):
     Configuration.set_statue_configuration({SOURCES: SOURCES_CONFIGURATION})
     source_configuration = Configuration.get_source_configuration(NOT_EXISTING_SOURCE)
-    assert source_configuration == {}, "Source configuration is different than expected"
+    assert (
+        source_configuration is None
+    ), "Source configuration is different than expected"
