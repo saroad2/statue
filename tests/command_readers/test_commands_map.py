@@ -1,3 +1,4 @@
+from pathlib import Path
 from unittest.mock import Mock, call
 
 import pytest
@@ -214,4 +215,25 @@ def test_get_commands_map_with_source_deny_list(
                 contexts=[CONTEXT1],
             ),
         ],
+    )
+
+
+def test_get_commands_map_from_relative_path(
+    mock_sources_configuration, mock_read_commands
+):
+    command1, command2 = (Mock(), Mock())
+    mock_sources_configuration.return_value = {
+        SOURCE1: {CONTEXTS: [CONTEXT1]},
+        SOURCE2: {CONTEXTS: [CONTEXT2]},
+    }
+    mock_read_commands.side_effect = [[command1, command2]]
+    relative_source = Path(SOURCE2) / "i" / "am" / "relative"
+    relative_source_string = str(relative_source)
+
+    commands_map = read_commands_map([relative_source])
+
+    assert_sources(commands_map, [relative_source_string])
+    assert_commands(commands_map, relative_source_string, [command1, command2])
+    assert_calls(
+        mock_read_commands, [call(contexts=[CONTEXT2], allow_list=None, deny_list=None)]
     )

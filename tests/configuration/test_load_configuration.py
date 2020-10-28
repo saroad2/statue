@@ -1,7 +1,8 @@
 from unittest import mock
+from unittest.mock import call
 
 import pytest
-from pytest_cases import THIS_MODULE, parametrize_with_cases
+from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
 
 from statue.configuration import Configuration
 from statue.constants import (
@@ -12,6 +13,7 @@ from statue.constants import (
     CONTEXTS,
     HELP,
     OVERRIDE,
+    SOURCES,
     STATUE,
 )
 from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
@@ -27,7 +29,15 @@ from tests.constants import (
     CONTEXT2,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
+    SOURCE1,
+    SOURCE2,
 )
+
+
+@fixture
+def mock_path(mocker):
+    return mocker.patch("statue.configuration.Path")
+
 
 # Success cases
 
@@ -143,6 +153,25 @@ def case_success_user_add_new_context():
     return default_configuration, statue_configuration, result
 
 
+def case_success_read_sources(mock_path):
+    source1_path, source2_path = "path1", "path2"
+    mock_path.side_effect = lambda s: {
+        SOURCE1: source1_path,
+        SOURCE2: source2_path,
+    }.get(s, mock.Mock())
+    default_configuration = {}
+    statue_configuration = {
+        SOURCES: {SOURCE1: {CONTEXTS: [CONTEXT1]}, SOURCE2: {CONTEXTS: [CONTEXT1]}}
+    }
+    result = {
+        SOURCES: {
+            source1_path: {CONTEXTS: [CONTEXT1]},
+            source2_path: {CONTEXTS: [CONTEXT1]},
+        }
+    }
+    return default_configuration, statue_configuration, result
+
+
 @parametrize_with_cases(
     argnames="default_configuration, statue_configuration, result",
     cases=THIS_MODULE,
@@ -178,6 +207,7 @@ def test_load_configuration_from_file_as_string_successful(
     result,
     mock_default_configuration,
     mock_toml_load,
+    mock_path,
     clear_configuration,
 ):
     statue_path = "/path/to/configuration.toml"
@@ -186,10 +216,9 @@ def test_load_configuration_from_file_as_string_successful(
     mock_default_configuration.return_value = default_configuration
     mock_toml_load.return_value = statue_configuration
 
-    with mock.patch("statue.configuration.Path") as mock_path:
-        mock_path.return_value = statue_path_obj
-        Configuration.load_configuration(statue_path)
-        mock_path.assert_called_with(statue_path)
+    mock_path.return_value = statue_path_obj
+    Configuration.load_configuration(statue_path)
+    assert mock_path.call_args_list[0] == call(statue_path)
     assert (
         Configuration.statue_configuration() == result
     ), "Configuration is different than expected."
