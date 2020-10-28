@@ -2,7 +2,7 @@ from unittest import mock
 from unittest.mock import call
 
 import pytest
-from pytest_cases import THIS_MODULE, parametrize_with_cases, fixture
+from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
 
 from statue.configuration import Configuration
 from statue.constants import (
@@ -13,8 +13,8 @@ from statue.constants import (
     CONTEXTS,
     HELP,
     OVERRIDE,
-    STATUE,
     SOURCES,
+    STATUE,
 )
 from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
 from tests.constants import (

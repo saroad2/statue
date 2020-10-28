@@ -221,12 +221,7 @@ def test_get_commands_map_with_source_deny_list(
 def test_get_commands_map_from_relative_path(
     mock_sources_configuration, mock_read_commands
 ):
-    command1, command2, command3, command4 = (
-        Mock(),
-        Mock(),
-        Mock(),
-        Mock(),
-    )
+    command1, command2 = (Mock(), Mock())
     mock_sources_configuration.return_value = {
         SOURCE1: {CONTEXTS: [CONTEXT1]},
         SOURCE2: {CONTEXTS: [CONTEXT2]},
