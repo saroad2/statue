@@ -16,6 +16,7 @@ from statue.constants import (
     SOURCES,
     STATUE,
 )
+from statue.context import Context
 from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
 from tests.constants import (
     ARG1,
@@ -32,6 +33,7 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
+from tests.util import build_contexts_map
 
 
 @fixture
@@ -124,16 +126,25 @@ def case_success_command_args_are_not_affected():
 
 
 def case_success_contexts_taken_from_default():
-    default_configuration = {CONTEXTS: {"a": "b"}}
+    default_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}}}
     statue_configuration = {"c": "d"}
-    result = {CONTEXTS: {"a": "b"}, "c": "d"}
+    result = {
+        CONTEXTS: build_contexts_map(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)),
+        "c": "d",
+    }
     return default_configuration, statue_configuration, result
 
 
 def case_success_contexts_taken_from_user():
     default_configuration = {}
-    statue_configuration = {"c": "d", CONTEXTS: {"a": "b"}}
-    result = {CONTEXTS: {"a": "b"}, "c": "d"}
+    statue_configuration = {
+        "c": "d",
+        CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}},
+    }
+    result = {
+        CONTEXTS: build_contexts_map(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)),
+        "c": "d",
+    }
     return default_configuration, statue_configuration, result
 
 
@@ -144,10 +155,10 @@ def case_success_user_add_new_context():
         CONTEXTS: {CONTEXT2: {HELP: CONTEXT_HELP_STRING2}},
     }
     result = {
-        CONTEXTS: {
-            CONTEXT1: {HELP: CONTEXT_HELP_STRING1},
-            CONTEXT2: {HELP: CONTEXT_HELP_STRING2},
-        },
+        CONTEXTS: build_contexts_map(
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+            Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        ),
         "c": "d",
     }
     return default_configuration, statue_configuration, result

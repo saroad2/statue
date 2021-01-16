@@ -1,7 +1,7 @@
 import pytest
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.constants import ALIASES, HELP, PARENT, IS_DEFAULT
+from statue.constants import ALIASES, HELP, IS_DEFAULT, PARENT
 from statue.context import Context
 from statue.exceptions import UnknownContext
 from tests.constants import (
@@ -11,10 +11,7 @@ from tests.constants import (
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
 )
-
-
-def build_contexts_map(*contexts):
-    return {context.name: context for context in contexts}
+from tests.util import build_contexts_map
 
 
 def case_simple_context():
@@ -70,9 +67,7 @@ def case_context_with_parent_with_alias():
 
 
 def case_default_context():
-    context_config = {
-        CONTEXT1: {HELP: CONTEXT_HELP_STRING1, IS_DEFAULT: True}
-    }
+    context_config = {CONTEXT1: {HELP: CONTEXT_HELP_STRING1, IS_DEFAULT: True}}
     context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, is_default=True)
     return context_config, build_contexts_map(context1)
 

@@ -4,7 +4,6 @@ import click
 
 from statue.cli.cli import statue as statue_cli
 from statue.configuration import Configuration
-from statue.constants import HELP
 
 
 @statue_cli.group("context")
@@ -16,12 +15,12 @@ def context_cli() -> None:
 @click.pass_context
 def contexts_list(ctx: click.Context) -> None:
     """Print all available contexts."""
-    contexts_configuration = Configuration.contexts_configuration()
-    if contexts_configuration is None:
+    contexts_obj_list = Configuration.contexts_list()
+    if len(contexts_obj_list) == 0:
         click.echo("No contexts were found.")
         ctx.exit(1)
-    for context_name, context_instance in contexts_configuration.items():
-        click.echo(f"{context_name} - {context_instance[HELP]}")
+    for context in contexts_obj_list:
+        click.echo(f"{context.name} - {context.help}")
 
 
 @context_cli.command("show")
@@ -29,16 +28,16 @@ def contexts_list(ctx: click.Context) -> None:
 @click.argument("context_name", type=str)
 def show_contexts(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
-    contexts_configuration = Configuration.contexts_configuration()
-    if contexts_configuration is None:
-        click.echo("No contexts were found.")
-        ctx.exit(1)
-    context_instance = contexts_configuration.get(context_name, None)
+    context_instance = Configuration.get_context(context_name)
     if context_instance is None:
         click.echo(f'Could not find the context "{context_name}".')
         ctx.exit(1)
     click.echo(f"Name - {context_name}")
-    click.echo(f"Description - {context_instance[HELP]}")
+    click.echo(f"Description - {context_instance.help}")
+    if len(context_instance.aliases) != 0:
+        click.echo(f"Aliases - {', '.join(context_instance.aliases)}")
+    if context_instance.parent is not None:
+        click.echo(f"Parent - {context_instance.parent.name}")
     commands = Configuration.read_commands(contexts=[context_name])
     click.echo(
         f"Matching commands - {', '.join([command.name for command in commands])}"

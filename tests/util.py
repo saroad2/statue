@@ -1,6 +1,10 @@
 from unittest.mock import Mock
 
 
+def build_contexts_map(*contexts):
+    return {context.name: context for context in contexts}
+
+
 def command_mock(name, installed=True, return_code=None):
     mock = Mock()
     mock.name = name

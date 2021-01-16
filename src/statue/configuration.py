@@ -1,7 +1,7 @@
 """Get Statue global configuration."""
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, List, MutableMapping, Optional, Union
+from typing import Any, Dict, List, MutableMapping, Optional, Union
 
 import toml
 
@@ -15,11 +15,11 @@ from statue.constants import (
     DEFAULT_CONFIGURATION_FILE,
     HELP,
     OVERRIDE,
-    PARENT,
     SOURCES,
     STANDARD,
     STATUE,
 )
+from statue.context import Context
 from statue.exceptions import (
     EmptyConfiguration,
     InvalidCommand,
@@ -147,14 +147,20 @@ class Configuration:
         return None
 
     @classmethod
-    def contexts_configuration(cls) -> Optional[MutableMapping[str, Any]]:
+    def contexts_map(cls) -> Optional[Dict[str, Context]]:
         """Getter of the contexts configuration."""
         return cls.statue_configuration().get(CONTEXTS, None)
 
     @classmethod
-    def get_context_configuration(
-        cls, context_name: str
-    ) -> Optional[MutableMapping[str, Any]]:
+    def contexts_list(cls) -> List[Context]:
+        """Getter of the contexts configuration."""
+        contexts_map = cls.contexts_map()
+        if contexts_map is None:
+            return []
+        return list(contexts_map.values())
+
+    @classmethod
+    def get_context(cls, context_name: str) -> Optional[Context]:
         """
         Get configuration dictionary of a context.
 
@@ -164,7 +170,7 @@ class Configuration:
         :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
         set.
         """
-        contexts_configuration = cls.contexts_configuration()
+        contexts_configuration = cls.contexts_map()
         if contexts_configuration is None:
             raise MissingConfiguration(CONTEXTS)
         return contexts_configuration.get(context_name, None)
@@ -314,7 +320,7 @@ class Configuration:
             default_contexts_configuration=default_configuration.get(CONTEXTS, None),
         )
         if contexts_configuration is not None:
-            statue_config[CONTEXTS] = contexts_configuration
+            statue_config[CONTEXTS] = Context.build_contexts_map(contexts_configuration)
         if SOURCES in statue_config:
             statue_config[SOURCES] = {
                 Path(source): setup for source, setup in statue_config[SOURCES].items()
@@ -398,17 +404,10 @@ class Configuration:
     def __command_match_context(
         cls, setups: MutableMapping[str, Any], context_name: str
     ) -> bool:
-        if context_name == STANDARD:
-            return cls.__command_match_default_context(setups)
-        context_configuration = cls.get_context_configuration(context_name)
-        if context_configuration is None:
+        context_instance = cls.get_context(context_name)
+        if context_instance is None:
             raise UnknownContext(context_name)
-        if setups.get(context_name, False):
-            return True
-        parent_context = context_configuration.get(PARENT, None)
-        if parent_context is not None:
-            return cls.__command_match_context(setups, parent_context)
-        return False
+        return context_instance.search_context(setups) is not None
 
     @classmethod
     def __command_match_default_context(cls, setups: MutableMapping[str, Any]) -> bool:

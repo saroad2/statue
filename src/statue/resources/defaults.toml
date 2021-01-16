@@ -1,3 +1,6 @@
+[contexts.standard]
+help = "Default context"
+
 [contexts.fast]
 help = "Run short-time commands. Good for smoke tests"
 
