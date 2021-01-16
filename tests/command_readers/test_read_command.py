@@ -76,6 +76,22 @@ def case_success_with_boolean_context():
     return configuration, kwargs, command
 
 
+def case_success_with_boolean_context_and_standard():
+    configuration = {
+        CONTEXTS: CONTEXTS_MAP,
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1],
+                CONTEXT1: True,
+            }
+        },
+    }
+    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, STANDARD])
+    command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
+    return configuration, kwargs, command
+
+
 def case_success_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
@@ -306,11 +322,7 @@ def case_failure_with_two_contexts():
         configuration,
         kwargs,
         InvalidCommand,
-        (
-            f'^The command "{COMMAND1}" does not match the restrictions: '
-            fr"contexts=\['{CONTEXT1}', '{CONTEXT2}'\], allow_list=None, "
-            "deny_list=None$"
-        ),
+        f'^Command "{COMMAND1}" does not match context "{CONTEXT2}"',
     )
 
 
@@ -331,10 +343,7 @@ def case_failure_with_non_standard_command():
         configuration,
         kwargs,
         InvalidCommand,
-        (
-            f'^The command "{COMMAND1}" does not match the restrictions: '
-            "contexts=None, allow_list=None, deny_list=None$"
-        ),
+        f'^Command "{COMMAND1}" does not match context "{STANDARD}"',
     )
 
 
@@ -351,10 +360,7 @@ def case_failure_not_in_allow_list():
         configuration,
         kwargs,
         InvalidCommand,
-        (
-            f'^The command "{COMMAND1}" does not match the restrictions: '
-            fr"contexts=None, allow_list=\['{COMMAND2}'\], deny_list=None$"
-        ),
+        f'Command "{COMMAND1}" was not specified in allowed list: {COMMAND2}',
     )
 
 
@@ -371,10 +377,7 @@ def case_failure_in_deny_list():
         configuration,
         kwargs,
         InvalidCommand,
-        (
-            f'^The command "{COMMAND1}" does not match the restrictions: '
-            fr"contexts=None, allow_list=None, deny_list=\['{COMMAND1}'\]$"
-        ),
+        f'Command "{COMMAND1}" was explicitly denied in deny list: {COMMAND1}',
     )
 
 

@@ -229,23 +229,34 @@ class Configuration:
         :class:`InvalidCommand` of command doesn't fit the given contexts, allow list
          and deny list
         """
+        if (
+            allow_list is not None
+            and len(allow_list) != 0  # noqa: W503
+            and command_name not in allow_list  # noqa: W503
+        ):
+            raise InvalidCommand(
+                f'Command "{command_name}" '
+                f"was not specified in allowed list: {', '.join(allow_list)}"
+            )
+        if deny_list is not None and command_name in deny_list:
+            raise InvalidCommand(
+                f'Command "{command_name}" '
+                f"was explicitly denied in deny list: {', '.join(deny_list)}"
+            )
         command_configuration = cls.get_command_configuration(command_name)
         if command_configuration is None:
             raise UnknownCommand(command_name)
-        if not cls.__is_command_matching(
-            command_name, command_configuration, contexts, allow_list, deny_list
-        ):
-            raise InvalidCommand(
-                command_name=command_name,
-                contexts=contexts,
-                allow_list=allow_list,
-                deny_list=deny_list,
-            )
-        contexts = [] if contexts is None else contexts
+        contexts = [STANDARD] if contexts is None else contexts
+        if len(contexts) > 1 and STANDARD in contexts:
+            contexts.remove(STANDARD)
         context_objects = [cls.get_context(context_name) for context_name in contexts]
         for context in context_objects:
             context_obj = context.search_context(command_configuration)
-            if not isinstance(context_obj, dict):
+            if context_obj is False or context_obj is None:
+                raise InvalidCommand(
+                    f'Command "{command_name}" does not match context "{context.name}"'
+                )
+            if context_obj is True:
                 continue
             command_configuration = cls.__combine_command_setups(
                 command_configuration, context_obj
@@ -379,48 +390,6 @@ class Configuration:
                 )
             contexts[context_name] = context_setup
         return contexts
-
-    @classmethod
-    def __is_command_matching(  # pylint: disable=too-many-arguments
-        cls,
-        command_name: str,
-        setups: MutableMapping[str, Any],
-        contexts: Optional[List[str]],
-        allow_list: Optional[List[str]],
-        deny_list: Optional[List[str]],
-    ) -> bool:
-        """
-        Check whether a command fits the restrictions or not.
-
-        :param command_name: the name of the command to read.
-        :param setups: Dictionary. The command's configuration.
-        :param contexts: List of str. a list of contexts.
-        :param allow_list: List of allowed commands.
-        :param deny_list: List of denied commands.
-        :return: Boolean. Does the command fit the restrictions
-        """
-        if deny_list is not None and command_name in deny_list:
-            return False
-        if (
-            allow_list is not None
-            and len(allow_list) != 0  # noqa: W503
-            and command_name not in allow_list  # noqa: W503
-        ):
-            return False
-        if contexts is None or len(contexts) == 0:
-            contexts = [STANDARD]
-        for command_context in contexts:
-            if not cls.__command_match_context(setups, command_context):
-                return False
-        return True
-
-    @classmethod
-    def __command_match_context(
-        cls, setups: MutableMapping[str, Any], context_name: str
-    ) -> bool:
-        context_instance = cls.get_context(context_name)
-        found_setups = context_instance.search_context(setups)
-        return found_setups is not None and found_setups is not False
 
     @classmethod
     def __combine_command_setups(

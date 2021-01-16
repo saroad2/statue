@@ -1,5 +1,4 @@
 """Exceptions module."""
-from typing import List, Optional
 
 
 class StatueException(Exception):
@@ -36,19 +35,6 @@ class UnknownCommand(StatueException):
 
 class InvalidCommand(StatueException):
     """Command doesn't fit restrictions."""
-
-    def __init__(
-        self,
-        command_name: str,
-        contexts: Optional[List[str]] = None,
-        allow_list: Optional[List[str]] = None,
-        deny_list: Optional[List[str]] = None,
-    ) -> None:
-        """Exception constructor."""
-        super().__init__(
-            f'The command "{command_name}" does not match the restrictions: '
-            f"contexts={contexts}, allow_list={allow_list}, deny_list={deny_list}"
-        )
 
 
 class UnknownContext(StatueException):

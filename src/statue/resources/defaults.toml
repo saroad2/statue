@@ -45,6 +45,7 @@ args = [
 ]
 help = "Remove unused imports and variables"
 format = true
+fast = true
 standard = false
 
 [commands.isort]
