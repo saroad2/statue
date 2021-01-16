@@ -1,38 +1,7 @@
 """Utility methods for CLI."""
-from typing import List
-
 import click
 
-from statue.command import Command
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES
-
-
-def install_commands_if_missing(
-    commands_list: List[Command], verbosity: str = DEFAULT_VERBOSITY
-) -> None:
-    """
-    Install commands if missing using `pip install`.
-
-    :param commands_list: list of :class:`Command` items
-    :param verbosity: String. Verbosity level
-    """
-    uninstalled_commands = [
-        command for command in commands_list if not command.installed()
-    ]
-    if len(uninstalled_commands) == 0:
-        print("All commands are installed!")
-    else:
-        installed = []
-        print(
-            "The following commands are not installed: "
-            f"{', '.join([command.name for command in uninstalled_commands])}"
-        )
-        for command in uninstalled_commands:
-            if command.name in installed:
-                continue
-            command.install(verbosity)
-            installed.append(command.name)
-
 
 contexts_option = click.option(
     "-c",
