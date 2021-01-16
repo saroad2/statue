@@ -10,7 +10,6 @@ from statue.constants import (
     COMMANDS,
     CONTEXTS,
     HELP,
-    PARENT,
     STANDARD,
 )
 from statue.context import Context
@@ -203,24 +202,12 @@ def case_success_not_in_deny_list():
     return configuration, kwargs, command
 
 
-def case_success_when_no_context_configuration_was_set():
-    configuration = {
-        COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2], CONTEXT1: True},
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3]},
-        },
-    }
-    kwargs = dict(command_name=COMMAND1)
-    command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
-    return configuration, kwargs, command
-
-
 def case_success_on_root_context_inheritance():
+    standard = Context(name=STANDARD, help="Some help", is_default=True)
+    parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
     configuration = {
-        CONTEXTS: {
-            CONTEXT1: {HELP: CONTEXT_HELP_STRING1},
-            CONTEXT2: {HELP: CONTEXT_HELP_STRING2, PARENT: CONTEXT1},
-        },
+        CONTEXTS: build_contexts_map(standard, context, parent),
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -248,7 +235,7 @@ def case_success_on_child_context_inheritance():
         },
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT2])
-    command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1, args=[ARG3], help=COMMAND_HELP_STRING1)
     return configuration, kwargs, command
 
 

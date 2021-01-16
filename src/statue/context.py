@@ -32,7 +32,7 @@ class Context:
         if self.parent is not None:
             return self.parent.search_context(setups)
         if self.is_default:
-            return True
+            return setups
         return None
 
     @classmethod

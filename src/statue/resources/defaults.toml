@@ -1,6 +1,7 @@
 [contexts.standard]
 help = "Default context"
 aliases = ["std"]
+is_default = true
 
 [contexts.fast]
 help = "Run short-time commands. Good for smoke tests"

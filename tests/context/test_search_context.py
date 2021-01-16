@@ -90,7 +90,7 @@ def case_default_context_in_setup():
 def case_default_context_not_in_setup():
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, is_default=True)
     setup = {CONTEXT2: ITEM}
-    returned = True
+    returned = setup
     return context, setup, returned
 
 
@@ -98,7 +98,7 @@ def case_default_context_is_parent():
     parent = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, is_default=True)
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent)
     setup = {CONTEXT3: ITEM}
-    returned = True
+    returned = setup
     return context, setup, returned
 
 

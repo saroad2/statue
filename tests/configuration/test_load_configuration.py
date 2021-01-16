@@ -126,12 +126,10 @@ def case_success_command_args_are_not_affected():
 
 
 def case_success_contexts_taken_from_default():
-    default_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}}}
+    contexts_map = build_contexts_map(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1))
+    default_configuration = {CONTEXTS: contexts_map}
     statue_configuration = {"c": "d"}
-    result = {
-        CONTEXTS: build_contexts_map(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)),
-        "c": "d",
-    }
+    result = {CONTEXTS: contexts_map, "c": "d"}
     return default_configuration, statue_configuration, result
 
 
@@ -149,14 +147,15 @@ def case_success_contexts_taken_from_user():
 
 
 def case_success_user_add_new_context():
-    default_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}}}
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    default_configuration = {CONTEXTS: build_contexts_map(context1)}
     statue_configuration = {
         "c": "d",
         CONTEXTS: {CONTEXT2: {HELP: CONTEXT_HELP_STRING2}},
     }
     result = {
         CONTEXTS: build_contexts_map(
-            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+            context1,
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
         ),
         "c": "d",
@@ -184,7 +183,7 @@ def case_success_read_sources(mock_path):
 
 
 @parametrize_with_cases(
-    argnames="default_configuration, statue_configuration, result",
+    argnames=["default_configuration", "statue_configuration", "result"],
     cases=THIS_MODULE,
     prefix="case_success_",
 )

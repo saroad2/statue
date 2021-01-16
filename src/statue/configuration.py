@@ -239,8 +239,9 @@ class Configuration:
                 deny_list=deny_list,
             )
         contexts = [] if contexts is None else contexts
-        for context in contexts:
-            context_obj = command_configuration.get(context, None)
+        context_objects = [cls.get_context(context_name) for context_name in contexts]
+        for context in context_objects:
+            context_obj = context.search_context(command_configuration)
             if not isinstance(context_obj, dict):
                 continue
             command_configuration = cls.__combine_command_setups(
@@ -284,7 +285,12 @@ class Configuration:
     def __load_default_configuration(cls) -> None:
         if not DEFAULT_CONFIGURATION_FILE.exists():
             return
-        cls.set_default_configuration(toml.load(DEFAULT_CONFIGURATION_FILE))
+        default_configuration = toml.load(DEFAULT_CONFIGURATION_FILE)
+        if CONTEXTS in default_configuration:
+            default_configuration[CONTEXTS] = Context.build_contexts_map(
+                default_configuration[CONTEXTS]
+            )
+        cls.set_default_configuration(default_configuration)
 
     @classmethod
     def __build_configuration(
@@ -315,12 +321,17 @@ class Configuration:
         )
         if commands_configuration is not None:
             statue_config[COMMANDS] = commands_configuration
-        contexts_configuration = cls.__build_contexts_configuration(
-            statue_contexts_configuration=statue_config.get(CONTEXTS, None),
-            default_contexts_configuration=default_configuration.get(CONTEXTS, None),
+        contexts_configuration = statue_config.get(CONTEXTS, None)
+        if contexts_configuration is None:
+            contexts_map = None
+        else:
+            contexts_map = Context.build_contexts_map(contexts_configuration)
+        contexts_map = cls.__build_contexts_map(
+            statue_contexts_map=contexts_map,
+            default_contexts_map=default_configuration.get(CONTEXTS, None),
         )
-        if contexts_configuration is not None:
-            statue_config[CONTEXTS] = Context.build_contexts_map(contexts_configuration)
+        if contexts_map is not None:
+            statue_config[CONTEXTS] = contexts_map
         if SOURCES in statue_config:
             statue_config[SOURCES] = {
                 Path(source): setup for source, setup in statue_config[SOURCES].items()
@@ -348,17 +359,17 @@ class Configuration:
         return commands_configuration
 
     @classmethod
-    def __build_contexts_configuration(
+    def __build_contexts_map(
         cls,
-        statue_contexts_configuration: Optional[MutableMapping[str, Any]],
-        default_contexts_configuration: Optional[MutableMapping[str, Any]],
+        statue_contexts_map: Optional[Dict[str, Context]],
+        default_contexts_map: Optional[Dict[str, Context]],
     ) -> Optional[MutableMapping[str, Any]]:
-        if statue_contexts_configuration is None:
-            return default_contexts_configuration
-        if default_contexts_configuration is None:
-            return statue_contexts_configuration
-        contexts = deepcopy(default_contexts_configuration)
-        for context_name, context_setup in statue_contexts_configuration.items():
+        if statue_contexts_map is None:
+            return default_contexts_map
+        if default_contexts_map is None:
+            return statue_contexts_map
+        contexts = deepcopy(default_contexts_map)
+        for context_name, context_setup in statue_contexts_map.items():
             if context_name in contexts:
                 raise InvalidStatueConfiguration(
                     f'"{context_name}" is a predefined context and cannot be override'
@@ -393,8 +404,10 @@ class Configuration:
             and command_name not in allow_list  # noqa: W503
         ):
             return False
-        if contexts is None or len(contexts) == 0:
-            return cls.__command_match_default_context(setups)
+        if contexts is None:
+            contexts = []
+        if len(contexts) == 0:
+            contexts.append(STANDARD)
         for command_context in contexts:
             if not cls.__command_match_context(setups, command_context):
                 return False
@@ -407,7 +420,8 @@ class Configuration:
         context_instance = cls.get_context(context_name)
         if context_instance is None:
             raise UnknownContext(context_name)
-        return context_instance.search_context(setups) is not None
+        found_setups = context_instance.search_context(setups)
+        return found_setups is not None and found_setups is not False
 
     @classmethod
     def __command_match_default_context(cls, setups: MutableMapping[str, Any]) -> bool:
