@@ -1,17 +1,6 @@
 import pytest
 
 from statue.configuration import Configuration
-from statue.constants import CONTEXTS, HELP, PARENT
-from statue.context import Context
-from tests.constants import (
-    CONTEXT1,
-    CONTEXT2,
-    CONTEXT3,
-    CONTEXT_HELP_STRING1,
-    CONTEXT_HELP_STRING2,
-    CONTEXT_HELP_STRING3,
-)
-from tests.util import build_contexts_map
 
 DUMMY_CONFIGURATION = {"a": "b"}
 

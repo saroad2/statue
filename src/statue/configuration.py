@@ -241,6 +241,8 @@ class Configuration:
         contexts = [] if contexts is None else contexts
         context_objects = [cls.get_context(context_name) for context_name in contexts]
         for context in context_objects:
+            if context is None:
+                continue
             context_obj = context.search_context(command_configuration)
             if not isinstance(context_obj, dict):
                 continue
@@ -363,7 +365,7 @@ class Configuration:
         cls,
         statue_contexts_map: Optional[Dict[str, Context]],
         default_contexts_map: Optional[Dict[str, Context]],
-    ) -> Optional[MutableMapping[str, Any]]:
+    ) -> Optional[Dict[str, Context]]:
         if statue_contexts_map is None:
             return default_contexts_map
         if default_contexts_map is None:

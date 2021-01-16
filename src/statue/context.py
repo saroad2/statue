@@ -1,3 +1,4 @@
+"""Context class used for reading commands in various contexts."""
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, MutableMapping, Optional
 
@@ -22,9 +23,11 @@ class Context:
     _names: List[str] = field(init=False)
 
     def __post_init__(self):
+        """Extra initialization."""
         self._names = [self.name, *self.aliases]
 
     def search_context(self, setups):
+        """Search for context in setup dictionary."""
         for name in self._names:
             name_setups = setups.get(name, None)
             if name_setups is not None:
@@ -36,8 +39,11 @@ class Context:
         return None
 
     @classmethod
-    def build_contexts_map(cls, contexts_config: MutableMapping[str, Any]):
-        contexts_map = {}
+    def build_contexts_map(
+        cls, contexts_config: MutableMapping[str, Any]
+    ) -> Dict[str, "Context"]:
+        """Build contexts dictionary from contexts configuration."""
+        contexts_map: Dict[str, "Context"] = {}
         for name in contexts_config.keys():
             if name in contexts_map:
                 continue
