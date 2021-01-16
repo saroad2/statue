@@ -10,9 +10,9 @@ from statue.constants import (
     COMMANDS,
     CONTEXTS,
     HELP,
-    PARENT,
     STANDARD,
 )
+from statue.context import Context
 from statue.exceptions import (
     InvalidCommand,
     MissingConfiguration,
@@ -35,16 +35,17 @@ from tests.constants import (
     CONTEXT3,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
-    CONTEXTS_CONFIGURATION,
+    CONTEXTS_MAP,
     NOT_EXISTING_CONTEXT,
 )
 
 # Success cases
+from tests.util import build_contexts_map
 
 
 def case_success_with_no_contexts():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -61,7 +62,7 @@ def case_success_with_no_contexts():
 
 def case_success_with_boolean_context():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -77,7 +78,7 @@ def case_success_with_boolean_context():
 
 def case_success_with_two_contexts():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -94,7 +95,7 @@ def case_success_with_two_contexts():
 
 def case_success_with_non_standard_command():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -111,7 +112,7 @@ def case_success_with_non_standard_command():
 
 def case_success_with_override_context():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -132,7 +133,7 @@ def case_success_with_override_context():
 
 def case_success_with_clear_args_context():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -149,7 +150,7 @@ def case_success_with_clear_args_context():
 
 def case_success_with_overrides_with_add_args_context():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -170,7 +171,7 @@ def case_success_with_overrides_with_add_args_context():
 
 def case_success_with_empty_allow_list():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}},
     }
     kwargs = dict(command_name=COMMAND1, allow_list=[])
@@ -180,7 +181,7 @@ def case_success_with_empty_allow_list():
 
 def case_success_in_allow_list():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}},
     }
     kwargs = dict(command_name=COMMAND1, allow_list=[COMMAND1])
@@ -190,7 +191,7 @@ def case_success_in_allow_list():
 
 def case_success_not_in_deny_list():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
             COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3]},
@@ -201,24 +202,12 @@ def case_success_not_in_deny_list():
     return configuration, kwargs, command
 
 
-def case_success_when_no_context_configuration_was_set():
-    configuration = {
-        COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2], CONTEXT1: True},
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3]},
-        },
-    }
-    kwargs = dict(command_name=COMMAND1)
-    command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
-    return configuration, kwargs, command
-
-
 def case_success_on_root_context_inheritance():
+    standard = Context(name=STANDARD, help="Some help", is_default=True)
+    parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
     configuration = {
-        CONTEXTS: {
-            CONTEXT1: {HELP: CONTEXT_HELP_STRING1},
-            CONTEXT2: {HELP: CONTEXT_HELP_STRING2, PARENT: CONTEXT1},
-        },
+        CONTEXTS: build_contexts_map(standard, context, parent),
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -233,11 +222,10 @@ def case_success_on_root_context_inheritance():
 
 
 def case_success_on_child_context_inheritance():
+    parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
     configuration = {
-        CONTEXTS: {
-            CONTEXT1: {HELP: CONTEXT_HELP_STRING1},
-            CONTEXT2: {HELP: CONTEXT_HELP_STRING2, PARENT: CONTEXT1},
-        },
+        CONTEXTS: build_contexts_map(parent, context),
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -247,15 +235,15 @@ def case_success_on_child_context_inheritance():
         },
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT2])
-    command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1, args=[ARG3], help=COMMAND_HELP_STRING1)
     return configuration, kwargs, command
 
 
 def case_success_on_standard_child_context_inheritance():
+    standard = Context(name=STANDARD, help=CONTEXT_HELP_STRING2, is_default=True)
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=standard)
     configuration = {
-        CONTEXTS: {
-            CONTEXT1: {HELP: CONTEXT_HELP_STRING1, PARENT: STANDARD},
-        },
+        CONTEXTS: build_contexts_map(standard, context),
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -284,7 +272,7 @@ def test_read_command_success(configuration, kwargs, command, clear_configuratio
 
 def case_failure_with_non_existing_context():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -304,7 +292,7 @@ def case_failure_with_non_existing_context():
 
 def case_failure_with_two_contexts():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -328,7 +316,7 @@ def case_failure_with_two_contexts():
 
 def case_failure_with_non_standard_command():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
@@ -352,7 +340,7 @@ def case_failure_with_non_standard_command():
 
 def case_failure_not_in_allow_list():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
             COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3]},
@@ -372,7 +360,7 @@ def case_failure_not_in_allow_list():
 
 def case_failure_in_deny_list():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
             COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG4]},
@@ -392,7 +380,7 @@ def case_failure_in_deny_list():
 
 def case_failure_non_existing_command():
     configuration = {
-        CONTEXTS: CONTEXTS_CONFIGURATION,
+        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
             COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG5]},
@@ -408,7 +396,7 @@ def case_failure_non_existing_command():
 
 
 def case_failure_with_no_commands_configuration():
-    configuration = {CONTEXTS: CONTEXTS_CONFIGURATION}
+    configuration = {CONTEXTS: CONTEXTS_MAP}
     kwargs = dict(command_name=COMMAND3)
     return (
         configuration,
@@ -455,7 +443,7 @@ def test_read_command_multiple_times(
 ):
     Configuration.set_statue_configuration(
         {
-            CONTEXTS: CONTEXTS_CONFIGURATION,
+            CONTEXTS: CONTEXTS_MAP,
             COMMANDS: {
                 COMMAND1: {
                     HELP: COMMAND_HELP_STRING1,

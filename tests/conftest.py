@@ -42,8 +42,8 @@ def mock_default_configuration(mocker, clear_configuration):
 
 
 @pytest.fixture
-def mock_contexts_configuration(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "contexts_configuration")
+def mock_contexts_map(mocker, clear_configuration):
+    return mocker.patch.object(Configuration, "contexts_map")
 
 
 @pytest.fixture
