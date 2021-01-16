@@ -4,6 +4,7 @@ import click
 
 from statue.cli.cli import statue as statue_cli
 from statue.configuration import Configuration
+from statue.exceptions import UnknownContext
 
 
 @statue_cli.group("context")
@@ -28,17 +29,18 @@ def contexts_list(ctx: click.Context) -> None:
 @click.argument("context_name", type=str)
 def show_contexts(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
-    context_instance = Configuration.get_context(context_name)
-    if context_instance is None:
+    try:
+        context_instance = Configuration.get_context(context_name)
+        click.echo(f"Name - {context_name}")
+        click.echo(f"Description - {context_instance.help}")
+        if len(context_instance.aliases) != 0:
+            click.echo(f"Aliases - {', '.join(context_instance.aliases)}")
+        if context_instance.parent is not None:
+            click.echo(f"Parent - {context_instance.parent.name}")
+        commands = Configuration.read_commands(contexts=[context_name])
+        click.echo(
+            f"Matching commands - {', '.join([command.name for command in commands])}"
+        )
+    except UnknownContext:
         click.echo(f'Could not find the context "{context_name}".')
         ctx.exit(1)
-    click.echo(f"Name - {context_name}")
-    click.echo(f"Description - {context_instance.help}")
-    if len(context_instance.aliases) != 0:
-        click.echo(f"Aliases - {', '.join(context_instance.aliases)}")
-    if context_instance.parent is not None:
-        click.echo(f"Parent - {context_instance.parent.name}")
-    commands = Configuration.read_commands(contexts=[context_name])
-    click.echo(
-        f"Matching commands - {', '.join([command.name for command in commands])}"
-    )

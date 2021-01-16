@@ -160,7 +160,7 @@ class Configuration:
         return list(contexts_map.values())
 
     @classmethod
-    def get_context(cls, context_name: str) -> Optional[Context]:
+    def get_context(cls, context_name: str) -> Context:
         """
         Get configuration dictionary of a context.
 
@@ -173,7 +173,10 @@ class Configuration:
         contexts_configuration = cls.contexts_map()
         if contexts_configuration is None:
             raise MissingConfiguration(CONTEXTS)
-        return contexts_configuration.get(context_name, None)
+        context = contexts_configuration.get(context_name, None)
+        if context is None:
+            raise UnknownContext(context_name)
+        return context
 
     @classmethod
     def read_commands(
@@ -241,8 +244,6 @@ class Configuration:
         contexts = [] if contexts is None else contexts
         context_objects = [cls.get_context(context_name) for context_name in contexts]
         for context in context_objects:
-            if context is None:
-                continue
             context_obj = context.search_context(command_configuration)
             if not isinstance(context_obj, dict):
                 continue
@@ -420,14 +421,8 @@ class Configuration:
         cls, setups: MutableMapping[str, Any], context_name: str
     ) -> bool:
         context_instance = cls.get_context(context_name)
-        if context_instance is None:
-            raise UnknownContext(context_name)
         found_setups = context_instance.search_context(setups)
         return found_setups is not None and found_setups is not False
-
-    @classmethod
-    def __command_match_default_context(cls, setups: MutableMapping[str, Any]) -> bool:
-        return setups.get(STANDARD, True)
 
     @classmethod
     def __combine_command_setups(
