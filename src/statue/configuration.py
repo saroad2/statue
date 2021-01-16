@@ -407,10 +407,8 @@ class Configuration:
             and command_name not in allow_list  # noqa: W503
         ):
             return False
-        if contexts is None:
-            contexts = []
-        if len(contexts) == 0:
-            contexts.append(STANDARD)
+        if contexts is None or len(contexts) == 0:
+            contexts = [STANDARD]
         for command_context in contexts:
             if not cls.__command_match_context(setups, command_context):
                 return False
