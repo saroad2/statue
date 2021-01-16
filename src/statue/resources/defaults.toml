@@ -1,5 +1,6 @@
 [contexts.standard]
 help = "Default context"
+aliases = ["std"]
 
 [contexts.fast]
 help = "Run short-time commands. Good for smoke tests"
@@ -13,9 +14,11 @@ help = "Checks for test files."
 
 [contexts.format]
 help = "Reformating commands, with in-file replacements."
+aliases = ["fmt"]
 
 [contexts.documentation]
 help = "Commands regarding code documentation."
+aliases = ["docs"]
 
 [commands.black]
 args = ["--check"]
