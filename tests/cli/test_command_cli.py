@@ -1,7 +1,5 @@
 from unittest import mock
 
-import pytest
-
 from statue.cli import statue as statue_cli
 from statue.command import Command
 from statue.exceptions import InvalidCommand, UnknownCommand

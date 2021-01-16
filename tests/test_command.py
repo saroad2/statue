@@ -172,7 +172,7 @@ def test_install_command_silently(command, out, mock_subprocess, environ, print_
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_install_when_already_installed(
-        command, out, mock_subprocess, mock_available_packages
+    command, out, mock_subprocess, mock_available_packages
 ):
     mock_available_packages.return_value = packages(COMMANDS)
     command.install()

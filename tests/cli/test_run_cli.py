@@ -376,7 +376,7 @@ def case_run_and_install(
         f"Installing {COMMAND2}",
         f"Installing {COMMAND3}",
         f"Installing {COMMAND4}",
-        f"Installing {COMMAND5}"
+        f"Installing {COMMAND5}",
     ]
 
     yield extra_args, exit_code, installing_intro + NONE_SILENT_PRINT_INTRO + prints
