@@ -246,9 +246,8 @@ class Configuration:
         command_configuration = cls.get_command_configuration(command_name)
         if command_configuration is None:
             raise UnknownCommand(command_name)
-        contexts = [STANDARD] if contexts is None else contexts
-        if len(contexts) > 1 and STANDARD in contexts:
-            contexts.remove(STANDARD)
+        if contexts is None or len(contexts) == 0:
+            contexts = [STANDARD]
         context_objects = [cls.get_context(context_name) for context_name in contexts]
         for context in context_objects:
             context_obj = context.search_context(command_configuration)
