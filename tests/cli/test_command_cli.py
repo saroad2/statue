@@ -87,10 +87,8 @@ def test_commands_show_unknown_command_side_effect(
 def test_commands_show_invalid_command_side_effect(
     cli_runner, empty_configuration, mock_read_command
 ):
-    mock_read_command.side_effect = InvalidCommand(NOT_EXISTING_COMMAND)
+    error_msg = "That command does not exist"
+    mock_read_command.side_effect = InvalidCommand(error_msg)
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
-    assert result.output == (
-        f'The command "{NOT_EXISTING_COMMAND}" does not match the restrictions: '
-        "contexts=None, allow_list=None, deny_list=None\n"
-    ), "Show output is different than expected."
+    assert result.output == f"{error_msg}\n", "Show output is different than expected."
