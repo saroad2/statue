@@ -11,7 +11,6 @@ from statue.cli.util import (
     allow_option,
     contexts_option,
     deny_option,
-    install_commands_if_missing,
     silent_option,
     verbose_option,
     verbosity_option,
@@ -91,9 +90,8 @@ def run_cli(  # pylint: disable=too-many-arguments
         return
 
     if install:
-        install_commands_if_missing(
-            list(chain.from_iterable(commands_map.values())), verbosity=verbosity
-        )
+        for command in chain.from_iterable(commands_map.values()):
+            command.install(verbosity=verbosity)
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
     evaluation = None

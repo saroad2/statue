@@ -1,8 +1,12 @@
+import os
 from pathlib import Path
 
 import pytest
 
+from statue.command import Command
 from statue.configuration import Configuration
+
+ENVIRON = dict(s=2, d=5, g=8)
 
 
 @pytest.fixture
@@ -59,3 +63,24 @@ def mock_load_configuration(mocker, clear_configuration):
 @pytest.fixture
 def mock_cwd(mocker):
     return mocker.patch.object(Path, "cwd").return_value
+
+
+@pytest.fixture
+def mock_subprocess(mocker):
+    return mocker.patch("subprocess.run")
+
+
+@pytest.fixture
+def mock_available_packages(mocker):
+    return mocker.patch.object(Command, "available_packages")
+
+
+@pytest.fixture
+def environ(monkeypatch):
+    monkeypatch.setattr(os, "environ", ENVIRON)
+    return ENVIRON
+
+
+@pytest.fixture
+def print_mock(mocker):
+    return mocker.patch("builtins.print")

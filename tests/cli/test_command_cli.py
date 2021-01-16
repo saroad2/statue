@@ -5,7 +5,7 @@ import pytest
 from statue.cli import statue as statue_cli
 from statue.command import Command
 from statue.exceptions import InvalidCommand, UnknownCommand
-from statue.verbosity import DEFAULT_VERBOSITY
+from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG3,
     COMMAND1,
@@ -18,13 +18,6 @@ from tests.constants import (
     COMMAND_HELP_STRING4,
     NOT_EXISTING_COMMAND,
 )
-
-
-@pytest.fixture
-def mock_install_if_missing(monkeypatch):
-    install_mock = mock.Mock()
-    monkeypatch.setattr("statue.cli.commands.install_commands_if_missing", install_mock)
-    return install_mock
 
 
 def test_commands_list(cli_runner, empty_configuration, mock_read_commands):
@@ -45,17 +38,6 @@ def test_commands_list(cli_runner, empty_configuration, mock_read_commands):
     mock_read_commands.assert_called_once_with(
         allow_list=tuple(), contexts=tuple(), deny_list=tuple()
     )
-
-
-def test_commands_install(
-    cli_runner, empty_configuration, mock_install_if_missing, mock_read_commands
-):
-    commands = [mock.Mock(), mock.Mock(), mock.Mock()]
-    mock_read_commands.return_value = commands
-    result = cli_runner.invoke(statue_cli, ["command", "install"])
-    assert result.exit_code == 0, "install command should exit with success."
-    assert result.output == "", "show output is different than expected."
-    mock_install_if_missing.assert_called_with(commands, verbosity=DEFAULT_VERBOSITY)
 
 
 def test_commands_show_existing_command(
@@ -92,3 +74,25 @@ def test_commands_show_invalid_command_side_effect(
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
     assert result.output == f"{error_msg}\n", "Show output is different than expected."
+
+
+def test_command_install_with_default_verbosity(
+    cli_runner, empty_configuration, mock_read_commands
+):
+    commands = [mock.Mock(), mock.Mock(), mock.Mock()]
+    mock_read_commands.return_value = commands
+    result = cli_runner.invoke(statue_cli, ["command", "install"])
+    for command in commands:
+        command.install.assert_called_with(verbosity=DEFAULT_VERBOSITY)
+    assert result.exit_code == 0, "Show command returned with no success code"
+
+
+def test_command_install_with_verbose(
+    cli_runner, empty_configuration, mock_read_commands
+):
+    commands = [mock.Mock(), mock.Mock(), mock.Mock()]
+    mock_read_commands.return_value = commands
+    result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
+    for command in commands:
+        command.install.assert_called_with(verbosity=VERBOSE)
+    assert result.exit_code == 0, "Show command returned with no success code"

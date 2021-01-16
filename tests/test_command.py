@@ -89,16 +89,16 @@ def test_args_are_set(command, out):
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute(command, out, subprocess_mock, environ):
+def test_execute(command, out, mock_subprocess, environ):
     command.execute(SOURCE1)
-    subprocess_mock.assert_called_with(
+    mock_subprocess.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=False
     )
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_raises_error(command, out, subprocess_mock, environ):
-    subprocess_mock.side_effect = FileNotFoundError()
+def test_execute_raises_error(command, out, mock_subprocess, environ):
+    mock_subprocess.side_effect = FileNotFoundError()
     with pytest.raises(
         CommandExecutionError,
         match=f'^Cannot execute "{command.name}" because it is not installed.$',
@@ -107,17 +107,17 @@ def test_execute_raises_error(command, out, subprocess_mock, environ):
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_silently(command, out, subprocess_mock, environ):
+def test_execute_silently(command, out, mock_subprocess, environ):
     command.execute(SOURCE1, verbosity=SILENT)
-    subprocess_mock.assert_called_with(
+    mock_subprocess.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=True
     )
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_verbosely(command, out, subprocess_mock, environ, print_mock):
+def test_execute_verbosely(command, out, mock_subprocess, environ, print_mock):
     command.execute(SOURCE1, verbosity=VERBOSE)
-    subprocess_mock.assert_called_with(
+    mock_subprocess.assert_called_with(
         out["command_input"], env=environ, check=False, capture_output=False
     )
     print_mock.assert_called_with(out["print"])
@@ -129,16 +129,16 @@ def test_representation_string(command, out):
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_installed_returns_true(command, out, available_packages_mock):
-    available_packages_mock.return_value = packages(COMMANDS)
+def test_installed_returns_true(command, out, mock_available_packages):
+    mock_available_packages.return_value = packages(COMMANDS)
     assert command.installed(), "Command where supposed to be installed, but it wasn't"
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_installed_returns_false(command, out, available_packages_mock):
+def test_installed_returns_false(command, out, mock_available_packages):
     commands = list(COMMANDS)
     commands.remove(command.name)
-    available_packages_mock.return_value = packages(commands)
+    mock_available_packages.return_value = packages(commands)
     assert (
         not command.installed()
     ), "Command where supposed not to be installed, but it was"
@@ -146,10 +146,10 @@ def test_installed_returns_false(command, out, available_packages_mock):
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_install_command_with_normal_verbosity(
-    command, out, subprocess_mock, environ, print_mock
+    command, out, mock_subprocess, environ, print_mock
 ):
     command.install()
-    subprocess_mock.assert_called_with(
+    mock_subprocess.assert_called_with(
         [sys.executable, "-m", "pip", "install", command.name],
         env=environ,
         check=False,
@@ -159,15 +159,24 @@ def test_install_command_with_normal_verbosity(
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_install_command_silently(command, out, subprocess_mock, environ, print_mock):
+def test_install_command_silently(command, out, mock_subprocess, environ, print_mock):
     command.install(verbosity=SILENT)
-    subprocess_mock.assert_called_with(
+    mock_subprocess.assert_called_with(
         [sys.executable, "-m", "pip", "install", command.name],
         env=environ,
         check=False,
         capture_output=True,
     )
     print_mock.assert_not_called()
+
+
+@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
+def test_install_when_already_installed(
+        command, out, mock_subprocess, mock_available_packages
+):
+    mock_available_packages.return_value = packages(COMMANDS)
+    command.install()
+    mock_subprocess.assert_not_called()
 
 
 def test_command_equals():

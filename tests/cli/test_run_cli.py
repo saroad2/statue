@@ -215,11 +215,6 @@ def mock_evaluation_save_as_json(mocker):
     return mocker.patch.object(Evaluation, "save_as_json")
 
 
-@fixture
-def mock_install_commands_if_missing(mocker):
-    return mocker.patch("statue.cli.run.install_commands_if_missing")
-
-
 @parametrize(argnames="evaluation, exit_code, prints", argvalues=EVALUATIONS)
 def case_simple_run(
     evaluation,
@@ -366,26 +361,26 @@ def case_run_and_install(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_install_commands_if_missing,
     mock_cache_last_evaluation_path,
     mock_evaluation_save_as_json,
+    mock_available_packages,
+    mock_subprocess,
 ):
     extra_args = ["-i"]
 
     mock_read_commands_map.return_value = COMMANDS_MAP
+    mock_available_packages.return_value = []
     mock_evaluate_commands_map.return_value = evaluation
+    installing_intro = [
+        f"Installing {COMMAND1}",
+        f"Installing {COMMAND2}",
+        f"Installing {COMMAND3}",
+        f"Installing {COMMAND4}",
+        f"Installing {COMMAND5}"
+    ]
 
-    yield extra_args, exit_code, NONE_SILENT_PRINT_INTRO + prints
-    mock_install_commands_if_missing.assert_called_once_with(
-        [
-            COMMAND_INSTANCE1,
-            COMMAND_INSTANCE2,
-            COMMAND_INSTANCE3,
-            COMMAND_INSTANCE4,
-            COMMAND_INSTANCE5,
-        ],
-        verbosity=DEFAULT_VERBOSITY,
-    )
+    yield extra_args, exit_code, installing_intro + NONE_SILENT_PRINT_INTRO + prints
+    mock_subprocess.assert_called()
     mock_read_commands_map.assert_called_with(
         (), contexts=(), allow_list=(), deny_list=()
     )

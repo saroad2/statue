@@ -8,7 +8,6 @@ from statue.cli.util import (
     allow_option,
     contexts_option,
     deny_option,
-    install_commands_if_missing,
     silent_option,
     verbose_option,
     verbosity_option,
@@ -55,14 +54,11 @@ def install_commands(
     verbosity: str,
 ) -> None:
     """Install missing commands."""
-    install_commands_if_missing(
-        Configuration.read_commands(
-            contexts=context,
-            allow_list=allow,
-            deny_list=deny,
-        ),
-        verbosity=verbosity,
+    commands_list = Configuration.read_commands(
+        contexts=context, allow_list=allow, deny_list=deny
     )
+    for command in commands_list:
+        command.install(verbosity=verbosity)
 
 
 @commands_cli.command("show")

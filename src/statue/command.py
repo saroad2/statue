@@ -1,5 +1,6 @@
 # noqa: D100
 # pylint: disable=missing-module-docstring
+import importlib
 import os
 import subprocess  # nosec
 import sys
@@ -39,6 +40,7 @@ class Command:
     @classmethod
     def available_packages(cls):  # type: ignore
         """Get all available packages via pip."""
+        importlib.reload(pkg_resources)
         return list(pkg_resources.working_set)  # pragma: no cover
 
     def install(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
@@ -47,6 +49,8 @@ class Command:
 
         :param verbosity: String. Verbosity level.
         """
+        if self.installed():
+            return
         if not is_silent(verbosity):
             print(f"Installing {self.name}")
         subprocess.run(  # nosec
