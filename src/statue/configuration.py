@@ -231,8 +231,8 @@ class Configuration:
         """
         if (
             allow_list is not None
-            and len(allow_list) != 0
-            and command_name not in allow_list
+            and len(allow_list) != 0  # noqa: W503
+            and command_name not in allow_list  # noqa: W503
         ):
             raise InvalidCommand(
                 f'Command "{command_name}" '
