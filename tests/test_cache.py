@@ -58,6 +58,6 @@ def test_cache_file(cache_dir):
     ],
 )
 def test_cache_last_evaluation(cache_dir):
-    actual_cache_file = Cache.last_evaluation_path()
+    actual_cache_file = Cache.recent_evaluation_path()
     assert actual_cache_file == cache_dir.__truediv__.return_value
     cache_dir.__truediv__.assert_called_once_with("evaluation.json")

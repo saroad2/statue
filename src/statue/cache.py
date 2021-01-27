@@ -19,6 +19,6 @@ class Cache:
         return cls.cache_dir() / file_name
 
     @classmethod
-    def last_evaluation_path(cls) -> Path:
+    def recent_evaluation_path(cls) -> Path:
         """Get last evaluation result path."""
         return cls.cache_file("evaluation.json")

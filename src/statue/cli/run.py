@@ -104,7 +104,7 @@ def run_cli(  # pylint: disable=too-many-arguments
         click.echo('Try to rerun with the "-i" flag')
         ctx.exit(1)
     if cache:
-        evaluation.save_as_json(Cache.last_evaluation_path())
+        evaluation.save_as_json(Cache.recent_evaluation_path())
     if output is not None:
         evaluation.save_as_json(output)
     click.echo()
@@ -132,9 +132,9 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
     sources, context, allow, deny, failed
 ):
     commands_map = None
-    if failed and Cache.last_evaluation_path().exists():
+    if failed and Cache.recent_evaluation_path().exists():
         commands_map = get_failure_map(
-            Evaluation.load_from_file(Cache.last_evaluation_path())
+            Evaluation.load_from_file(Cache.recent_evaluation_path())
         )
     if commands_map is None or len(commands_map) == 0:
         commands_map = read_commands_map(

@@ -201,8 +201,8 @@ def mock_evaluate_commands_map(mocker):
 
 
 @fixture
-def mock_cache_last_evaluation_path(mocker):
-    return mocker.patch.object(Cache, "last_evaluation_path").return_value
+def mock_cache_recent_evaluation_path(mocker):
+    return mocker.patch.object(Cache, "recent_evaluation_path").return_value
 
 
 @fixture
@@ -222,7 +222,7 @@ def case_simple_run(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_save_as_json,
 ):
     extra_args = []
@@ -238,7 +238,7 @@ def case_simple_run(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
     mock_evaluation_save_as_json.assert_called_once_with(
-        mock_cache_last_evaluation_path
+        mock_cache_recent_evaluation_path
     )
 
 
@@ -249,7 +249,7 @@ def case_run_silently(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_save_as_json,
 ):
     extra_args = ["--silent"]
@@ -265,7 +265,7 @@ def case_run_silently(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=SILENT
     )
     mock_evaluation_save_as_json.assert_called_once_with(
-        mock_cache_last_evaluation_path
+        mock_cache_recent_evaluation_path
     )
 
 
@@ -276,12 +276,12 @@ def case_run_failed_with_non_existing_last_evaluation(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_save_as_json,
 ):
     extra_args = ["--failed"]
 
-    mock_cache_last_evaluation_path.exists.return_value = False
+    mock_cache_recent_evaluation_path.exists.return_value = False
     mock_read_commands_map.return_value = COMMANDS_MAP
     mock_evaluate_commands_map.return_value = evaluation
 
@@ -293,7 +293,7 @@ def case_run_failed_with_non_existing_last_evaluation(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
     mock_evaluation_save_as_json.assert_called_once_with(
-        mock_cache_last_evaluation_path
+        mock_cache_recent_evaluation_path
     )
 
 
@@ -304,13 +304,13 @@ def case_run_failed_with_successful_last_evaluation(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_load_from_file,
     mock_evaluation_save_as_json,
 ):
     extra_args = ["--failed"]
 
-    mock_cache_last_evaluation_path.exists.return_value = True
+    mock_cache_recent_evaluation_path.exists.return_value = True
     mock_evaluation_load_from_file.return_value = SUCCESSFUL_EVALUATION
     mock_read_commands_map.return_value = COMMANDS_MAP
     mock_evaluate_commands_map.return_value = evaluation
@@ -323,7 +323,7 @@ def case_run_failed_with_successful_last_evaluation(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
     mock_evaluation_save_as_json.assert_called_once_with(
-        mock_cache_last_evaluation_path
+        mock_cache_recent_evaluation_path
     )
 
 
@@ -334,13 +334,13 @@ def case_run_failed_with_failure_last_evaluation(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_load_from_file,
     mock_evaluation_save_as_json,
 ):
     extra_args = ["--failed"]
 
-    mock_cache_last_evaluation_path.exists.return_value = True
+    mock_cache_recent_evaluation_path.exists.return_value = True
     mock_evaluation_load_from_file.return_value = ALL_FAILURE_EVALUATION
     mock_evaluate_commands_map.return_value = evaluation
 
@@ -350,7 +350,7 @@ def case_run_failed_with_failure_last_evaluation(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
     mock_evaluation_save_as_json.assert_called_once_with(
-        mock_cache_last_evaluation_path
+        mock_cache_recent_evaluation_path
     )
 
 
@@ -361,7 +361,7 @@ def case_run_and_install(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_save_as_json,
     mock_available_packages,
     mock_subprocess,
@@ -388,7 +388,7 @@ def case_run_and_install(
         commands_map=COMMANDS_MAP, print_method=click.echo, verbosity=DEFAULT_VERBOSITY
     )
     mock_evaluation_save_as_json.assert_called_once_with(
-        mock_cache_last_evaluation_path
+        mock_cache_recent_evaluation_path
     )
 
 
@@ -423,7 +423,7 @@ def case_save_output(
     prints,
     mock_read_commands_map,
     mock_evaluate_commands_map,
-    mock_cache_last_evaluation_path,
+    mock_cache_recent_evaluation_path,
     mock_evaluation_save_as_json,
 ):
     output_path = "/path/to/output"
@@ -441,7 +441,7 @@ def case_save_output(
     )
     assert_calls(
         mock_evaluation_save_as_json,
-        [mock.call(mock_cache_last_evaluation_path), mock.call(output_path)],
+        [mock.call(mock_cache_recent_evaluation_path), mock.call(output_path)],
     )
 
 
