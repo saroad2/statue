@@ -22,7 +22,7 @@ class Cache:
 
     @classmethod
     def all_evaluation_paths(cls) -> List[Path]:
-        """Get all evaluation paths, ordered from recent to last"""
+        """Get all evaluation paths, ordered from recent to last."""
         evaluations_files = list(cls.evaluations_dir().iterdir())
         evaluations_files.sort(key=lambda p: p.name, reverse=True)
         return evaluations_files

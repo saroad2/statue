@@ -23,3 +23,5 @@ CONTEXTS = "contexts"
 SOURCES = "sources"
 
 OVERRIDE = "OVERRIDE"
+
+DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"
