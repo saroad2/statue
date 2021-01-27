@@ -1,5 +1,10 @@
 """Module for cache related methods."""
+import time
 from pathlib import Path
+from typing import List
+
+from statue.constants import HISTORY_SIZE
+from statue.evaluation import Evaluation
 
 
 class Cache:
@@ -8,17 +13,49 @@ class Cache:
     @classmethod
     def cache_dir(cls) -> Path:
         """Directory of cache files. Created if missing."""
-        dir_path = Path.cwd() / ".statue"
-        if not dir_path.exists():
-            dir_path.mkdir()
-        return dir_path
+        return cls.__ensure_dir_exists(Path.cwd() / ".statue")
 
     @classmethod
-    def cache_file(cls, file_name: str) -> Path:
-        """Get a cache file by name."""
-        return cls.cache_dir() / file_name
+    def evaluations_dir(cls) -> Path:
+        """Directory of cache files. Created if missing."""
+        return cls.__ensure_dir_exists(cls.cache_dir() / "evaluations")
+
+    @classmethod
+    def all_evaluation_paths(cls) -> List[Path]:
+        """Get all evaluation paths, ordered from recent to last"""
+        evaluations_files = list(cls.evaluations_dir().iterdir())
+        evaluations_files.sort(key=lambda p: p.name, reverse=True)
+        return evaluations_files
+
+    @classmethod
+    def evaluation_path(cls, n: int):  # pylint: disable=invalid-name
+        """Get the nth most recent evaluation result path."""
+        evaluations_files = cls.all_evaluation_paths()
+        if n >= len(evaluations_files):
+            return None
+        return evaluations_files[n]
 
     @classmethod
     def recent_evaluation_path(cls) -> Path:
         """Get last evaluation result path."""
-        return cls.cache_file("evaluation.json")
+        return cls.evaluation_path(0)
+
+    @classmethod
+    def save_evaluation(cls, evaluation: Evaluation):
+        """Save evaluation to cache."""
+        file_name = f"evaluation-{int(time.time())}.json"
+        evaluation.save_as_json(cls.evaluations_dir() / file_name)
+        cls.__remove_old_evaluations()
+
+    @classmethod
+    def __ensure_dir_exists(cls, dir_path: Path) -> Path:
+        dir_path.mkdir(exist_ok=True)
+        return dir_path
+
+    @classmethod
+    def __remove_old_evaluations(cls):
+        evaluation_files = cls.all_evaluation_paths()
+        if len(evaluation_files) <= HISTORY_SIZE:
+            return
+        for evaluation_file in evaluation_files[HISTORY_SIZE:]:
+            evaluation_file.unlink()

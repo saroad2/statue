@@ -3,6 +3,8 @@ from pathlib import Path
 
 STATUE = "STATUE"
 
+HISTORY_SIZE = 30
+
 DEFAULT_CONFIGURATION_FILE = Path(__file__).parent / "resources" / "defaults.toml"
 
 HELP = "help"
