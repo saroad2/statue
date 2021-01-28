@@ -183,7 +183,5 @@ def test_source_successful_and_failed_commands_count(
         source_all_commands_number = len(source_evaluation.commands_evaluations)
         assert source_evaluation.commands_number == source_all_commands_number
         assert source_evaluation.failed_commands_number == source_failed_commands_number
-        assert (
-            source_evaluation.successful_commands_number
-            == source_all_commands_number - source_failed_commands_number
-        )
+        successful_commands = source_all_commands_number - source_failed_commands_number
+        assert source_evaluation.successful_commands_number == successful_commands

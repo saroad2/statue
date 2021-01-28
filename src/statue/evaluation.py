@@ -105,6 +105,7 @@ class Evaluation:
         self.sources_evaluations[key] = value
 
     def keys(self) -> KeysView[str]:
+        """Get sources as generator."""
         return self.sources_evaluations.keys()
 
     def items(self) -> ItemsView[str, SourceEvaluation]:

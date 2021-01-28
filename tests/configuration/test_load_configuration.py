@@ -1,9 +1,8 @@
 from pathlib import Path
 from unittest import mock
-from unittest.mock import call
 
 import pytest
-from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
+from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.configuration import Configuration
 from statue.constants import (
