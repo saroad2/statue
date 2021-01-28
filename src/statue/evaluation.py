@@ -2,7 +2,7 @@
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, ItemsView, Iterator, List, Union
+from typing import Any, Callable, Dict, ItemsView, Iterator, KeysView, List, Union
 
 from statue.command import Command
 from statue.print_util import print_title
@@ -103,6 +103,9 @@ class Evaluation:
     def __setitem__(self, key: str, value: SourceEvaluation) -> None:
         """Set source evaluation."""
         self.sources_evaluations[key] = value
+
+    def keys(self) -> KeysView[str]:
+        return self.sources_evaluations.keys()
 
     def items(self) -> ItemsView[str, SourceEvaluation]:
         """Get sources evaluations."""
