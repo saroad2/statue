@@ -2,9 +2,13 @@ import os
 from pathlib import Path
 
 import pytest
+import toml
 
+from statue.cache import Cache
 from statue.command import Command
 from statue.configuration import Configuration
+from statue.constants import OVERRIDE, STATUE
+from statue.evaluation import Evaluation
 
 ENVIRON = dict(s=2, d=5, g=8)
 
@@ -61,8 +65,26 @@ def mock_load_configuration(mocker, clear_configuration):
 
 
 @pytest.fixture
-def mock_cwd(mocker):
-    return mocker.patch.object(Path, "cwd").return_value
+def mock_cwd(mocker, tmpdir_factory):
+    cwd = Path(tmpdir_factory.mktemp("bla"))
+    cwd_method_mock = mocker.patch.object(Path, "cwd")
+    cwd_method_mock.return_value = cwd
+    return cwd
+
+
+@pytest.fixture
+def empty_configuration(mock_cwd, clear_configuration):
+    configuration = {
+        STATUE: {OVERRIDE: True},
+    }
+    with open(mock_cwd / "statue.toml", mode="w") as configuration_file:
+        toml.dump(configuration, configuration_file)
+    return configuration
+
+
+@pytest.fixture
+def mock_time(mocker):
+    return mocker.patch("time.time")
 
 
 @pytest.fixture
@@ -73,6 +95,21 @@ def mock_subprocess(mocker):
 @pytest.fixture
 def mock_available_packages(mocker):
     return mocker.patch.object(Command, "available_packages")
+
+
+@pytest.fixture
+def mock_cache_save_evaluation(mocker):
+    return mocker.patch.object(Cache, "save_evaluation")
+
+
+@pytest.fixture
+def mock_evaluation_load_from_file(mocker):
+    return mocker.patch.object(Evaluation, "load_from_file")
+
+
+@pytest.fixture
+def mock_cache_recent_evaluation_path(mocker):
+    return mocker.patch.object(Cache, "recent_evaluation_path")
 
 
 @pytest.fixture

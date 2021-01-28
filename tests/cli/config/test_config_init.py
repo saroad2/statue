@@ -48,13 +48,13 @@ def test_config_init(
     expected_config,
     mock_load_configuration,
     mock_configuration_path,
-    dummy_cwd,
+    mock_cwd,
     mock_find_sources,
     mock_toml_dump,
     mock_git_repo,
     cli_runner,
 ):
-    mock_find_sources.return_value = [dummy_cwd / source for source in sources]
+    mock_find_sources.return_value = [mock_cwd / source for source in sources]
     mock_open = mock.mock_open()
     with mock.patch("statue.cli.config.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "init"])
@@ -62,9 +62,7 @@ def test_config_init(
             mock_configuration_path.return_value, mode="w"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(
-        dummy_cwd, repo=mock_git_repo.return_value
-    )
+    mock_find_sources.assert_called_once_with(mock_cwd, repo=mock_git_repo.return_value)
     assert result.exit_code == 0
 
 
@@ -74,14 +72,14 @@ def test_config_init_without_repo(
     expected_config,
     mock_load_configuration,
     mock_configuration_path,
-    dummy_cwd,
+    mock_cwd,
     mock_find_sources,
     mock_toml_dump,
     mock_git_repo,
     cli_runner,
 ):
     mock_git_repo.side_effect = InvalidGitRepositoryError()
-    mock_find_sources.return_value = [dummy_cwd / source for source in sources]
+    mock_find_sources.return_value = [mock_cwd / source for source in sources]
     mock_open = mock.mock_open()
     with mock.patch("statue.cli.config.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "init"])
@@ -89,7 +87,7 @@ def test_config_init_without_repo(
             mock_configuration_path.return_value, mode="w"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(dummy_cwd, repo=None)
+    mock_find_sources.assert_called_once_with(mock_cwd, repo=None)
     assert result.exit_code == 0
 
 

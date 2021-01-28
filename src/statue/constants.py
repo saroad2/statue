@@ -3,6 +3,8 @@ from pathlib import Path
 
 STATUE = "STATUE"
 
+HISTORY_SIZE = 30
+
 DEFAULT_CONFIGURATION_FILE = Path(__file__).parent / "resources" / "defaults.toml"
 
 HELP = "help"
@@ -21,3 +23,5 @@ CONTEXTS = "contexts"
 SOURCES = "sources"
 
 OVERRIDE = "OVERRIDE"
+
+DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"

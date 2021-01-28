@@ -2,7 +2,7 @@
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, ItemsView, Iterator, List, Union
+from typing import Any, Callable, Dict, ItemsView, Iterator, KeysView, List, Union
 
 from statue.command import Command
 from statue.print_util import print_title
@@ -43,6 +43,37 @@ class SourceEvaluation:
             for command_evaluation in self.commands_evaluations
         ]
 
+    @property
+    def success(self) -> bool:
+        """All commands evaluations are successful."""
+        return all(
+            [
+                commands_evaluation.success
+                for commands_evaluation in self.commands_evaluations
+            ]
+        )
+
+    @property
+    def commands_number(self):
+        """Number of commands that were evaluated."""
+        return len(self.commands_evaluations)
+
+    @property
+    def successful_commands_number(self):
+        """Number of successful commands that were evaluated."""
+        return len(
+            [
+                commands_evaluation
+                for commands_evaluation in self.commands_evaluations
+                if commands_evaluation.success
+            ]
+        )
+
+    @property
+    def failed_commands_number(self):
+        """Number of failed commands that were evaluated."""
+        return self.commands_number - self.successful_commands_number
+
     @classmethod
     def from_json(cls, source_evaluation):
         # type: ( List[Dict[str, Any]]) -> SourceEvaluation
@@ -73,6 +104,10 @@ class Evaluation:
         """Set source evaluation."""
         self.sources_evaluations[key] = value
 
+    def keys(self) -> KeysView[str]:
+        """Get sources as generator."""
+        return self.sources_evaluations.keys()
+
     def items(self) -> ItemsView[str, SourceEvaluation]:
         """Get sources evaluations."""
         return self.sources_evaluations.items()
@@ -85,6 +120,41 @@ class Evaluation:
         """Save evaluation as json."""
         with open(output, mode="w") as output_file:
             json.dump(self.as_json(), output_file, indent=2)
+
+    @property
+    def success(self) -> bool:
+        """All sources evaluations are successful."""
+        return all(
+            [
+                sources_evaluation.success
+                for sources_evaluation in self.sources_evaluations.values()
+            ]
+        )
+
+    @property
+    def commands_number(self):
+        """Number of commands that were evaluated."""
+        return sum(
+            [
+                source_evaluation.commands_number
+                for source_evaluation in self.sources_evaluations.values()
+            ]
+        )
+
+    @property
+    def successful_commands_number(self):
+        """Number of successful commands that were evaluated."""
+        return sum(
+            [
+                source_evaluation.successful_commands_number
+                for source_evaluation in self.sources_evaluations.values()
+            ]
+        )
+
+    @property
+    def failed_commands_number(self):
+        """Number of failed commands that were evaluated."""
+        return self.commands_number - self.successful_commands_number
 
     @classmethod
     def load_from_file(cls, input_path):
