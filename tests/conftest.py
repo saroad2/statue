@@ -4,9 +4,11 @@ from pathlib import Path
 import pytest
 import toml
 
+from statue.cache import Cache
 from statue.command import Command
 from statue.configuration import Configuration
 from statue.constants import STATUE, OVERRIDE
+from statue.evaluation import Evaluation
 
 ENVIRON = dict(s=2, d=5, g=8)
 
@@ -93,6 +95,21 @@ def mock_subprocess(mocker):
 @pytest.fixture
 def mock_available_packages(mocker):
     return mocker.patch.object(Command, "available_packages")
+
+
+@pytest.fixture
+def mock_cache_save_evaluation(mocker):
+    return mocker.patch.object(Cache, "save_evaluation")
+
+
+@pytest.fixture
+def mock_evaluation_load_from_file(mocker):
+    return mocker.patch.object(Evaluation, "load_from_file")
+
+
+@pytest.fixture
+def mock_cache_recent_evaluation_path(mocker):
+    return mocker.patch.object(Cache, "recent_evaluation_path")
 
 
 @pytest.fixture

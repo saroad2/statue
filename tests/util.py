@@ -1,4 +1,6 @@
-from unittest.mock import Mock
+from unittest import mock
+
+from statue.command import Command
 
 
 def build_contexts_map(*contexts):
@@ -6,12 +8,13 @@ def build_contexts_map(*contexts):
 
 
 def command_mock(name, installed=True, return_code=None):
-    mock = Mock()
-    mock.name = name
-    mock.installed.return_value = installed
+    command = Command(name=name, help="This is help")
+    command.name = name
+    command.installed = mock.Mock(return_value=installed)
+    command.install = mock.Mock()
     if return_code is not None:
-        mock.execute.return_value = return_code
-    return mock
+        command.execute = mock.Mock(return_value=return_code)
+    return command
 
 
 def assert_calls(mock_obj, calls):
