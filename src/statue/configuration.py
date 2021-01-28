@@ -281,7 +281,8 @@ class Configuration:
         repository-specific configurations
         """
         if statue_configuration_path is None:
-            statue_configuration_path = cls.configuration_path(Path.cwd())
+            cwd = Path.cwd()
+            statue_configuration_path = cls.configuration_path(cwd)
         if isinstance(statue_configuration_path, str):
             statue_configuration_path = Path(statue_configuration_path)
         cls.set_statue_configuration(
