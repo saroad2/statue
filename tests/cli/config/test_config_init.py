@@ -62,9 +62,7 @@ def test_config_init(
             mock_configuration_path.return_value, mode="w"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(
-        mock_cwd, repo=mock_git_repo.return_value
-    )
+    mock_find_sources.assert_called_once_with(mock_cwd, repo=mock_git_repo.return_value)
     assert result.exit_code == 0
 
 

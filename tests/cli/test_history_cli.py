@@ -1,4 +1,5 @@
 import datetime
+
 import regex
 
 from statue.cli.cli import statue as statue_cli
@@ -9,7 +10,9 @@ TIME_REGEX = r"\d\d/\d\d/\d\d\d\d, \d\d:\d\d:\d\d"
 
 
 def assert_evaluations(result, evaluations):
-    assert result.exit_code == 0, f"History list existed with no 0 return code. Got exception {result.exception}"
+    assert (
+        result.exit_code == 0
+    ), f"History list existed with no 0 return code. Got exception {result.exception}"
     for i, evaluation in enumerate(evaluations, start=1):
         successful = "Success" if evaluation.success else "Failure"
         success_ratio = (

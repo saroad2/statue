@@ -5,18 +5,27 @@ from pytest_cases import fixture
 
 from statue.cli.cli import statue as statue_cli
 from statue.constants import SOURCES
-from statue.exceptions import UnknownContext, MissingConfiguration, \
-    CommandExecutionError
+from statue.exceptions import (
+    CommandExecutionError,
+    MissingConfiguration,
+    UnknownContext,
+)
 from statue.verbosity import DEFAULT_VERBOSITY
-
-from tests.constants import SOURCE1, COMMAND1, COMMAND2, SOURCE2, COMMAND3, COMMAND4, \
-    NOT_EXISTING_CONTEXT
+from tests.constants import (
+    COMMAND1,
+    COMMAND2,
+    COMMAND3,
+    COMMAND4,
+    NOT_EXISTING_CONTEXT,
+    SOURCE1,
+    SOURCE2,
+)
 from tests.util import command_mock
 
 COMMANDS_MAP = {
     SOURCE1: [
         command_mock(name=COMMAND1, return_code=0),
-        command_mock(name=COMMAND2, return_code=0)
+        command_mock(name=COMMAND2, return_code=0),
     ],
     SOURCE2: [
         command_mock(name=COMMAND1, return_code=0),
@@ -69,7 +78,9 @@ def test_run_with_no_cache(
     mock_cache_save_evaluation.assert_not_called()
 
 
-def test_run_and_install(cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd):
+def test_run_and_install(
+    cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
+):
     mock_read_commands_map.return_value = COMMANDS_MAP
 
     result = cli_runner.invoke(statue_cli, ["run", "-i"])
@@ -87,7 +98,7 @@ def test_run_and_save_to_file(
     mock_read_commands_map,
     mock_cache_save_evaluation,
     tmpdir_factory,
-    mock_cwd
+    mock_cwd,
 ):
     mock_read_commands_map.return_value = COMMANDS_MAP
     output_path = tmpdir_factory.mktemp("bla") / "output.json"
@@ -140,8 +151,7 @@ def test_run_has_failed(
     mock_cache_save_evaluation.assert_called_once()
     for source, commands in FAILURE_MAP.items():
         failure_string = (
-            f"{source}:\n"
-            f"\t{', '.join([command.name for command in commands])}"
+            f"{source}:\n" f"\t{', '.join([command.name for command in commands])}"
         )
         assert failure_string in result.output
 
@@ -169,9 +179,7 @@ def test_run_with_missing_configuration(
     mock_cache_save_evaluation,
     mock_cwd,
 ):
-    mock_read_commands_map.side_effect = MissingConfiguration(
-        part_name=SOURCES
-    )
+    mock_read_commands_map.side_effect = MissingConfiguration(part_name=SOURCES)
 
     result = cli_runner.invoke(statue_cli, ["run"])
 

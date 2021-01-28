@@ -21,7 +21,7 @@ def evaluation_mock(successful_commands, total_commands):
     evaluation = mock.Mock()
     evaluation.successful_commands_number = successful_commands
     evaluation.commands_number = total_commands
-    evaluation.success = (successful_commands == total_commands)
+    evaluation.success = successful_commands == total_commands
     return evaluation
 
 

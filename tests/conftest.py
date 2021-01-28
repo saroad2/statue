@@ -7,7 +7,7 @@ import toml
 from statue.cache import Cache
 from statue.command import Command
 from statue.configuration import Configuration
-from statue.constants import STATUE, OVERRIDE
+from statue.constants import OVERRIDE, STATUE
 from statue.evaluation import Evaluation
 
 ENVIRON = dict(s=2, d=5, g=8)
