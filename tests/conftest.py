@@ -62,10 +62,15 @@ def mock_load_configuration(mocker, clear_configuration):
 
 @pytest.fixture
 def mock_cwd(mocker, tmpdir_factory):
-    cwd = tmpdir_factory.mktemp("bla")
+    cwd = Path(tmpdir_factory.mktemp("bla"))
     cwd_method_mock = mocker.patch.object(Path, "cwd")
     cwd_method_mock.return_value = cwd
-    return Path(cwd)
+    return cwd
+
+
+@pytest.fixture
+def mock_time(mocker):
+    return mocker.patch("time.time")
 
 
 @pytest.fixture

@@ -24,7 +24,7 @@ class Cache:
     def all_evaluation_paths(cls) -> List[Path]:
         """Get all evaluation paths, ordered from recent to last."""
         evaluations_files = list(cls.evaluations_dir().iterdir())
-        evaluations_files.sort(key=lambda p: p.name, reverse=True)
+        evaluations_files.sort(key=cls.__extract_time_stamp, reverse=True)
         return evaluations_files
 
     @classmethod
@@ -46,6 +46,10 @@ class Cache:
         file_name = f"evaluation-{int(time.time())}.json"
         evaluation.save_as_json(cls.evaluations_dir() / file_name)
         cls.__remove_old_evaluations()
+
+    @classmethod
+    def __extract_time_stamp(cls, path: Path):
+        return int(path.stem.split("-")[-1])
 
     @classmethod
     def __ensure_dir_exists(cls, dir_path: Path) -> Path:
