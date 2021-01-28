@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 
 import pytest
+import toml
 
 from statue.command import Command
 from statue.configuration import Configuration
+from statue.constants import STATUE, OVERRIDE
 
 ENVIRON = dict(s=2, d=5, g=8)
 
@@ -66,6 +68,16 @@ def mock_cwd(mocker, tmpdir_factory):
     cwd_method_mock = mocker.patch.object(Path, "cwd")
     cwd_method_mock.return_value = cwd
     return cwd
+
+
+@pytest.fixture
+def empty_configuration(mock_cwd, clear_configuration):
+    configuration = {
+        STATUE: {OVERRIDE: True},
+    }
+    with open(mock_cwd / "statue.toml", mode="w") as configuration_file:
+        toml.dump(configuration, configuration_file)
+    return configuration
 
 
 @pytest.fixture
