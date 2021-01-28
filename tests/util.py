@@ -17,6 +17,14 @@ def command_mock(name, installed=True, return_code=None):
     return command
 
 
+def evaluation_mock(successful_commands, total_commands):
+    evaluation = mock.Mock()
+    evaluation.successful_commands_number = successful_commands
+    evaluation.commands_number = total_commands
+    evaluation.success = (successful_commands == total_commands)
+    return evaluation
+
+
 def assert_calls(mock_obj, calls):
     assert mock_obj.call_count == len(
         calls
