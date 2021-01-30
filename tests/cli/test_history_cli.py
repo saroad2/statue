@@ -3,10 +3,45 @@ import datetime
 import regex
 
 from statue.cli.cli import statue as statue_cli
-from tests.util import evaluation_mock
+from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
+from tests.constants import (
+    COMMAND1,
+    COMMAND2,
+    COMMAND3,
+    COMMAND4,
+    COMMAND5,
+    SOURCE1,
+    SOURCE2,
+)
+from tests.util import command_mock, evaluation_mock
 
 EPOCH = datetime.datetime.utcfromtimestamp(0)
 TIME_REGEX = r"\d\d/\d\d/\d\d\d\d, \d\d:\d\d:\d\d"
+EVALUATION = Evaluation(
+    {
+        SOURCE1: SourceEvaluation(
+            [
+                CommandEvaluation(command=command_mock(name=COMMAND1), success=True),
+                CommandEvaluation(command=command_mock(name=COMMAND2), success=False),
+                CommandEvaluation(command=command_mock(name=COMMAND3), success=True),
+            ]
+        ),
+        SOURCE2: SourceEvaluation(
+            [
+                CommandEvaluation(command=command_mock(name=COMMAND4), success=True),
+                CommandEvaluation(command=command_mock(name=COMMAND5), success=False),
+            ]
+        ),
+    }
+)
+EVALUATION_REPORT = f"""{SOURCE1}:
+\t{COMMAND1} - Success
+\t{COMMAND2} - Failure
+\t{COMMAND3} - Success
+{SOURCE2}:
+\t{COMMAND4} - Success
+\t{COMMAND5} - Failure
+"""
 
 
 def assert_evaluations(result, evaluations):
@@ -81,3 +116,68 @@ def test_history_list_with_head(cli_runner, mock_cwd, mock_evaluation_load_from_
     result = cli_runner.invoke(statue_cli, ["history", "list", "--head", "3"])
 
     assert_evaluations(result, evaluations)
+
+
+def test_show_recent_evaluation(
+    cli_runner, mock_cache_evaluation_path, mock_evaluation_load_from_file
+):
+    mock_evaluation_load_from_file.return_value = EVALUATION
+
+    result = cli_runner.invoke(statue_cli, ["history", "show"])
+
+    assert result.exit_code == 0
+    assert EVALUATION_REPORT in result.output
+    mock_cache_evaluation_path.assert_called_once_with(0)
+    mock_evaluation_load_from_file.assert_called_once_with(
+        mock_cache_evaluation_path.return_value
+    )
+
+
+def test_show_recent_evaluation_explicitly(
+    cli_runner, mock_cache_evaluation_path, mock_evaluation_load_from_file
+):
+    mock_evaluation_load_from_file.return_value = EVALUATION
+
+    result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "1"])
+
+    assert result.exit_code == 0
+    assert EVALUATION_REPORT in result.output
+    mock_cache_evaluation_path.assert_called_once_with(0)
+    mock_evaluation_load_from_file.assert_called_once_with(
+        mock_cache_evaluation_path.return_value
+    )
+
+
+def test_show_3rd_recent_evaluation_explicitly(
+    cli_runner, mock_cache_evaluation_path, mock_evaluation_load_from_file
+):
+    mock_evaluation_load_from_file.return_value = EVALUATION
+
+    result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "3"])
+
+    assert result.exit_code == 0
+    assert EVALUATION_REPORT in result.output
+    mock_cache_evaluation_path.assert_called_once_with(2)
+    mock_evaluation_load_from_file.assert_called_once_with(
+        mock_cache_evaluation_path.return_value
+    )
+
+
+def test_show_with_number_zero(
+    cli_runner, mock_cache_evaluation_path, mock_evaluation_load_from_file
+):
+
+    result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "0"])
+
+    assert result.exit_code == 2
+    assert "Number should be 1 or greater. got 0" in result.output
+
+
+def test_show_with_negative_number(
+    cli_runner, mock_cache_evaluation_path, mock_evaluation_load_from_file
+):
+
+    result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "-2"])
+
+    assert result.exit_code == 2
+    assert "Number should be 1 or greater. got -2" in result.output
