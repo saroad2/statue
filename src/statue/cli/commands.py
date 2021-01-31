@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import click
 
-from statue.cli.cli import statue as statue_cli
+from statue.cli.cli import statue_cli as statue_cli
 from statue.cli.util import (
     allow_option,
     contexts_option,
@@ -25,7 +25,7 @@ def commands_cli() -> None:
 @contexts_option
 @allow_option
 @deny_option
-def list_commands(
+def list_commands_cli(
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
@@ -47,7 +47,7 @@ def list_commands(
 @silent_option
 @verbose_option
 @verbosity_option
-def install_commands(
+def install_commands_cli(
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
@@ -67,7 +67,7 @@ def install_commands(
 @contexts_option
 @allow_option
 @deny_option
-def show_command(
+def show_command_cli(
     ctx: click.Context,
     command_name: str,
     context: Optional[List[str]],

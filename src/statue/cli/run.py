@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 import click
 
 from statue.cache import Cache
-from statue.cli.cli import statue as statue_cli
+from statue.cli.cli import statue_cli as statue_cli
 from statue.cli.util import (
     allow_option,
     contexts_option,
@@ -116,7 +116,6 @@ def run_cli(  # pylint: disable=too-many-arguments
 
 
 def __evaluate_failure_map(failure_map):
-    """Returns exit code."""
     if len(failure_map) == 0:
         click.echo("Statue finished successfully!")
         return 0

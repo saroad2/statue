@@ -1,6 +1,6 @@
 from unittest import mock
 
-from statue.cli import statue as statue_cli
+from statue.cli import statue_cli
 from statue.command import Command
 from statue.exceptions import InvalidCommand, UnknownCommand
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE

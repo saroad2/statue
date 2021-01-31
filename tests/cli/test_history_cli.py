@@ -2,7 +2,7 @@ import datetime
 
 import regex
 
-from statue.cli.cli import statue as statue_cli
+from statue.cli.cli import statue_cli as statue_cli
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
 from tests.constants import (
     COMMAND1,

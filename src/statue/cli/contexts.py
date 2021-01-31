@@ -2,7 +2,7 @@
 
 import click
 
-from statue.cli.cli import statue as statue_cli
+from statue.cli.cli import statue_cli as statue_cli
 from statue.configuration import Configuration
 from statue.exceptions import UnknownContext
 
@@ -14,7 +14,7 @@ def context_cli() -> None:
 
 @context_cli.command("list")
 @click.pass_context
-def contexts_list(ctx: click.Context) -> None:
+def contexts_list_cli(ctx: click.Context) -> None:
     """Print all available contexts."""
     contexts_obj_list = Configuration.contexts_list()
     if len(contexts_obj_list) == 0:
@@ -27,7 +27,7 @@ def contexts_list(ctx: click.Context) -> None:
 @context_cli.command("show")
 @click.pass_context
 @click.argument("context_name", type=str)
-def show_contexts(ctx: click.Context, context_name: str) -> None:
+def show_contexts_cli(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
     try:
         context_instance = Configuration.get_context(context_name)

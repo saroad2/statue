@@ -15,6 +15,6 @@ from statue.configuration import Configuration
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )
-def statue(config: Optional[str]) -> None:
+def statue_cli(config: Optional[str]) -> None:
     """Statue is a static code analysis tools orchestrator."""
     Configuration.load_configuration(config)
