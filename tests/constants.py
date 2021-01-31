@@ -1,6 +1,9 @@
 from statue.constants import HELP, STANDARD
 from statue.context import Context
 
+SUCCESSFUL_TAG = "successful"
+FAILED_TAG = "failed"
+
 
 def name_and_help_string(name):
     return name, f"This is a help string for {name}"

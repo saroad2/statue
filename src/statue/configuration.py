@@ -160,12 +160,12 @@ class Configuration:
         return list(contexts_map.values())
 
     @classmethod
-    def get_context(cls, context_name: str) -> Context:
+    def get_context(cls, context_identifier: str) -> Context:
         """
         Get configuration dictionary of a context.
 
-        :param context_name: Name of the desired context.
-        :type context_name: str
+        :param context_identifier: Name or alias of the desired context.
+        :type context_identifier: str
         :return: configuration dictionary.
         :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
         set.
@@ -173,10 +173,13 @@ class Configuration:
         contexts_configuration = cls.contexts_map()
         if contexts_configuration is None:
             raise MissingConfiguration(CONTEXTS)
-        context = contexts_configuration.get(context_name, None)
-        if context is None:
-            raise UnknownContext(context_name)
-        return context
+        for context_name, context in contexts_configuration.items():
+            if (
+                context_identifier == context_name
+                or context_identifier in context.aliases  # noqa: disable=W503
+            ):
+                return context
+        raise UnknownContext(context_identifier)
 
     @classmethod
     def read_commands(

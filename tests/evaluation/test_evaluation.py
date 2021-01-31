@@ -13,12 +13,11 @@ from tests.constants import (
     COMMAND4,
     COMMAND5,
     COMMAND6,
+    FAILED_TAG,
     SOURCE1,
     SOURCE2,
+    SUCCESSFUL_TAG,
 )
-
-SUCCESSFUL_TAG = "successful"
-FAILED_TAG = "failed"
 
 
 @case(tags=[SUCCESSFUL_TAG])
