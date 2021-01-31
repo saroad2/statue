@@ -90,6 +90,26 @@ def test_contexts_show_of_context_with_one_alias(
     mock_read_commands.assert_called_once_with(contexts=[CONTEXT1])
 
 
+def test_contexts_show_of_context_with_by_alias(
+    cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
+):
+    mock_contexts_map.return_value = build_contexts_map(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
+    )
+    mock_read_commands.return_value = [
+        Command(COMMAND1, help=COMMAND_HELP_STRING1),
+    ]
+    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
+    assert result.exit_code == 0, "show context should exit with success."
+    assert result.output == (
+        f"Name - {CONTEXT1}\n"
+        f"Description - {CONTEXT_HELP_STRING1}\n"
+        f"Aliases - {CONTEXT2}\n"
+        f"Matching commands - {COMMAND1}\n"
+    ), "Show output is different than expected."
+    mock_read_commands.assert_called_once_with(contexts=[CONTEXT2])
+
+
 def test_contexts_show_of_context_with_two_aliases(
     cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
 ):

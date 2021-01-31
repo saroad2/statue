@@ -31,7 +31,7 @@ def show_contexts(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
     try:
         context_instance = Configuration.get_context(context_name)
-        click.echo(f"Name - {context_name}")
+        click.echo(f"Name - {context_instance.name}")
         click.echo(f"Description - {context_instance.help}")
         if len(context_instance.aliases) != 0:
             click.echo(f"Aliases - {', '.join(context_instance.aliases)}")
