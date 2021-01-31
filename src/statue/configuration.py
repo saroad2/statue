@@ -164,7 +164,7 @@ class Configuration:
         """
         Get configuration dictionary of a context.
 
-        :param context_identifier: Name of the desired context.
+        :param context_identifier: Name or alias of the desired context.
         :type context_identifier: str
         :return: configuration dictionary.
         :raises: raise :Class:`MissingConfiguration` if no contexts configuration was
