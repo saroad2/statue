@@ -13,8 +13,10 @@ from tests.constants import (
     COMMAND4,
     COMMAND5,
     COMMAND6,
+    FAILED_TAG,
     SOURCE1,
-    SOURCE2, SUCCESSFUL_TAG, FAILED_TAG,
+    SOURCE2,
+    SUCCESSFUL_TAG,
 )
 
 

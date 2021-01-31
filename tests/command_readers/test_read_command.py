@@ -1,5 +1,5 @@
 import pytest
-from pytest_cases import THIS_MODULE, parametrize_with_cases, case
+from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
 from statue.command import Command
 from statue.configuration import Configuration
@@ -36,7 +36,9 @@ from tests.constants import (
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
     CONTEXTS_MAP,
-    NOT_EXISTING_CONTEXT, SUCCESSFUL_TAG, FAILED_TAG,
+    FAILED_TAG,
+    NOT_EXISTING_CONTEXT,
+    SUCCESSFUL_TAG,
 )
 
 # Success cases
@@ -96,7 +98,7 @@ def case_with_boolean_context_and_standard():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_two_contexts():
+def case_read_successful_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -114,7 +116,7 @@ def case_with_two_contexts():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_non_standard_command():
+def case_read_is_successful_with_non_standard_command():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -340,7 +342,7 @@ def case_with_non_existing_context():
 
 
 @case(tags=[FAILED_TAG])
-def case_with_two_contexts():
+def case_read_failed_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -361,7 +363,7 @@ def case_with_two_contexts():
 
 
 @case(tags=[FAILED_TAG])
-def case_with_non_standard_command():
+def case_read_failed_with_non_standard_command():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {

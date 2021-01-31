@@ -176,7 +176,7 @@ class Configuration:
         for context_name, context in contexts_configuration.items():
             if (
                 context_identifier == context_name
-                or context_identifier in context.aliases
+                or context_identifier in context.aliases  # noqa: disable=W503
             ):
                 return context
         raise UnknownContext(context_identifier)
