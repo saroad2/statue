@@ -1,5 +1,5 @@
 import pytest
-from pytest_cases import THIS_MODULE, parametrize_with_cases
+from pytest_cases import THIS_MODULE, parametrize_with_cases, case
 
 from statue.command import Command
 from statue.configuration import Configuration
@@ -36,14 +36,15 @@ from tests.constants import (
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
     CONTEXTS_MAP,
-    NOT_EXISTING_CONTEXT,
+    NOT_EXISTING_CONTEXT, SUCCESSFUL_TAG, FAILED_TAG,
 )
 
 # Success cases
 from tests.util import build_contexts_map
 
 
-def case_success_with_no_contexts():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_no_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -60,7 +61,8 @@ def case_success_with_no_contexts():
     return configuration, kwargs, command
 
 
-def case_success_with_boolean_context():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_boolean_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -76,7 +78,8 @@ def case_success_with_boolean_context():
     return configuration, kwargs, command
 
 
-def case_success_with_boolean_context_and_standard():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_boolean_context_and_standard():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -92,7 +95,8 @@ def case_success_with_boolean_context_and_standard():
     return configuration, kwargs, command
 
 
-def case_success_with_two_contexts():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -109,7 +113,8 @@ def case_success_with_two_contexts():
     return configuration, kwargs, command
 
 
-def case_success_with_non_standard_command():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_non_standard_command():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -126,7 +131,8 @@ def case_success_with_non_standard_command():
     return configuration, kwargs, command
 
 
-def case_success_with_override_context():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_override_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -147,7 +153,8 @@ def case_success_with_override_context():
     return configuration, kwargs, command
 
 
-def case_success_with_clear_args_context():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_clear_args_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -164,7 +171,8 @@ def case_success_with_clear_args_context():
     return configuration, kwargs, command
 
 
-def case_success_with_overrides_with_add_args_context():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_overrides_with_add_args_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -185,7 +193,8 @@ def case_success_with_overrides_with_add_args_context():
     return configuration, kwargs, command
 
 
-def case_success_with_empty_allow_list():
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_empty_allow_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}},
@@ -195,7 +204,8 @@ def case_success_with_empty_allow_list():
     return configuration, kwargs, command
 
 
-def case_success_in_allow_list():
+@case(tags=[SUCCESSFUL_TAG])
+def case_in_allow_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}},
@@ -205,7 +215,8 @@ def case_success_in_allow_list():
     return configuration, kwargs, command
 
 
-def case_success_not_in_deny_list():
+@case(tags=[SUCCESSFUL_TAG])
+def case_not_in_deny_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -218,7 +229,8 @@ def case_success_not_in_deny_list():
     return configuration, kwargs, command
 
 
-def case_success_on_root_context_inheritance():
+@case(tags=[SUCCESSFUL_TAG])
+def case_on_root_context_inheritance():
     standard = Context(name=STANDARD, help="Some help", is_default=True)
     parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
@@ -237,7 +249,8 @@ def case_success_on_root_context_inheritance():
     return configuration, kwargs, command
 
 
-def case_success_on_child_context_inheritance():
+@case(tags=[SUCCESSFUL_TAG])
+def case_on_child_context_inheritance():
     parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
     configuration = {
@@ -255,7 +268,8 @@ def case_success_on_child_context_inheritance():
     return configuration, kwargs, command
 
 
-def case_success_on_standard_child_context_inheritance():
+@case(tags=[SUCCESSFUL_TAG])
+def case_on_standard_child_context_inheritance():
     standard = Context(name=STANDARD, help=CONTEXT_HELP_STRING2, is_default=True)
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=standard)
     configuration = {
@@ -275,7 +289,7 @@ def case_success_on_standard_child_context_inheritance():
 @parametrize_with_cases(
     argnames="configuration, kwargs, command",
     cases=THIS_MODULE,
-    prefix="case_success_",
+    has_tag=SUCCESSFUL_TAG,
 )
 def test_read_command_success(configuration, kwargs, command, clear_configuration):
     Configuration.set_statue_configuration(configuration)
@@ -286,7 +300,8 @@ def test_read_command_success(configuration, kwargs, command, clear_configuratio
 # Failure cases
 
 
-def case_failure_with_non_existing_context():
+@case(tags=[FAILED_TAG])
+def case_with_non_existing_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -306,7 +321,8 @@ def case_failure_with_non_existing_context():
     )
 
 
-def case_failure_with_two_contexts():
+@case(tags=[FAILED_TAG])
+def case_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -326,7 +342,8 @@ def case_failure_with_two_contexts():
     )
 
 
-def case_failure_with_non_standard_command():
+@case(tags=[FAILED_TAG])
+def case_with_non_standard_command():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -347,7 +364,8 @@ def case_failure_with_non_standard_command():
     )
 
 
-def case_failure_not_in_allow_list():
+@case(tags=[FAILED_TAG])
+def case_not_in_allow_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -364,7 +382,8 @@ def case_failure_not_in_allow_list():
     )
 
 
-def case_failure_in_deny_list():
+@case(tags=[FAILED_TAG])
+def case_in_deny_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -381,7 +400,8 @@ def case_failure_in_deny_list():
     )
 
 
-def case_failure_non_existing_command():
+@case(tags=[FAILED_TAG])
+def case_non_existing_command():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
@@ -398,7 +418,8 @@ def case_failure_non_existing_command():
     )
 
 
-def case_failure_with_no_commands_configuration():
+@case(tags=[FAILED_TAG])
+def case_with_no_commands_configuration():
     configuration = {CONTEXTS: CONTEXTS_MAP}
     kwargs = dict(command_name=COMMAND3)
     return (
@@ -409,7 +430,8 @@ def case_failure_with_no_commands_configuration():
     )
 
 
-def case_failure_when_no_context_configuration_was_set():
+@case(tags=[FAILED_TAG])
+def case_when_no_context_configuration_was_set():
     configuration = {
         COMMANDS: {
             COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2], CONTEXT1: True},
@@ -428,7 +450,7 @@ def case_failure_when_no_context_configuration_was_set():
 @parametrize_with_cases(
     argnames="configuration, kwargs, exception_class, exception_message",
     cases=THIS_MODULE,
-    prefix="case_failure_",
+    has_tag=FAILED_TAG,
 )
 def test_read_command_failure(
     configuration, kwargs, exception_class, exception_message, clear_configuration
