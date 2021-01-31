@@ -269,6 +269,24 @@ def case_on_child_context_inheritance():
 
 
 @case(tags=[SUCCESSFUL_TAG])
+def case_context_alias():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING2, aliases=[CONTEXT2])
+    configuration = {
+        CONTEXTS: build_contexts_map(context),
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1, ARG2],
+                CONTEXT2: {ARGS: [ARG3]},
+            },
+        },
+    }
+    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT2])
+    command = Command(name=COMMAND1, args=[ARG3], help=COMMAND_HELP_STRING1)
+    return configuration, kwargs, command
+
+
+@case(tags=[SUCCESSFUL_TAG])
 def case_on_standard_child_context_inheritance():
     standard = Context(name=STANDARD, help=CONTEXT_HELP_STRING2, is_default=True)
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=standard)
