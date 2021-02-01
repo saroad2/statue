@@ -31,7 +31,8 @@ class Command:
         """
         Is this command installed.
 
-        :return: Boolean.
+        :return: Either the command is installed or not
+        :rtype: bool
         """
         return self.name in {
             pkg.key for pkg in self.available_packages()  # type: ignore
@@ -39,7 +40,11 @@ class Command:
 
     @classmethod
     def available_packages(cls):  # type: ignore
-        """Get all available packages via pip."""
+        """
+        Get all available packages via pip.
+
+        :return: List of all available packages
+        """
         importlib.reload(pkg_resources)
         return list(pkg_resources.working_set)  # pragma: no cover
 
@@ -47,7 +52,8 @@ class Command:
         """
         Install command using pip.
 
-        :param verbosity: String. Verbosity level.
+        :param verbosity: Verbosity level.
+        :type verbosity: str
         """
         if self.installed():
             return
@@ -69,8 +75,11 @@ class Command:
         Execute the command.
 
         :param source: source files to check.
-        :param verbosity: String. Indicates the verbosity of the prints to console.
-        :return: Int. Returns the return code of the command
+        :type: str
+        :param verbosity: Indicates the verbosity of the prints to console.
+        :type verbosity: str
+        :return: Exit code of the command
+        :rtype: int
         """
         args = [self.name, source, *self.args]
         if is_verbose(verbosity):
