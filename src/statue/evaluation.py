@@ -17,13 +17,24 @@ class CommandEvaluation:
     success: bool
 
     def as_json(self) -> Dict[str, Any]:
-        """Return command evaluation as json dictionary."""
+        """
+        Return command evaluation as json dictionary.
+
+        :return: Self as dictionary
+        :rtype: Dict[str, Any]
+        """
         return dict(command=asdict(self.command), success=self.success)
 
     @classmethod
-    def from_json(cls, command_evaluation):
-        # type: (Dict[str, Any]) -> CommandEvaluation
-        """Read command evaluation from json dictionary."""
+    def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
+        """
+        Read command evaluation from json dictionary.
+
+        :param command_evaluation: Json command evaluation
+        :type command_evaluation: Dict[str, Any]
+        :return: Parsed command evaluation
+        :rtype: CommandEvaluation
+        """
         return CommandEvaluation(
             command=Command(**command_evaluation["command"]),
             success=command_evaluation["success"],
@@ -37,7 +48,12 @@ class SourceEvaluation:
     commands_evaluations: List[CommandEvaluation] = field(default_factory=list)
 
     def as_json(self) -> List[Dict[str, Any]]:
-        """Return source evaluation as json dictionary."""
+        """
+        Return source evaluation as json dictionary.
+
+        :return: Self as dictionary
+        :rtype: Dict[str, Any]
+        """
         return [
             command_evaluation.as_json()
             for command_evaluation in self.commands_evaluations
@@ -45,7 +61,12 @@ class SourceEvaluation:
 
     @property
     def success(self) -> bool:
-        """All commands evaluations are successful."""
+        """
+        All commands evaluations are successful.
+
+        :return: Success statue
+        :rtype: bool
+        """
         return all(
             [
                 commands_evaluation.success
@@ -55,12 +76,21 @@ class SourceEvaluation:
 
     @property
     def commands_number(self):
-        """Number of commands that were evaluated."""
+        """
+        Number of commands that were evaluated.
+
+        :return: Counted commands
+        :rtype: int
+        """
         return len(self.commands_evaluations)
 
     @property
     def successful_commands_number(self):
-        """Number of successful commands that were evaluated."""
+        """
+        Number of successful commands that were evaluated.
+
+        :return: Counted successful commands
+        :rtype: int"""
         return len(
             [
                 commands_evaluation
@@ -71,13 +101,24 @@ class SourceEvaluation:
 
     @property
     def failed_commands_number(self):
-        """Number of failed commands that were evaluated."""
+        """
+        Number of failed commands that were evaluated.
+
+        :return: Counted failed commands
+        :rtype: int
+        """
         return self.commands_number - self.successful_commands_number
 
     @classmethod
-    def from_json(cls, source_evaluation):
-        # type: ( List[Dict[str, Any]]) -> SourceEvaluation
-        """Read source evaluation from json list."""
+    def from_json(cls, source_evaluation: List[Dict[str, Any]]) -> "SourceEvaluation":
+        """
+        Read source evaluation from json list.
+
+        :param source_evaluation: Json commands evaluations list
+        :type source_evaluation: List[Dict[str, Any]]
+        :return: Parsed source evaluation
+        :rtype: SourceEvaluation
+        """
         return SourceEvaluation(
             commands_evaluations=[
                 CommandEvaluation.from_json(command_evaluation)
@@ -93,37 +134,81 @@ class Evaluation:
     sources_evaluations: Dict[str, SourceEvaluation] = field(default_factory=dict)
 
     def __iter__(self) -> Iterator[str]:
-        """Iterate over evaluation."""
+        """
+        Iterate over evaluation.
+
+        :return: self iterator
+        :rtype: Iterator[str]
+        """
         return iter(self.sources_evaluations)
 
     def __getitem__(self, item: str) -> SourceEvaluation:
-        """Get source evaluation."""
+        """
+        Get source evaluation.
+
+        :param item: Source name
+        :type item: str
+        :return: Source's evaluation
+        :rtype: SourceEvaluation
+        """
         return self.sources_evaluations[item]
 
     def __setitem__(self, key: str, value: SourceEvaluation) -> None:
-        """Set source evaluation."""
+        """
+        Set source evaluation.
+
+        :param key: Source name
+        :type key: str
+        :param value: Source's evaluation
+        :type value: SourceEvaluation
+        """
         self.sources_evaluations[key] = value
 
     def keys(self) -> KeysView[str]:
-        """Get sources as generator."""
+        """
+        Get sources as generator.
+
+        :return: All sources names generator
+        :rtype: KeysView[str]
+        """
         return self.sources_evaluations.keys()
 
     def items(self) -> ItemsView[str, SourceEvaluation]:
-        """Get sources evaluations."""
+        """
+        Get sources evaluations.
+
+        :return: All sources names-instance tuples generator
+        :rtype: ItemsView[str, SourceEvaluation]
+        """
         return self.sources_evaluations.items()
 
     def as_json(self) -> Dict[str, List[Dict[str, Any]]]:
-        """Return evaluation as json dictionary."""
+        """
+        Return evaluation as json dictionary.
+
+        :return: Self as dictionary
+        :rtype: Dict[str, List[Dict[str, Any]]]
+        """
         return {key: value.as_json() for key, value in self.items()}
 
     def save_as_json(self, output: Union[Path, str]) -> None:
-        """Save evaluation as json."""
+        """
+        Save evaluation as json.
+
+        :param output: Path to save self in
+        :type output: Path or str
+        """
         with open(output, mode="w") as output_file:
             json.dump(self.as_json(), output_file, indent=2)
 
     @property
     def success(self) -> bool:
-        """All sources evaluations are successful."""
+        """
+        All sources evaluations are successful.
+
+        :return: Success statue
+        :rtype: bool
+        """
         return all(
             [
                 sources_evaluation.success
@@ -133,7 +218,12 @@ class Evaluation:
 
     @property
     def commands_number(self):
-        """Number of commands that were evaluated."""
+        """
+        Number of commands that were evaluated.
+
+        :return: Counted commands
+        :rtype: int
+        """
         return sum(
             [
                 source_evaluation.commands_number
@@ -143,7 +233,12 @@ class Evaluation:
 
     @property
     def successful_commands_number(self):
-        """Number of successful commands that were evaluated."""
+        """
+        Number of successful commands that were evaluated.
+
+        :return: Counted successful commands
+        :rtype: int
+        """
         return sum(
             [
                 source_evaluation.successful_commands_number
@@ -153,20 +248,37 @@ class Evaluation:
 
     @property
     def failed_commands_number(self):
-        """Number of failed commands that were evaluated."""
+        """
+        Number of failed commands that were evaluated.
+
+        :return: Counted failed commands
+        :rtype: int
+        """
         return self.commands_number - self.successful_commands_number
 
     @classmethod
-    def load_from_file(cls, input_path):
-        # type: (Path) -> Evaluation
-        """Load evaluation from json file."""
+    def load_from_file(cls, input_path: Path) -> "Evaluation":
+        """
+        Load evaluation from json file.
+
+        :param input_path: Path to load evaluation from.
+        :type input_path: Path
+        :return: Evaluation instance
+        :rtype: Evaluation
+        """
         with open(input_path, mode="r") as input_file:
             return Evaluation.from_json(json.load(input_file))
 
     @classmethod
-    def from_json(cls, evaluation):
-        # type: (Dict[str, List[Dict[str, Any]]]) -> Evaluation
-        """Read evaluation from json dictionary."""
+    def from_json(cls, evaluation: Dict[str, List[Dict[str, Any]]]) -> "Evaluation":
+        """
+        Read evaluation from json dictionary.
+
+        :param evaluation: Json evaluation
+        :type evaluation: List[Dict[str, Any]]]
+        :return: Parsed evaluation
+        :rtype: Evaluation
+        """
         return Evaluation(
             sources_evaluations={
                 input_path: SourceEvaluation.from_json(source_evaluation)
@@ -184,9 +296,12 @@ def evaluate_commands_map(
     Run commands map and return evaluation report.
 
     :param commands_map: map from input file to list of commands to run on it,
+    :type commands_map: Dict[str, List[Command]],
     :param verbosity: verbosity level
+    :type verbosity: str
     :param print_method: print method, can be either ``print`` or ``click.echo``
-    :return: :class:`Evaluation`
+    :type print_method: Callable
+    :return: Evaluation
     """
     evaluation = Evaluation()
     for input_path, commands in commands_map.items():
@@ -212,7 +327,9 @@ def get_failure_map(evaluation: Evaluation) -> Dict[str, List[Command]]:
     Get a map from input paths to failed commands.
 
     :param evaluation: evaluation result
-    :return: ``Dict[str, List[str]]``
+    :type evaluation: Evaluation
+    :return: Map of failed commands
+    :rtype: Dict[str, List[Command]]
     """
     failure_dict = dict()
     for input_path, source_valuation in evaluation.items():
