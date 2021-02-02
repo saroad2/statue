@@ -7,7 +7,7 @@ from statue import __version__
 from statue.configuration import Configuration
 
 
-@click.group(no_args_is_help=True)
+@click.group(name="statue", no_args_is_help=True)
 @click.version_option(version=__version__)
 @click.option(
     "--config",
