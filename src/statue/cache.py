@@ -12,24 +12,46 @@ class Cache:
 
     @classmethod
     def cache_dir(cls) -> Path:
-        """Directory of cache files. Created if missing."""
+        """
+        Directory of cache files. Created if missing.
+
+        :return: Location path of the cache directory
+        :rtype: Path
+        """
         return cls.__ensure_dir_exists(Path.cwd() / ".statue")
 
     @classmethod
     def evaluations_dir(cls) -> Path:
-        """Directory of cache files. Created if missing."""
+        """
+        Directory of cache files. Created if missing.
+
+        :return: Location path of the previous evaluations cache directory
+        :rtype: Path
+        """
         return cls.__ensure_dir_exists(cls.cache_dir() / "evaluations")
 
     @classmethod
     def all_evaluation_paths(cls) -> List[Path]:
-        """Get all evaluation paths, ordered from recent to last."""
+        """
+        Get all evaluation paths, ordered from recent to last.
+
+        :return: List of all previous evaluations paths
+        :rtype: List[Path]
+        """
         evaluations_files = list(cls.evaluations_dir().iterdir())
         evaluations_files.sort(key=cls.__extract_time_stamp, reverse=True)
         return evaluations_files
 
     @classmethod
     def evaluation_path(cls, n: int):  # pylint: disable=invalid-name
-        """Get the nth most recent evaluation result path."""
+        """
+        Get the nth most recent evaluation result path.
+
+        :param n: Evaluation index
+        :type n: int
+        :return: Evaluation path of the nth evalaution
+        :rtype: Path
+        """
         evaluations_files = cls.all_evaluation_paths()
         if n >= len(evaluations_files):
             return None
@@ -37,12 +59,24 @@ class Cache:
 
     @classmethod
     def recent_evaluation_path(cls) -> Path:
-        """Get last evaluation result path."""
+        """
+        Get last evaluation result path.
+
+        :return: Most recent evaluation path
+        :rtype: Path
+        """
         return cls.evaluation_path(0)
 
     @classmethod
     def save_evaluation(cls, evaluation: Evaluation):
-        """Save evaluation to cache."""
+        """
+        Save evaluation to cache.
+
+        Deletes old evaluations after saving according to history size.
+
+        :param evaluation: Evaluation instance to be saved
+        :type evaluation: Evaluation
+        """
         file_name = f"evaluation-{int(time.time())}.json"
         evaluation.save_as_json(cls.evaluations_dir() / file_name)
         cls.__remove_old_evaluations()

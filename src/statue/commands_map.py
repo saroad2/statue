@@ -17,15 +17,20 @@ def read_commands_map(
     """
     Get commands map from user or from configuration file.
 
-    :param sources: List of sources files specified by the user.
-     If empty, get sources from configuration file.
-    :param contexts: List of global contexts.
-     Added to the contexts in the configuration file if there are any.
-    :param allow_list: List of allowed commands.
-     Overriding any commands in the allow_list in the configuration file.
-    :param deny_list: List of denied commands.
-     Added to the denied commands in the configuration file if there are any.
+    :param sources: Optional. List of sources files specified by the user.
+        If empty, get sources from configuration file.
+    :type sources: List[str]
+    :param contexts: Optional. List of global contexts.
+        Added to the contexts in the configuration file if there are any.
+    :type contexts: List[str]
+    :param allow_list: Optional. List of allowed commands.
+        Overriding any commands in the allow_list in the configuration file.
+    :type allow_list: List[str]
+    :param deny_list: Optional. List of denied commands.
+        Added to the denied commands in the configuration file if there are any.
+    :type deny_list: List[str]
     :return: Dictionary from source file to the commands to run on it.
+    :rtype: None or commands dictionary
     """
     if len(sources) == 0:
         sources = Configuration.sources_list()

@@ -1,5 +1,5 @@
 """Main of Statue."""
-from statue.cli import statue
+from statue.cli import statue_cli
 
 if __name__ == "__main__":
-    statue()  # pylint: disable=E1120
+    statue_cli()  # pylint: disable=E1120

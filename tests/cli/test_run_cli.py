@@ -3,7 +3,7 @@ import json
 
 from pytest_cases import fixture
 
-from statue.cli.cli import statue as statue_cli
+from statue.cli.cli import statue_cli
 from statue.constants import SOURCES
 from statue.exceptions import (
     CommandExecutionError,

@@ -26,8 +26,17 @@ class Context:
         """Extra initialization."""
         self._names = [self.name, *self.aliases]
 
-    def search_context(self, setups):
-        """Search for context in setup dictionary."""
+    def search_context(
+        self, setups: MutableMapping[str, Any]
+    ) -> Optional[MutableMapping[str, Any]]:
+        """
+        Search for context in setup dictionary.
+
+        :param setups: Setup to look for the context in
+        :type setups: MutableMapping[str, Any]
+        :return: Specific setups with context
+        :rtype: None or MutableMapping[str, Any]
+        """
         for name in self._names:
             name_setups = setups.get(name, None)
             if name_setups is not None:
@@ -42,7 +51,14 @@ class Context:
     def build_contexts_map(
         cls, contexts_config: MutableMapping[str, Any]
     ) -> Dict[str, "Context"]:
-        """Build contexts dictionary from contexts configuration."""
+        """
+        Build contexts dictionary from contexts configuration.
+
+        :param contexts_config: Contexts configuration
+        :type contexts_config: MutableMapping[str, Any]
+        :return: Map from context name to context instance:
+        :rtype: Dict[str, Context]
+        """
         contexts_map: Dict[str, "Context"] = {}
         for name in contexts_config.keys():
             if name in contexts_map:

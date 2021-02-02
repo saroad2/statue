@@ -7,7 +7,7 @@ import click
 import git
 import toml
 
-from statue.cli.cli import statue as statue_cli
+from statue.cli.cli import statue_cli
 from statue.configuration import Configuration
 from statue.constants import CONTEXTS, SOURCES
 from statue.sources_finder import expend, find_sources
@@ -40,7 +40,7 @@ def config_cli():
     default=False,
     help="Run interactively in order to determine tracked sources and contexts.",
 )
-def init_config(directory, interactive):
+def init_config_cli(directory, interactive):
     """
     Initialize configuration for Statue.
 

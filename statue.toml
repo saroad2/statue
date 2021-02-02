@@ -1,3 +1,6 @@
+[commands.darglint]
+add_args = ["--ignore-regex=.*_cli"]
+
 [sources."setup.py"]
 contexts = [ "fast",]
 
