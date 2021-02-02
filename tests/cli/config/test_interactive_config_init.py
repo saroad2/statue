@@ -2,7 +2,7 @@ from unittest import mock
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.cli.cli import statue_cli as statue_cli
+from statue.cli.cli import statue_cli
 from statue.constants import CONTEXTS, SOURCES, STANDARD
 
 

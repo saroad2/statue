@@ -3,7 +3,7 @@ from typing import List, Optional
 
 import click
 
-from statue.cli.cli import statue_cli as statue_cli
+from statue.cli.cli import statue_cli
 from statue.cli.util import (
     allow_option,
     contexts_option,

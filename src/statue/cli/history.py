@@ -6,7 +6,7 @@ from typing import Union
 import click
 
 from statue.cache import Cache
-from statue.cli.cli import statue_cli as statue_cli
+from statue.cli.cli import statue_cli
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import CommandEvaluation, Evaluation
 

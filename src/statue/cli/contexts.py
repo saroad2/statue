@@ -2,7 +2,7 @@
 
 import click
 
-from statue.cli.cli import statue_cli as statue_cli
+from statue.cli.cli import statue_cli
 from statue.configuration import Configuration
 from statue.exceptions import UnknownContext
 

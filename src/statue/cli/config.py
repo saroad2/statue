@@ -7,7 +7,7 @@ import click
 import git
 import toml
 
-from statue.cli.cli import statue_cli as statue_cli
+from statue.cli.cli import statue_cli
 from statue.configuration import Configuration
 from statue.constants import CONTEXTS, SOURCES
 from statue.sources_finder import expend, find_sources

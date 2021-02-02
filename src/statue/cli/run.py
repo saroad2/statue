@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 import click
 
 from statue.cache import Cache
-from statue.cli.cli import statue_cli as statue_cli
+from statue.cli.cli import statue_cli
 from statue.cli.util import (
     allow_option,
     contexts_option,
