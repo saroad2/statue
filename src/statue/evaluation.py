@@ -90,7 +90,8 @@ class SourceEvaluation:
         Number of successful commands that were evaluated.
 
         :return: Counted successful commands
-        :rtype: int"""
+        :rtype: int
+        """
         return len(
             [
                 commands_evaluation
