@@ -1,4 +1,5 @@
 import datetime
+from unittest import mock
 
 import regex
 
@@ -181,3 +182,94 @@ def test_show_with_negative_number(
 
     assert result.exit_code == 2
     assert "Number should be 1 or greater. got -2" in result.output
+
+
+def test_clear_empty_history(cli_runner, mock_cache_all_evaluation_paths):
+    mock_cache_all_evaluation_paths.return_value = []
+
+    result = cli_runner.invoke(statue_cli, ["history", "clear"])
+
+    assert (
+        result.exit_code == 0
+    ), f"Exited with non successful exit code. {result.exception}"
+    assert "No previous evaluations." in result.output
+
+
+def test_clear_all_history_approved(cli_runner, mock_cache_all_evaluation_paths):
+    history_size = 40
+    evaluation_files = [mock.Mock() for _ in range(history_size)]
+    mock_cache_all_evaluation_paths.return_value = evaluation_files
+
+    result = cli_runner.invoke(statue_cli, ["history", "clear"], input="y")
+
+    assert (
+        result.exit_code == 0
+    ), f"Exited with non successful exit code. {result.exception}"
+    for evaluation_file in evaluation_files:
+        evaluation_file.unlink.assert_called_once_with()
+
+
+def test_clear_all_history_denied(cli_runner, mock_cache_all_evaluation_paths):
+    history_size = 40
+    evaluation_files = [mock.Mock() for _ in range(history_size)]
+    mock_cache_all_evaluation_paths.return_value = evaluation_files
+
+    result = cli_runner.invoke(statue_cli, ["history", "clear"], input="n")
+
+    assert (
+        result.exit_code == 0
+    ), f"Exited with non successful exit code. {result.exception}"
+    for evaluation_file in evaluation_files:
+        evaluation_file.unlink.assert_not_called()
+
+
+def test_clear_all_history_forced(cli_runner, mock_cache_all_evaluation_paths):
+    history_size = 40
+    evaluation_files = [mock.Mock() for _ in range(history_size)]
+    mock_cache_all_evaluation_paths.return_value = evaluation_files
+
+    result = cli_runner.invoke(statue_cli, ["history", "clear", "-f"])
+
+    assert (
+        result.exit_code == 0
+    ), f"Exited with non successful exit code. {result.exception}"
+    for evaluation_file in evaluation_files:
+        evaluation_file.unlink.assert_called_once_with()
+
+
+def test_clear_all_history_limited(cli_runner, mock_cache_all_evaluation_paths):
+    history_size = 40
+    limit = 15
+    evaluation_files = [mock.Mock() for _ in range(history_size)]
+    mock_cache_all_evaluation_paths.return_value = evaluation_files
+
+    result = cli_runner.invoke(
+        statue_cli, ["history", "clear", "-l", str(limit)], input="y"
+    )
+
+    assert (
+        result.exit_code == 0
+    ), f"Exited with non successful exit code. {result.exception}"
+    for evaluation_file in evaluation_files[:-limit]:
+        evaluation_file.unlink.assert_not_called()
+    for evaluation_file in evaluation_files[-limit:]:
+        evaluation_file.unlink.assert_called_once_with()
+
+
+def test_clear_all_history_limited_with_high_limit(
+    cli_runner, mock_cache_all_evaluation_paths
+):
+    history_size = 40
+    limit = 70
+    evaluation_files = [mock.Mock() for _ in range(history_size)]
+    mock_cache_all_evaluation_paths.return_value = evaluation_files
+
+    result = cli_runner.invoke(
+        statue_cli, ["history", "clear", "-l", str(limit)], input="y"
+    )
+
+    assert (
+        result.exit_code == 0
+    ), f"Exited with non successful exit code. {result.exception}"
+    for evaluation_file in evaluation_files:
+        evaluation_file.unlink.assert_called_once_with()
