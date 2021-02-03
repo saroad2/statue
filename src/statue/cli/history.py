@@ -119,3 +119,34 @@ def show_evaluation_cli(number):
                 f"\t{command_evaluation.command.name} - "
                 f"{evaluation_status(command_evaluation)}"
             )
+
+
+@history_cli.command("clear")
+@click.option("-f", "--force", is_flag=True, help="Force deletion and avoid prompt.")
+@click.option(
+    "-l",
+    "--limit",
+    type=int,
+    help="Limit the number of deleted records. Deletes earliest evaluations.",
+)
+def clear_history_cli(force, limit):
+    """Clear records of previous statue runs."""
+    evaluation_files = Cache.all_evaluation_paths()
+    number_of_evaluation_files = len(evaluation_files)
+    if number_of_evaluation_files == 0:
+        click.echo("No previous evaluations.")
+        return
+    if limit and limit < number_of_evaluation_files:
+        evaluation_files = evaluation_files[-limit:]
+        number_of_evaluation_files = limit
+    if not force:
+        confirmation = click.confirm(
+            f"{number_of_evaluation_files} evaluation files are bout to be deleted. "
+            "Are you wish to delete those?",
+            default=False,
+        )
+        if not confirmation:
+            click.echo("Aborted without clearing history.")
+            return
+    for evaluation_file in evaluation_files:
+        evaluation_file.unlink()

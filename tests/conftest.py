@@ -113,6 +113,11 @@ def mock_cache_evaluation_path(mocker):
 
 
 @pytest.fixture
+def mock_cache_all_evaluation_paths(mocker):
+    return mocker.patch.object(Cache, "all_evaluation_paths")
+
+
+@pytest.fixture
 def mock_cache_recent_evaluation_path(mocker):
     return mocker.patch.object(Cache, "recent_evaluation_path")
 
