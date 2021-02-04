@@ -35,6 +35,33 @@ from statue.verbosity import is_silent
 @click.option(
     "-i", "--install", is_flag=True, help="Install commands before running if missing"
 )
+@click.option(
+    "-f",
+    "--failed",
+    is_flag=True,
+    help=(
+        "Run failed commands of an earlier evaluation. "
+        "Run over the most recent evaluation by default"
+    ),
+)
+@click.option(
+    "-p",
+    "--previous",
+    type=int,
+    help=(
+        "Run commands of the nth recent evaluation. "
+        'combine this flag with "-f" in order to run only failed commands from that '
+        "evaluation"
+    ),
+)
+@click.option(
+    "-r",
+    "--recent",
+    "previous",
+    flag_value=1,
+    type=int,
+    help='Run commands of the most recent evaluation. Same as "--previous 1".',
+)
 @click.option("-f", "--failed", is_flag=True, help="Run failed commands")
 @click.option(
     "--cache/--no-cache", default=True, help="Save evaluation to cache or not"
@@ -54,6 +81,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
+    previous: Optional[int],
     failed: bool,
     install: bool,
     cache: bool,
@@ -70,7 +98,12 @@ def run_cli(  # pylint: disable=too-many-arguments
     commands_map = None
     try:
         commands_map = __get_commands_map(
-            sources=sources, context=context, allow=allow, deny=deny, failed=failed
+            sources=sources,
+            context=context,
+            allow=allow,
+            deny=deny,
+            failed=failed,
+            previous=previous,
         )
     except UnknownContext as error:
         click.echo(error)
@@ -127,21 +160,21 @@ def __evaluate_failure_map(failure_map):
 
 
 def __get_commands_map(  # pylint: disable=too-many-arguments
-    sources, context, allow, deny, failed
+    sources, context, allow, deny, failed, previous
 ):
-    commands_map = None
-    recent_evaluation_path = Cache.recent_evaluation_path()
-    if (
-        failed
-        and recent_evaluation_path is not None  # noqa: W503
-        and recent_evaluation_path.exists()  # noqa: W503
-    ):
-        commands_map = Evaluation.load_from_file(recent_evaluation_path).failure_map
-    if commands_map is None or len(commands_map) == 0:
-        commands_map = read_commands_map(
+    if failed and previous is None:
+        previous = 1
+    if previous is None:
+        return read_commands_map(
             sources,
             contexts=context,
             allow_list=allow,
             deny_list=deny,
         )
-    return commands_map
+    evaluation_path = Cache.evaluation_path(previous - 1)
+    if evaluation_path is None or not evaluation_path.exists():
+        return None
+    evaluation = Evaluation.load_from_file(evaluation_path)
+    if failed:
+        return evaluation.failure_map
+    return evaluation.commands_map

@@ -300,7 +300,8 @@ class Evaluation:
                 for command_evaluation in source_valuation.commands_evaluations
                 if not command_evaluation.success
             ]
-            for input_path, source_valuation in self.items()}
+            for input_path, source_valuation in self.items()
+        }
         return {
             input_path: commands
             for input_path, commands in failure_dict.items()

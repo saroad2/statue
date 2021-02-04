@@ -45,6 +45,11 @@ def assert_successful_run(result):
     assert "Statue finished successfully!" in result.output
 
 
+def assert_usage_was_shown(result):
+    assert result.exit_code == 0
+    assert result.output.startswith("Usage: statue run [OPTIONS] [SOURCES]...")
+
+
 def test_simple_run(
     cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
 ):
@@ -107,21 +112,91 @@ def test_run_and_save_to_file(
     assert set(saved_evaluation.keys()) == set(COMMANDS_MAP.keys())
 
 
-def test_run_over_failed_commands(
+def test_run_over_recent_commands(
     cli_runner,
-    mock_cache_recent_evaluation_path,
+    mock_cache_evaluation_path,
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
 ):
     recent_cache = tmp_path_factory.mktemp("cache.json")
-    mock_cache_recent_evaluation_path.return_value = recent_cache
+    mock_cache_evaluation_path.return_value = recent_cache
+    mock_evaluation_load_from_file.return_value.commands_map = COMMANDS_MAP
+
+    result = cli_runner.invoke(statue_cli, ["run", "-r"])
+
+    assert_successful_run(result)
+    mock_cache_evaluation_path.assert_called_once_with(0)
+    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+
+
+def test_run_over_failed_commands(
+    cli_runner,
+    mock_cache_evaluation_path,
+    mock_evaluation_load_from_file,
+    tmp_path_factory,
+    mock_cwd,
+):
+    recent_cache = tmp_path_factory.mktemp("cache.json")
+    mock_cache_evaluation_path.return_value = recent_cache
     mock_evaluation_load_from_file.return_value.failure_map = COMMANDS_MAP
 
     result = cli_runner.invoke(statue_cli, ["run", "-f"])
 
     assert_successful_run(result)
+    mock_cache_evaluation_path.assert_called_once_with(0)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+
+
+def test_run_over_previous_commands(
+    cli_runner,
+    mock_cache_evaluation_path,
+    mock_evaluation_load_from_file,
+    tmp_path_factory,
+    mock_cwd,
+):
+    n = 5
+    recent_cache = tmp_path_factory.mktemp("cache.json")
+    mock_cache_evaluation_path.return_value = recent_cache
+    mock_evaluation_load_from_file.return_value.commands_map = COMMANDS_MAP
+
+    result = cli_runner.invoke(statue_cli, ["run", "-p", n])
+
+    assert_successful_run(result)
+    mock_cache_evaluation_path.assert_called_once_with(n - 1)
+    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+
+
+def test_run_over_previous_failed_commands(
+    cli_runner,
+    mock_cache_evaluation_path,
+    mock_evaluation_load_from_file,
+    tmp_path_factory,
+    mock_cwd,
+):
+    n = 5
+    recent_cache = tmp_path_factory.mktemp("cache.json")
+    mock_cache_evaluation_path.return_value = recent_cache
+    mock_evaluation_load_from_file.return_value.failure_map = COMMANDS_MAP
+
+    result = cli_runner.invoke(statue_cli, ["run", "-f", "-p", n])
+
+    assert_successful_run(result)
+    mock_cache_evaluation_path.assert_called_once_with(n - 1)
+    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+
+
+def test_run_over_recent_commands_with_empty_cache(
+    cli_runner,
+    mock_cache_evaluation_path,
+    mock_cwd,
+):
+    mock_cache_evaluation_path.return_value = None
+
+    result = cli_runner.invoke(statue_cli, ["run", "-r"])
+
+    assert_usage_was_shown(result)
+    mock_cache_evaluation_path.assert_called_once_with(0)
 
 
 def test_run_has_failed(
@@ -205,8 +280,7 @@ def test_run_with_none_commands_map(
     mock_read_commands_map.return_value = None
 
     result = cli_runner.invoke(statue_cli, ["run"])
-    assert result.exit_code == 0
-    assert result.output.startswith("Usage: statue run [OPTIONS] [SOURCES]...")
+    assert_usage_was_shown(result)
     mock_cache_save_evaluation.assert_not_called()
 
 
