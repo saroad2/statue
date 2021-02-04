@@ -270,6 +270,43 @@ class Evaluation:
         with open(input_path, mode="r") as input_file:
             return Evaluation.from_json(json.load(input_file))
 
+    @property
+    def commands_map(self) -> Dict[str, List[Command]]:
+        """
+        Get a map from input paths to commands.
+
+        :return: Map of commands
+        :rtype: Dict[str, List[Command]]
+        """
+        return {
+            input_path: [
+                command_evaluation.command
+                for command_evaluation in source_valuation.commands_evaluations
+            ]
+            for input_path, source_valuation in self.items()
+        }
+
+    @property
+    def failure_map(self) -> Dict[str, List[Command]]:
+        """
+        Get a map from input paths to failed commands.
+
+        :return: Map of failed commands
+        :rtype: Dict[str, List[Command]]
+        """
+        failure_dict = {
+            input_path: [
+                command_evaluation.command
+                for command_evaluation in source_valuation.commands_evaluations
+                if not command_evaluation.success
+            ]
+            for input_path, source_valuation in self.items()}
+        return {
+            input_path: commands
+            for input_path, commands in failure_dict.items()
+            if len(commands) != 0
+        }
+
     @classmethod
     def from_json(cls, evaluation: Dict[str, List[Dict[str, Any]]]) -> "Evaluation":
         """
@@ -321,24 +358,3 @@ def evaluate_commands_map(
             )
         evaluation[input_path] = source_evaluation
     return evaluation
-
-
-def get_failure_map(evaluation: Evaluation) -> Dict[str, List[Command]]:
-    """
-    Get a map from input paths to failed commands.
-
-    :param evaluation: evaluation result
-    :type evaluation: Evaluation
-    :return: Map of failed commands
-    :rtype: Dict[str, List[Command]]
-    """
-    failure_dict = dict()
-    for input_path, source_valuation in evaluation.items():
-        failed_commands = [
-            command_evaluation.command
-            for command_evaluation in source_valuation.commands_evaluations
-            if not command_evaluation.success
-        ]
-        if len(failed_commands) != 0:
-            failure_dict[input_path] = failed_commands
-    return failure_dict

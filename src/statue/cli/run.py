@@ -16,7 +16,7 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_map import read_commands_map
-from statue.evaluation import Evaluation, evaluate_commands_map, get_failure_map
+from statue.evaluation import Evaluation, evaluate_commands_map
 from statue.exceptions import (
     CommandExecutionError,
     MissingConfiguration,
@@ -111,8 +111,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     if not is_silent(verbosity):
         print_boxed("Summary", print_method=click.echo)
         click.echo()
-    failure_map = get_failure_map(evaluation)
-    ctx.exit(__evaluate_failure_map(failure_map))
+    ctx.exit(__evaluate_failure_map(evaluation.failure_map))
 
 
 def __evaluate_failure_map(failure_map):
@@ -137,9 +136,7 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
         and recent_evaluation_path is not None  # noqa: W503
         and recent_evaluation_path.exists()  # noqa: W503
     ):
-        commands_map = get_failure_map(
-            Evaluation.load_from_file(recent_evaluation_path)
-        )
+        commands_map = Evaluation.load_from_file(recent_evaluation_path).failure_map
     if commands_map is None or len(commands_map) == 0:
         commands_map = read_commands_map(
             sources,
