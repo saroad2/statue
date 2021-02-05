@@ -1,3 +1,13 @@
+["CI/CD"]
+color = "72db98"
+name = "CI/CD"
+description = "This involves the CI/CD process (Github Actions, PyPi, ReadTheDocs, etc.)"
+
+[blocked]
+color = "000000"
+name = "blocked"
+description = "This issue or pull request is blocked for now. We'd reconsider it in the future."
+
 [bug]
 color = "d73a4a"
 name = "bug"
@@ -57,3 +67,8 @@ description = "Testing related (unit tests, system tests, integration tests, etc
 color = "ffffff"
 name = "wontfix"
 description = "This will not be worked on"
+
+["work in progress"]
+color = "c2e0c6"
+name = "work in progress"
+description = "This is something that takes time and patience. We're working on it!"
