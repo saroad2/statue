@@ -68,10 +68,8 @@ class SourceEvaluation:
         :rtype: bool
         """
         return all(
-            [
-                commands_evaluation.success
-                for commands_evaluation in self.commands_evaluations
-            ]
+            commands_evaluation.success
+            for commands_evaluation in self.commands_evaluations
         )
 
     @property
@@ -211,10 +209,8 @@ class Evaluation:
         :rtype: bool
         """
         return all(
-            [
-                sources_evaluation.success
-                for sources_evaluation in self.sources_evaluations.values()
-            ]
+            sources_evaluation.success
+            for sources_evaluation in self.sources_evaluations.values()
         )
 
     @property
