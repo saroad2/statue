@@ -22,6 +22,8 @@ def existing_files(*directories, file_names=None):
 
 
 def ignore_paths(repo: Repo, files: List[Path]):
+    if repo.working_tree_dir is None:
+        return
     root_dir = Path(repo.working_tree_dir)
     with open(root_dir / ".gitignore", mode="w") as gitignore:
         for ignored_file in files:
