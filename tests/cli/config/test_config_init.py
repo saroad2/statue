@@ -59,7 +59,7 @@ def test_config_init(
     with mock.patch("statue.cli.config.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "init"])
         mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w"
+            mock_configuration_path.return_value, mode="w", encoding="utf-8"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
     mock_find_sources.assert_called_once_with(mock_cwd, repo=mock_git_repo.return_value)
@@ -84,7 +84,7 @@ def test_config_init_without_repo(
     with mock.patch("statue.cli.config.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "init"])
         mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w"
+            mock_configuration_path.return_value, mode="w", encoding="utf-8"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
     mock_find_sources.assert_called_once_with(mock_cwd, repo=None)
@@ -108,7 +108,7 @@ def test_config_init_with_directory(
     with mock.patch("statue.cli.config.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "init", "-d", str(tmp_path)])
         mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w"
+            mock_configuration_path.return_value, mode="w", encoding="utf-8"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
     mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)

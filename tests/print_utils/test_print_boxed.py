@@ -9,7 +9,7 @@ from tests.util import assert_calls
 def case_empty_text():
     title = ""
     calls = [call("####"), call("#  #"), call("####")]
-    kwargs = dict()
+    kwargs = {}
 
     return title, calls, kwargs
 
@@ -17,7 +17,7 @@ def case_empty_text():
 def case_one_char_text():
     title = "a"
     calls = [call("#####"), call("# A #"), call("#####")]
-    kwargs = dict()
+    kwargs = {}
 
     return title, calls, kwargs
 
@@ -25,7 +25,7 @@ def case_one_char_text():
 def case_one_word_text():
     title = "awesome"
     calls = [call("###########"), call("# Awesome #"), call("###########")]
-    kwargs = dict()
+    kwargs = {}
 
     return title, calls, kwargs
 
@@ -37,7 +37,7 @@ def case_two_words_text():
         call("# Awesome Title #"),
         call("#################"),
     ]
-    kwargs = dict()
+    kwargs = {}
 
     return title, calls, kwargs
 

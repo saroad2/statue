@@ -128,7 +128,7 @@ def test_evaluation_load_from_file(evaluation_json, evaluation):
         mock_json.load.return_value = evaluation_json
         with mock.patch("builtins.open", mock.mock_open()) as mock_open:
             assert evaluation == Evaluation.load_from_file(file_path)
-            mock_open.assert_called_once_with(file_path, mode="r")
+            mock_open.assert_called_once_with(file_path, mode="r", encoding="utf-8")
             mock_json.load.assert_called_once_with(mock_open.return_value)
 
 
@@ -143,7 +143,7 @@ def test_evaluation_save_as_json(evaluation_json, evaluation):
     with mock.patch("statue.evaluation.json") as mock_json:
         with mock.patch("builtins.open", mock.mock_open()) as mock_open:
             evaluation.save_as_json(file_path)
-            mock_open.assert_called_once_with(file_path, mode="w")
+            mock_open.assert_called_once_with(file_path, mode="w", encoding="utf-8")
             mock_json.dump.assert_called_once_with(
                 evaluation_json, mock_open.return_value, indent=2
             )

@@ -107,7 +107,7 @@ def test_run_and_save_to_file(
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
 
-    with open(output_path, mode="r") as fd:
+    with open(output_path, mode="r", encoding="utf-8") as fd:
         saved_evaluation = json.load(fd)
     assert set(saved_evaluation.keys()) == set(COMMANDS_MAP.keys())
 

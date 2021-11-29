@@ -36,7 +36,7 @@ def expend(path: Path, repo: Repo = None) -> List[Path]:
     """
     inner_files = list(path.iterdir())
     if repo is not None:
-        ignored_files = [Path(ignored) for ignored in repo.ignored(inner_files)]
+        ignored_files = [Path(ignored) for ignored in repo.ignored(*inner_files)]
         inner_files = [
             inner_path for inner_path in inner_files if inner_path not in ignored_files
         ]

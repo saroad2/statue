@@ -34,7 +34,7 @@ def read_commands_map(
     """
     if len(sources) == 0:
         sources = Configuration.sources_list()
-    commands_map = dict()
+    commands_map = {}
     for source in sources:
         instructions = None
         try:
@@ -42,7 +42,7 @@ def read_commands_map(
         except MissingConfiguration:
             pass
         if instructions is None:
-            instructions = dict()
+            instructions = {}
         commands = Configuration.read_commands(
             contexts=__combine_if_possible(contexts, instructions.get(CONTEXTS, None)),
             allow_list=__intersect_if_possible(
