@@ -30,5 +30,5 @@ def test_empty_commands_configuration(clear_configuration):
         Configuration.commands_configuration() is None
     ), "Commands configuration is different than expected"
     assert (
-        Configuration.commands_names_list() == []
+        not Configuration.commands_names_list()
     ), "Commands names list is different than expected"

@@ -69,7 +69,9 @@ def init_config_cli(directory, interactive):
         repo=repo,
         interactive=interactive,
     )
-    with open(Configuration.configuration_path(directory), mode="w") as config_file:
+    with open(
+        Configuration.configuration_path(directory), mode="w", encoding="utf-8"
+    ) as config_file:
         toml.dump({SOURCES: sources_map}, config_file)
 
 

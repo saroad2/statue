@@ -117,6 +117,8 @@ def test_interactive_config_init(
             statue_cli, ["config", "init", "-i"], input="\n".join(inputs)
         )
     assert result.exit_code == 0, f"Exit with code different than 0. {result.exception}"
-    mock_open.assert_called_once_with(mock_configuration_path.return_value, mode="w")
+    mock_open.assert_called_once_with(
+        mock_configuration_path.return_value, mode="w", encoding="utf-8"
+    )
     mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
     mock_find_sources.assert_called_once_with(mock_cwd, repo=mock_git_repo.return_value)

@@ -77,7 +77,11 @@ def empty_configuration(mock_cwd, clear_configuration):
     configuration = {
         STATUE: {OVERRIDE: True},
     }
-    with open(mock_cwd / "statue.toml", mode="w") as configuration_file:
+    with open(
+        mock_cwd / "statue.toml",
+        mode="w",
+        encoding="utf-8",
+    ) as configuration_file:
         toml.dump(configuration, configuration_file)
     return configuration
 
