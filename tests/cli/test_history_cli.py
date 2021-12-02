@@ -1,7 +1,7 @@
 import datetime
 from unittest import mock
 
-import regex
+import re
 
 from statue.cli.cli import statue_cli
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
@@ -55,7 +55,7 @@ def assert_evaluations(result, evaluations):
             rf"\({evaluation.successful_commands_number}/{evaluation.commands_number} "
             r"successful\)"
         )
-        assert regex.search(
+        assert re.search(
             fr"{i}\) {TIME_REGEX} - {successful} {success_ratio}", result.output
         )
 
