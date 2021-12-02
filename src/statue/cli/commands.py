@@ -6,8 +6,10 @@ import click
 from statue.cli.cli import statue_cli
 from statue.cli.util import (
     allow_option,
+    bullet_style,
     contexts_option,
     deny_option,
+    name_style,
     silent_option,
     verbose_option,
     verbosity_option,
@@ -37,7 +39,7 @@ def list_commands_cli(
         deny_list=deny,
     )
     for command_instance in commands:
-        click.echo(f"{command_instance.name} - {command_instance.help}")
+        click.echo(f"{name_style(command_instance.name)} - {command_instance.help}")
 
 
 @commands_cli.command("install")
@@ -82,9 +84,9 @@ def show_command_cli(
             allow_list=allow,
             deny_list=deny,
         )
-        click.echo(f"Name - {command_instance.name}")
-        click.echo(f"Description - {command_instance.help}")
-        click.echo(f"Arguments - {command_instance.args}")
+        click.echo(f"{bullet_style('Name')} - {name_style(command_instance.name)}")
+        click.echo(f"{bullet_style('Description')} - {command_instance.help}")
+        click.echo(f"{bullet_style('Arguments')} - {command_instance.args}")
     except (UnknownCommand, InvalidCommand) as error:
         click.echo(str(error))
         ctx.exit(1)

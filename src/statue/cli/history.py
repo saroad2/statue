@@ -7,6 +7,7 @@ import click
 
 from statue.cache import Cache
 from statue.cli.cli import statue_cli
+from statue.cli.util import bullet_style, failure_style, success_style
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import CommandEvaluation, Evaluation
 
@@ -21,8 +22,8 @@ def evaluation_status(evaluation: Union[Evaluation, CommandEvaluation]) -> str:
     :rtype: str
     """
     if evaluation.success:
-        return click.style("Success", fg="green")
-    return click.style("Failure", fg="red")
+        return success_style("Success")
+    return failure_style("Failure")
 
 
 def evaluation_datetime(evaluation_path: Path) -> str:
@@ -35,7 +36,7 @@ def evaluation_datetime(evaluation_path: Path) -> str:
     :rtype: str
     """
     parsed_time = time.localtime(int(evaluation_path.stem.split("-")[-1]))
-    return click.style(time.strftime(DATETIME_FORMAT, parsed_time), fg="yellow")
+    return bullet_style(time.strftime(DATETIME_FORMAT, parsed_time))
 
 
 def evaluation_success_ratio(evaluation: Evaluation) -> str:

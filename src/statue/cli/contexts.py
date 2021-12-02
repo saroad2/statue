@@ -3,6 +3,7 @@
 import click
 
 from statue.cli.cli import statue_cli
+from statue.cli.util import bullet_style, name_style
 from statue.configuration import Configuration
 from statue.exceptions import UnknownContext
 
@@ -21,7 +22,7 @@ def contexts_list_cli(ctx: click.Context) -> None:
         click.echo("No contexts were found.")
         ctx.exit(1)
     for context in contexts_obj_list:
-        click.echo(f"{context.name} - {context.help}")
+        click.echo(f"{name_style(context.name)} - {context.help}")
 
 
 @context_cli.command("show")
@@ -31,15 +32,20 @@ def show_contexts_cli(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
     try:
         context_instance = Configuration.get_context(context_name)
-        click.echo(f"Name - {context_instance.name}")
-        click.echo(f"Description - {context_instance.help}")
+        click.echo(f"{bullet_style('Name')} - {name_style(context_instance.name)}")
+        click.echo(f"{bullet_style('Description')} - {context_instance.help}")
         if len(context_instance.aliases) != 0:
-            click.echo(f"Aliases - {', '.join(context_instance.aliases)}")
+            click.echo(
+                f"{bullet_style('Aliases')} - {', '.join(context_instance.aliases)}"
+            )
         if context_instance.parent is not None:
-            click.echo(f"Parent - {context_instance.parent.name}")
+            click.echo(
+                f"{bullet_style('Parent')} - {name_style(context_instance.parent.name)}"
+            )
         commands = Configuration.read_commands(contexts=[context_name])
         click.echo(
-            f"Matching commands - {', '.join([command.name for command in commands])}"
+            f"{bullet_style('Matching commands')} - "
+            f"{', '.join([name_style(command.name) for command in commands])}"
         )
     except UnknownContext:
         click.echo(f'Could not find the context "{context_name}".')
