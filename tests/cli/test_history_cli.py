@@ -1,7 +1,6 @@
 import datetime
-from unittest import mock
-
 import re
+from unittest import mock
 
 from statue.cli.cli import statue_cli
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
