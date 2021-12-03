@@ -137,6 +137,8 @@ class Command:
         return self._run_subprocess(args, verbosity)
 
     def installed_version_match(self):
+        if self.version is None:
+            return True
         return self.installed_version == self.version
 
     def _run_subprocess(self, args: List[str], verbosity: str) -> int:
