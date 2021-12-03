@@ -111,8 +111,15 @@ class Command:
     def update_to_version(self, verbosity=DEFAULT_VERBOSITY) -> None:
         if not self.installed():
             self.install()
+            return
+        if self.version is None:
+            # If no version is specified, we update package to its latest version
+            self.update(verbosity=verbosity)
+            return
         if self.installed_version_match():
             return
+        # If a version is specified, we must first uninstall it
+        # before installing the specified version.
         self.uninstall(verbosity=verbosity)
         self.install(verbosity=verbosity)
 
@@ -152,7 +159,7 @@ class Command:
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
 
-    def _get_package(self):
+    def _get_package(self):  # pragma: no cover
         """
         Get package of the desired command
         If package is not installed, returns None.
