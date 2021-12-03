@@ -1,4 +1,5 @@
 """Run CLI."""
+import sys
 from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Union
@@ -13,7 +14,7 @@ from statue.cli.util import (
     deny_option,
     silent_option,
     verbose_option,
-    verbosity_option,
+    verbosity_option, failure_style,
 )
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map
@@ -137,8 +138,10 @@ def run_cli(  # pylint: disable=too-many-arguments
                 for command in missing_commands
             ]
             click.echo(
-                style_failure(f"The following commands are not installed correctly: {', '.join(missing_commands_names)}")
+                failure_style(f"The following commands are not installed correctly: {', '.join(missing_commands_names)}")
             )
+            click.echo("Consider using the '-i' flag in order to install missing commands before running")
+            ctx.exit(1)
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
     evaluation = None
@@ -148,7 +151,6 @@ def run_cli(  # pylint: disable=too-many-arguments
         )
     except CommandExecutionError as error:
         click.echo(str(error))
-        click.echo('Try to rerun with the "-i" flag')
         ctx.exit(1)
     if cache:
         Cache.save_evaluation(evaluation)
