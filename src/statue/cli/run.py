@@ -122,9 +122,23 @@ def run_cli(  # pylint: disable=too-many-arguments
         click.echo(ctx.get_help())
         return
 
-    if install:
-        for command in chain.from_iterable(commands_map.values()):
-            command.install(verbosity=verbosity)
+    missing_commands = [
+        command
+        for command in chain.from_iterable(commands_map.values())
+        if not command.installed_correctly()
+    ]
+    if len(missing_commands) != 0:
+        if install:
+            for command in missing_commands:
+                command.update_to_version(verbosity=verbosity)
+        else:
+            missing_commands_names = [
+                command.name
+                for command in missing_commands
+            ]
+            click.echo(
+                style_failure(f"The following commands are not installed correctly: {', '.join(missing_commands_names)}")
+            )
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
     evaluation = None
