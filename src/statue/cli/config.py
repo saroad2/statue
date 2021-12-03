@@ -8,7 +8,7 @@ import git
 import toml
 
 from statue.cli.cli import statue_cli
-from statue.cli.util import verbose_option
+from statue.cli.util import verbose_option, contexts_option, allow_option, deny_option
 from statue.configuration import Configuration
 from statue.constants import CONTEXTS, SOURCES, COMMANDS, VERSION
 from statue.sources_finder import expend, find_sources
@@ -98,15 +98,25 @@ def init_config_cli(directory, interactive):
         "If a command is not installed, will install it."
     ),
 )
+@contexts_option
+@allow_option
+@deny_option
 @verbose_option
-def fixate_commands_versions(directory, latest, verbosity):
+def fixate_commands_versions(
+    directory,
+    context,
+    allow,
+    deny,
+    latest,
+    verbosity,
+):
     if directory is None:
         directory = Path.cwd()
     if isinstance(directory, str):
         directory = Path(directory)
     configuration_path = Configuration.configuration_path(directory)
     Configuration.load_configuration(configuration_path)
-    commands_list = Configuration.read_commands()
+    commands_list = Configuration.read_commands(contexts=context, allow_list=allow, deny_list=deny)
     if len(commands_list) == 0:
         click.echo("No commands to fixate.")
         return
