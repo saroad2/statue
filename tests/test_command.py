@@ -16,7 +16,7 @@ from tests.constants import (
     COMMAND_HELP_STRING1,
     COMMAND_HELP_STRING2,
     COMMAND_HELP_STRING3,
-    SOURCE1,
+    SOURCE1, VERSION1,
 )
 
 COMMANDS = [COMMAND1, COMMAND2, COMMAND3]
@@ -30,11 +30,12 @@ def case_no_args():
     inp = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
     output = dict(
         name=COMMAND1,
+        install_name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         args=[],
         command_input=[COMMAND1, SOURCE1],
         print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
-        repr=f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', args=[])",
+        repr=f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', args=[], version=None)",
     )
     return inp, output
 
@@ -43,13 +44,14 @@ def case_one_arg():
     inp = Command(name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1])
     output = dict(
         name=COMMAND2,
+        install_name=COMMAND2,
         help=COMMAND_HELP_STRING2,
         args=[ARG1],
         command_input=[COMMAND2, SOURCE1, ARG1],
         print=f'Running the following command: "{COMMAND2} {SOURCE1} {ARG1}"',
         repr=(
             f"Command(name='{COMMAND2}', help='{COMMAND_HELP_STRING2}', "
-            f"args=['{ARG1}'])"
+            f"args=['{ARG1}'], version=None)"
         ),
     )
     return inp, output
@@ -59,6 +61,7 @@ def case_two_args():
     inp = Command(name=COMMAND3, help=COMMAND_HELP_STRING3, args=[ARG1, ARG2])
     output = dict(
         name=COMMAND3,
+        install_name=COMMAND3,
         help=COMMAND_HELP_STRING3,
         args=[ARG1, ARG2],
         command_input=[COMMAND3, SOURCE1, ARG1, ARG2],
@@ -67,8 +70,22 @@ def case_two_args():
         ),
         repr=(
             f"Command(name='{COMMAND3}', help='{COMMAND_HELP_STRING3}',"
-            f" args=['{ARG1}', '{ARG2}'])"
+            f" args=['{ARG1}', '{ARG2}'], version=None)"
         ),
+    )
+    return inp, output
+
+
+def case_specified_version():
+    inp = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, version=VERSION1)
+    output = dict(
+        name=COMMAND1,
+        install_name=f"{COMMAND1}=={VERSION1}",
+        help=COMMAND_HELP_STRING1,
+        args=[],
+        command_input=[COMMAND1, SOURCE1],
+        print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
+        repr=f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', args=[], version='{VERSION1}')",
     )
     return inp, output
 
@@ -129,16 +146,13 @@ def test_representation_string(command, out):
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_installed_returns_true(command, out, mock_available_packages):
-    mock_available_packages.return_value = packages(COMMANDS)
+def test_installed_returns_true(command, out, mock_get_package):
     assert command.installed(), "Command where supposed to be installed, but it wasn't"
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_installed_returns_false(command, out, mock_available_packages):
-    commands = list(COMMANDS)
-    commands.remove(command.name)
-    mock_available_packages.return_value = packages(commands)
+def test_installed_returns_false(command, out, mock_get_package):
+    mock_get_package.return_value = None
     assert (
         not command.installed()
     ), "Command where supposed not to be installed, but it was"
@@ -149,20 +163,22 @@ def test_install_command_with_normal_verbosity(
     command, out, mock_subprocess, environ, print_mock
 ):
     command.install()
+    install_name = out['install_name']
     mock_subprocess.assert_called_with(
-        [sys.executable, "-m", "pip", "install", command.name],
+        [sys.executable, "-m", "pip", "install", install_name],
         env=environ,
         check=False,
         capture_output=False,
     )
-    print_mock.assert_called_with(f"Installing {command.name}")
+    print_mock.assert_called_with(f"Installing {install_name}")
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_install_command_silently(command, out, mock_subprocess, environ, print_mock):
     command.install(verbosity=SILENT)
+    install_name = out["install_name"]
     mock_subprocess.assert_called_with(
-        [sys.executable, "-m", "pip", "install", command.name],
+        [sys.executable, "-m", "pip", "install", install_name],
         env=environ,
         check=False,
         capture_output=True,
@@ -172,9 +188,8 @@ def test_install_command_silently(command, out, mock_subprocess, environ, print_
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
 def test_install_when_already_installed(
-    command, out, mock_subprocess, mock_available_packages
+    command, out, mock_subprocess, mock_get_package
 ):
-    mock_available_packages.return_value = packages(COMMANDS)
     command.install()
     mock_subprocess.assert_not_called()
 
