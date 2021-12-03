@@ -8,6 +8,7 @@ import git
 import toml
 
 from statue.cli.cli import statue_cli
+from statue.cli.util import verbose_option
 from statue.configuration import Configuration
 from statue.constants import CONTEXTS, SOURCES, COMMANDS, VERSION
 from statue.sources_finder import expend, find_sources
@@ -87,7 +88,18 @@ def init_config_cli(directory, interactive):
         "Default directory is current working directory."
     ),
 )
-def fixate_commands_versions(directory):
+@click.option(
+    "-l",
+    "--latest",
+    is_flag=True,
+    default=False,
+    help=(
+        "Update commands to latest before fixing the version. "
+        "If a command is not installed, will install it."
+    ),
+)
+@verbose_option
+def fixate_commands_versions(directory, latest, verbosity):
     if directory is None:
         directory = Path.cwd()
     if isinstance(directory, str):
@@ -95,17 +107,18 @@ def fixate_commands_versions(directory):
     configuration_path = Configuration.configuration_path(directory)
     Configuration.load_configuration(configuration_path)
     commands_list = Configuration.read_commands()
-    commands_list = [
-        command for command in commands_list if command.installed()
-    ]
     if len(commands_list) == 0:
-        click.echo("No installed commands.")
+        click.echo("No commands to fixate.")
         return
     with open(configuration_path, mode="r", encoding="utf-8") as config_file:
         raw_config_dict = toml.load(config_file)
     if COMMANDS not in raw_config_dict:
         raw_config_dict[COMMANDS] = {}
     for command in commands_list:
+        if latest:
+            command.update(verbosity=verbosity)
+        if not command.installed():
+            continue
         if command.name not in raw_config_dict[COMMANDS]:
             raw_config_dict[COMMANDS][command.name] = {}
         raw_config_dict[COMMANDS][command.name][VERSION] = command.installed_version
