@@ -144,14 +144,9 @@ def run_cli(  # pylint: disable=too-many-arguments
             ctx.exit(1)
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
-    evaluation = None
-    try:
-        evaluation = evaluate_commands_map(
-            commands_map=commands_map, verbosity=verbosity, print_method=click.echo
-        )
-    except CommandExecutionError as error:
-        click.echo(str(error))
-        ctx.exit(1)
+    evaluation = evaluate_commands_map(
+        commands_map=commands_map, verbosity=verbosity, print_method=click.echo
+    )
     if cache:
         Cache.save_evaluation(evaluation)
     if output is not None:
