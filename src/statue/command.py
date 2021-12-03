@@ -81,8 +81,6 @@ class Command:
         :param verbosity: Verbosity level.
         :type verbosity: str
         """
-        if self.installed():
-            return
         if not is_silent(verbosity):
             print(f"Updating {self.name}")
         subprocess.run(  # nosec
