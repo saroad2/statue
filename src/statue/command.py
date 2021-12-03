@@ -5,7 +5,7 @@ import os
 import subprocess  # nosec
 import sys
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional
 
 import pkg_resources
 
@@ -21,11 +21,26 @@ class Command:
     :param name: The name of the command to run.
     :param args: A list of arguments for the command.
     :param help: Help string
+    :param version: One can specify a specific version of the command to use
     """
 
     name: str
     help: str
     args: List[str] = field(default_factory=list)
+    version: Optional[str] = field(default=None)
+
+    @property
+    def install_name(self):
+        if self.version is None:
+            return self.name
+        return f"{self.name}=={self.version}"
+
+    @property
+    def installed_version(self) -> Optional[str]:
+        package = self._get_package()
+        if package is None:
+            return None
+        return package.version
 
     def installed(self) -> bool:
         """
@@ -34,23 +49,34 @@ class Command:
         :return: Either the command is installed or not
         :rtype: bool
         """
-        return self.name in {
-            pkg.key for pkg in self.available_packages()  # type: ignore
-        }
+        package = self._get_package()
+        return package is not None
 
-    @classmethod
-    def available_packages(cls):  # type: ignore
-        """
-        Get all available packages via pip.
+    def installed_correctly(self) -> bool:
+        return self.installed() and self.installed_version_match()
 
-        :return: List of all available packages
-        """
-        importlib.reload(pkg_resources)
-        return list(pkg_resources.working_set)  # pragma: no cover
-
-    def install(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
+    def install(self, verbosity: str = DEFAULT_VERBOSITY, latest: bool = False) -> None:
         """
         Install command using pip.
+
+        :param verbosity: Verbosity level.
+        :param latest: Install the latest version of package.
+        :type verbosity: str
+        """
+        if self.installed():
+            return
+        if not is_silent(verbosity):
+            print(f"Installing {self.install_name}")
+        subprocess.run(  # nosec
+            [sys.executable, "-m", "pip", "install", (self.name if latest else self.install_name)],
+            env=os.environ,
+            check=False,
+            capture_output=is_silent(verbosity),
+        )
+
+    def update(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
+        """
+        Update command using pip.
 
         :param verbosity: Verbosity level.
         :type verbosity: str
@@ -58,13 +84,39 @@ class Command:
         if self.installed():
             return
         if not is_silent(verbosity):
-            print(f"Installing {self.name}")
+            print(f"Updating {self.name}")
         subprocess.run(  # nosec
-            [sys.executable, "-m", "pip", "install", self.name],
+            [sys.executable, "-m", "pip", "install", "-U", self.name],
             env=os.environ,
             check=False,
             capture_output=is_silent(verbosity),
         )
+
+    def uninstall(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
+        """
+        Install command using pip.
+
+        :param verbosity: Verbosity level.
+        :type verbosity: str
+        """
+        if not self.installed():
+            return
+        if not is_silent(verbosity):
+            print(f"Uninstalling {self.name} (version {self.installed_version})")
+        subprocess.run(  # nosec
+            [sys.executable, "-m", "pip", "uninstall", "-y", self.name],
+            env=os.environ,
+            check=False,
+            capture_output=is_silent(verbosity),
+        )
+
+    def update_to_version(self, verbosity=DEFAULT_VERBOSITY) -> None:
+        if not self.installed():
+            self.install()
+        if self.installed_version_match():
+            return
+        self.uninstall(verbosity=verbosity)
+        self.install(verbosity=verbosity)
 
     def execute(  # pylint: disable=too-many-arguments
         self,
@@ -86,6 +138,9 @@ class Command:
             print(f"Running the following command: \"{' '.join(args)}\"")
         return self._run_subprocess(args, verbosity)
 
+    def installed_version_match(self):
+        return self.installed_version == self.version
+
     def _run_subprocess(self, args: List[str], verbosity: str) -> int:
         try:
             return subprocess.run(  # nosec
@@ -96,3 +151,16 @@ class Command:
             ).returncode
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
+
+    def _get_package(self):
+        """
+        Get package of the desired command
+        If package is not installed, returns None.
+
+        :return: self package
+        """
+        importlib.reload(pkg_resources)
+        for package in pkg_resources.working_set:
+            if package.key == self.name:
+                return package
+        return None
