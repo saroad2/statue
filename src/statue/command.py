@@ -80,12 +80,11 @@ class Command:
         """
         return self.installed() and self.installed_version_match()
 
-    def install(self, verbosity: str = DEFAULT_VERBOSITY, latest: bool = False) -> None:
+    def install(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
         """
         Install command using pip.
 
         :param verbosity: Verbosity level.
-        :param latest: Install the latest version of package.
         :type verbosity: str
         """
         if self.installed():
@@ -93,13 +92,7 @@ class Command:
         if not is_silent(verbosity):
             print(f"Installing {self.install_name}")
         subprocess.run(  # nosec
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                (self.name if latest else self.install_name),
-            ],
+            [sys.executable, "-m", "pip", "install", self.install_name],
             env=os.environ,
             check=False,
             capture_output=is_silent(verbosity),
