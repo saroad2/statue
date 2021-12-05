@@ -30,7 +30,7 @@ class Command:
     version: Optional[str] = field(default=None)
 
     @property
-    def install_name(self):
+    def install_name(self) -> str:
         """
         Name to state while installing with pip.
 
@@ -38,6 +38,9 @@ class Command:
         specific version afterwards.
 
         If no version is specified, same as name.
+
+        :return: name and version
+        :rtype: str
         """
         if self.version is None:
             return self.name
@@ -49,6 +52,9 @@ class Command:
         Version of the installed package.
 
         Might not be the same as the version attribute.
+
+        :return: version of installed package
+        :rtype: str or None
         """
         package = self._get_package()
         if package is None:
@@ -66,7 +72,12 @@ class Command:
         return package is not None
 
     def installed_correctly(self) -> bool:
-        """Checks that command is installed and its version matches."""
+        """
+        Checks that command is installed and its version matches.
+
+        :return: whether the command is installed correctly
+        :rtype: bool
+        """
         return self.installed() and self.installed_version_match()
 
     def install(self, verbosity: str = DEFAULT_VERBOSITY, latest: bool = False) -> None:
@@ -172,7 +183,12 @@ class Command:
         return self._run_subprocess(args, verbosity)
 
     def installed_version_match(self) -> bool:
-        """Is the installed version match the specified version."""
+        """
+        Is the installed version match the specified version.
+
+        :return: is the installed version matches the desired version
+        :rtype: bool
+        """
         if self.version is None:
             return True
         return self.installed_version == self.version

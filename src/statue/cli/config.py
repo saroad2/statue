@@ -114,6 +114,8 @@ def fixate_commands_versions(
 
     This helps you make sure that you use the same checkers in all commands
     across time.
+
+    # noqa: DAR101
     """
     if directory is None:
         directory = Path.cwd()
