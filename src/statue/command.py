@@ -31,12 +31,25 @@ class Command:
 
     @property
     def install_name(self):
+        """
+        Name to state while installing with pip.
+
+        When installing a specific version with pip, one should add "==" with the
+        specific version afterwards.
+
+        If no version is specified, same as name.
+        """
         if self.version is None:
             return self.name
         return f"{self.name}=={self.version}"
 
     @property
     def installed_version(self) -> Optional[str]:
+        """
+        Version of the installed package.
+
+        Might not be the same as the version attribute.
+        """
         package = self._get_package()
         if package is None:
             return None
@@ -53,6 +66,7 @@ class Command:
         return package is not None
 
     def installed_correctly(self) -> bool:
+        """Checks that command is installed and its version matches."""
         return self.installed() and self.installed_version_match()
 
     def install(self, verbosity: str = DEFAULT_VERBOSITY, latest: bool = False) -> None:
@@ -98,7 +112,7 @@ class Command:
 
     def uninstall(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
         """
-        Install command using pip.
+        Uninstall command using pip.
 
         :param verbosity: Verbosity level.
         :type verbosity: str
@@ -115,6 +129,14 @@ class Command:
         )
 
     def update_to_version(self, verbosity=DEFAULT_VERBOSITY) -> None:
+        """
+        Update command to the specified version using pip.
+
+        If the installed version is the same as version, do nothing.
+
+        :param verbosity: Verbosity level.
+        :type verbosity: str
+        """
         if not self.installed():
             self.install()
             return
@@ -149,7 +171,8 @@ class Command:
             print(f"Running the following command: \"{' '.join(args)}\"")
         return self._run_subprocess(args, verbosity)
 
-    def installed_version_match(self):
+    def installed_version_match(self) -> bool:
+        """Is the installed version match the specified version."""
         if self.version is None:
             return True
         return self.installed_version == self.version
@@ -167,7 +190,8 @@ class Command:
 
     def _get_package(self):  # pragma: no cover
         """
-        Get package of the desired command
+        Get package of the desired command.
+
         If package is not installed, returns None.
 
         :return: self package

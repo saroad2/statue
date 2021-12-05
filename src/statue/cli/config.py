@@ -109,6 +109,12 @@ def fixate_commands_versions(
     latest,
     verbosity,
 ):
+    """
+    Fixate the installed version of the commands.
+
+    This helps you make sure that you use the same checkers in all commands
+    across time.
+    """
     if directory is None:
         directory = Path.cwd()
     if isinstance(directory, str):
