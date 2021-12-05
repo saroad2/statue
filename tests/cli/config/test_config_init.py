@@ -106,7 +106,9 @@ def test_config_init_with_directory(
     mock_find_sources.return_value = [tmp_path / source for source in sources]
     mock_open = mock.mock_open()
     with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(statue_cli, ["config", "init", "--directory", str(tmp_path)])
+        result = cli_runner.invoke(
+            statue_cli, ["config", "init", "--directory", str(tmp_path)]
+        )
         mock_open.assert_called_once_with(
             mock_configuration_path.return_value, mode="w", encoding="utf-8"
         )

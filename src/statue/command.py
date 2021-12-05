@@ -68,7 +68,13 @@ class Command:
         if not is_silent(verbosity):
             print(f"Installing {self.install_name}")
         subprocess.run(  # nosec
-            [sys.executable, "-m", "pip", "install", (self.name if latest else self.install_name)],
+            [
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                (self.name if latest else self.install_name),
+            ],
             env=os.environ,
             check=False,
             capture_output=is_silent(verbosity),

@@ -18,7 +18,8 @@ from tests.constants import (
     COMMAND_HELP_STRING1,
     COMMAND_HELP_STRING2,
     COMMAND_HELP_STRING3,
-    SOURCE1, VERSION1,
+    SOURCE1,
+    VERSION1,
 )
 
 COMMANDS = [COMMAND1, COMMAND2, COMMAND3]
@@ -178,7 +179,7 @@ def test_install_command_with_normal_verbosity(
     command, out, mock_subprocess, environ, print_mock
 ):
     command.install()
-    install_name = out['install_name']
+    install_name = out["install_name"]
     mock_subprocess.assert_called_with(
         [sys.executable, "-m", "pip", "install", install_name],
         env=environ,
@@ -342,7 +343,13 @@ def test_update_to_version_command_when_version_is_specified(
     command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, version=version)
     package_mock = mock.Mock()
     package_mock.version = installed_version
-    mock_get_package.side_effect = [package_mock, package_mock, package_mock, package_mock, None]
+    mock_get_package.side_effect = [
+        package_mock,
+        package_mock,
+        package_mock,
+        package_mock,
+        None,
+    ]
     command.update_to_version()
     assert mock_get_package.call_count == 5
     assert mock_subprocess.call_count == 2
@@ -359,7 +366,9 @@ def test_update_to_version_command_when_version_is_specified(
         capture_output=False,
     )
     assert print_mock.call_count == 2
-    assert print_mock.call_args_list[0] == call(f"Uninstalling {command.name} (version {installed_version})")
+    assert print_mock.call_args_list[0] == call(
+        f"Uninstalling {command.name} (version {installed_version})"
+    )
     assert print_mock.call_args_list[1] == call(f"Installing {command.name}=={version}")
 
 

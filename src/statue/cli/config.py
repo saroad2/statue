@@ -8,9 +8,9 @@ import git
 import toml
 
 from statue.cli.cli import statue_cli
-from statue.cli.util import verbose_option, contexts_option, allow_option, deny_option
+from statue.cli.util import allow_option, contexts_option, deny_option, verbose_option
 from statue.configuration import Configuration
-from statue.constants import CONTEXTS, SOURCES, COMMANDS, VERSION
+from statue.constants import COMMANDS, CONTEXTS, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 
 YES = ["y", "yes"]
@@ -114,7 +114,9 @@ def fixate_commands_versions(
         directory = Path(directory)
     configuration_path = Configuration.configuration_path(directory)
     Configuration.load_configuration(configuration_path)
-    commands_list = Configuration.read_commands(contexts=context, allow_list=allow, deny_list=deny)
+    commands_list = Configuration.read_commands(
+        contexts=context, allow_list=allow, deny_list=deny
+    )
     if len(commands_list) == 0:
         click.echo("No commands to fixate.")
         return

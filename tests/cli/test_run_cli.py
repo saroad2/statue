@@ -84,7 +84,7 @@ def test_run_and_install_uninstalled_commands(
     command3 = command_mock(COMMAND3, installed=True, return_code=0)
     mock_read_commands_map.return_value = {
         SOURCE1: [command1, command2],
-        SOURCE2: [command3]
+        SOURCE2: [command3],
     }
 
     result = cli_runner.invoke(statue_cli, ["run", "-i"])
@@ -301,15 +301,15 @@ def test_run_uninstalled_command(
     command3 = command_mock(COMMAND3, installed=True, return_code=0)
     mock_read_commands_map.return_value = {
         SOURCE1: [command1, command2],
-        SOURCE2: [command3]
+        SOURCE2: [command3],
     }
 
     result = cli_runner.invoke(statue_cli, ["run"])
 
     assert result.exit_code == 1
     assert (
-       "The following commands are not installed correctly: command2\n"
-       "Consider using the '-i' flag in order to install missing commands before running"
+        "The following commands are not installed correctly: command2\n"
+        "Consider using the '-i' flag in order to install missing commands before running"
     ) in result.output
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_not_called()

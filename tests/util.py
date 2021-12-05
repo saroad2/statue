@@ -7,7 +7,9 @@ def build_contexts_map(*contexts):
     return {context.name: context for context in contexts}
 
 
-def command_mock(name, installed=True, return_code=None, version=None, installed_version="0.0.1"):
+def command_mock(
+    name, installed=True, return_code=None, version=None, installed_version="0.0.1"
+):
     command = Command(name=name, help="This is help", version=version)
     command.name = name
     command.install = mock.Mock()

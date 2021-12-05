@@ -12,9 +12,10 @@ from statue.cli.util import (
     allow_option,
     contexts_option,
     deny_option,
+    failure_style,
     silent_option,
     verbose_option,
-    verbosity_option, failure_style,
+    verbosity_option,
 )
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map
@@ -133,14 +134,15 @@ def run_cli(  # pylint: disable=too-many-arguments
             for command in missing_commands:
                 command.update_to_version(verbosity=verbosity)
         else:
-            missing_commands_names = [
-                command.name
-                for command in missing_commands
-            ]
+            missing_commands_names = [command.name for command in missing_commands]
             click.echo(
-                failure_style(f"The following commands are not installed correctly: {', '.join(missing_commands_names)}")
+                failure_style(
+                    f"The following commands are not installed correctly: {', '.join(missing_commands_names)}"
+                )
             )
-            click.echo("Consider using the '-i' flag in order to install missing commands before running")
+            click.echo(
+                "Consider using the '-i' flag in order to install missing commands before running"
+            )
             ctx.exit(1)
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
