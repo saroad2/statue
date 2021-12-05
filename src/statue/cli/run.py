@@ -1,3 +1,4 @@
+# pylint: disable=too-many-locals
 """Run CLI."""
 from itertools import chain
 from pathlib import Path
@@ -11,17 +12,14 @@ from statue.cli.util import (
     allow_option,
     contexts_option,
     deny_option,
+    failure_style,
     silent_option,
     verbose_option,
     verbosity_option,
 )
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map
-from statue.exceptions import (
-    CommandExecutionError,
-    MissingConfiguration,
-    UnknownContext,
-)
+from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.print_util import print_boxed
 from statue.verbosity import is_silent
 
@@ -122,20 +120,33 @@ def run_cli(  # pylint: disable=too-many-arguments
         click.echo(ctx.get_help())
         return
 
-    if install:
-        for command in chain.from_iterable(commands_map.values()):
-            command.install(verbosity=verbosity)
+    missing_commands = [
+        command
+        for command in chain.from_iterable(commands_map.values())
+        if not command.installed_correctly()
+    ]
+    if len(missing_commands) != 0:
+        if install:
+            for command in missing_commands:
+                command.update_to_version(verbosity=verbosity)
+        else:
+            missing_commands_names = [command.name for command in missing_commands]
+            click.echo(
+                failure_style(
+                    "The following commands are not installed correctly: "
+                    f"{', '.join(missing_commands_names)}"
+                )
+            )
+            click.echo(
+                "Consider using the '-i' flag in order to install missing "
+                "commands before running"
+            )
+            ctx.exit(1)
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
-    evaluation = None
-    try:
-        evaluation = evaluate_commands_map(
-            commands_map=commands_map, verbosity=verbosity, print_method=click.echo
-        )
-    except CommandExecutionError as error:
-        click.echo(str(error))
-        click.echo('Try to rerun with the "-i" flag')
-        ctx.exit(1)
+    evaluation = evaluate_commands_map(
+        commands_map=commands_map, verbosity=verbosity, print_method=click.echo
+    )
     if cache:
         Cache.save_evaluation(evaluation)
     if output is not None:

@@ -97,8 +97,8 @@ def mock_subprocess(mocker):
 
 
 @pytest.fixture
-def mock_available_packages(mocker):
-    return mocker.patch.object(Command, "available_packages")
+def mock_get_package(mocker):
+    return mocker.patch.object(Command, "_get_package")
 
 
 @pytest.fixture

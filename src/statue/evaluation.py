@@ -23,7 +23,12 @@ class CommandEvaluation:
         :return: Self as dictionary
         :rtype: Dict[str, Any]
         """
-        return dict(command=asdict(self.command), success=self.success)
+        command_json = {
+            key: value
+            for key, value in asdict(self.command).items()
+            if value is not None
+        }
+        return dict(command=command_json, success=self.success)
 
     @classmethod
     def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":

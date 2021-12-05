@@ -17,6 +17,7 @@ DENY_LIST = "deny_list"
 ALIASES = "aliases"
 PARENT = "parent"
 IS_DEFAULT = "is_default"
+VERSION = "version"
 
 COMMANDS = "commands"
 CONTEXTS = "contexts"

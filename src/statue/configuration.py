@@ -18,6 +18,7 @@ from statue.constants import (
     SOURCES,
     STANDARD,
     STATUE,
+    VERSION,
 )
 from statue.context import Context
 from statue.exceptions import (
@@ -337,6 +338,7 @@ class Configuration:
             name=command_name,
             args=command_configuration.get(ARGS, []),
             help=command_configuration[HELP],
+            version=command_configuration.get(VERSION, None),
         )
 
     @classmethod

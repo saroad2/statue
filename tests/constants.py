@@ -23,6 +23,7 @@ COMMAND4, COMMAND_HELP_STRING4 = name_and_help_string("command4")
 COMMAND5, COMMAND_HELP_STRING5 = name_and_help_string("command5")
 COMMAND6, COMMAND_HELP_STRING6 = name_and_help_string("command6")
 ARG1, ARG2, ARG3, ARG4, ARG5 = "arg1", "arg2", "arg3", "arg4", "arg5"
+VERSION1, VERSION2 = "version1", "version2"
 CONTEXT1, CONTEXT_HELP_STRING1 = name_and_help_string("context1")
 CONTEXT2, CONTEXT_HELP_STRING2 = name_and_help_string("context2")
 CONTEXT3, CONTEXT_HELP_STRING3 = name_and_help_string("context3")

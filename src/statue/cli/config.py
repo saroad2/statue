@@ -1,3 +1,4 @@
+# pylint: disable=too-many-arguments
 """Config CLI."""
 import re
 from collections import OrderedDict
@@ -8,8 +9,9 @@ import git
 import toml
 
 from statue.cli.cli import statue_cli
+from statue.cli.util import allow_option, contexts_option, deny_option, verbose_option
 from statue.configuration import Configuration
-from statue.constants import CONTEXTS, SOURCES
+from statue.constants import COMMANDS, CONTEXTS, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 
 YES = ["y", "yes"]
@@ -25,12 +27,12 @@ def config_cli():
 
 @config_cli.command("init")
 @click.option(
-    "-d",
     "--directory",
     type=click.Path(dir_okay=True, file_okay=False, exists=True),
     help=(
         "Directory to save configuration in. "
-        "Tracked files will be saved relative paths to this directory"
+        "Tracked files will be saved relative paths to this directory. "
+        "Default directory is current working directory."
     ),
 )
 @click.option(
@@ -73,6 +75,74 @@ def init_config_cli(directory, interactive):
         Configuration.configuration_path(directory), mode="w", encoding="utf-8"
     ) as config_file:
         toml.dump({SOURCES: sources_map}, config_file)
+
+
+@config_cli.command("fix-versions")
+@click.option(
+    "--directory",
+    type=click.Path(dir_okay=True, file_okay=False, exists=True),
+    help=(
+        "Directory to save configuration in. "
+        "Tracked files will be saved relative paths to this directory. "
+        "Default directory is current working directory."
+    ),
+)
+@click.option(
+    "-l",
+    "--latest",
+    is_flag=True,
+    default=False,
+    help=(
+        "Update commands to latest before fixing the version. "
+        "If a command is not installed, will install it."
+    ),
+)
+@contexts_option
+@allow_option
+@deny_option
+@verbose_option
+def fixate_commands_versions(
+    directory,
+    context,
+    allow,
+    deny,
+    latest,
+    verbosity,
+):
+    """
+    Fixate the installed version of the commands.
+
+    This helps you make sure that you use the same checkers in all commands
+    across time.
+
+    # noqa: DAR101
+    """
+    if directory is None:
+        directory = Path.cwd()
+    if isinstance(directory, str):
+        directory = Path(directory)
+    configuration_path = Configuration.configuration_path(directory)
+    Configuration.load_configuration(configuration_path)
+    commands_list = Configuration.read_commands(
+        contexts=context, allow_list=allow, deny_list=deny
+    )
+    if len(commands_list) == 0:
+        click.echo("No commands to fixate.")
+        return
+    with open(configuration_path, mode="r", encoding="utf-8") as config_file:
+        raw_config_dict = toml.load(config_file)
+    if COMMANDS not in raw_config_dict:
+        raw_config_dict[COMMANDS] = {}
+    for command in commands_list:
+        if latest:
+            command.update(verbosity=verbosity)
+        if not command.installed():
+            continue
+        if command.name not in raw_config_dict[COMMANDS]:
+            raw_config_dict[COMMANDS][command.name] = {}
+        raw_config_dict[COMMANDS][command.name][VERSION] = command.installed_version
+    with open(configuration_path, mode="w", encoding="utf-8") as config_file:
+        toml.dump(raw_config_dict, config_file)
 
 
 def __update_sources_map(sources_map, sources, repo=None, interactive=False):
