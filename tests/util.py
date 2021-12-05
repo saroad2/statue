@@ -11,6 +11,7 @@ def command_mock(name, installed=True, return_code=None, version=None, installed
     command = Command(name=name, help="This is help", version=version)
     command.name = name
     command.install = mock.Mock()
+    command.update = mock.Mock()
     command.update_to_version = mock.Mock()
     command._get_package = mock.Mock()
     if not installed:
