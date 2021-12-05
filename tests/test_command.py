@@ -88,7 +88,10 @@ def case_specified_version():
         args=[],
         command_input=[COMMAND1, SOURCE1],
         print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
-        repr=f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', args=[], version='{VERSION1}')",
+        repr=(
+            f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', "
+            f"args=[], version='{VERSION1}')"
+        ),
     )
     return inp, output
 

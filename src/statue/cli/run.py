@@ -1,5 +1,5 @@
+# pylint: disable=too-many-locals
 """Run CLI."""
-import sys
 from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Union
@@ -19,11 +19,7 @@ from statue.cli.util import (
 )
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation, evaluate_commands_map
-from statue.exceptions import (
-    CommandExecutionError,
-    MissingConfiguration,
-    UnknownContext,
-)
+from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.print_util import print_boxed
 from statue.verbosity import is_silent
 
@@ -137,7 +133,8 @@ def run_cli(  # pylint: disable=too-many-arguments
             missing_commands_names = [command.name for command in missing_commands]
             click.echo(
                 failure_style(
-                    f"The following commands are not installed correctly: {', '.join(missing_commands_names)}"
+                    "The following commands are not installed correctly: "
+                    f"{', '.join(missing_commands_names)}"
                 )
             )
             click.echo(

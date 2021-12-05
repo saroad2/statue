@@ -1,15 +1,10 @@
-import itertools
 import json
 
 from pytest_cases import fixture
 
 from statue.cli.cli import statue_cli
 from statue.constants import SOURCES
-from statue.exceptions import (
-    CommandExecutionError,
-    MissingConfiguration,
-    UnknownContext,
-)
+from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.verbosity import DEFAULT_VERBOSITY
 from tests.constants import (
     COMMAND1,

@@ -173,7 +173,7 @@ class Command:
         :return: self package
         """
         importlib.reload(pkg_resources)
-        for package in pkg_resources.working_set:
+        for package in list(pkg_resources.working_set):
             if package.key == self.name:
                 return package
         return None

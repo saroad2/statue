@@ -15,11 +15,13 @@ def command_mock(
     command.install = mock.Mock()
     command.update = mock.Mock()
     command.update_to_version = mock.Mock()
-    command._get_package = mock.Mock()
+    command._get_package = mock.Mock()  # pylint: disable=protected-access
     if not installed:
-        command._get_package.return_value = None
+        command._get_package.return_value = None  # pylint: disable=protected-access
     else:
-        command._get_package.return_value.version = installed_version
+        command._get_package.return_value.version = (  # pylint: disable=protected-access
+            installed_version
+        )
     if return_code is not None:
         command.execute = mock.Mock(return_value=return_code)
     return command
