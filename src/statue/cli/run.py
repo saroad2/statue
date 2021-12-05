@@ -138,7 +138,8 @@ def run_cli(  # pylint: disable=too-many-arguments
                 )
             )
             click.echo(
-                "Consider using the '-i' flag in order to install missing commands before running"
+                "Consider using the '-i' flag in order to install missing "
+                "commands before running"
             )
             ctx.exit(1)
     if not is_silent(verbosity):

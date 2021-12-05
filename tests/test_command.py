@@ -38,7 +38,10 @@ def case_no_args():
         args=[],
         command_input=[COMMAND1, SOURCE1],
         print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
-        repr=f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', args=[], version=None)",
+        repr=(
+            f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', "
+            "args=[], version=None)"
+        ),
     )
     return inp, output
 

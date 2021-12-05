@@ -304,7 +304,8 @@ def test_run_uninstalled_command(
     assert result.exit_code == 1
     assert (
         "The following commands are not installed correctly: command2\n"
-        "Consider using the '-i' flag in order to install missing commands before running"
+        "Consider using the '-i' flag in order to install missing "
+        "commands before running"
     ) in result.output
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_not_called()
