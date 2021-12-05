@@ -26,7 +26,6 @@ def config_cli():
 
 @config_cli.command("init")
 @click.option(
-    "-d",
     "--directory",
     type=click.Path(dir_okay=True, file_okay=False, exists=True),
     help=(
@@ -79,7 +78,6 @@ def init_config_cli(directory, interactive):
 
 @config_cli.command("fix-versions")
 @click.option(
-    "-d",
     "--directory",
     type=click.Path(dir_okay=True, file_okay=False, exists=True),
     help=(
