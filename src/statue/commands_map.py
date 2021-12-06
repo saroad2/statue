@@ -34,7 +34,7 @@ def read_commands_map(
     """
     if len(sources) == 0:
         sources = Configuration.sources_list()
-    commands_map = {}
+    commands_map = dict()
     for source in sources:
         instructions = None
         try:
