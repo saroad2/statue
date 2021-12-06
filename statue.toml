@@ -15,7 +15,7 @@ version = "5.10.1"
 version = "0.910"
 
 [commands.pylint]
-version = "2.12.1"
+version = "2.9.0"
 
 [commands.bandit]
 version = "1.7.1"
