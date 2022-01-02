@@ -1,9 +1,10 @@
 """Context class used for reading commands in various contexts."""
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, MutableMapping, Optional
 
 from statue.constants import ALIASES, HELP, IS_DEFAULT, PARENT
-from statue.exceptions import UnknownContext
+from statue.exceptions import UnknownContext, InvalidStatueConfiguration
 
 
 @dataclass
@@ -49,18 +50,29 @@ class Context:
 
     @classmethod
     def build_contexts_map(
-        cls, contexts_config: MutableMapping[str, Any]
+        cls,
+        contexts_config: MutableMapping[str, Any],
+        base_contexts_map: Optional[Dict[str, "Context"]] = None
     ) -> Dict[str, "Context"]:
         """
         Build contexts dictionary from contexts configuration.
 
         :param contexts_config: Contexts configuration
+        :param base_contexts_map: base contexts map to extend, if specifies.
         :type contexts_config: MutableMapping[str, Any]
         :return: Map from context name to context instance:
         :rtype: Dict[str, Context]
         """
-        contexts_map: Dict[str, "Context"] = {}
+        contexts_map: Dict[str, "Context"] = (
+            deepcopy(base_contexts_map)
+            if base_contexts_map is not None
+            else {}
+        )
         for name in contexts_config.keys():
+            if base_contexts_map is not None and name in base_contexts_map:
+                raise InvalidStatueConfiguration(
+                    f'"{name}" is a predefined context and cannot be override'
+                )
             if name in contexts_map:
                 continue
             cls._add_context_to_map(contexts_map, contexts_config, name)
