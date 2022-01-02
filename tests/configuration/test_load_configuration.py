@@ -14,7 +14,7 @@ from statue.constants import (
     HELP,
     OVERRIDE,
     SOURCES,
-    STATUE,
+    STATUE, PARENT,
 )
 from statue.context import Context
 from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
@@ -152,6 +152,25 @@ def case_success_user_add_new_context():
             context1,
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
         ),
+        "c": "d",
+    }
+    return default_configuration, statue_configuration, result
+
+
+def case_success_user_context_inherit_predefined_context():
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    default_configuration = {
+        CONTEXTS: build_contexts_map(context1)
+    }
+    statue_configuration = {
+        "c": "d",
+        CONTEXTS: {CONTEXT2: {HELP: CONTEXT_HELP_STRING2, PARENT: CONTEXT1}},
+    }
+    result = {
+        CONTEXTS: {
+            CONTEXT1: context1,
+            CONTEXT2: Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=context1),
+        },
         "c": "d",
     }
     return default_configuration, statue_configuration, result
