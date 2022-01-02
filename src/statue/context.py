@@ -62,6 +62,8 @@ class Context:
         :type contexts_config: MutableMapping[str, Any]
         :return: Map from context name to context instance:
         :rtype: Dict[str, Context]
+        :raises InvalidStatueConfiguration: This exception is raised when trying
+            to override a predefined context.
         """
         contexts_map: Dict[str, "Context"] = (
             deepcopy(base_contexts_map) if base_contexts_map is not None else {}
