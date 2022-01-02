@@ -24,7 +24,6 @@ from statue.context import Context
 from statue.exceptions import (
     EmptyConfiguration,
     InvalidCommand,
-    InvalidStatueConfiguration,
     MissingConfiguration,
     UnknownCommand,
     UnknownContext,
@@ -416,13 +415,12 @@ class Configuration:
             statue_config[COMMANDS] = commands_configuration
         contexts_configuration = statue_config.get(CONTEXTS, None)
         if contexts_configuration is None:
-            contexts_map = None
+            contexts_map = default_configuration.get(CONTEXTS, None)
         else:
-            contexts_map = Context.build_contexts_map(contexts_configuration)
-        contexts_map = cls.__build_contexts_map(
-            statue_contexts_map=contexts_map,
-            default_contexts_map=default_configuration.get(CONTEXTS, None),
-        )
+            contexts_map = Context.build_contexts_map(
+                contexts_configuration,
+                base_contexts_map=default_configuration.get(CONTEXTS, None),
+            )
         if contexts_map is not None:
             statue_config[CONTEXTS] = contexts_map
         if SOURCES in statue_config:
@@ -450,25 +448,6 @@ class Configuration:
             else:
                 commands_configuration[command_name] = command_setups
         return commands_configuration
-
-    @classmethod
-    def __build_contexts_map(
-        cls,
-        statue_contexts_map: Optional[Dict[str, Context]],
-        default_contexts_map: Optional[Dict[str, Context]],
-    ) -> Optional[Dict[str, Context]]:
-        if statue_contexts_map is None:
-            return default_contexts_map
-        if default_contexts_map is None:
-            return statue_contexts_map
-        contexts = deepcopy(default_contexts_map)
-        for context_name, context_setup in statue_contexts_map.items():
-            if context_name in contexts:
-                raise InvalidStatueConfiguration(
-                    f'"{context_name}" is a predefined context and cannot be override'
-                )
-            contexts[context_name] = context_setup
-        return contexts
 
     @classmethod
     def __combine_command_setups(
