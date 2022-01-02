@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, MutableMapping, Optional
 
 from statue.constants import ALIASES, HELP, IS_DEFAULT, PARENT
-from statue.exceptions import UnknownContext, InvalidStatueConfiguration
+from statue.exceptions import InvalidStatueConfiguration, UnknownContext
 
 
 @dataclass
@@ -52,7 +52,7 @@ class Context:
     def build_contexts_map(
         cls,
         contexts_config: MutableMapping[str, Any],
-        base_contexts_map: Optional[Dict[str, "Context"]] = None
+        base_contexts_map: Optional[Dict[str, "Context"]] = None,
     ) -> Dict[str, "Context"]:
         """
         Build contexts dictionary from contexts configuration.
@@ -64,9 +64,7 @@ class Context:
         :rtype: Dict[str, Context]
         """
         contexts_map: Dict[str, "Context"] = (
-            deepcopy(base_contexts_map)
-            if base_contexts_map is not None
-            else {}
+            deepcopy(base_contexts_map) if base_contexts_map is not None else {}
         )
         for name in contexts_config.keys():
             if base_contexts_map is not None and name in base_contexts_map:

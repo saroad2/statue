@@ -419,7 +419,7 @@ class Configuration:
         else:
             contexts_map = Context.build_contexts_map(
                 contexts_configuration,
-                base_contexts_map=default_configuration.get(CONTEXTS, None)
+                base_contexts_map=default_configuration.get(CONTEXTS, None),
             )
         if contexts_map is not None:
             statue_config[CONTEXTS] = contexts_map
