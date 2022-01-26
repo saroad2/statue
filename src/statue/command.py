@@ -196,7 +196,7 @@ class Command:
         self,
         source: str,
         verbosity: str = DEFAULT_VERBOSITY,
-    ) -> int:
+    ) -> CommandEvaluation:
         """
         Execute the command.
 
@@ -204,8 +204,8 @@ class Command:
         :type: str
         :param verbosity: Indicates the verbosity of the prints to console.
         :type verbosity: str
-        :return: Exit code of the command
-        :rtype: int
+        :return: Command's evaluation including the command itself and is it successful
+        :rtype: CommandEvaluation
         """
         args = [self.name, source, *self.args]
         if is_verbose(verbosity):
@@ -223,14 +223,15 @@ class Command:
             return True
         return self.installed_version == self.version
 
-    def _run_subprocess(self, args: List[str], verbosity: str) -> int:
+    def _run_subprocess(self, args: List[str], verbosity: str) -> CommandEvaluation:
         try:
-            return subprocess.run(  # nosec
+            exit_code = subprocess.run(  # nosec
                 args,
                 env=os.environ,
                 check=False,
                 capture_output=is_silent(verbosity),
             ).returncode
+            return CommandEvaluation(command=self, success=(exit_code == 0))
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
 

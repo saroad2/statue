@@ -34,9 +34,8 @@ def evaluate_commands_map(
         for command in commands:
             if not is_silent(verbosity):
                 print_title(command.name, underline="-", print_method=print_method)
-            success = command.execute(input_path, verbosity) == 0
             source_evaluation.commands_evaluations.append(
-                CommandEvaluation(command=command, success=success)
+                command.execute(input_path, verbosity)
             )
         evaluation[input_path] = source_evaluation
     return evaluation

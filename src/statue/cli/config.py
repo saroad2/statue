@@ -11,7 +11,7 @@ import toml
 from statue.cli.cli import statue_cli
 from statue.cli.util import allow_option, contexts_option, deny_option, verbose_option
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, SOURCES, VERSION, ENCODING
+from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 
 YES = ["y", "yes"]
