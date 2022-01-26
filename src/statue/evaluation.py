@@ -4,44 +4,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union
 
-from statue.command import Command
-
-
-@dataclass
-class CommandEvaluation:
-    """Evaluation result of a command."""
-
-    command: Command
-    success: bool
-
-    def as_json(self) -> Dict[str, Any]:
-        """
-        Return command evaluation as json dictionary.
-
-        :return: Self as dictionary
-        :rtype: Dict[str, Any]
-        """
-        command_json = {
-            key: value
-            for key, value in asdict(self.command).items()
-            if value is not None
-        }
-        return dict(command=command_json, success=self.success)
-
-    @classmethod
-    def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
-        """
-        Read command evaluation from json dictionary.
-
-        :param command_evaluation: Json command evaluation
-        :type command_evaluation: Dict[str, Any]
-        :return: Parsed command evaluation
-        :rtype: CommandEvaluation
-        """
-        return CommandEvaluation(
-            command=Command(**command_evaluation["command"]),
-            success=command_evaluation["success"],
-        )
+from statue.command import Command, CommandEvaluation
 
 
 @dataclass
