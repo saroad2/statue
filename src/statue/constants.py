@@ -2,6 +2,7 @@
 from pathlib import Path
 
 STATUE = "STATUE"
+ENCODING = "utf-8"
 
 HISTORY_SIZE = 30
 

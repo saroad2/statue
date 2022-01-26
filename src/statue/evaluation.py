@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union
 
 from statue.command import Command, CommandEvaluation
+from statue.constants import ENCODING
 
 
 @dataclass
@@ -163,7 +164,7 @@ class Evaluation:
         :param output: Path to save self in
         :type output: Path or str
         """
-        with open(output, mode="w", encoding="utf-8") as output_file:
+        with open(output, mode="w", encoding=ENCODING) as output_file:
             json.dump(self.as_json(), output_file, indent=2)
 
     @property
@@ -229,7 +230,7 @@ class Evaluation:
         :return: Evaluation instance
         :rtype: Evaluation
         """
-        with open(input_path, mode="r", encoding="utf-8") as input_file:
+        with open(input_path, mode="r", encoding=ENCODING) as input_file:
             return Evaluation.from_json(json.load(input_file))
 
     @property
