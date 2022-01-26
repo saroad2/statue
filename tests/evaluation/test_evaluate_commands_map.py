@@ -2,12 +2,8 @@ from unittest.mock import Mock, call
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.evaluation import (
-    CommandEvaluation,
-    Evaluation,
-    SourceEvaluation,
-    evaluate_commands_map,
-)
+from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
+from statue.runner import evaluate_commands_map
 from statue.verbosity import SILENT
 from tests.constants import COMMAND1, COMMAND2, COMMAND3, SOURCE1, SOURCE2
 from tests.util import assert_calls, command_mock
