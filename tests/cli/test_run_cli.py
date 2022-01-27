@@ -21,13 +21,13 @@ from tests.util import command_mock
 def build_commands_map():
     return {
         SOURCE1: [
-            command_mock(name=COMMAND1, return_code=0),
-            command_mock(name=COMMAND2, return_code=0),
+            command_mock(name=COMMAND1),
+            command_mock(name=COMMAND2),
         ],
         SOURCE2: [
-            command_mock(name=COMMAND1, return_code=0),
-            command_mock(name=COMMAND3, return_code=0),
-            command_mock(name=COMMAND4, return_code=0),
+            command_mock(name=COMMAND1),
+            command_mock(name=COMMAND3),
+            command_mock(name=COMMAND4),
         ],
     }
 
@@ -75,9 +75,9 @@ def test_run_with_no_cache(
 def test_run_and_install_uninstalled_commands(
     cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
 ):
-    command1 = command_mock(COMMAND1, installed=True, return_code=0)
-    command2 = command_mock(COMMAND2, installed=False, return_code=0)
-    command3 = command_mock(COMMAND3, installed=True, return_code=0)
+    command1 = command_mock(COMMAND1, installed=True)
+    command2 = command_mock(COMMAND2, installed=False)
+    command3 = command_mock(COMMAND3, installed=True)
     mock_read_commands_map.return_value = {
         SOURCE1: [command1, command2],
         SOURCE2: [command3],
@@ -216,18 +216,18 @@ def test_run_has_failed(
 ):
     commands_map = {
         SOURCE1: [
-            command_mock(name=COMMAND1, return_code=0),
-            command_mock(name=COMMAND2, return_code=1),
+            command_mock(name=COMMAND1),
+            command_mock(name=COMMAND2, success=False),
         ],
         SOURCE2: [
-            command_mock(name=COMMAND1, return_code=0),
-            command_mock(name=COMMAND3, return_code=1),
-            command_mock(name=COMMAND4, return_code=0),
+            command_mock(name=COMMAND1),
+            command_mock(name=COMMAND3, success=False),
+            command_mock(name=COMMAND4),
         ],
     }
     failure_map = {
-        SOURCE1: [command_mock(name=COMMAND2, return_code=1)],
-        SOURCE2: [command_mock(name=COMMAND3, return_code=1)],
+        SOURCE1: [command_mock(name=COMMAND2, success=False)],
+        SOURCE2: [command_mock(name=COMMAND3, success=False)],
     }
     mock_read_commands_map.return_value = commands_map
 
@@ -296,9 +296,9 @@ def test_run_with_none_commands_map(
 def test_run_uninstalled_command(
     cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
 ):
-    command1 = command_mock(COMMAND1, installed=True, return_code=0)
-    command2 = command_mock(COMMAND2, installed=False, return_code=0)
-    command3 = command_mock(COMMAND3, installed=True, return_code=0)
+    command1 = command_mock(COMMAND1, installed=True)
+    command2 = command_mock(COMMAND2, installed=False)
+    command3 = command_mock(COMMAND3, installed=True)
     mock_read_commands_map.return_value = {
         SOURCE1: [command1, command2],
         SOURCE2: [command3],
