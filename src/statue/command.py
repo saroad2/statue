@@ -4,13 +4,50 @@ import importlib
 import os
 import subprocess  # nosec
 import sys
-from dataclasses import dataclass, field
-from typing import List, Optional
+from dataclasses import asdict, dataclass, field
+from typing import Any, Dict, List, Optional
 
 import pkg_resources
 
 from statue.exceptions import CommandExecutionError
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent, is_verbose
+
+
+@dataclass
+class CommandEvaluation:
+    """Evaluation result of a command."""
+
+    command: "Command"
+    success: bool
+
+    def as_json(self) -> Dict[str, Any]:
+        """
+        Return command evaluation as json dictionary.
+
+        :return: Self as dictionary
+        :rtype: Dict[str, Any]
+        """
+        command_json = {
+            key: value
+            for key, value in asdict(self.command).items()
+            if value is not None
+        }
+        return dict(command=command_json, success=self.success)
+
+    @classmethod
+    def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
+        """
+        Read command evaluation from json dictionary.
+
+        :param command_evaluation: Json command evaluation
+        :type command_evaluation: Dict[str, Any]
+        :return: Parsed command evaluation
+        :rtype: CommandEvaluation
+        """
+        return CommandEvaluation(
+            command=Command(**command_evaluation["command"]),
+            success=command_evaluation["success"],
+        )
 
 
 @dataclass
@@ -159,7 +196,7 @@ class Command:
         self,
         source: str,
         verbosity: str = DEFAULT_VERBOSITY,
-    ) -> int:
+    ) -> CommandEvaluation:
         """
         Execute the command.
 
@@ -167,8 +204,8 @@ class Command:
         :type: str
         :param verbosity: Indicates the verbosity of the prints to console.
         :type verbosity: str
-        :return: Exit code of the command
-        :rtype: int
+        :return: Command's evaluation including the command itself and is it successful
+        :rtype: CommandEvaluation
         """
         args = [self.name, source, *self.args]
         if is_verbose(verbosity):
@@ -186,14 +223,15 @@ class Command:
             return True
         return self.installed_version == self.version
 
-    def _run_subprocess(self, args: List[str], verbosity: str) -> int:
+    def _run_subprocess(self, args: List[str], verbosity: str) -> CommandEvaluation:
         try:
-            return subprocess.run(  # nosec
+            exit_code = subprocess.run(  # nosec
                 args,
                 env=os.environ,
                 check=False,
                 capture_output=is_silent(verbosity),
             ).returncode
+            return CommandEvaluation(command=self, success=(exit_code == 0))
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
 

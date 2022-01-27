@@ -1,49 +1,11 @@
 """Evaluation of commands map."""
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, ItemsView, Iterator, KeysView, List, Union
+from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union
 
-from statue.command import Command
-from statue.print_util import print_title
-from statue.verbosity import DEFAULT_VERBOSITY, is_silent
-
-
-@dataclass
-class CommandEvaluation:
-    """Evaluation result of a command."""
-
-    command: Command
-    success: bool
-
-    def as_json(self) -> Dict[str, Any]:
-        """
-        Return command evaluation as json dictionary.
-
-        :return: Self as dictionary
-        :rtype: Dict[str, Any]
-        """
-        command_json = {
-            key: value
-            for key, value in asdict(self.command).items()
-            if value is not None
-        }
-        return dict(command=command_json, success=self.success)
-
-    @classmethod
-    def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
-        """
-        Read command evaluation from json dictionary.
-
-        :param command_evaluation: Json command evaluation
-        :type command_evaluation: Dict[str, Any]
-        :return: Parsed command evaluation
-        :rtype: CommandEvaluation
-        """
-        return CommandEvaluation(
-            command=Command(**command_evaluation["command"]),
-            success=command_evaluation["success"],
-        )
+from statue.command import Command, CommandEvaluation
+from statue.constants import ENCODING
 
 
 @dataclass
@@ -202,7 +164,7 @@ class Evaluation:
         :param output: Path to save self in
         :type output: Path or str
         """
-        with open(output, mode="w", encoding="utf-8") as output_file:
+        with open(output, mode="w", encoding=ENCODING) as output_file:
             json.dump(self.as_json(), output_file, indent=2)
 
     @property
@@ -268,7 +230,7 @@ class Evaluation:
         :return: Evaluation instance
         :rtype: Evaluation
         """
-        with open(input_path, mode="r", encoding="utf-8") as input_file:
+        with open(input_path, mode="r", encoding=ENCODING) as input_file:
             return Evaluation.from_json(json.load(input_file))
 
     @property
@@ -325,38 +287,3 @@ class Evaluation:
                 for input_path, source_evaluation in evaluation.items()
             }
         )
-
-
-def evaluate_commands_map(
-    commands_map: Dict[str, List[Command]],
-    verbosity: str = DEFAULT_VERBOSITY,
-    print_method: Callable[..., None] = print,
-) -> Evaluation:
-    """
-    Run commands map and return evaluation report.
-
-    :param commands_map: map from input file to list of commands to run on it,
-    :type commands_map: Dict[str, List[Command]],
-    :param verbosity: verbosity level
-    :type verbosity: str
-    :param print_method: print method, can be either ``print`` or ``click.echo``
-    :type print_method: Callable
-    :return: Evaluation
-    """
-    evaluation = Evaluation()
-    for input_path, commands in commands_map.items():
-        source_evaluation = SourceEvaluation()
-        if not is_silent(verbosity):
-            print_method("")
-            print_method("")
-            print_title(input_path, transform=False, print_method=print_method)
-            print_method("")
-        for command in commands:
-            if not is_silent(verbosity):
-                print_title(command.name, underline="-", print_method=print_method)
-            success = command.execute(input_path, verbosity) == 0
-            source_evaluation.commands_evaluations.append(
-                CommandEvaluation(command=command, success=success)
-            )
-        evaluation[input_path] = source_evaluation
-    return evaluation

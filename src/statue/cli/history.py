@@ -8,8 +8,9 @@ import click
 from statue.cache import Cache
 from statue.cli.cli import statue_cli
 from statue.cli.util import bullet_style, failure_style, success_style
+from statue.command import CommandEvaluation
 from statue.constants import DATETIME_FORMAT
-from statue.evaluation import CommandEvaluation, Evaluation
+from statue.evaluation import Evaluation
 
 
 def evaluation_status(evaluation: Union[Evaluation, CommandEvaluation]) -> str:

@@ -11,7 +11,7 @@ import toml
 from statue.cli.cli import statue_cli
 from statue.cli.util import allow_option, contexts_option, deny_option, verbose_option
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, SOURCES, VERSION
+from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 
 YES = ["y", "yes"]
@@ -72,7 +72,7 @@ def init_config_cli(directory, interactive):
         interactive=interactive,
     )
     with open(
-        Configuration.configuration_path(directory), mode="w", encoding="utf-8"
+        Configuration.configuration_path(directory), mode="w", encoding=ENCODING
     ) as config_file:
         toml.dump({SOURCES: sources_map}, config_file)
 
@@ -129,7 +129,7 @@ def fixate_commands_versions(
     if len(commands_list) == 0:
         click.echo("No commands to fixate.")
         return
-    with open(configuration_path, mode="r", encoding="utf-8") as config_file:
+    with open(configuration_path, mode="r", encoding=ENCODING) as config_file:
         raw_config_dict = toml.load(config_file)
     if COMMANDS not in raw_config_dict:
         raw_config_dict[COMMANDS] = {}
@@ -141,7 +141,7 @@ def fixate_commands_versions(
         if command.name not in raw_config_dict[COMMANDS]:
             raw_config_dict[COMMANDS][command.name] = {}
         raw_config_dict[COMMANDS][command.name][VERSION] = command.installed_version
-    with open(configuration_path, mode="w", encoding="utf-8") as config_file:
+    with open(configuration_path, mode="w", encoding=ENCODING) as config_file:
         toml.dump(raw_config_dict, config_file)
 
 

@@ -13,6 +13,19 @@ from statue.evaluation import Evaluation
 ENVIRON = dict(s=2, d=5, g=8)
 
 
+# 3rd Party Mocks
+
+
+@pytest.fixture
+def mock_time(mocker):
+    return mocker.patch("time.time")
+
+
+@pytest.fixture
+def mock_subprocess(mocker):
+    return mocker.patch("subprocess.run")
+
+
 @pytest.fixture
 def mock_toml_load(mocker):
     return mocker.patch("toml.load")
@@ -21,6 +34,9 @@ def mock_toml_load(mocker):
 @pytest.fixture
 def mock_toml_dump(mocker):
     return mocker.patch("toml.dump")
+
+
+# Configuration Mocks
 
 
 @pytest.fixture
@@ -86,14 +102,7 @@ def empty_configuration(mock_cwd, clear_configuration):
     return configuration
 
 
-@pytest.fixture
-def mock_time(mocker):
-    return mocker.patch("time.time")
-
-
-@pytest.fixture
-def mock_subprocess(mocker):
-    return mocker.patch("subprocess.run")
+# Command Mocks
 
 
 @pytest.fixture
@@ -101,14 +110,12 @@ def mock_get_package(mocker):
     return mocker.patch.object(Command, "_get_package")
 
 
+# Cache Mocks
+
+
 @pytest.fixture
 def mock_cache_save_evaluation(mocker):
     return mocker.patch.object(Cache, "save_evaluation")
-
-
-@pytest.fixture
-def mock_evaluation_load_from_file(mocker):
-    return mocker.patch.object(Evaluation, "load_from_file")
 
 
 @pytest.fixture
@@ -124,6 +131,22 @@ def mock_cache_all_evaluation_paths(mocker):
 @pytest.fixture
 def mock_cache_recent_evaluation_path(mocker):
     return mocker.patch.object(Cache, "recent_evaluation_path")
+
+
+# Evaluation Mocks
+
+
+@pytest.fixture
+def mock_evaluation_load_from_file(mocker):
+    return mocker.patch.object(Evaluation, "load_from_file")
+
+
+@pytest.fixture
+def mock_evaluation_save_as_json(mocker):
+    return mocker.patch.object(Evaluation, "save_as_json")
+
+
+# Built-in Mocks
 
 
 @pytest.fixture

@@ -2,12 +2,8 @@ from unittest.mock import Mock, call
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.evaluation import (
-    CommandEvaluation,
-    Evaluation,
-    SourceEvaluation,
-    evaluate_commands_map,
-)
+from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
+from statue.runner import evaluate_commands_map
 from statue.verbosity import SILENT
 from tests.constants import COMMAND1, COMMAND2, COMMAND3, SOURCE1, SOURCE2
 from tests.util import assert_calls, command_mock
@@ -20,7 +16,7 @@ def case_empty_commands_map():
 
 
 def case_one_source_one_command():
-    command1 = command_mock(COMMAND1, return_code=0)
+    command1 = command_mock(COMMAND1)
     commands_map = {SOURCE1: [command1]}
 
     evaluation = Evaluation()
@@ -41,8 +37,8 @@ def case_one_source_one_command():
 
 
 def case_one_source_two_commands():
-    command1 = command_mock(COMMAND1, return_code=0)
-    command2 = command_mock(COMMAND2, return_code=1)
+    command1 = command_mock(COMMAND1)
+    command2 = command_mock(COMMAND2, success=False)
     commands_map = {SOURCE1: [command1, command2]}
 
     evaluation = Evaluation()
@@ -68,9 +64,9 @@ def case_one_source_two_commands():
 
 
 def case_one_source_three_commands():
-    command1 = command_mock(COMMAND1, return_code=0)
-    command2 = command_mock(COMMAND2, return_code=1)
-    command3 = command_mock(COMMAND3, return_code=5)
+    command1 = command_mock(COMMAND1)
+    command2 = command_mock(COMMAND2, success=False)
+    command3 = command_mock(COMMAND3, success=False)
     commands_map = {SOURCE1: [command1, command2, command3]}
 
     evaluation = Evaluation()
@@ -98,8 +94,8 @@ def case_one_source_three_commands():
 
 
 def case_two_sources_two_commands():
-    command1 = command_mock(COMMAND1, return_code=0)
-    command2 = command_mock(COMMAND2, return_code=1)
+    command1 = command_mock(COMMAND1)
+    command2 = command_mock(COMMAND2, success=False)
     commands_map = {SOURCE1: [command1], SOURCE2: [command2]}
 
     evaluation = Evaluation()

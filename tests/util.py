@@ -1,6 +1,6 @@
 from unittest import mock
 
-from statue.command import Command
+from statue.command import Command, CommandEvaluation
 
 
 def build_contexts_map(*contexts):
@@ -8,7 +8,7 @@ def build_contexts_map(*contexts):
 
 
 def command_mock(
-    name, installed=True, return_code=None, version=None, installed_version="0.0.1"
+    name, installed=True, version=None, success=True, installed_version="0.0.1"
 ):
     command = Command(name=name, help="This is help", version=version)
     command.name = name
@@ -21,8 +21,8 @@ def command_mock(
     else:
         get_package.return_value.version = installed_version
     command._get_package = get_package  # pylint: disable=protected-access
-    if return_code is not None:
-        command.execute = mock.Mock(return_value=return_code)
+    command_evaluation = CommandEvaluation(command=command, success=success)
+    command.execute = mock.Mock(return_value=command_evaluation)
     return command
 
 
