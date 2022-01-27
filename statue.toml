@@ -1,5 +1,5 @@
 [commands.darglint]
-add_args = [ "--ignore-regex=.*_cli",]
+add_args = [ "--ignore-regex=.*_cli", "--ignore-properties"]
 version = "1.8.1"
 
 [commands.black]
