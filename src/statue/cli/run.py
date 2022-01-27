@@ -20,9 +20,9 @@ from statue.cli.util import (
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
-from statue.print_util import print_boxed
+from statue.print_util import print_boxed, print_evaluation
 from statue.runner import evaluate_commands_map
-from statue.verbosity import is_silent
+from statue.verbosity import is_silent, is_verbose
 
 
 @statue_cli.command("run")
@@ -143,11 +143,20 @@ def run_cli(  # pylint: disable=too-many-arguments
                 "commands before running"
             )
             ctx.exit(1)
+    with click.progressbar(
+        length=commands_map.total_commands_count, show_pos=True, show_eta=False
+    ) as bar:
+        evaluation = evaluate_commands_map(
+            commands_map=commands_map,
+            update_func=lambda command: __bar_update_func(bar, command),
+        )
     if not is_silent(verbosity):
         print_boxed("Evaluation", print_method=click.echo)
-    evaluation = evaluate_commands_map(
-        commands_map=commands_map, verbosity=verbosity, print_method=click.echo
-    )
+        print_evaluation(
+            evaluation if is_verbose(verbosity) else evaluation.failure_evaluation,
+            verbosity=verbosity,
+            print_method=click.echo,
+        )
     if cache:
         Cache.save_evaluation(evaluation)
     if output is not None:
@@ -194,10 +203,10 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
         return None
     evaluation = Evaluation.load_from_file(evaluation_path)
     if failed:
-        return {
-            source: [
-                command_evaluation.command for command_evaluation in source_evaluation
-            ]
-            for source, source_evaluation in evaluation.failure_evaluation.items()
-        }
+        return evaluation.failure_evaluation.commands_map
     return evaluation.commands_map
+
+
+def __bar_update_func(bar, command):
+    bar.update(1)
+    bar.label = command.name

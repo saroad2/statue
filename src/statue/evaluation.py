@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union, ValuesView
 
-from statue.command import Command, CommandEvaluation
+from statue.command import CommandEvaluation
+from statue.commands_map import CommandsMap
 from statue.constants import ENCODING
 
 
@@ -13,15 +14,6 @@ class SourceEvaluation:
     """Evaluation result of a source."""
 
     commands_evaluations: List[CommandEvaluation] = field(default_factory=list)
-
-    def __iter__(self) -> Iterator[CommandEvaluation]:
-        """
-        Iterate over command evaluations.
-
-        :return: command evaluations iterator
-        :rtype: Iterator[CommandEvaluation]
-        """
-        return iter(self.commands_evaluations)
 
     def __len__(self) -> int:
         """
@@ -109,6 +101,15 @@ class SourceEvaluation:
                 for command_evaluation in source_evaluation
             ]
         )
+
+    def __iter__(self) -> Iterator[CommandEvaluation]:
+        """
+        Iterate over commands evaluations.
+
+        :return: commands evaluation iterator
+        :rtype: Iterator[CommandEvaluation]
+        """
+        return iter(self.commands_evaluations)
 
 
 @dataclass
@@ -270,20 +271,22 @@ class Evaluation:
             return Evaluation.from_json(json.load(input_file))
 
     @property
-    def commands_map(self) -> Dict[str, List[Command]]:
+    def commands_map(self) -> CommandsMap:
         """
         Get a map from input paths to commands.
 
         :return: Map of commands
-        :rtype: Dict[str, List[Command]]
+        :rtype: CommandsMap
         """
-        return {
-            input_path: [
-                command_evaluation.command
-                for command_evaluation in source_valuation.commands_evaluations
-            ]
-            for input_path, source_valuation in self.items()
-        }
+        return CommandsMap(
+            {
+                input_path: [
+                    command_evaluation.command
+                    for command_evaluation in source_valuation.commands_evaluations
+                ]
+                for input_path, source_valuation in self.items()
+            }
+        )
 
     @property
     def failure_evaluation(self) -> "Evaluation":
@@ -291,7 +294,7 @@ class Evaluation:
         Returns a new evaluation map with only failed commands.
 
         :return: Map of failed commands
-        :rtype: Dict[str, List[Command]]
+        :rtype: Evaluation
         """
         failure_dict = {
             source: SourceEvaluation(

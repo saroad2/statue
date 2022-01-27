@@ -9,6 +9,12 @@ def name_and_help_string(name):
     return name, f"This is a help string for {name}"
 
 
+def command_strings(name):
+    name, help_string = name_and_help_string(name)
+    captured_output = f"This is a captured output of {name}"
+    return name, help_string, captured_output
+
+
 SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5 = (
     "source1",
     "source2",
@@ -16,12 +22,12 @@ SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5 = (
     "source4",
     "source5",
 )
-COMMAND1, COMMAND_HELP_STRING1 = name_and_help_string("command1")
-COMMAND2, COMMAND_HELP_STRING2 = name_and_help_string("command2")
-COMMAND3, COMMAND_HELP_STRING3 = name_and_help_string("command3")
-COMMAND4, COMMAND_HELP_STRING4 = name_and_help_string("command4")
-COMMAND5, COMMAND_HELP_STRING5 = name_and_help_string("command5")
-COMMAND6, COMMAND_HELP_STRING6 = name_and_help_string("command6")
+COMMAND1, COMMAND_HELP_STRING1, COMMAND_CAPTURED_OUTPUT1 = command_strings("command1")
+COMMAND2, COMMAND_HELP_STRING2, COMMAND_CAPTURED_OUTPUT2 = command_strings("command2")
+COMMAND3, COMMAND_HELP_STRING3, COMMAND_CAPTURED_OUTPUT3 = command_strings("command3")
+COMMAND4, COMMAND_HELP_STRING4, COMMAND_CAPTURED_OUTPUT4 = command_strings("command4")
+COMMAND5, COMMAND_HELP_STRING5, COMMAND_CAPTURED_OUTPUT5 = command_strings("command5")
+COMMAND6, COMMAND_HELP_STRING6, COMMAND_CAPTURED_OUTPUT6 = command_strings("command6")
 ARG1, ARG2, ARG3, ARG4, ARG5 = "arg1", "arg2", "arg3", "arg4", "arg5"
 VERSION1, VERSION2 = "version1", "version2"
 CONTEXT1, CONTEXT_HELP_STRING1 = name_and_help_string("context1")

@@ -3,6 +3,7 @@ from pathlib import Path
 from pytest_cases import fixture
 
 from statue.cli.cli import statue_cli
+from statue.commands_map import CommandsMap
 from statue.constants import SOURCES
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.verbosity import DEFAULT_VERBOSITY
@@ -19,17 +20,19 @@ from tests.util import build_failure_evaluation, command_mock
 
 
 def build_commands_map():
-    return {
-        SOURCE1: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND2),
-        ],
-        SOURCE2: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND3),
-            command_mock(name=COMMAND4),
-        ],
-    }
+    return CommandsMap(
+        {
+            SOURCE1: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND2),
+            ],
+            SOURCE2: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND3),
+                command_mock(name=COMMAND4),
+            ],
+        }
+    )
 
 
 @fixture
@@ -78,10 +81,12 @@ def test_run_and_install_uninstalled_commands(
     command1 = command_mock(COMMAND1, installed=True)
     command2 = command_mock(COMMAND2, installed=False)
     command3 = command_mock(COMMAND3, installed=True)
-    mock_read_commands_map.return_value = {
-        SOURCE1: [command1, command2],
-        SOURCE2: [command3],
-    }
+    mock_read_commands_map.return_value = CommandsMap(
+        {
+            SOURCE1: [command1, command2],
+            SOURCE2: [command3],
+        }
+    )
 
     result = cli_runner.invoke(statue_cli, ["run", "-i"])
 
@@ -218,17 +223,19 @@ def test_run_has_failed(
     mock_cache_save_evaluation,
     mock_cwd,
 ):
-    commands_map = {
-        SOURCE1: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND2, success=False),
-        ],
-        SOURCE2: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND3, success=False),
-            command_mock(name=COMMAND4),
-        ],
-    }
+    commands_map = CommandsMap(
+        {
+            SOURCE1: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND2, success=False),
+            ],
+            SOURCE2: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND3, success=False),
+                command_mock(name=COMMAND4),
+            ],
+        }
+    )
     failure_evaluation = build_failure_evaluation(
         {
             SOURCE1: [command_mock(name=COMMAND2, success=False)],
