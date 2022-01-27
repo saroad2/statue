@@ -1,6 +1,6 @@
 """Evaluation of commands map."""
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union
 

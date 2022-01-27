@@ -2,7 +2,7 @@
 from typing import Callable, Dict, List
 
 from statue.command import Command
-from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
+from statue.evaluation import Evaluation, SourceEvaluation
 from statue.print_util import print_title
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
