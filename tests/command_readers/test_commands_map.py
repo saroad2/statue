@@ -18,6 +18,10 @@ from tests.constants import (
 from tests.util import assert_calls
 
 
+def assert_commands_count(commands_map, count):
+    assert commands_map.total_commands_count == count, "Commands count is different than expected"
+
+
 def assert_sources(commands_map, sources):
     assert (
         list(commands_map.keys()) == sources
@@ -39,6 +43,7 @@ def test_get_commands_map_source_from_config(
     }
     mock_read_commands.return_value = [command]
     commands_map = read_commands_map([SOURCE1])
+    assert_commands_count(commands_map, 1)
     assert_sources(commands_map, [SOURCE1])
     assert_commands(commands_map, SOURCE1, [command])
     assert_calls(
@@ -56,6 +61,7 @@ def test_get_commands_map_source_not_from_config(
     }
     mock_read_commands.return_value = [command]
     commands_map = read_commands_map([SOURCE2])
+    assert_commands_count(commands_map, 1)
     assert_sources(commands_map, [SOURCE2])
     assert_commands(commands_map, SOURCE2, [command])
     assert_calls(
@@ -71,6 +77,7 @@ def test_get_commands_map_source_with_no_config(
     mock_sources_configuration.side_effect = MissingConfiguration(SOURCES)
     mock_read_commands.return_value = [command]
     commands_map = read_commands_map([SOURCE1])
+    assert_commands_count(commands_map, 1)
     assert_sources(commands_map, [SOURCE1])
     assert_commands(commands_map, SOURCE1, [command])
     assert_calls(
@@ -108,6 +115,7 @@ def test_get_commands_map_with_commands_without_directives(
     mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
     mock_read_commands.side_effect = [[command1], [command2, command3]]
     commands_map = read_commands_map([])
+    assert_commands_count(commands_map, 3)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1])
     assert_commands(commands_map, SOURCE2, [command2, command3])
@@ -128,6 +136,7 @@ def test_get_commands_map_with_commands_and_directives(
     mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
     mock_read_commands.side_effect = [[command1], [command2, command3]]
     commands_map = read_commands_map([], **kwargs)
+    assert_commands_count(commands_map, 3)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1])
     assert_commands(commands_map, SOURCE2, [command2, command3])
@@ -145,6 +154,7 @@ def test_get_commands_map_with_source_context(
     }
     mock_read_commands.side_effect = [[command1, command2], [command3]]
     commands_map = read_commands_map([], **kwargs)
+    assert_commands_count(commands_map, 3)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1, command2])
     assert_commands(commands_map, SOURCE2, [command3])
@@ -174,6 +184,7 @@ def test_get_commands_map_with_source_allow_list(
     }
     mock_read_commands.side_effect = [[command1], [command2]]
     commands_map = read_commands_map([], **kwargs)
+    assert_commands_count(commands_map, 2)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1])
     assert_commands(commands_map, SOURCE2, [command2])
@@ -202,6 +213,7 @@ def test_get_commands_map_with_source_deny_list(
     }
     mock_read_commands.side_effect = [[command1, command2], [command3, command4]]
     commands_map = read_commands_map([], **kwargs)
+    assert_commands_count(commands_map, 4)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
     assert_commands(commands_map, SOURCE1, [command1, command2])
     assert_commands(commands_map, SOURCE2, [command3, command4])
@@ -234,6 +246,7 @@ def test_get_commands_map_from_relative_path(
 
     assert_sources(commands_map, [relative_source_string])
     assert_commands(commands_map, relative_source_string, [command1, command2])
+    assert_commands_count(commands_map, 2)
     assert_calls(
         mock_read_commands, [call(contexts=[CONTEXT2], allow_list=None, deny_list=None)]
     )
