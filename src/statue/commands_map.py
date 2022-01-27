@@ -1,8 +1,7 @@
 """Commands map allow us to know which commands to run on each source."""
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Union
+from typing import List, Optional, Sequence, Set, Union
 
-from statue.command import Command
 from statue.configuration import Configuration
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from statue.exceptions import MissingConfiguration

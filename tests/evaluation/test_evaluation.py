@@ -13,14 +13,15 @@ from tests.constants import (
     SOURCE2,
     SUCCESSFUL_TAG,
 )
+from tests.util import build_failure_evaluation
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_empty():
     evaluation = Evaluation()
-    failure_map = {}
+    failure_evaluation = Evaluation()
     commands_map = {}
-    return evaluation, failure_map, commands_map
+    return evaluation, failure_evaluation, commands_map
 
 
 @case(tags=[SUCCESSFUL_TAG])
@@ -42,12 +43,12 @@ def case_all_successful():
             ),
         }
     )
-    failure_map = {}
+    failure_evaluation = Evaluation()
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2],
         SOURCE2: [COMMAND3, COMMAND4, COMMAND5],
     }
-    return evaluation, failure_map, commands_map
+    return evaluation, failure_evaluation, commands_map
 
 
 @case(tags=[FAILED_TAG])
@@ -69,12 +70,12 @@ def case_one_failure():
             ),
         }
     )
-    failure_map = {SOURCE1: [COMMAND2]}
+    failure_evaluation = build_failure_evaluation({SOURCE1: [COMMAND2]})
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2],
         SOURCE2: [COMMAND3, COMMAND4, COMMAND5],
     }
-    return evaluation, failure_map, commands_map
+    return evaluation, failure_evaluation, commands_map
 
 
 @case(tags=[FAILED_TAG])
@@ -97,12 +98,12 @@ def case_one_source_with_two_failures():
             ),
         }
     )
-    failure_map = {SOURCE2: [COMMAND4, COMMAND6]}
+    failure_evaluation = build_failure_evaluation({SOURCE2: [COMMAND4, COMMAND6]})
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2, COMMAND3],
         SOURCE2: [COMMAND4, COMMAND5, COMMAND6],
     }
-    return evaluation, failure_map, commands_map
+    return evaluation, failure_evaluation, commands_map
 
 
 @case(tags=[FAILED_TAG])
@@ -125,55 +126,57 @@ def case_two_sources_with_failures():
             ),
         }
     )
-    failure_map = {
-        SOURCE1: [COMMAND1, COMMAND3],
-        SOURCE2: [COMMAND5],
-    }
+    failure_evaluation = build_failure_evaluation(
+        {
+            SOURCE1: [COMMAND1, COMMAND3],
+            SOURCE2: [COMMAND5],
+        }
+    )
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2, COMMAND3],
         SOURCE2: [COMMAND4, COMMAND5, COMMAND6],
     }
-    return evaluation, failure_map, commands_map
+    return evaluation, failure_evaluation, commands_map
 
 
 @parametrize_with_cases(
-    argnames=["evaluation", "failure_map", "commands_map"], cases=THIS_MODULE
+    argnames=["evaluation", "failure_evaluation", "commands_map"], cases=THIS_MODULE
 )
-def test_get_commands_map(evaluation, failure_map, commands_map):
-    assert failure_map == evaluation.failure_map
+def test_get_commands_map(evaluation, failure_evaluation, commands_map):
+    assert evaluation.failure_evaluation == failure_evaluation
 
 
 @parametrize_with_cases(
-    argnames=["evaluation", "failure_map", "commands_map"], cases=THIS_MODULE
+    argnames=["evaluation", "failure_evaluation", "commands_map"], cases=THIS_MODULE
 )
-def test_get_failure_map(evaluation, failure_map, commands_map):
+def test_get_failure_evaluation(evaluation, failure_evaluation, commands_map):
     assert commands_map == evaluation.commands_map
 
 
 @parametrize_with_cases(
-    argnames=["evaluation", "failure_map", "commands_map"],
+    argnames=["evaluation", "failure_evaluation", "commands_map"],
     cases=THIS_MODULE,
     has_tag=SUCCESSFUL_TAG,
 )
-def test_evaluation_success(evaluation, failure_map, commands_map):
+def test_evaluation_success(evaluation, failure_evaluation, commands_map):
     assert evaluation.success, "Evaluation should be successful, but it wasn't"
 
 
 @parametrize_with_cases(
-    argnames=["evaluation", "failure_map", "commands_map"],
+    argnames=["evaluation", "failure_evaluation", "commands_map"],
     cases=THIS_MODULE,
     has_tag=FAILED_TAG,
 )
-def test_evaluation_failed(evaluation, failure_map, commands_map):
+def test_evaluation_failed(evaluation, failure_evaluation, commands_map):
     assert not evaluation.success, "Evaluation should not be successful, but it was"
 
 
 @parametrize_with_cases(
-    argnames=["evaluation", "failure_map", "commands_map"], cases=THIS_MODULE
+    argnames=["evaluation", "failure_evaluation", "commands_map"], cases=THIS_MODULE
 )
-def test_total_commands_count(evaluation, failure_map, commands_map):
+def test_total_commands_count(evaluation, failure_evaluation, commands_map):
     expected_failed_count = sum(
-        [len(commands_list) for commands_list in failure_map.values()]
+        [len(commands_list) for commands_list in failure_evaluation.values()]
     )
     commands_number = sum([len(commands) for commands in commands_map.values()])
     expected_successful_count = commands_number - expected_failed_count
@@ -189,14 +192,18 @@ def test_total_commands_count(evaluation, failure_map, commands_map):
 
 
 @parametrize_with_cases(
-    argnames=["evaluation", "failure_map", "commands_map"], cases=THIS_MODULE
+    argnames=["evaluation", "failure_evaluation", "commands_map"], cases=THIS_MODULE
 )
 def test_source_successful_and_failed_commands_count(
-    evaluation, failure_map, commands_map
+    evaluation, failure_evaluation, commands_map
 ):
     for source in evaluation.keys():
         source_evaluation = evaluation[source]
-        source_failed_commands_number = len(failure_map.get(source, []))
+        source_failed_commands_number = (
+            len(failure_evaluation[source])
+            if source in failure_evaluation.keys()
+            else 0
+        )
         source_all_commands_number = len(source_evaluation.commands_evaluations)
         assert source_evaluation.commands_number == source_all_commands_number
         assert source_evaluation.failed_commands_number == source_failed_commands_number

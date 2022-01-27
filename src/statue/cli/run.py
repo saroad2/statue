@@ -156,18 +156,24 @@ def run_cli(  # pylint: disable=too-many-arguments
     if not is_silent(verbosity):
         print_boxed("Summary", print_method=click.echo)
         click.echo()
-    ctx.exit(__evaluate_failure_map(evaluation.failure_map))
+    ctx.exit(__evaluate_failure_evaluation(evaluation.failure_evaluation))
 
 
-def __evaluate_failure_map(failure_map):
-    if len(failure_map) == 0:
+def __evaluate_failure_evaluation(failure_evaluation: Evaluation):
+    if failure_evaluation.is_empty():
         click.echo("Statue finished successfully!")
         return 0
     click.echo("Statue has failed on the following commands:")
     click.echo()
-    for input_path, failed_commands in failure_map.items():
-        click.echo(f"{input_path}:")
-        click.echo(f"\t{', '.join([command.name for command in failed_commands])}")
+    for source, source_evaluation in failure_evaluation.items():
+        click.echo(f"{source}:")
+        failed_commands_string = ", ".join(
+            [
+                command_evaluation.command.name
+                for command_evaluation in source_evaluation
+            ]
+        )
+        click.echo(f"\t{failed_commands_string}")
     return 1
 
 
@@ -188,5 +194,10 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
         return None
     evaluation = Evaluation.load_from_file(evaluation_path)
     if failed:
-        return evaluation.failure_map
+        return {
+            source: [
+                command_evaluation.command for command_evaluation in source_evaluation
+            ]
+            for source, source_evaluation in evaluation.failure_evaluation.items()
+        }
     return evaluation.commands_map

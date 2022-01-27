@@ -1,10 +1,25 @@
 from unittest import mock
 
 from statue.command import Command, CommandEvaluation
+from statue.evaluation import Evaluation, SourceEvaluation
 
 
 def build_contexts_map(*contexts):
     return {context.name: context for context in contexts}
+
+
+def build_failure_evaluation(commands_map):
+    return Evaluation(
+        {
+            source: SourceEvaluation(
+                [
+                    CommandEvaluation(command=command, success=False)
+                    for command in commands
+                ]
+            )
+            for source, commands in commands_map.items()
+        }
+    )
 
 
 def command_mock(

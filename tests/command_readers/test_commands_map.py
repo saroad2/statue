@@ -19,7 +19,9 @@ from tests.util import assert_calls
 
 
 def assert_commands_count(commands_map, count):
-    assert commands_map.total_commands_count == count, "Commands count is different than expected"
+    assert (
+        commands_map.total_commands_count == count
+    ), "Commands count is different than expected"
 
 
 def assert_sources(commands_map, sources):

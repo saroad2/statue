@@ -2,7 +2,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union
+from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union, ValuesView
 
 from statue.command import Command, CommandEvaluation
 from statue.constants import ENCODING
@@ -13,6 +13,24 @@ class SourceEvaluation:
     """Evaluation result of a source."""
 
     commands_evaluations: List[CommandEvaluation] = field(default_factory=list)
+
+    def __iter__(self) -> Iterator[CommandEvaluation]:
+        """
+        Iterate over command evaluations.
+
+        :return: command evaluations iterator
+        :rtype: Iterator[CommandEvaluation]
+        """
+        return iter(self.commands_evaluations)
+
+    def __len__(self) -> int:
+        """
+        Number of command evaluations.
+
+        :return: command evaluations count
+        :rtype: int
+        """
+        return len(self.commands_evaluations)
 
     def as_json(self) -> List[Dict[str, Any]]:
         """
@@ -130,6 +148,15 @@ class Evaluation:
         """
         self.sources_evaluations[key] = value
 
+    def is_empty(self) -> bool:
+        """
+        Checks whether the evaluation has no results.
+
+        :return: is the evaluation empty
+        :rtype: bool
+        """
+        return len(self.sources_evaluations) == 0
+
     def keys(self) -> KeysView[str]:
         """
         Get sources as generator.
@@ -138,6 +165,15 @@ class Evaluation:
         :rtype: KeysView[str]
         """
         return self.sources_evaluations.keys()
+
+    def values(self) -> ValuesView[SourceEvaluation]:
+        """
+        Get all source evaluations.
+
+        :return: source evaluations list
+        :rtype: ValuesView[SourceEvaluation]
+        """
+        return self.sources_evaluations.values()
 
     def items(self) -> ItemsView[str, SourceEvaluation]:
         """
@@ -250,26 +286,29 @@ class Evaluation:
         }
 
     @property
-    def failure_map(self) -> Dict[str, List[Command]]:
+    def failure_evaluation(self) -> "Evaluation":
         """
-        Get a map from input paths to failed commands.
+        Returns a new evaluation map with only failed commands.
 
         :return: Map of failed commands
         :rtype: Dict[str, List[Command]]
         """
         failure_dict = {
-            input_path: [
-                command_evaluation.command
-                for command_evaluation in source_valuation.commands_evaluations
-                if not command_evaluation.success
-            ]
-            for input_path, source_valuation in self.items()
+            source: SourceEvaluation(
+                [
+                    command_evaluation
+                    for command_evaluation in source_evaluation.commands_evaluations
+                    if not command_evaluation.success
+                ]
+            )
+            for source, source_evaluation in self.items()
         }
-        return {
-            input_path: commands
-            for input_path, commands in failure_dict.items()
-            if len(commands) != 0
+        failure_dict = {
+            source: source_evaluation
+            for source, source_evaluation in failure_dict.items()
+            if len(source_evaluation) != 0
         }
+        return Evaluation(sources_evaluations=failure_dict)
 
     @classmethod
     def from_json(cls, evaluation: Dict[str, List[Dict[str, Any]]]) -> "Evaluation":

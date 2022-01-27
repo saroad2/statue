@@ -15,7 +15,7 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
-from tests.util import command_mock
+from tests.util import build_failure_evaluation, command_mock
 
 
 def build_commands_map():
@@ -143,7 +143,9 @@ def test_run_over_failed_commands(
 ):
     recent_cache = tmp_path_factory.mktemp("cache.json")
     mock_cache_evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.failure_map = build_commands_map()
+    mock_evaluation_load_from_file.return_value.failure_evaluation = (
+        build_failure_evaluation(build_commands_map())
+    )
 
     result = cli_runner.invoke(statue_cli, ["run", "-f"])
 
@@ -185,7 +187,9 @@ def test_run_over_previous_failed_commands(
     n = 5
     recent_cache = tmp_path_factory.mktemp("cache.json")
     mock_cache_evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.failure_map = build_commands_map()
+    mock_evaluation_load_from_file.return_value.failure_evaluation = (
+        build_failure_evaluation(build_commands_map())
+    )
 
     result = cli_runner.invoke(statue_cli, ["run", "-f", "-p", n])
 
@@ -225,10 +229,12 @@ def test_run_has_failed(
             command_mock(name=COMMAND4),
         ],
     }
-    failure_map = {
-        SOURCE1: [command_mock(name=COMMAND2, success=False)],
-        SOURCE2: [command_mock(name=COMMAND3, success=False)],
-    }
+    failure_evaluation = build_failure_evaluation(
+        {
+            SOURCE1: [command_mock(name=COMMAND2, success=False)],
+            SOURCE2: [command_mock(name=COMMAND3, success=False)],
+        }
+    )
     mock_read_commands_map.return_value = commands_map
 
     result = cli_runner.invoke(statue_cli, ["run"])
@@ -236,10 +242,14 @@ def test_run_has_failed(
     assert result.exit_code == 1
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
-    for source, commands in failure_map.items():
-        failure_string = (
-            f"{source}:\n" f"\t{', '.join([command.name for command in commands])}"
+    for source, source_evaluation in failure_evaluation.items():
+        failed_commands_string = ", ".join(
+            [
+                command_evaluation.command.name
+                for command_evaluation in source_evaluation
+            ]
         )
+        failure_string = f"{source}:\n" f"\t{failed_commands_string}"
         assert failure_string in result.output
 
 
