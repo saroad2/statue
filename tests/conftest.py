@@ -141,6 +141,11 @@ def mock_evaluation_load_from_file(mocker):
     return mocker.patch.object(Evaluation, "load_from_file")
 
 
+@pytest.fixture
+def mock_evaluation_save_as_json(mocker):
+    return mocker.patch.object(Evaluation, "save_as_json")
+
+
 # Built-in Mocks
 
 

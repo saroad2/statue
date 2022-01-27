@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from pytest_cases import fixture
 
@@ -38,7 +39,8 @@ def mock_read_commands_map(mocker):
 
 
 def assert_successful_run(result):
-    assert result.exit_code == 0, f"Returned not zero with {result.exception}"
+    assert result.exception is None
+    assert result.exit_code == 0
     assert "Statue finished successfully!" in result.output
 
 
@@ -97,13 +99,11 @@ def test_run_and_save_to_file(
     cli_runner,
     mock_read_commands_map,
     mock_cache_save_evaluation,
-    tmpdir_factory,
     mock_cwd,
+    mock_evaluation_save_as_json,
 ):
     mock_read_commands_map.return_value = build_commands_map()
-    output_path = tmpdir_factory.mktemp("bla") / "output.json"
-
-    assert not output_path.exists()
+    output_path = Path("path/to/output/dir")
 
     result = cli_runner.invoke(statue_cli, ["run", "-o", str(output_path)])
 
@@ -111,15 +111,14 @@ def test_run_and_save_to_file(
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
 
-    with open(output_path, mode="r", encoding="utf-8") as fd:
-        saved_evaluation = json.load(fd)
-    assert set(saved_evaluation.keys()) == set(build_commands_map().keys())
+    mock_evaluation_save_as_json.assert_called_once_with(str(output_path))
 
 
 def test_run_over_recent_commands(
     cli_runner,
     mock_cache_evaluation_path,
     mock_evaluation_load_from_file,
+    mock_cache_save_evaluation,
     tmp_path_factory,
     mock_cwd,
 ):
@@ -132,11 +131,13 @@ def test_run_over_recent_commands(
     assert_successful_run(result)
     mock_cache_evaluation_path.assert_called_once_with(0)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+    mock_cache_save_evaluation.assert_called_once()
 
 
 def test_run_over_failed_commands(
     cli_runner,
     mock_cache_evaluation_path,
+    mock_cache_save_evaluation,
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
@@ -150,11 +151,13 @@ def test_run_over_failed_commands(
     assert_successful_run(result)
     mock_cache_evaluation_path.assert_called_once_with(0)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+    mock_cache_save_evaluation.assert_called_once()
 
 
 def test_run_over_previous_commands(
     cli_runner,
     mock_cache_evaluation_path,
+    mock_cache_save_evaluation,
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
@@ -169,11 +172,13 @@ def test_run_over_previous_commands(
     assert_successful_run(result)
     mock_cache_evaluation_path.assert_called_once_with(n - 1)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+    mock_cache_save_evaluation.assert_called_once()
 
 
 def test_run_over_previous_failed_commands(
     cli_runner,
     mock_cache_evaluation_path,
+    mock_cache_save_evaluation,
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
@@ -188,6 +193,7 @@ def test_run_over_previous_failed_commands(
     assert_successful_run(result)
     mock_cache_evaluation_path.assert_called_once_with(n - 1)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
+    mock_cache_save_evaluation.assert_called_once()
 
 
 def test_run_over_recent_commands_with_empty_cache(
