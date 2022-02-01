@@ -8,7 +8,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import Command
 from statue.exceptions import CommandExecutionError
-from statue.verbosity import SILENT, VERBOSE
+from statue.verbosity import SILENT
 from tests.constants import (
     ARG1,
     ARG2,
@@ -37,7 +37,6 @@ def case_no_args():
         help=COMMAND_HELP_STRING1,
         args=[],
         command_input=[COMMAND1, SOURCE1],
-        print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
         repr=(
             f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', "
             "args=[], version=None)"
@@ -90,7 +89,6 @@ def case_specified_version():
         help=COMMAND_HELP_STRING1,
         args=[],
         command_input=[COMMAND1, SOURCE1],
-        print=f'Running the following command: "{COMMAND1} {SOURCE1}"',
         repr=(
             f"Command(name='{COMMAND1}', help='{COMMAND_HELP_STRING1}', "
             f"args=[], version='{VERSION1}')"
@@ -131,7 +129,7 @@ def test_installed_version_is_null(command, out, mock_get_package):
 def test_execute(command, out, mock_subprocess, environ):
     command.execute(SOURCE1)
     mock_subprocess.assert_called_with(
-        out["command_input"], env=environ, check=False, capture_output=False
+        out["command_input"], env=environ, check=False, capture_output=True
     )
 
 
@@ -143,23 +141,6 @@ def test_execute_raises_error(command, out, mock_subprocess, environ):
         match=f'^Cannot execute "{command.name}" because it is not installed.$',
     ):
         command.execute(SOURCE1)
-
-
-@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_silently(command, out, mock_subprocess, environ):
-    command.execute(SOURCE1, verbosity=SILENT)
-    mock_subprocess.assert_called_with(
-        out["command_input"], env=environ, check=False, capture_output=True
-    )
-
-
-@parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)
-def test_execute_verbosely(command, out, mock_subprocess, environ, print_mock):
-    command.execute(SOURCE1, verbosity=VERBOSE)
-    mock_subprocess.assert_called_with(
-        out["command_input"], env=environ, check=False, capture_output=False
-    )
-    print_mock.assert_called_with(out["print"])
 
 
 @parametrize_with_cases(argnames="command, out", cases=THIS_MODULE)

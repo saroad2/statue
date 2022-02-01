@@ -1,6 +1,9 @@
 """Print related methods."""
 from typing import Any, Callable
 
+from statue.evaluation import Evaluation
+from statue.verbosity import DEFAULT_VERBOSITY, is_silent
+
 
 def print_title(
     title: str,
@@ -37,3 +40,34 @@ def print_boxed(
     print_method(border * (len(title) + 4))
     print_method(f"{border} {title.title()} {border}")
     print_method(border * (len(title) + 4))
+
+
+def print_evaluation(
+    evaluation: Evaluation,
+    verbosity: str = DEFAULT_VERBOSITY,
+    print_method: Callable[..., None] = print,
+):
+    """
+    Print evaluation in a readable way.
+
+    :param evaluation: The evaluation to print
+    :type evaluation: Evaluation
+    :param verbosity: Verbosity level of the printing
+    :type verbosity: str
+    :param print_method: Printing method. Default is builtin print
+    :type print_method: Callable[..., None]
+    """
+    for input_path, source_evaluation in evaluation.items():
+        if not is_silent(verbosity):
+            print_method("")
+            print_method("")
+            print_title(input_path, transform=False, print_method=print_method)
+            print_method("")
+        for command_evaluation in source_evaluation:
+            if not is_silent(verbosity):
+                print_title(
+                    command_evaluation.command.name,
+                    underline="-",
+                    print_method=print_method,
+                )
+                print_method(command_evaluation.captured_output)

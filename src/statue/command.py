@@ -9,8 +9,9 @@ from typing import Any, Dict, List, Optional
 
 import pkg_resources
 
+from statue.constants import ENCODING
 from statue.exceptions import CommandExecutionError
-from statue.verbosity import DEFAULT_VERBOSITY, is_silent, is_verbose
+from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
 
 @dataclass
@@ -19,6 +20,7 @@ class CommandEvaluation:
 
     command: "Command"
     success: bool
+    captured_output: str = field(default="")
 
     def as_json(self) -> Dict[str, Any]:
         """
@@ -47,6 +49,7 @@ class CommandEvaluation:
         return CommandEvaluation(
             command=Command(**command_evaluation["command"]),
             success=command_evaluation["success"],
+            captured_output=command_evaluation.get("captured_output", ""),
         )
 
 
@@ -193,24 +196,18 @@ class Command:
         self.install(verbosity=verbosity)
 
     def execute(  # pylint: disable=too-many-arguments
-        self,
-        source: str,
-        verbosity: str = DEFAULT_VERBOSITY,
+        self, source: str
     ) -> CommandEvaluation:
         """
         Execute the command.
 
         :param source: source files to check.
         :type: str
-        :param verbosity: Indicates the verbosity of the prints to console.
-        :type verbosity: str
         :return: Command's evaluation including the command itself and is it successful
         :rtype: CommandEvaluation
         """
         args = [self.name, source, *self.args]
-        if is_verbose(verbosity):
-            print(f"Running the following command: \"{' '.join(args)}\"")
-        return self._run_subprocess(args, verbosity)
+        return self._run_subprocess(args)
 
     def installed_version_match(self) -> bool:
         """
@@ -223,15 +220,24 @@ class Command:
             return True
         return self.installed_version == self.version
 
-    def _run_subprocess(self, args: List[str], verbosity: str) -> CommandEvaluation:
+    def _run_subprocess(self, args: List[str]) -> CommandEvaluation:
         try:
-            exit_code = subprocess.run(  # nosec
+            subprocess_result = subprocess.run(  # nosec
                 args,
                 env=os.environ,
                 check=False,
-                capture_output=is_silent(verbosity),
-            ).returncode
-            return CommandEvaluation(command=self, success=(exit_code == 0))
+                capture_output=True,
+            )
+            captured_stdout = subprocess_result.stdout.decode(ENCODING)
+            captured_stderr = subprocess_result.stderr.decode(ENCODING)
+            exit_code = subprocess_result.returncode
+            return CommandEvaluation(
+                command=self,
+                success=(exit_code == 0),
+                captured_output=(
+                    captured_stderr if len(captured_stderr) != 0 else captured_stdout
+                ),
+            )
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
 

@@ -3,6 +3,7 @@ from pathlib import Path
 from pytest_cases import fixture
 
 from statue.cli.cli import statue_cli
+from statue.commands_map import CommandsMap
 from statue.constants import SOURCES
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.verbosity import DEFAULT_VERBOSITY
@@ -15,21 +16,23 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
-from tests.util import command_mock
+from tests.util import build_failure_evaluation, command_mock
 
 
 def build_commands_map():
-    return {
-        SOURCE1: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND2),
-        ],
-        SOURCE2: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND3),
-            command_mock(name=COMMAND4),
-        ],
-    }
+    return CommandsMap(
+        {
+            SOURCE1: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND2),
+            ],
+            SOURCE2: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND3),
+                command_mock(name=COMMAND4),
+            ],
+        }
+    )
 
 
 @fixture
@@ -78,10 +81,12 @@ def test_run_and_install_uninstalled_commands(
     command1 = command_mock(COMMAND1, installed=True)
     command2 = command_mock(COMMAND2, installed=False)
     command3 = command_mock(COMMAND3, installed=True)
-    mock_read_commands_map.return_value = {
-        SOURCE1: [command1, command2],
-        SOURCE2: [command3],
-    }
+    mock_read_commands_map.return_value = CommandsMap(
+        {
+            SOURCE1: [command1, command2],
+            SOURCE2: [command3],
+        }
+    )
 
     result = cli_runner.invoke(statue_cli, ["run", "-i"])
 
@@ -143,7 +148,9 @@ def test_run_over_failed_commands(
 ):
     recent_cache = tmp_path_factory.mktemp("cache.json")
     mock_cache_evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.failure_map = build_commands_map()
+    mock_evaluation_load_from_file.return_value.failure_evaluation = (
+        build_failure_evaluation(build_commands_map())
+    )
 
     result = cli_runner.invoke(statue_cli, ["run", "-f"])
 
@@ -185,7 +192,9 @@ def test_run_over_previous_failed_commands(
     n = 5
     recent_cache = tmp_path_factory.mktemp("cache.json")
     mock_cache_evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.failure_map = build_commands_map()
+    mock_evaluation_load_from_file.return_value.failure_evaluation = (
+        build_failure_evaluation(build_commands_map())
+    )
 
     result = cli_runner.invoke(statue_cli, ["run", "-f", "-p", n])
 
@@ -214,21 +223,25 @@ def test_run_has_failed(
     mock_cache_save_evaluation,
     mock_cwd,
 ):
-    commands_map = {
-        SOURCE1: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND2, success=False),
-        ],
-        SOURCE2: [
-            command_mock(name=COMMAND1),
-            command_mock(name=COMMAND3, success=False),
-            command_mock(name=COMMAND4),
-        ],
-    }
-    failure_map = {
-        SOURCE1: [command_mock(name=COMMAND2, success=False)],
-        SOURCE2: [command_mock(name=COMMAND3, success=False)],
-    }
+    commands_map = CommandsMap(
+        {
+            SOURCE1: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND2, success=False),
+            ],
+            SOURCE2: [
+                command_mock(name=COMMAND1),
+                command_mock(name=COMMAND3, success=False),
+                command_mock(name=COMMAND4),
+            ],
+        }
+    )
+    failure_evaluation = build_failure_evaluation(
+        {
+            SOURCE1: [command_mock(name=COMMAND2, success=False)],
+            SOURCE2: [command_mock(name=COMMAND3, success=False)],
+        }
+    )
     mock_read_commands_map.return_value = commands_map
 
     result = cli_runner.invoke(statue_cli, ["run"])
@@ -236,10 +249,14 @@ def test_run_has_failed(
     assert result.exit_code == 1
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
-    for source, commands in failure_map.items():
-        failure_string = (
-            f"{source}:\n" f"\t{', '.join([command.name for command in commands])}"
+    for source, source_evaluation in failure_evaluation.items():
+        failed_commands_string = ", ".join(
+            [
+                command_evaluation.command.name
+                for command_evaluation in source_evaluation
+            ]
         )
+        failure_string = f"{source}:\n" f"\t{failed_commands_string}"
         assert failure_string in result.output
 
 

@@ -1,11 +1,19 @@
 """Commands map allow us to know which commands to run on each source."""
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Set, Union
+from typing import List, Optional, Sequence, Set, Union
 
-from statue.command import Command
 from statue.configuration import Configuration
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from statue.exceptions import MissingConfiguration
+
+
+class CommandsMap(dict):
+    """A mapping from source path to commands to run on it."""
+
+    @property
+    def total_commands_count(self):
+        """How many commands total in the commands map."""
+        return sum([len(value) for value in self.values()])
 
 
 def read_commands_map(
@@ -13,7 +21,7 @@ def read_commands_map(
     contexts: Optional[List[str]] = None,
     allow_list: Optional[List[str]] = None,
     deny_list: Optional[List[str]] = None,
-) -> Optional[Dict[str, List[Command]]]:
+) -> Optional[CommandsMap]:
     """
     Get commands map from user or from configuration file.
 
@@ -34,7 +42,7 @@ def read_commands_map(
     """
     if len(sources) == 0:
         sources = Configuration.sources_list()
-    commands_map = {}
+    commands_map = CommandsMap()
     for source in sources:
         instructions = None
         try:
