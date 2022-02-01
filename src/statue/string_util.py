@@ -1,8 +1,6 @@
 """Print related methods."""
-from typing import Callable
-
 from statue.evaluation import Evaluation
-from statue.verbosity import DEFAULT_VERBOSITY, is_silent
+from statue.verbosity import DEFAULT_VERBOSITY, is_verbose
 
 
 def title_string(
@@ -41,30 +39,31 @@ def boxed_string(original_string: str, border: str = "#") -> str:
     return vertical_border + middle_row + vertical_border
 
 
-def print_evaluation(
-    evaluation: Evaluation,
-    verbosity: str = DEFAULT_VERBOSITY,
-    print_method: Callable[..., None] = print,
-):
+def evaluation_string(
+    evaluation: Evaluation, verbosity: str = DEFAULT_VERBOSITY
+) -> str:
     """
-    Print evaluation in a readable way.
+    Create evaluation pretty string.
 
-    :param evaluation: The evaluation to print
+    :param evaluation: The evaluation to format
     :type evaluation: Evaluation
     :param verbosity: Verbosity level of the printing
     :type verbosity: str
-    :param print_method: Printing method. Default is builtin print
-    :type print_method: Callable[..., None]
+    :return: Evaluation as pretty string
+    :rtype: str
     """
+    returned = ""
     for input_path, source_evaluation in evaluation.items():
-        if not is_silent(verbosity):
-            print_method("")
-            print_method("")
-            print_method(title_string(input_path, transform=False))
-            print_method("")
+        returned += f"\n\n{title_string(input_path, transform=False)}\n\n"
         for command_evaluation in source_evaluation:
-            if not is_silent(verbosity):
-                print_method(
-                    title_string(command_evaluation.command.name, underline="-")
+            if is_verbose(verbosity):
+                returned += (
+                    f"{command_evaluation.command.name} "
+                    "ran with args: "
+                    f"{command_evaluation.command.args}\n"
                 )
-                print_method(command_evaluation.captured_output)
+            returned += (
+                f"{title_string(command_evaluation.command.name, underline=' - ')}\n"
+                f"{command_evaluation.captured_output}\n"
+            )
+    return returned

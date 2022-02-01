@@ -21,7 +21,7 @@ from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.runner import evaluate_commands_map
-from statue.string_util import boxed_string, print_evaluation
+from statue.string_util import boxed_string, evaluation_string
 from statue.verbosity import is_silent, is_verbose
 
 
@@ -152,11 +152,10 @@ def run_cli(  # pylint: disable=too-many-arguments
         )
     if not is_silent(verbosity):
         click.echo(boxed_string("Evaluation"))
-        print_evaluation(
-            evaluation if is_verbose(verbosity) else evaluation.failure_evaluation,
-            verbosity=verbosity,
-            print_method=click.echo,
+        printed_evaluation = (
+            evaluation if is_verbose(verbosity) else evaluation.failure_evaluation
         )
+        click.echo(evaluation_string(printed_evaluation, verbosity=verbosity))
     if cache:
         Cache.save_evaluation(evaluation)
     if output is not None:
