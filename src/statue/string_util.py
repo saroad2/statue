@@ -1,5 +1,5 @@
 """Print related methods."""
-from typing import Any, Callable
+from typing import Callable
 
 from statue.evaluation import Evaluation
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
@@ -25,21 +25,20 @@ def title_string(
     return returned
 
 
-def print_boxed(
-    title: str,
-    border: str = "#",
-    print_method: Callable[[Any], None] = print,
-) -> None:
+def boxed_string(original_string: str, border: str = "#") -> str:
     """
-    Print boxed context.
+    String of boxed context.
 
-    :param title: The title to print
+    :param original_string: The original string to wrap in box
+    :type original_string: str
     :param border: Character to use as border to the text
-    :param print_method: print method, can be either ``print`` or ``click.echo``
+    :type border: str
+    :return: Boxed string
+    :rtype: str
     """
-    print_method(border * (len(title) + 4))
-    print_method(f"{border} {title.title()} {border}")
-    print_method(border * (len(title) + 4))
+    vertical_border = border * (len(original_string) + 4)
+    middle_row = f"\n{border} {original_string.title()} {border}\n"
+    return vertical_border + middle_row + vertical_border
 
 
 def print_evaluation(
