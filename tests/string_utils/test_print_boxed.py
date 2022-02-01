@@ -2,7 +2,7 @@ from unittest.mock import Mock, call
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.print_util import print_boxed
+from statue.string_util import print_boxed
 from tests.util import assert_calls
 
 

@@ -5,24 +5,24 @@ from statue.evaluation import Evaluation
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
 
-def print_title(
-    title: str,
-    underline: str = "=",
-    transform: bool = True,
-    print_method: Callable[[Any], None] = print,
-) -> None:
+def title_string(
+    original_string: str, underline: str = "=", transform: bool = True
+) -> str:
     """
-    Print a title with a title line under it.
+    Create a title string with underline barrier row (markdown style).
 
-    :param title: The title to print
+    :param original_string: The original string to turn to title
+    :type original_string: str
     :param underline: Character to use as underline to the title
+    :type underline: str
     :param transform: Transform first letter of each word to upper case
-    :param print_method: print method, can be either ``print`` or ``click.echo``
+    :type transform: bool
+    :return: Markdown title string
+    :rtype: str
     """
-    if transform:
-        title = title.title()
-    print_method(title)
-    print_method(underline * len(title))
+    returned = original_string.title() if transform else original_string
+    returned += "\n" + underline * len(original_string)
+    return returned
 
 
 def print_boxed(
@@ -61,13 +61,11 @@ def print_evaluation(
         if not is_silent(verbosity):
             print_method("")
             print_method("")
-            print_title(input_path, transform=False, print_method=print_method)
+            print_method(title_string(input_path, transform=False))
             print_method("")
         for command_evaluation in source_evaluation:
             if not is_silent(verbosity):
-                print_title(
-                    command_evaluation.command.name,
-                    underline="-",
-                    print_method=print_method,
+                print_method(
+                    title_string(command_evaluation.command.name, underline="-")
                 )
                 print_method(command_evaluation.captured_output)

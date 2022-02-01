@@ -20,8 +20,8 @@ from statue.cli.util import (
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
-from statue.print_util import print_boxed, print_evaluation
 from statue.runner import evaluate_commands_map
+from statue.string_util import print_boxed, print_evaluation
 from statue.verbosity import is_silent, is_verbose
 
 
