@@ -20,9 +20,9 @@ from statue.cli.util import (
 from statue.commands_map import read_commands_map
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
-from statue.print_util import print_boxed, print_evaluation
 from statue.runner import evaluate_commands_map
-from statue.verbosity import is_silent, is_verbose
+from statue.string_util import boxed_string, evaluation_string
+from statue.verbosity import is_silent
 
 
 @statue_cli.command("run")
@@ -151,19 +151,15 @@ def run_cli(  # pylint: disable=too-many-arguments
             update_func=lambda command: __bar_update_func(bar, command),
         )
     if not is_silent(verbosity):
-        print_boxed("Evaluation", print_method=click.echo)
-        print_evaluation(
-            evaluation if is_verbose(verbosity) else evaluation.failure_evaluation,
-            verbosity=verbosity,
-            print_method=click.echo,
-        )
+        click.echo(boxed_string("Evaluation"))
+        click.echo(evaluation_string(evaluation, verbosity=verbosity))
     if cache:
         Cache.save_evaluation(evaluation)
     if output is not None:
         evaluation.save_as_json(output)
     click.echo()
     if not is_silent(verbosity):
-        print_boxed("Summary", print_method=click.echo)
+        click.echo(boxed_string("Summary"))
         click.echo()
     ctx.exit(__evaluate_failure_evaluation(evaluation.failure_evaluation))
 
