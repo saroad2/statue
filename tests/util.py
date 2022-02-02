@@ -27,11 +27,13 @@ def command_mock(
     installed=True,
     version=None,
     success=True,
+    args=None,
     captured_output="",
     installed_version="0.0.1",
 ):
     command = Command(name=name, help="This is help", version=version)
     command.name = name
+    command.args = args
     command.install = mock.Mock()
     command.update = mock.Mock()
     command.update_to_version = mock.Mock()
