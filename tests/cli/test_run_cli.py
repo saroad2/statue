@@ -18,6 +18,8 @@ from tests.constants import (
 )
 from tests.util import build_failure_evaluation, command_mock
 
+EVALUATION_STRING = "This is an evaluation"
+
 
 def build_commands_map():
     return CommandsMap(
@@ -40,10 +42,22 @@ def mock_read_commands_map(mocker):
     return mocker.patch("statue.cli.run.read_commands_map")
 
 
+@fixture
+def mock_evaluation_string(mocker):
+    evaluation_string_mock = mocker.patch("statue.cli.run.evaluation_string")
+    evaluation_string_mock.return_value = EVALUATION_STRING
+    return evaluation_string_mock
+
+
 def assert_successful_run(result):
     assert result.exception is None
     assert result.exit_code == 0
     assert "Statue finished successfully!" in result.output
+
+
+def assert_evaluation_was_printed(result, evaluation_string_mock):
+    evaluation_string_mock.assert_called_once()
+    assert EVALUATION_STRING in result.output
 
 
 def assert_usage_was_shown(result):
@@ -52,7 +66,11 @@ def assert_usage_was_shown(result):
 
 
 def test_simple_run(
-    cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
+    cli_runner,
+    mock_read_commands_map,
+    mock_cache_save_evaluation,
+    mock_cwd,
+    mock_evaluation_string,
 ):
     mock_read_commands_map.return_value = build_commands_map()
 
@@ -61,10 +79,15 @@ def test_simple_run(
     assert_successful_run(result)
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_with_no_cache(
-    cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
+    cli_runner,
+    mock_read_commands_map,
+    mock_cache_save_evaluation,
+    mock_cwd,
+    mock_evaluation_string,
 ):
     mock_read_commands_map.return_value = build_commands_map()
 
@@ -73,10 +96,15 @@ def test_run_with_no_cache(
     assert_successful_run(result)
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_not_called()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_and_install_uninstalled_commands(
-    cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
+    cli_runner,
+    mock_read_commands_map,
+    mock_cache_save_evaluation,
+    mock_cwd,
+    mock_evaluation_string,
 ):
     command1 = command_mock(COMMAND1, installed=True)
     command2 = command_mock(COMMAND2, installed=False)
@@ -93,6 +121,7 @@ def test_run_and_install_uninstalled_commands(
     assert_successful_run(result)
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
     command1.update_to_version.assert_not_called()
     command2.update_to_version.assert_called_once_with(verbosity=DEFAULT_VERBOSITY)
@@ -104,6 +133,7 @@ def test_run_and_save_to_file(
     mock_read_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
+    mock_evaluation_string,
     mock_evaluation_save_as_json,
 ):
     mock_read_commands_map.return_value = build_commands_map()
@@ -114,6 +144,7 @@ def test_run_and_save_to_file(
     assert_successful_run(result)
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
     mock_evaluation_save_as_json.assert_called_once_with(str(output_path))
 
@@ -125,6 +156,7 @@ def test_run_over_recent_commands(
     mock_cache_save_evaluation,
     tmp_path_factory,
     mock_cwd,
+    mock_evaluation_string,
 ):
     recent_cache = tmp_path_factory.mktemp("cache.json")
     mock_cache_evaluation_path.return_value = recent_cache
@@ -136,6 +168,7 @@ def test_run_over_recent_commands(
     mock_cache_evaluation_path.assert_called_once_with(0)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_failed_commands(
@@ -145,6 +178,7 @@ def test_run_over_failed_commands(
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
+    mock_evaluation_string,
 ):
     recent_cache = tmp_path_factory.mktemp("cache.json")
     mock_cache_evaluation_path.return_value = recent_cache
@@ -158,6 +192,7 @@ def test_run_over_failed_commands(
     mock_cache_evaluation_path.assert_called_once_with(0)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_previous_commands(
@@ -167,6 +202,7 @@ def test_run_over_previous_commands(
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
+    mock_evaluation_string,
 ):
     n = 5
     recent_cache = tmp_path_factory.mktemp("cache.json")
@@ -179,6 +215,7 @@ def test_run_over_previous_commands(
     mock_cache_evaluation_path.assert_called_once_with(n - 1)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_previous_failed_commands(
@@ -188,6 +225,7 @@ def test_run_over_previous_failed_commands(
     mock_evaluation_load_from_file,
     tmp_path_factory,
     mock_cwd,
+    mock_evaluation_string,
 ):
     n = 5
     recent_cache = tmp_path_factory.mktemp("cache.json")
@@ -202,12 +240,14 @@ def test_run_over_previous_failed_commands(
     mock_cache_evaluation_path.assert_called_once_with(n - 1)
     mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_recent_commands_with_empty_cache(
     cli_runner,
     mock_cache_evaluation_path,
     mock_cwd,
+    mock_evaluation_string,
 ):
     mock_cache_evaluation_path.return_value = None
 
@@ -215,6 +255,7 @@ def test_run_over_recent_commands_with_empty_cache(
 
     assert_usage_was_shown(result)
     mock_cache_evaluation_path.assert_called_once_with(0)
+    mock_evaluation_string.assert_not_called()
 
 
 def test_run_has_failed(
@@ -222,6 +263,7 @@ def test_run_has_failed(
     mock_read_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
+    mock_evaluation_string,
 ):
     commands_map = CommandsMap(
         {
@@ -249,6 +291,8 @@ def test_run_has_failed(
     assert result.exit_code == 1
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
+
     for source, source_evaluation in failure_evaluation.items():
         failed_commands_string = ", ".join(
             [
@@ -265,6 +309,7 @@ def test_run_with_unknown_context(
     mock_read_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
+    mock_evaluation_string,
 ):
     mock_read_commands_map.side_effect = UnknownContext(
         context_name=NOT_EXISTING_CONTEXT
@@ -275,6 +320,7 @@ def test_run_with_unknown_context(
     assert result.exit_code == 1
     assert f'Could not find context named "{NOT_EXISTING_CONTEXT}".' in result.output
     mock_cache_save_evaluation.assert_not_called()
+    mock_evaluation_string.assert_not_called()
 
 
 def test_run_with_missing_configuration(
@@ -282,6 +328,7 @@ def test_run_with_missing_configuration(
     mock_read_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
+    mock_evaluation_string,
 ):
     mock_read_commands_map.side_effect = MissingConfiguration(part_name=SOURCES)
 
@@ -295,6 +342,7 @@ def test_run_with_missing_configuration(
         "default configuration."
     ) in result.output
     mock_cache_save_evaluation.assert_not_called()
+    mock_evaluation_string.assert_not_called()
 
 
 def test_run_with_none_commands_map(
@@ -302,16 +350,22 @@ def test_run_with_none_commands_map(
     mock_read_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
+    mock_evaluation_string,
 ):
     mock_read_commands_map.return_value = None
 
     result = cli_runner.invoke(statue_cli, ["run"])
     assert_usage_was_shown(result)
     mock_cache_save_evaluation.assert_not_called()
+    mock_evaluation_string.assert_not_called()
 
 
 def test_run_uninstalled_command(
-    cli_runner, mock_read_commands_map, mock_cache_save_evaluation, mock_cwd
+    cli_runner,
+    mock_read_commands_map,
+    mock_cache_save_evaluation,
+    mock_cwd,
+    mock_evaluation_string,
 ):
     command1 = command_mock(COMMAND1, installed=True)
     command2 = command_mock(COMMAND2, installed=False)
@@ -331,3 +385,4 @@ def test_run_uninstalled_command(
     ) in result.output
     mock_read_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_not_called()
+    mock_evaluation_string.assert_not_called()
