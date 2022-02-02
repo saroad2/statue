@@ -24,6 +24,15 @@ class SourceEvaluation:
         """
         return len(self.commands_evaluations)
 
+    def append(self, command_evaluation: CommandEvaluation) -> None:
+        """
+        Append new command evaluation.
+
+        :param command_evaluation: Evaluation to be appended
+        :type command_evaluation: CommandEvaluation
+        """
+        self.commands_evaluations.append(command_evaluation)
+
     def as_json(self) -> List[Dict[str, Any]]:
         """
         Return source evaluation as json dictionary.

@@ -14,6 +14,7 @@ from statue.cli.util import (
     deny_option,
     failure_style,
     silent_option,
+    success_style,
     verbose_option,
     verbosity_option,
 )
@@ -203,6 +204,11 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
     return evaluation.commands_map
 
 
-def __bar_update_func(bar, command):
+def __bar_update_func(bar, partial_evaluation: Evaluation):
     bar.update(1)
-    bar.label = command.name
+
+    failures = failure_style(f"{partial_evaluation.failed_commands_number} failed")
+    success = success_style(
+        f"{partial_evaluation.successful_commands_number} succeeded"
+    )
+    bar.label = f"{failures}, {success}"
