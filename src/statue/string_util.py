@@ -56,14 +56,15 @@ def evaluation_string(
     for input_path, source_evaluation in evaluation.items():
         returned += f"\n\n{title_string(input_path, transform=False)}\n\n"
         for command_evaluation in source_evaluation:
+            command_title = title_string(
+                command_evaluation.command.name, underline="-", transform=False
+            )
+            returned += f"{command_title}\n"
             if is_verbose(verbosity):
                 returned += (
                     f"{command_evaluation.command.name} "
                     "ran with args: "
                     f"{command_evaluation.command.args}\n"
                 )
-            returned += (
-                f"{title_string(command_evaluation.command.name, underline=' - ')}\n"
-                f"{command_evaluation.captured_output}\n"
-            )
+            returned += f"{command_evaluation.captured_output}\n"
     return returned
