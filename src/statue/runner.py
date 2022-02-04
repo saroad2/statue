@@ -7,7 +7,7 @@ from statue.evaluation import Evaluation, SourceEvaluation
 
 def evaluate_commands_map(
     commands_map: Dict[str, List[Command]],
-    update_func: Optional[Callable[[Command], None]] = None,
+    update_func: Optional[Callable[[Evaluation], None]] = None,
 ) -> Evaluation:
     """
     Run commands map and return evaluation report.
@@ -20,11 +20,10 @@ def evaluate_commands_map(
     :return: Evaluation
     """
     evaluation = Evaluation()
-    for input_path, commands in commands_map.items():
-        source_evaluation = SourceEvaluation()
+    for source, commands in commands_map.items():
+        evaluation[source] = SourceEvaluation()
         for command in commands:
+            evaluation[source].append(command.execute(source))
             if update_func is not None:
-                update_func(command)
-            source_evaluation.commands_evaluations.append(command.execute(input_path))
-        evaluation[input_path] = source_evaluation
+                update_func(evaluation)
     return evaluation
