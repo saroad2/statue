@@ -135,5 +135,3 @@ def test_evaluate_commands_map_update_func(commands_map, evaluation):
     )
     all_commands = list(itertools.chain.from_iterable(commands_map.values()))
     assert update_func_mock.call_count == len(all_commands)
-    for command in all_commands:
-        update_func_mock.assert_any_call(command)
