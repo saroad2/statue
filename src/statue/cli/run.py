@@ -2,7 +2,7 @@
 """Run CLI."""
 from itertools import chain
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 import click
 
@@ -13,7 +13,9 @@ from statue.cli.util import (
     contexts_option,
     deny_option,
     failure_style,
+    name_style,
     silent_option,
+    source_style,
     success_style,
     verbose_option,
     verbosity_option,
@@ -78,7 +80,7 @@ from statue.verbosity import is_silent
 )
 def run_cli(  # pylint: disable=too-many-arguments
     ctx: click.Context,
-    sources: List[Union[Path, str]],
+    sources: Sequence[Union[Path, str]],
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
@@ -97,7 +99,8 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = None
-    sources = sources if len(sources) != 0 else Configuration.sources_list()
+    if len(sources) == 0:
+        sources = Configuration.sources_list()
     try:
         commands_map = __get_commands_map(
             sources=sources,
@@ -174,10 +177,10 @@ def __evaluate_failure_evaluation(failure_evaluation: Evaluation):
     click.echo("Statue has failed on the following commands:")
     click.echo()
     for source, source_evaluation in failure_evaluation.items():
-        click.echo(f"{source}:")
+        click.echo(f"{source_style(source)}:")
         failed_commands_string = ", ".join(
             [
-                command_evaluation.command.name
+                name_style(command_evaluation.command.name)
                 for command_evaluation in source_evaluation
             ]
         )

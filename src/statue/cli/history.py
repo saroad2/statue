@@ -7,7 +7,7 @@ import click
 
 from statue.cache import Cache
 from statue.cli.cli import statue_cli
-from statue.cli.util import bullet_style, failure_style, success_style
+from statue.cli.util import bullet_style, failure_style, source_style, success_style
 from statue.command import CommandEvaluation
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import Evaluation
@@ -115,7 +115,7 @@ def show_evaluation_cli(number):
         f"({evaluation_success_ratio(evaluation)} successful)"
     )
     for source, source_evaluation in evaluation.items():
-        click.echo(f"{source}:")
+        click.echo(f"{source_style(source)}:")
         for command_evaluation in source_evaluation.commands_evaluations:
             click.echo(
                 f"\t{command_evaluation.command.name} - "
