@@ -40,8 +40,6 @@ def read_commands_map(
     :return: Dictionary from source file to the commands to run on it.
     :rtype: None or commands dictionary
     """
-    if len(sources) == 0:
-        sources = Configuration.sources_list()
     commands_map = CommandsMap()
     for source in sources:
         instructions = None

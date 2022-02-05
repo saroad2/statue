@@ -19,6 +19,7 @@ from statue.cli.util import (
     verbosity_option,
 )
 from statue.commands_map import read_commands_map
+from statue.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.runner import evaluate_commands_map
@@ -96,6 +97,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = None
+    sources = sources if len(sources) != 0 else Configuration.sources_list()
     try:
         commands_map = __get_commands_map(
             sources=sources,
