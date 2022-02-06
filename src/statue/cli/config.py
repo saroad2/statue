@@ -9,9 +9,25 @@ import git
 import toml
 
 from statue.cli.cli import statue_cli
-from statue.cli.util import allow_option, contexts_option, deny_option, verbose_option
+from statue.cli.util import (
+    allow_option,
+    bullet_style,
+    contexts_option,
+    deny_option,
+    name_style,
+    source_style,
+    verbose_option,
+)
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
+from statue.constants import (
+    ALLOW_LIST,
+    COMMANDS,
+    CONTEXTS,
+    DENY_LIST,
+    ENCODING,
+    SOURCES,
+    VERSION,
+)
 from statue.sources_finder import expend, find_sources
 
 YES = ["y", "yes"]
@@ -23,6 +39,34 @@ DEFAULT_OPTION = "yes"
 @statue_cli.group("config")
 def config_cli():
     """Configuration related actions."""
+
+
+@config_cli.command("show-tree")
+def show_tree():
+    """
+    Show sources configuration as a tree.
+
+    This method prints the sources' configuration as a tree, including:
+    contexts, allow and deny lists and matching commands.
+    """
+    sources_list = Configuration.sources_list()
+    if len(sources_list) == 0:
+        click.echo("No sources configuration is specified.")
+    for source in sources_list:
+        source_config = Configuration.get_source_configuration(source)
+        contexts = source_config.get(CONTEXTS)
+        allowed = source_config.get(ALLOW_LIST)
+        denied = source_config.get(DENY_LIST)
+        click.echo(
+            f"{source_style(source)} "
+            f"({bullet_style('contexts')}: {__join_names(contexts)}, "
+            f"{bullet_style('allowed')}: {__join_names(allowed)}, "
+            f"{bullet_style('denied')}: {__join_names(denied)}):"
+        )
+        commands = Configuration.read_commands(
+            contexts=contexts, allow_list=allowed, deny_list=denied
+        )
+        click.echo(f"\t{__join_names([command.name for command in commands])}")
 
 
 @config_cli.command("init")
@@ -190,3 +234,9 @@ def __get_default_contexts(source: Path):
     if source.name == "setup.py":
         return ["fast"]
     return ["standard"]
+
+
+def __join_names(names_list):
+    if names_list is None or len(names_list) == 0:
+        return "empty"
+    return ", ".join([name_style(name) for name in names_list])

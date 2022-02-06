@@ -33,6 +33,17 @@ verbose_option = click.option(
 )
 
 
+def source_style(source):
+    """
+    Styling function to emphasise sources paths.
+
+    :param source: The source name to style
+    :return: Styles source
+    :rtype: str
+    """
+    return click.style(source, fg="cyan")
+
+
 def name_style(name):
     """
     Styling function to emphasise names.
