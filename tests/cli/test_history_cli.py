@@ -55,7 +55,7 @@ def assert_evaluations(result, evaluations):
             r"successful\)"
         )
         assert re.search(
-            fr"{i}\) {TIME_REGEX} - {successful} {success_ratio}", result.output
+            rf"{i}\) {TIME_REGEX} - {successful} {success_ratio}", result.output
         )
 
 
