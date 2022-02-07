@@ -201,7 +201,7 @@ class Command:
         :type verbosity: str
         """
         if not self.installed():
-            self.install()
+            self.install(verbosity=verbosity)
             return
         if self.version is None:
             # If no version is specified, we update package to its latest version
