@@ -1,9 +1,9 @@
 [commands.darglint]
-add_args = [ "--ignore-regex=.*_cli", "--ignore-properties"]
+add_args = [ "--ignore-regex=.*_cli", "--ignore-properties",]
 version = "1.8.1"
 
 [commands.black]
-version = "21.11b1"
+version = "22.1.0"
 
 [commands.flake8]
 version = "4.0.1"
@@ -12,13 +12,13 @@ version = "4.0.1"
 version = "5.10.1"
 
 [commands.mypy]
-version = "0.910"
+version = "0.931"
 
 [commands.pylint]
-version = "2.12.1"
+version = "2.12.2"
 
 [commands.bandit]
-version = "1.7.1"
+version = "1.7.2"
 
 [commands.pydocstyle]
 version = "6.1.1"
