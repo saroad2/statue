@@ -10,6 +10,8 @@ from tests.constants import (
     ARG2,
     COMMAND1,
     COMMAND2,
+    COMMAND_CAPTURED_OUTPUT1,
+    COMMAND_CAPTURED_OUTPUT2,
     COMMAND_HELP_STRING1,
     COMMAND_HELP_STRING2,
     SOURCE1,
@@ -24,7 +26,7 @@ def case_empty():
 
 
 def case_one_source_no_commands():
-    evaluation_json = {SOURCE1: []}
+    evaluation_json = {SOURCE1: dict(commands_evaluations=[])}
     evaluation = Evaluation()
     evaluation[SOURCE1] = SourceEvaluation()
     return evaluation_json, evaluation
@@ -32,18 +34,23 @@ def case_one_source_no_commands():
 
 def case_one_source_one_commands():
     evaluation_json = {
-        SOURCE1: [
-            dict(
-                command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
-                success=True,
-            )
-        ]
+        SOURCE1: dict(
+            commands_evaluations=[
+                dict(
+                    command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+                    captured_output=COMMAND_CAPTURED_OUTPUT1,
+                    success=True,
+                )
+            ]
+        )
     }
     evaluation = Evaluation()
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=Command(COMMAND1, help=COMMAND_HELP_STRING1), success=True
+                command=Command(COMMAND1, help=COMMAND_HELP_STRING1),
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
+                success=True,
             )
         ]
     )
@@ -52,27 +59,34 @@ def case_one_source_one_commands():
 
 def case_one_source_two_commands():
     evaluation_json = {
-        SOURCE1: [
-            dict(
-                command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
-                success=True,
-            ),
-            dict(
-                command=dict(
-                    name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]
+        SOURCE1: dict(
+            commands_evaluations=[
+                dict(
+                    command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+                    captured_output=COMMAND_CAPTURED_OUTPUT1,
+                    success=True,
                 ),
-                success=False,
-            ),
-        ]
+                dict(
+                    command=dict(
+                        name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]
+                    ),
+                    captured_output=COMMAND_CAPTURED_OUTPUT2,
+                    success=False,
+                ),
+            ]
+        )
     }
     evaluation = Evaluation()
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=Command(COMMAND1, help=COMMAND_HELP_STRING1), success=True
+                command=Command(COMMAND1, help=COMMAND_HELP_STRING1),
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
+                success=True,
             ),
             CommandEvaluation(
                 command=Command(COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]),
+                captured_output=COMMAND_CAPTURED_OUTPUT2,
                 success=False,
             ),
         ]
@@ -82,26 +96,34 @@ def case_one_source_two_commands():
 
 def case_two_sources_two_commands():
     evaluation_json = {
-        SOURCE1: [
-            dict(
-                command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
-                success=True,
-            )
-        ],
-        SOURCE2: [
-            dict(
-                command=dict(
-                    name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]
-                ),
-                success=False,
-            )
-        ],
+        SOURCE1: dict(
+            commands_evaluations=[
+                dict(
+                    command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+                    captured_output=COMMAND_CAPTURED_OUTPUT1,
+                    success=True,
+                )
+            ]
+        ),
+        SOURCE2: dict(
+            commands_evaluations=[
+                dict(
+                    command=dict(
+                        name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]
+                    ),
+                    captured_output=COMMAND_CAPTURED_OUTPUT2,
+                    success=False,
+                )
+            ]
+        ),
     }
     evaluation = Evaluation()
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=Command(COMMAND1, help=COMMAND_HELP_STRING1), success=True
+                command=Command(COMMAND1, help=COMMAND_HELP_STRING1),
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
+                success=True,
             ),
         ]
     )
@@ -109,6 +131,7 @@ def case_two_sources_two_commands():
         [
             CommandEvaluation(
                 command=Command(COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]),
+                captured_output=COMMAND_CAPTURED_OUTPUT2,
                 success=False,
             ),
         ]

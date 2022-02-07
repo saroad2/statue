@@ -33,17 +33,19 @@ class SourceEvaluation:
         """
         self.commands_evaluations.append(command_evaluation)
 
-    def as_json(self) -> List[Dict[str, Any]]:
+    def as_json(self) -> Dict[str, Any]:
         """
         Return source evaluation as json dictionary.
 
         :return: Self as dictionary
         :rtype: Dict[str, Any]
         """
-        return [
-            command_evaluation.as_json()
-            for command_evaluation in self.commands_evaluations
-        ]
+        return dict(
+            commands_evaluations=[
+                command_evaluation.as_json()
+                for command_evaluation in self.commands_evaluations
+            ]
+        )
 
     @property
     def success(self) -> bool:
@@ -95,7 +97,7 @@ class SourceEvaluation:
         return self.commands_number - self.successful_commands_number
 
     @classmethod
-    def from_json(cls, source_evaluation: List[Dict[str, Any]]) -> "SourceEvaluation":
+    def from_json(cls, source_evaluation: Dict[str, Any]) -> "SourceEvaluation":
         """
         Read source evaluation from json list.
 
@@ -107,7 +109,7 @@ class SourceEvaluation:
         return SourceEvaluation(
             commands_evaluations=[
                 CommandEvaluation.from_json(command_evaluation)
-                for command_evaluation in source_evaluation
+                for command_evaluation in source_evaluation["commands_evaluations"]
             ]
         )
 
@@ -194,7 +196,7 @@ class Evaluation:
         """
         return self.sources_evaluations.items()
 
-    def as_json(self) -> Dict[str, List[Dict[str, Any]]]:
+    def as_json(self) -> Dict[str, Any]:
         """
         Return evaluation as json dictionary.
 
@@ -323,7 +325,7 @@ class Evaluation:
         return Evaluation(sources_evaluations=failure_dict)
 
     @classmethod
-    def from_json(cls, evaluation: Dict[str, List[Dict[str, Any]]]) -> "Evaluation":
+    def from_json(cls, evaluation: Dict[str, Any]) -> "Evaluation":
         """
         Read evaluation from json dictionary.
 

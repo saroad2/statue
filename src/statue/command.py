@@ -34,7 +34,11 @@ class CommandEvaluation:
             for key, value in asdict(self.command).items()
             if value is not None
         }
-        return dict(command=command_json, success=self.success)
+        return dict(
+            command=command_json,
+            captured_output=self.captured_output,
+            success=self.success,
+        )
 
     @classmethod
     def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
@@ -49,7 +53,7 @@ class CommandEvaluation:
         return CommandEvaluation(
             command=Command(**command_evaluation["command"]),
             success=command_evaluation["success"],
-            captured_output=command_evaluation.get("captured_output", ""),
+            captured_output=command_evaluation["captured_output"],
         )
 
 
