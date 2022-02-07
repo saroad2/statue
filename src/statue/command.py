@@ -117,8 +117,7 @@ class Command:
         :return: Either the command is installed or not
         :rtype: bool
         """
-        package = self._get_package()
-        return package is not None
+        return self.installed_version is not None
 
     def installed_correctly(self) -> bool:
         """
@@ -128,6 +127,17 @@ class Command:
         :rtype: bool
         """
         return self.installed() and self.installed_version_match()
+
+    def installed_version_match(self) -> bool:
+        """
+        Is the installed version match the specified version.
+
+        :return: is the installed version matches the desired version
+        :rtype: bool
+        """
+        if self.version is None:
+            return True
+        return self.installed_version == self.version
 
     def install(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
         """
@@ -217,17 +227,6 @@ class Command:
         """
         args = [self.name, source, *self.args]
         return self._run_subprocess(args)
-
-    def installed_version_match(self) -> bool:
-        """
-        Is the installed version match the specified version.
-
-        :return: is the installed version matches the desired version
-        :rtype: bool
-        """
-        if self.version is None:
-            return True
-        return self.installed_version == self.version
 
     def _run_subprocess(self, args: List[str]) -> CommandEvaluation:
         try:
