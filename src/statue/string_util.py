@@ -65,6 +65,8 @@ def evaluation_string(
                     f"{command_evaluation.command.name} "
                     "ran with args: "
                     f"{command_evaluation.command.args}\n"
+                    f"Finished in {command_evaluation.execution_duration:.2f} "
+                    "seconds.\n"
                 )
             returned += f"{command_evaluation.captured_output_string}\n"
     return returned
