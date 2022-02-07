@@ -1,3 +1,5 @@
+import random
+
 from statue.constants import HELP, STANDARD
 from statue.context import Context
 
@@ -11,7 +13,11 @@ def name_and_help_string(name):
 
 def command_strings(name):
     name, help_string = name_and_help_string(name)
-    captured_output = f"This is a captured output of {name}"
+    captured_output = [
+        f"This is a captured output of {name}",
+        "It should be multiline",
+        f"Here is some random number: {random.randint(0, 100)}",
+    ]
     return name, help_string, captured_output
 
 

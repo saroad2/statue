@@ -20,7 +20,12 @@ class CommandEvaluation:
 
     command: "Command"
     success: bool
-    captured_output: str = field(default="")
+    captured_output: List[str] = field(default_factory=list)
+
+    @property
+    def captured_output_string(self):
+        """Join captured output into a single string."""
+        return "\n".join(self.captured_output)
 
     def as_json(self) -> Dict[str, Any]:
         """
@@ -235,12 +240,13 @@ class Command:
             captured_stdout = subprocess_result.stdout.decode(ENCODING)
             captured_stderr = subprocess_result.stderr.decode(ENCODING)
             exit_code = subprocess_result.returncode
+            captured_output = (
+                captured_stderr if len(captured_stderr) != 0 else captured_stdout
+            )
             return CommandEvaluation(
                 command=self,
                 success=(exit_code == 0),
-                captured_output=(
-                    captured_stderr if len(captured_stderr) != 0 else captured_stdout
-                ),
+                captured_output=captured_output.split("\n"),
             )
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
