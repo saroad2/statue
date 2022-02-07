@@ -66,5 +66,5 @@ def evaluation_string(
                     "ran with args: "
                     f"{command_evaluation.command.args}\n"
                 )
-            returned += f"{command_evaluation.captured_output}\n"
+            returned += f"{command_evaluation.captured_output_string}\n"
     return returned

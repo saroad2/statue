@@ -37,6 +37,7 @@ def case_one_source_one_command():
         }
     )
     kwargs = {}
+    joined_output = "\n".join(COMMAND_CAPTURED_OUTPUT1)
     result = (
         "\n\n"
         "source1\n"
@@ -44,7 +45,7 @@ def case_one_source_one_command():
         "\n"
         "command1\n"
         "--------\n"
-        f"{COMMAND_CAPTURED_OUTPUT1}\n"
+        f"{joined_output}\n"
     )
     return evaluation, kwargs, result
 
@@ -69,6 +70,8 @@ def case_one_source_two_commands():
         }
     )
     kwargs = {}
+    joined_command1_output = "\n".join(COMMAND_CAPTURED_OUTPUT1)
+    joined_command2_output = "\n".join(COMMAND_CAPTURED_OUTPUT2)
     result = (
         "\n\n"
         "source1\n"
@@ -76,10 +79,10 @@ def case_one_source_two_commands():
         "\n"
         "command1\n"
         "--------\n"
-        f"{COMMAND_CAPTURED_OUTPUT1}\n"
+        f"{joined_command1_output}\n"
         "command2\n"
         "--------\n"
-        f"{COMMAND_CAPTURED_OUTPUT2}\n"
+        f"{joined_command2_output}\n"
     )
     return evaluation, kwargs, result
 
@@ -108,18 +111,20 @@ def case_two_sources_two_commands():
         }
     )
     kwargs = {}
+    joined_command1_output = "\n".join(COMMAND_CAPTURED_OUTPUT1)
+    joined_command2_output = "\n".join(COMMAND_CAPTURED_OUTPUT2)
     result = (
         "\n\n"
         "source1\n"
         "=======\n\n"
         "command1\n"
         "--------\n"
-        f"{COMMAND_CAPTURED_OUTPUT1}\n\n\n"
+        f"{joined_command1_output}\n\n\n"
         "source2\n"
         "=======\n\n"
         "command2\n"
         "--------\n"
-        f"{COMMAND_CAPTURED_OUTPUT2}\n"
+        f"{joined_command2_output}\n"
     )
     return evaluation, kwargs, result
 
@@ -139,6 +144,7 @@ def case_evaluation_string_verbose():
         }
     )
     kwargs = dict(verbosity=VERBOSE)
+    joined_command_output = "\n".join(COMMAND_CAPTURED_OUTPUT1)
     result = (
         "\n\n"
         "source1\n"
@@ -147,7 +153,7 @@ def case_evaluation_string_verbose():
         "command1\n"
         "--------\n"
         "command1 ran with args: ['a', 'b', 'c']\n"
-        f"{COMMAND_CAPTURED_OUTPUT1}\n"
+        f"{joined_command_output}\n"
     )
     return evaluation, kwargs, result
 

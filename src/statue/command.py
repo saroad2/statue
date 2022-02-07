@@ -20,7 +20,12 @@ class CommandEvaluation:
 
     command: "Command"
     success: bool
-    captured_output: str = field(default="")
+    captured_output: List[str] = field(default_factory=list)
+
+    @property
+    def captured_output_string(self):
+        """Join captured output into a single string."""
+        return "\n".join(self.captured_output)
 
     def as_json(self) -> Dict[str, Any]:
         """
@@ -34,7 +39,11 @@ class CommandEvaluation:
             for key, value in asdict(self.command).items()
             if value is not None
         }
-        return dict(command=command_json, success=self.success)
+        return dict(
+            command=command_json,
+            captured_output=self.captured_output,
+            success=self.success,
+        )
 
     @classmethod
     def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
@@ -49,7 +58,7 @@ class CommandEvaluation:
         return CommandEvaluation(
             command=Command(**command_evaluation["command"]),
             success=command_evaluation["success"],
-            captured_output=command_evaluation.get("captured_output", ""),
+            captured_output=command_evaluation["captured_output"],
         )
 
 
@@ -223,20 +232,21 @@ class Command:
     def _run_subprocess(self, args: List[str]) -> CommandEvaluation:
         try:
             subprocess_result = subprocess.run(  # nosec
-                args,
-                env=os.environ,
-                check=False,
-                capture_output=True,
+                args, env=os.environ, check=False, capture_output=True
             )
             captured_stdout = subprocess_result.stdout.decode(ENCODING)
             captured_stderr = subprocess_result.stderr.decode(ENCODING)
             exit_code = subprocess_result.returncode
+            captured_output_as_string = (
+                captured_stderr if len(captured_stderr) != 0 else captured_stdout
+            )
+            captured_output = (
+                captured_output_as_string.split("\n")
+                if len(captured_output_as_string) != 0
+                else []
+            )
             return CommandEvaluation(
-                command=self,
-                success=(exit_code == 0),
-                captured_output=(
-                    captured_stderr if len(captured_stderr) != 0 else captured_stdout
-                ),
+                command=self, success=(exit_code == 0), captured_output=captured_output
             )
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
