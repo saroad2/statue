@@ -232,21 +232,21 @@ class Command:
     def _run_subprocess(self, args: List[str]) -> CommandEvaluation:
         try:
             subprocess_result = subprocess.run(  # nosec
-                args,
-                env=os.environ,
-                check=False,
-                capture_output=True,
+                args, env=os.environ, check=False, capture_output=True
             )
             captured_stdout = subprocess_result.stdout.decode(ENCODING)
             captured_stderr = subprocess_result.stderr.decode(ENCODING)
             exit_code = subprocess_result.returncode
-            captured_output = (
+            captured_output_as_string = (
                 captured_stderr if len(captured_stderr) != 0 else captured_stdout
             )
+            captured_output = (
+                captured_output_as_string.split("\n")
+                if len(captured_output_as_string) != 0
+                else []
+            )
             return CommandEvaluation(
-                command=self,
-                success=(exit_code == 0),
-                captured_output=captured_output.split("\n"),
+                command=self, success=(exit_code == 0), captured_output=captured_output
             )
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
