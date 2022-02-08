@@ -1,3 +1,5 @@
+import random
+
 from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
@@ -13,7 +15,6 @@ from tests.constants import (
     SOURCE2,
     SUCCESSFUL_TAG,
 )
-from tests.util import build_failure_evaluation
 
 
 @case(tags=[SUCCESSFUL_TAG])
@@ -30,15 +31,35 @@ def case_all_successful():
         {
             SOURCE1: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND1, success=True),
-                    CommandEvaluation(command=COMMAND2, success=True),
+                    CommandEvaluation(
+                        command=COMMAND1,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND2,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
                 ]
             ),
             SOURCE2: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND3, success=True),
-                    CommandEvaluation(command=COMMAND4, success=True),
-                    CommandEvaluation(command=COMMAND5, success=True),
+                    CommandEvaluation(
+                        command=COMMAND3,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND4,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND5,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
                 ]
             ),
         }
@@ -53,24 +74,57 @@ def case_all_successful():
 
 @case(tags=[FAILED_TAG])
 def case_one_failure():
+    failed_execution_duration = random.random()
     evaluation = Evaluation(
         {
             SOURCE1: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND1, success=True),
-                    CommandEvaluation(command=COMMAND2, success=False),
+                    CommandEvaluation(
+                        command=COMMAND1,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND2,
+                        execution_duration=failed_execution_duration,
+                        success=False,
+                    ),
                 ]
             ),
             SOURCE2: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND3, success=True),
-                    CommandEvaluation(command=COMMAND4, success=True),
-                    CommandEvaluation(command=COMMAND5, success=True),
+                    CommandEvaluation(
+                        command=COMMAND3,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND4,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND5,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
                 ]
             ),
         }
     )
-    failure_evaluation = build_failure_evaluation({SOURCE1: [COMMAND2]})
+    failure_evaluation = Evaluation(
+        {
+            SOURCE1: SourceEvaluation(
+                [
+                    CommandEvaluation(
+                        command=COMMAND2,
+                        execution_duration=failed_execution_duration,
+                        success=False,
+                    )
+                ]
+            )
+        }
+    )
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2],
         SOURCE2: [COMMAND3, COMMAND4, COMMAND5],
@@ -80,25 +134,70 @@ def case_one_failure():
 
 @case(tags=[FAILED_TAG])
 def case_one_source_with_two_failures():
+    failed_command_duration1, failed_command_duration2 = (
+        random.random(),
+        random.random(),
+    )
     evaluation = Evaluation(
         {
             SOURCE1: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND1, success=True),
-                    CommandEvaluation(command=COMMAND2, success=True),
-                    CommandEvaluation(command=COMMAND3, success=True),
+                    CommandEvaluation(
+                        command=COMMAND1,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND2,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND3,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
                 ]
             ),
             SOURCE2: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND4, success=False),
-                    CommandEvaluation(command=COMMAND5, success=True),
-                    CommandEvaluation(command=COMMAND6, success=False),
+                    CommandEvaluation(
+                        command=COMMAND4,
+                        execution_duration=failed_command_duration1,
+                        success=False,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND5,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND6,
+                        execution_duration=failed_command_duration2,
+                        success=False,
+                    ),
                 ]
             ),
         }
     )
-    failure_evaluation = build_failure_evaluation({SOURCE2: [COMMAND4, COMMAND6]})
+    failure_evaluation = Evaluation(
+        {
+            SOURCE2: SourceEvaluation(
+                [
+                    CommandEvaluation(
+                        command=COMMAND4,
+                        execution_duration=failed_command_duration1,
+                        success=False,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND6,
+                        execution_duration=failed_command_duration2,
+                        success=False,
+                    ),
+                ]
+            )
+        }
+    )
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2, COMMAND3],
         SOURCE2: [COMMAND4, COMMAND5, COMMAND6],
@@ -108,28 +207,78 @@ def case_one_source_with_two_failures():
 
 @case(tags=[FAILED_TAG])
 def case_two_sources_with_failures():
+    failed_command_duration1, failed_command_duration2, failed_command_duration3 = (
+        random.random(),
+        random.random(),
+        random.random(),
+    )
     evaluation = Evaluation(
         {
             SOURCE1: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND1, success=False),
-                    CommandEvaluation(command=COMMAND2, success=True),
-                    CommandEvaluation(command=COMMAND3, success=False),
+                    CommandEvaluation(
+                        command=COMMAND1,
+                        execution_duration=failed_command_duration1,
+                        success=False,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND2,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND3,
+                        execution_duration=failed_command_duration2,
+                        success=False,
+                    ),
                 ]
             ),
             SOURCE2: SourceEvaluation(
                 [
-                    CommandEvaluation(command=COMMAND4, success=True),
-                    CommandEvaluation(command=COMMAND5, success=False),
-                    CommandEvaluation(command=COMMAND6, success=True),
+                    CommandEvaluation(
+                        command=COMMAND4,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND5,
+                        execution_duration=failed_command_duration3,
+                        success=False,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND6,
+                        execution_duration=random.random(),
+                        success=True,
+                    ),
                 ]
             ),
         }
     )
-    failure_evaluation = build_failure_evaluation(
+    failure_evaluation = Evaluation(
         {
-            SOURCE1: [COMMAND1, COMMAND3],
-            SOURCE2: [COMMAND5],
+            SOURCE1: SourceEvaluation(
+                [
+                    CommandEvaluation(
+                        command=COMMAND1,
+                        execution_duration=failed_command_duration1,
+                        success=False,
+                    ),
+                    CommandEvaluation(
+                        command=COMMAND3,
+                        execution_duration=failed_command_duration2,
+                        success=False,
+                    ),
+                ]
+            ),
+            SOURCE2: SourceEvaluation(
+                [
+                    CommandEvaluation(
+                        command=COMMAND5,
+                        execution_duration=failed_command_duration3,
+                        success=False,
+                    )
+                ]
+            ),
         }
     )
     commands_map = {
