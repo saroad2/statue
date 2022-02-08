@@ -7,7 +7,12 @@ import click
 
 from statue.cache import Cache
 from statue.cli.cli import statue_cli
-from statue.cli.util import bullet_style, failure_style, source_style, success_style
+from statue.cli.styled_strings import (
+    bullet_style,
+    failure_style,
+    source_style,
+    success_style,
+)
 from statue.command import CommandEvaluation
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import Evaluation
