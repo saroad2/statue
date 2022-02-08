@@ -225,30 +225,33 @@ class Command:
         :return: Command's evaluation including the command itself and is it successful
         :rtype: CommandEvaluation
         """
-        args = [self.name, source, *self.args]
-        return self._run_subprocess(args)
+        subprocess_result = self._run_subprocess(args=[self.name, source, *self.args])
+        return CommandEvaluation(
+            command=self,
+            success=(subprocess_result.returncode == 0),
+            captured_output=self._build_captured_output(subprocess_result),
+        )
 
-    def _run_subprocess(self, args: List[str]) -> CommandEvaluation:
+    def _run_subprocess(self, args: List[str]) -> subprocess.CompletedProcess:
         try:
-            subprocess_result = subprocess.run(  # nosec
+            return subprocess.run(  # nosec
                 args, env=os.environ, check=False, capture_output=True
-            )
-            captured_stdout = subprocess_result.stdout.decode(ENCODING)
-            captured_stderr = subprocess_result.stderr.decode(ENCODING)
-            exit_code = subprocess_result.returncode
-            captured_output_as_string = (
-                captured_stderr if len(captured_stderr) != 0 else captured_stdout
-            )
-            captured_output = (
-                captured_output_as_string.split("\n")
-                if len(captured_output_as_string) != 0
-                else []
-            )
-            return CommandEvaluation(
-                command=self, success=(exit_code == 0), captured_output=captured_output
             )
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
+
+    @classmethod
+    def _build_captured_output(cls, subprocess_result):
+        captured_stdout = subprocess_result.stdout.decode(ENCODING)
+        captured_stderr = subprocess_result.stderr.decode(ENCODING)
+        captured_output_as_string = (
+            captured_stderr if len(captured_stderr) != 0 else captured_stdout
+        )
+        return (
+            captured_output_as_string.split("\n")
+            if len(captured_output_as_string) != 0
+            else []
+        )
 
     def _get_package(self):  # pragma: no cover
         """
