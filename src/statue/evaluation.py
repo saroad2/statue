@@ -164,15 +164,6 @@ class Evaluation:
         """
         self.sources_evaluations[key] = value
 
-    def is_empty(self) -> bool:
-        """
-        Checks whether the evaluation has no results.
-
-        :return: is the evaluation empty
-        :rtype: bool
-        """
-        return len(self.sources_evaluations) == 0
-
     def keys(self) -> KeysView[str]:
         """
         Get sources as generator.
