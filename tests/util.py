@@ -1,8 +1,12 @@
 import random
 from unittest import mock
 
+import pytest
+
 from statue.command import Command, CommandEvaluation
 from statue.evaluation import Evaluation, SourceEvaluation
+
+EPSILON = 1e-5
 
 
 def build_contexts_map(*contexts):
@@ -34,7 +38,7 @@ def command_mock(
     execution_duration=0,
     success=True,
     args=None,
-    captured_output="",
+    captured_output=None,
     installed_version="0.0.1",
 ):
     command = Command(name=name, help="This is help", version=version)
@@ -53,7 +57,7 @@ def command_mock(
         command=command,
         success=success,
         execution_duration=execution_duration,
-        captured_output=captured_output,
+        captured_output=[] if captured_output is None else captured_output,
     )
     command.execute = mock.Mock(return_value=command_evaluation)
     return command
@@ -76,3 +80,44 @@ def assert_calls(mock_obj, calls):
         assert (
             actual_call == expected_call
         ), f"Call {i} is different than expected. {actual_call} != {expected_call}"
+
+
+def assert_equal_command_evaluations(
+    actual_evaluation: CommandEvaluation, expected_evaluation: CommandEvaluation
+):
+    assert actual_evaluation.command == expected_evaluation.command
+    assert actual_evaluation.success == expected_evaluation.success
+    assert actual_evaluation.captured_output == expected_evaluation.captured_output
+    assert actual_evaluation.execution_duration == pytest.approx(
+        expected_evaluation.execution_duration, rel=EPSILON
+    )
+
+
+def assert_equal_source_evaluations(
+    actual_evaluation: SourceEvaluation, expected_evaluation: SourceEvaluation
+):
+    assert len(actual_evaluation.commands_evaluations) == len(
+        expected_evaluation.commands_evaluations
+    )
+    for actual_command_evaluation, expected_command_evaluation in zip(
+        actual_evaluation.commands_evaluations, expected_evaluation.commands_evaluations
+    ):
+        assert_equal_command_evaluations(
+            actual_command_evaluation, expected_command_evaluation
+        )
+    assert actual_evaluation.source_execution_duration == pytest.approx(
+        expected_evaluation.source_execution_duration, rel=EPSILON
+    )
+
+
+def assert_equal_evaluations(
+    actual_evaluation: Evaluation, expected_evaluation: Evaluation
+):
+    assert set(actual_evaluation.keys()) == set(expected_evaluation.keys())
+    for source in actual_evaluation.keys():
+        assert_equal_source_evaluations(
+            actual_evaluation[source], expected_evaluation[source]
+        )
+    assert actual_evaluation.total_execution_duration == pytest.approx(
+        expected_evaluation.total_execution_duration, rel=EPSILON
+    )
