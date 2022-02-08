@@ -1,4 +1,5 @@
 import datetime
+import random
 import re
 from unittest import mock
 
@@ -21,15 +22,35 @@ EVALUATION = Evaluation(
     {
         SOURCE1: SourceEvaluation(
             [
-                CommandEvaluation(command=command_mock(name=COMMAND1), success=True),
-                CommandEvaluation(command=command_mock(name=COMMAND2), success=False),
-                CommandEvaluation(command=command_mock(name=COMMAND3), success=True),
+                CommandEvaluation(
+                    command=command_mock(name=COMMAND1),
+                    execution_duration=random.random(),
+                    success=True,
+                ),
+                CommandEvaluation(
+                    command=command_mock(name=COMMAND2),
+                    execution_duration=random.random(),
+                    success=False,
+                ),
+                CommandEvaluation(
+                    command=command_mock(name=COMMAND3),
+                    execution_duration=random.random(),
+                    success=True,
+                ),
             ]
         ),
         SOURCE2: SourceEvaluation(
             [
-                CommandEvaluation(command=command_mock(name=COMMAND4), success=True),
-                CommandEvaluation(command=command_mock(name=COMMAND5), success=False),
+                CommandEvaluation(
+                    command=command_mock(name=COMMAND4),
+                    execution_duration=random.random(),
+                    success=True,
+                ),
+                CommandEvaluation(
+                    command=command_mock(name=COMMAND5),
+                    execution_duration=random.random(),
+                    success=False,
+                ),
             ]
         ),
     }

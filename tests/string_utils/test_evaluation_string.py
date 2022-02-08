@@ -1,3 +1,5 @@
+import random
+
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import CommandEvaluation
@@ -29,6 +31,7 @@ def case_one_source_one_command():
                 [
                     CommandEvaluation(
                         command=command_mock(COMMAND1),
+                        execution_duration=random.random(),
                         success=True,
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                     )
@@ -57,11 +60,13 @@ def case_one_source_two_commands():
                 [
                     CommandEvaluation(
                         command=command_mock(COMMAND1),
+                        execution_duration=random.random(),
                         success=True,
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                     ),
                     CommandEvaluation(
                         command=command_mock(COMMAND2),
+                        execution_duration=random.random(),
                         success=True,
                         captured_output=COMMAND_CAPTURED_OUTPUT2,
                     ),
@@ -94,6 +99,7 @@ def case_two_sources_two_commands():
                 [
                     CommandEvaluation(
                         command=command_mock(COMMAND1),
+                        execution_duration=random.random(),
                         success=True,
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                     )
@@ -103,6 +109,7 @@ def case_two_sources_two_commands():
                 [
                     CommandEvaluation(
                         command=command_mock(COMMAND2),
+                        execution_duration=random.random(),
                         success=True,
                         captured_output=COMMAND_CAPTURED_OUTPUT2,
                     )
@@ -130,12 +137,14 @@ def case_two_sources_two_commands():
 
 
 def case_evaluation_string_verbose():
+    execution_duration = 0.25
     evaluation = Evaluation(
         {
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
                         command=command_mock(COMMAND1, args=["a", "b", "c"]),
+                        execution_duration=execution_duration,
                         success=True,
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                     )
@@ -153,6 +162,7 @@ def case_evaluation_string_verbose():
         "command1\n"
         "--------\n"
         "command1 ran with args: ['a', 'b', 'c']\n"
+        "Finished in 0.25 seconds.\n"
         f"{joined_command_output}\n"
     )
     return evaluation, kwargs, result

@@ -4,6 +4,7 @@ import importlib
 import os
 import subprocess  # nosec
 import sys
+import time
 from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -20,6 +21,7 @@ class CommandEvaluation:
 
     command: "Command"
     success: bool
+    execution_duration: float
     captured_output: List[str] = field(default_factory=list)
 
     @property
@@ -41,6 +43,7 @@ class CommandEvaluation:
         }
         return dict(
             command=command_json,
+            execution_duration=self.execution_duration,
             captured_output=self.captured_output,
             success=self.success,
         )
@@ -58,6 +61,7 @@ class CommandEvaluation:
         return CommandEvaluation(
             command=Command(**command_evaluation["command"]),
             success=command_evaluation["success"],
+            execution_duration=command_evaluation["execution_duration"],
             captured_output=command_evaluation["captured_output"],
         )
 
@@ -225,10 +229,13 @@ class Command:
         :return: Command's evaluation including the command itself and is it successful
         :rtype: CommandEvaluation
         """
+        start_time = time.time()
         subprocess_result = self._run_subprocess(args=[self.name, source, *self.args])
+        end_time = time.time()
         return CommandEvaluation(
             command=self,
             success=(subprocess_result.returncode == 0),
+            execution_duration=end_time - start_time,
             captured_output=self._build_captured_output(subprocess_result),
         )
 

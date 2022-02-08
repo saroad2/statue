@@ -1,4 +1,5 @@
 import itertools
+import random
 from unittest import mock
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
@@ -25,14 +26,22 @@ def case_empty_commands_map():
 
 
 def case_one_source_one_command():
-    command1 = command_mock(COMMAND1, captured_output=COMMAND_CAPTURED_OUTPUT1)
+    execution_duration = random.random()
+    command1 = command_mock(
+        COMMAND1,
+        execution_duration=execution_duration,
+        captured_output=COMMAND_CAPTURED_OUTPUT1,
+    )
     commands_map = {SOURCE1: [command1]}
 
     evaluation = Evaluation()
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=command1, success=True, captured_output=COMMAND_CAPTURED_OUTPUT1
+                command=command1,
+                execution_duration=execution_duration,
+                success=True,
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
             )
         ]
     )
@@ -40,9 +49,17 @@ def case_one_source_one_command():
 
 
 def case_one_source_two_commands():
-    command1 = command_mock(COMMAND1, captured_output=COMMAND_CAPTURED_OUTPUT1)
+    execution_duration1, execution_duration2 = random.random(), random.random()
+    command1 = command_mock(
+        COMMAND1,
+        execution_duration=execution_duration1,
+        captured_output=COMMAND_CAPTURED_OUTPUT1,
+    )
     command2 = command_mock(
-        COMMAND2, success=False, captured_output=COMMAND_CAPTURED_OUTPUT2
+        COMMAND2,
+        execution_duration=execution_duration2,
+        success=False,
+        captured_output=COMMAND_CAPTURED_OUTPUT2,
     )
     commands_map = {SOURCE1: [command1, command2]}
 
@@ -50,10 +67,14 @@ def case_one_source_two_commands():
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=command1, success=True, captured_output=COMMAND_CAPTURED_OUTPUT1
+                command=command1,
+                execution_duration=execution_duration1,
+                success=True,
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
             ),
             CommandEvaluation(
                 command=command2,
+                execution_duration=execution_duration2,
                 success=False,
                 captured_output=COMMAND_CAPTURED_OUTPUT2,
             ),
@@ -64,12 +85,27 @@ def case_one_source_two_commands():
 
 
 def case_one_source_three_commands():
-    command1 = command_mock(COMMAND1, captured_output=COMMAND_CAPTURED_OUTPUT1)
+    execution_duration1, execution_duration2, execution_duration3 = (
+        random.random(),
+        random.random(),
+        random.random(),
+    )
+    command1 = command_mock(
+        COMMAND1,
+        execution_duration=execution_duration1,
+        captured_output=COMMAND_CAPTURED_OUTPUT1,
+    )
     command2 = command_mock(
-        COMMAND2, success=False, captured_output=COMMAND_CAPTURED_OUTPUT2
+        COMMAND2,
+        execution_duration=execution_duration2,
+        success=False,
+        captured_output=COMMAND_CAPTURED_OUTPUT2,
     )
     command3 = command_mock(
-        COMMAND3, success=False, captured_output=COMMAND_CAPTURED_OUTPUT3
+        COMMAND3,
+        execution_duration=execution_duration3,
+        success=False,
+        captured_output=COMMAND_CAPTURED_OUTPUT3,
     )
     commands_map = {SOURCE1: [command1, command2, command3]}
 
@@ -77,15 +113,20 @@ def case_one_source_three_commands():
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=command1, success=True, captured_output=COMMAND_CAPTURED_OUTPUT1
+                command=command1,
+                execution_duration=execution_duration1,
+                success=True,
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
             ),
             CommandEvaluation(
                 command=command2,
                 success=False,
+                execution_duration=execution_duration2,
                 captured_output=COMMAND_CAPTURED_OUTPUT2,
             ),
             CommandEvaluation(
                 command=command3,
+                execution_duration=execution_duration3,
                 success=False,
                 captured_output=COMMAND_CAPTURED_OUTPUT3,
             ),
@@ -95,9 +136,17 @@ def case_one_source_three_commands():
 
 
 def case_two_sources_two_commands():
-    command1 = command_mock(COMMAND1, captured_output=COMMAND_CAPTURED_OUTPUT1)
+    execution_duration1, execution_duration2 = random.random(), random.random()
+    command1 = command_mock(
+        COMMAND1,
+        execution_duration=execution_duration1,
+        captured_output=COMMAND_CAPTURED_OUTPUT1,
+    )
     command2 = command_mock(
-        COMMAND2, success=False, captured_output=COMMAND_CAPTURED_OUTPUT2
+        COMMAND2,
+        execution_duration=execution_duration2,
+        success=False,
+        captured_output=COMMAND_CAPTURED_OUTPUT2,
     )
     commands_map = {SOURCE1: [command1], SOURCE2: [command2]}
 
@@ -105,7 +154,10 @@ def case_two_sources_two_commands():
     evaluation[SOURCE1] = SourceEvaluation(
         [
             CommandEvaluation(
-                command=command1, success=True, captured_output=COMMAND_CAPTURED_OUTPUT1
+                command=command1,
+                execution_duration=execution_duration1,
+                success=True,
+                captured_output=COMMAND_CAPTURED_OUTPUT1,
             )
         ]
     )
@@ -113,6 +165,7 @@ def case_two_sources_two_commands():
         [
             CommandEvaluation(
                 command=command2,
+                execution_duration=execution_duration2,
                 success=False,
                 captured_output=COMMAND_CAPTURED_OUTPUT2,
             )
