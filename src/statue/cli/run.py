@@ -16,6 +16,7 @@ from statue.cli.common_flags import (
     verbose_option,
     verbosity_option,
 )
+from statue.cli.string_util import boxed_string, evaluation_string
 from statue.cli.styled_strings import (
     failure_style,
     name_style,
@@ -27,7 +28,6 @@ from statue.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.runner import evaluate_commands_map
-from statue.string_util import boxed_string, evaluation_string
 from statue.verbosity import is_silent
 
 

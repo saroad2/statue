@@ -2,9 +2,9 @@ import random
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
+from statue.cli.string_util import evaluation_string
 from statue.command import CommandEvaluation
 from statue.evaluation import Evaluation, SourceEvaluation
-from statue.string_util import evaluation_string
 from statue.verbosity import VERBOSE
 from tests.constants import (
     COMMAND1,

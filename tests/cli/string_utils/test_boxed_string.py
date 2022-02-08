@@ -1,6 +1,6 @@
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.string_util import boxed_string
+from statue.cli.string_util import boxed_string
 
 
 def case_empty_text():
