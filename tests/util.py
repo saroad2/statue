@@ -1,3 +1,4 @@
+import random
 from unittest import mock
 
 from statue.command import Command, CommandEvaluation
@@ -13,7 +14,11 @@ def build_failure_evaluation(commands_map):
         {
             source: SourceEvaluation(
                 [
-                    CommandEvaluation(command=command, success=False)
+                    CommandEvaluation(
+                        command=command,
+                        execution_duration=random.random(),
+                        success=False,
+                    )
                     for command in commands
                 ]
             )
@@ -26,6 +31,7 @@ def command_mock(
     name,
     installed=True,
     version=None,
+    execution_duration=0,
     success=True,
     args=None,
     captured_output="",
@@ -46,6 +52,7 @@ def command_mock(
     command_evaluation = CommandEvaluation(
         command=command,
         success=success,
+        execution_duration=execution_duration,
         captured_output=captured_output,
     )
     command.execute = mock.Mock(return_value=command_evaluation)
