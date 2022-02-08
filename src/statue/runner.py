@@ -1,4 +1,5 @@
 """Command map runner."""
+import time
 from typing import Callable, Dict, List, Optional
 
 from statue.command import Command
@@ -20,10 +21,18 @@ def evaluate_commands_map(
     :return: Evaluation
     """
     evaluation = Evaluation()
+    total_start_time = time.time()
     for source, commands in commands_map.items():
+        source_start_time = time.time()
         evaluation[source] = SourceEvaluation()
         for command in commands:
             evaluation[source].append(command.execute(source))
             if update_func is not None:
                 update_func(evaluation)
+        source_end_time = time.time()
+        evaluation[source].source_execution_duration = (
+            source_end_time - source_start_time
+        )
+    total_end_time = time.time()
+    evaluation.total_execution_duration = total_end_time - total_start_time
     return evaluation
