@@ -14,6 +14,7 @@ class SourceEvaluation:
     """Evaluation result of a source."""
 
     commands_evaluations: List[CommandEvaluation] = field(default_factory=list)
+    source_execution_duration: float = field(default=0)
 
     def __len__(self) -> int:
         """
@@ -44,7 +45,8 @@ class SourceEvaluation:
             commands_evaluations=[
                 command_evaluation.as_json()
                 for command_evaluation in self.commands_evaluations
-            ]
+            ],
+            source_execution_duration=self.source_execution_duration,
         )
 
     @property
@@ -110,7 +112,8 @@ class SourceEvaluation:
             commands_evaluations=[
                 CommandEvaluation.from_json(command_evaluation)
                 for command_evaluation in source_evaluation["commands_evaluations"]
-            ]
+            ],
+            source_execution_duration=source_evaluation["source_execution_duration"],
         )
 
     def __iter__(self) -> Iterator[CommandEvaluation]:
@@ -128,6 +131,7 @@ class Evaluation:
     """Full evaluation class."""
 
     sources_evaluations: Dict[str, SourceEvaluation] = field(default_factory=dict)
+    total_execution_duration: float = field(default=0)
 
     def __iter__(self) -> Iterator[str]:
         """
@@ -203,7 +207,11 @@ class Evaluation:
         :return: Self as dictionary
         :rtype: Dict[str, List[Dict[str, Any]]]
         """
-        return {key: value.as_json() for key, value in self.items()}
+        sources_evaluations = {key: value.as_json() for key, value in self.items()}
+        return dict(
+            sources_evaluations=sources_evaluations,
+            total_execution_duration=self.total_execution_duration,
+        )
 
     def save_as_json(self, output: Union[Path, str]) -> None:
         """
@@ -337,6 +345,9 @@ class Evaluation:
         return Evaluation(
             sources_evaluations={
                 input_path: SourceEvaluation.from_json(source_evaluation)
-                for input_path, source_evaluation in evaluation.items()
-            }
+                for input_path, source_evaluation in evaluation[
+                    "sources_evaluations"
+                ].items()
+            },
+            total_execution_duration=evaluation["total_execution_duration"],
         )
