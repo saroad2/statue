@@ -117,8 +117,7 @@ class Command:
         :return: Either the command is installed or not
         :rtype: bool
         """
-        package = self._get_package()
-        return package is not None
+        return self.installed_version is not None
 
     def installed_correctly(self) -> bool:
         """
@@ -128,6 +127,17 @@ class Command:
         :rtype: bool
         """
         return self.installed() and self.installed_version_match()
+
+    def installed_version_match(self) -> bool:
+        """
+        Is the installed version match the specified version.
+
+        :return: is the installed version matches the desired version
+        :rtype: bool
+        """
+        if self.version is None:
+            return True
+        return self.installed_version == self.version
 
     def install(self, verbosity: str = DEFAULT_VERBOSITY) -> None:
         """
@@ -191,7 +201,7 @@ class Command:
         :type verbosity: str
         """
         if not self.installed():
-            self.install()
+            self.install(verbosity=verbosity)
             return
         if self.version is None:
             # If no version is specified, we update package to its latest version
@@ -215,41 +225,33 @@ class Command:
         :return: Command's evaluation including the command itself and is it successful
         :rtype: CommandEvaluation
         """
-        args = [self.name, source, *self.args]
-        return self._run_subprocess(args)
+        subprocess_result = self._run_subprocess(args=[self.name, source, *self.args])
+        return CommandEvaluation(
+            command=self,
+            success=(subprocess_result.returncode == 0),
+            captured_output=self._build_captured_output(subprocess_result),
+        )
 
-    def installed_version_match(self) -> bool:
-        """
-        Is the installed version match the specified version.
-
-        :return: is the installed version matches the desired version
-        :rtype: bool
-        """
-        if self.version is None:
-            return True
-        return self.installed_version == self.version
-
-    def _run_subprocess(self, args: List[str]) -> CommandEvaluation:
+    def _run_subprocess(self, args: List[str]) -> subprocess.CompletedProcess:
         try:
-            subprocess_result = subprocess.run(  # nosec
+            return subprocess.run(  # nosec
                 args, env=os.environ, check=False, capture_output=True
-            )
-            captured_stdout = subprocess_result.stdout.decode(ENCODING)
-            captured_stderr = subprocess_result.stderr.decode(ENCODING)
-            exit_code = subprocess_result.returncode
-            captured_output_as_string = (
-                captured_stderr if len(captured_stderr) != 0 else captured_stdout
-            )
-            captured_output = (
-                captured_output_as_string.split("\n")
-                if len(captured_output_as_string) != 0
-                else []
-            )
-            return CommandEvaluation(
-                command=self, success=(exit_code == 0), captured_output=captured_output
             )
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
+
+    @classmethod
+    def _build_captured_output(cls, subprocess_result):
+        captured_stdout = subprocess_result.stdout.decode(ENCODING)
+        captured_stderr = subprocess_result.stderr.decode(ENCODING)
+        captured_output_as_string = (
+            captured_stderr if len(captured_stderr) != 0 else captured_stdout
+        )
+        return (
+            captured_output_as_string.split("\n")
+            if len(captured_output_as_string) != 0
+            else []
+        )
 
     def _get_package(self):  # pragma: no cover
         """

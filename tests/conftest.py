@@ -1,17 +1,12 @@
-import os
 from pathlib import Path
 
 import pytest
 import toml
 
 from statue.cache import Cache
-from statue.command import Command
 from statue.configuration import Configuration
 from statue.constants import OVERRIDE, STATUE
 from statue.evaluation import Evaluation
-
-ENVIRON = dict(s=2, d=5, g=8)
-
 
 # 3rd Party Mocks
 
@@ -19,11 +14,6 @@ ENVIRON = dict(s=2, d=5, g=8)
 @pytest.fixture
 def mock_time(mocker):
     return mocker.patch("time.time")
-
-
-@pytest.fixture
-def mock_subprocess(mocker):
-    return mocker.patch("subprocess.run")
 
 
 @pytest.fixture
@@ -107,14 +97,6 @@ def empty_configuration(mock_cwd, clear_configuration):
     return configuration
 
 
-# Command Mocks
-
-
-@pytest.fixture
-def mock_get_package(mocker):
-    return mocker.patch.object(Command, "_get_package")
-
-
 # Cache Mocks
 
 
@@ -152,12 +134,6 @@ def mock_evaluation_save_as_json(mocker):
 
 
 # Built-in Mocks
-
-
-@pytest.fixture
-def environ(monkeypatch):
-    monkeypatch.setattr(os, "environ", ENVIRON)
-    return ENVIRON
 
 
 @pytest.fixture
