@@ -1,4 +1,5 @@
 """Print related methods."""
+from statue.cli.styled_strings import name_style, source_style
 from statue.evaluation import Evaluation
 from statue.verbosity import DEFAULT_VERBOSITY, is_verbose
 
@@ -53,17 +54,18 @@ def evaluation_string(
     :rtype: str
     """
     returned = ""
-    for input_path, source_evaluation in evaluation.items():
-        returned += f"\n\n{title_string(input_path, transform=False)}\n\n"
+    for source, source_evaluation in evaluation.items():
+        source_title = title_string(source_style(source), transform=False)
+        returned += f"\n\n{source_title}\n\n"
         for command_evaluation in source_evaluation:
+            styled_command_name = name_style(command_evaluation.command.name)
             command_title = title_string(
-                command_evaluation.command.name, underline="-", transform=False
+                styled_command_name, underline="-", transform=False
             )
             returned += f"{command_title}\n"
             if is_verbose(verbosity):
                 returned += (
-                    f"{command_evaluation.command.name} "
-                    "ran with args: "
+                    f"{styled_command_name} ran with args: "
                     f"{command_evaluation.command.args}\n"
                     f"Finished in {command_evaluation.execution_duration:.2f} "
                     "seconds.\n"
