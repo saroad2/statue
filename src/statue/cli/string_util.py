@@ -1,4 +1,6 @@
 """Print related methods."""
+import click
+
 from statue.cli.styled_strings import name_style, source_style
 from statue.evaluation import Evaluation
 from statue.verbosity import DEFAULT_VERBOSITY, is_verbose
@@ -19,8 +21,13 @@ def title_string(
     :return: Markdown title string
     :rtype: str
     """
-    returned = original_string.title() if transform else original_string
-    returned += "\n" + underline * len(original_string)
+    unstyled_string = click.unstyle(original_string)
+    returned = (
+        original_string.replace(unstyled_string, unstyled_string.title())
+        if transform
+        else original_string
+    )
+    returned += "\n" + underline * len(unstyled_string)
     return returned
 
 
@@ -35,8 +42,10 @@ def boxed_string(original_string: str, border: str = "#") -> str:
     :return: Boxed string
     :rtype: str
     """
-    vertical_border = border * (len(original_string) + 4)
-    middle_row = f"\n{border} {original_string.title()} {border}\n"
+    unstyled_string = click.unstyle(original_string)
+    vertical_border = border * (len(unstyled_string) + 4)
+    new_string = original_string.replace(unstyled_string, unstyled_string.title())
+    middle_row = f"\n{border} {new_string} {border}\n"
     return vertical_border + middle_row + vertical_border
 
 

@@ -1,3 +1,4 @@
+import click
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.string_util import title_string
@@ -47,6 +48,14 @@ def case_no_transform():
     original_string = "awesome title"
     title = "awesome title\n============="
     kwargs = dict(transform=False)
+
+    return original_string, title, kwargs
+
+
+def case_styled_string():
+    original_string = click.style("awesome", fg="blue")
+    title = f"{click.style('Awesome', fg='blue')}\n======="
+    kwargs = {}
 
     return original_string, title, kwargs
 

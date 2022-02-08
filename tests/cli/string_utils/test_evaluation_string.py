@@ -1,5 +1,6 @@
 import random
 
+import click
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.string_util import evaluation_string
@@ -170,4 +171,4 @@ def case_evaluation_string_verbose():
 
 @parametrize_with_cases(["evaluation", "kwargs", "result"], cases=THIS_MODULE)
 def test_evaluation_string(evaluation, kwargs, result):
-    assert result == evaluation_string(evaluation=evaluation, **kwargs)
+    assert result == click.unstyle(evaluation_string(evaluation=evaluation, **kwargs))
