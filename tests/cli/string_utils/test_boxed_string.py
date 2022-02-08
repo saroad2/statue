@@ -1,6 +1,7 @@
+import click
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.string_util import boxed_string
+from statue.cli.string_util import boxed_string
 
 
 def case_empty_text():
@@ -39,6 +40,14 @@ def case_different_border():
     original_string = "awesome string"
     title = "$$$$$$$$$$$$$$$$$$\n$ Awesome String $\n$$$$$$$$$$$$$$$$$$"
     kwargs = dict(border="$")
+
+    return original_string, title, kwargs
+
+
+def case_styled_string():
+    original_string = click.style("awesome", fg="green")
+    title = f"###########\n# {click.style('Awesome', fg='green')} #\n###########"
+    kwargs = {}
 
     return original_string, title, kwargs
 

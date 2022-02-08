@@ -4,16 +4,15 @@ from typing import List, Optional
 import click
 
 from statue.cli.cli import statue_cli
-from statue.cli.util import (
+from statue.cli.common_flags import (
     allow_option,
-    bullet_style,
     contexts_option,
     deny_option,
-    name_style,
     silent_option,
     verbose_option,
     verbosity_option,
 )
+from statue.cli.styled_strings import bullet_style, name_style
 from statue.configuration import Configuration
 from statue.exceptions import InvalidCommand, UnknownCommand
 

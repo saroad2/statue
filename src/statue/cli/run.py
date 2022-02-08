@@ -8,24 +8,26 @@ import click
 
 from statue.cache import Cache
 from statue.cli.cli import statue_cli
-from statue.cli.util import (
+from statue.cli.common_flags import (
     allow_option,
     contexts_option,
     deny_option,
-    failure_style,
-    name_style,
     silent_option,
-    source_style,
-    success_style,
     verbose_option,
     verbosity_option,
+)
+from statue.cli.string_util import boxed_string, evaluation_string
+from statue.cli.styled_strings import (
+    failure_style,
+    name_style,
+    source_style,
+    success_style,
 )
 from statue.commands_map import read_commands_map
 from statue.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.runner import evaluate_commands_map
-from statue.string_util import boxed_string, evaluation_string
 from statue.verbosity import is_silent
 
 

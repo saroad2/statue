@@ -1,4 +1,7 @@
 """Print related methods."""
+import click
+
+from statue.cli.styled_strings import name_style, source_style
 from statue.evaluation import Evaluation
 from statue.verbosity import DEFAULT_VERBOSITY, is_verbose
 
@@ -18,8 +21,13 @@ def title_string(
     :return: Markdown title string
     :rtype: str
     """
-    returned = original_string.title() if transform else original_string
-    returned += "\n" + underline * len(original_string)
+    unstyled_string = click.unstyle(original_string)
+    returned = (
+        original_string.replace(unstyled_string, unstyled_string.title())
+        if transform
+        else original_string
+    )
+    returned += "\n" + underline * len(unstyled_string)
     return returned
 
 
@@ -34,8 +42,10 @@ def boxed_string(original_string: str, border: str = "#") -> str:
     :return: Boxed string
     :rtype: str
     """
-    vertical_border = border * (len(original_string) + 4)
-    middle_row = f"\n{border} {original_string.title()} {border}\n"
+    unstyled_string = click.unstyle(original_string)
+    vertical_border = border * (len(unstyled_string) + 4)
+    new_string = original_string.replace(unstyled_string, unstyled_string.title())
+    middle_row = f"\n{border} {new_string} {border}\n"
     return vertical_border + middle_row + vertical_border
 
 
@@ -53,17 +63,18 @@ def evaluation_string(
     :rtype: str
     """
     returned = ""
-    for input_path, source_evaluation in evaluation.items():
-        returned += f"\n\n{title_string(input_path, transform=False)}\n\n"
+    for source, source_evaluation in evaluation.items():
+        source_title = title_string(source_style(source), transform=False)
+        returned += f"\n\n{source_title}\n\n"
         for command_evaluation in source_evaluation:
+            styled_command_name = name_style(command_evaluation.command.name)
             command_title = title_string(
-                command_evaluation.command.name, underline="-", transform=False
+                styled_command_name, underline="-", transform=False
             )
             returned += f"{command_title}\n"
             if is_verbose(verbosity):
                 returned += (
-                    f"{command_evaluation.command.name} "
-                    "ran with args: "
+                    f"{styled_command_name} ran with args: "
                     f"{command_evaluation.command.args}\n"
                     f"Finished in {command_evaluation.execution_duration:.2f} "
                     "seconds.\n"

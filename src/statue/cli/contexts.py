@@ -3,7 +3,7 @@
 import click
 
 from statue.cli.cli import statue_cli
-from statue.cli.util import bullet_style, name_style
+from statue.cli.styled_strings import bullet_style, name_style
 from statue.configuration import Configuration
 from statue.exceptions import UnknownContext
 
