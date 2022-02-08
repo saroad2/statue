@@ -52,7 +52,7 @@ def mock_evaluation_string(mocker):
 def assert_successful_run(result):
     assert result.exception is None
     assert result.exit_code == 0
-    assert "Statue finished successfully!" in result.output
+    assert "Statue finished successfully" in result.output
 
 
 def assert_evaluation_was_printed(result, evaluation_string_mock):

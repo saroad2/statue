@@ -169,16 +169,22 @@ def run_cli(  # pylint: disable=too-many-arguments
     if not is_silent(verbosity):
         click.echo(boxed_string("Summary"))
         click.echo()
-    ctx.exit(__evaluate_failure_evaluation(evaluation.failure_evaluation))
+    ctx.exit(__print_evaluation_and_return_exit_code(evaluation))
 
 
-def __evaluate_failure_evaluation(failure_evaluation: Evaluation):
-    if failure_evaluation.is_empty():
-        click.echo("Statue finished successfully!")
+def __print_evaluation_and_return_exit_code(evaluation: Evaluation):
+    if evaluation.success:
+        click.echo(
+            "Statue finished successfully after "
+            f"{evaluation.total_execution_duration:.2f} seconds!"
+        )
         return 0
-    click.echo("Statue has failed on the following commands:")
+    click.echo(
+        f"Statue has failed after {evaluation.total_execution_duration:.2f} "
+        "seconds on the following commands:"
+    )
     click.echo()
-    for source, source_evaluation in failure_evaluation.items():
+    for source, source_evaluation in evaluation.failure_evaluation.items():
         click.echo(f"{source_style(source)}:")
         failed_commands_string = ", ".join(
             [
