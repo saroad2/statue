@@ -78,6 +78,24 @@ def positive_validation(  # pylint: disable=unused-argument
     return value
 
 
+def total_evaluation_string(evaluation_path: Path, evaluation: Evaluation) -> str:
+    """
+    Create a string representing an evaluation.
+
+    :param evaluation_path: Path of a given evaluation.
+    :type evaluation_path: Path
+    :param evaluation: The actual evaluation instance.
+    :type evaluation: Evaluation
+    :return: Pretty string describing the evaluation
+    :rtype: str
+    """
+    return (
+        f"{evaluation_datetime(evaluation_path)} - {evaluation_status(evaluation)} "
+        f"({evaluation_success_ratio(evaluation)} successful, "
+        f"{evaluation.total_execution_duration:.2f} seconds)"
+    )
+
+
 @statue_cli.group("history")
 def history_cli() -> None:
     """History related actions such as list, show, etc."""
@@ -95,11 +113,7 @@ def list_evaluations_cli(head):
         evaluation_paths = evaluation_paths[:head]
     for i, evaluation_path in enumerate(evaluation_paths, start=1):
         evaluation = Evaluation.load_from_file(evaluation_path)
-        click.echo(
-            f"{i}) "
-            f"{evaluation_datetime(evaluation_path)} - {evaluation_status(evaluation)} "
-            f"({evaluation_success_ratio(evaluation)} successful)"
-        )
+        click.echo(f"{i}) {total_evaluation_string(evaluation_path, evaluation)}")
 
 
 @history_cli.command("show")
@@ -115,16 +129,17 @@ def show_evaluation_cli(number):
     """Show past evaluation."""
     evaluation_path = Cache.evaluation_path(number - 1)
     evaluation = Evaluation.load_from_file(evaluation_path)
-    click.echo(
-        f"{evaluation_datetime(evaluation_path)} - {evaluation_status(evaluation)} "
-        f"({evaluation_success_ratio(evaluation)} successful)"
-    )
+    click.echo(total_evaluation_string(evaluation_path, evaluation))
     for source, source_evaluation in evaluation.items():
-        click.echo(f"{source_style(source)}:")
+        click.echo(
+            f"{source_style(source)} ("
+            f"{source_evaluation.source_execution_duration:.2f} seconds):"
+        )
         for command_evaluation in source_evaluation.commands_evaluations:
             click.echo(
                 f"\t{command_evaluation.command.name} - "
-                f"{evaluation_status(command_evaluation)}"
+                f"{evaluation_status(command_evaluation)} "
+                f"({command_evaluation.execution_duration:.2f} seconds)"
             )
 
 
