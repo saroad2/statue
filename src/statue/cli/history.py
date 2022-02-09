@@ -10,6 +10,7 @@ from statue.cli.cli import statue_cli
 from statue.cli.styled_strings import (
     bullet_style,
     failure_style,
+    name_style,
     source_style,
     success_style,
 )
@@ -137,7 +138,7 @@ def show_evaluation_cli(number):
         )
         for command_evaluation in source_evaluation.commands_evaluations:
             click.echo(
-                f"\t{command_evaluation.command.name} - "
+                f"\t{name_style(command_evaluation.command.name)} - "
                 f"{evaluation_status(command_evaluation)} "
                 f"({command_evaluation.execution_duration:.2f} seconds)"
             )
