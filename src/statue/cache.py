@@ -39,7 +39,7 @@ class Cache:
         :rtype: List[Path]
         """
         evaluations_files = list(cls.evaluations_dir().iterdir())
-        evaluations_files.sort(key=cls.__extract_time_stamp, reverse=True)
+        evaluations_files.sort(key=cls.extract_time_stamp_from_path, reverse=True)
         return evaluations_files
 
     @classmethod
@@ -82,8 +82,16 @@ class Cache:
         cls.__remove_old_evaluations()
 
     @classmethod
-    def __extract_time_stamp(cls, path: Path):
-        return int(path.stem.split("-")[-1])
+    def extract_time_stamp_from_path(cls, evaluation_path: Path) -> int:
+        """
+        Extract time stamp from an evaluation path.
+
+        :param evaluation_path: Path of saved evaluation.
+        :type evaluation_path: Path
+        :return: time stamp of the given evaluation
+        :rtype: int
+        """
+        return int(evaluation_path.stem.split("-")[-1])
 
     @classmethod
     def __ensure_dir_exists(cls, dir_path: Path) -> Path:

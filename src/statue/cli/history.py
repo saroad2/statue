@@ -42,7 +42,8 @@ def evaluation_datetime(evaluation_path: Path) -> str:
     :return: styles datetime string
     :rtype: str
     """
-    parsed_time = time.localtime(int(evaluation_path.stem.split("-")[-1]))
+    evaluation_time_stamp = Cache.extract_time_stamp_from_path(evaluation_path)
+    parsed_time = time.localtime(evaluation_time_stamp)
     return bullet_style(time.strftime(DATETIME_FORMAT, parsed_time))
 
 
