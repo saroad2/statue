@@ -120,6 +120,11 @@ def mock_cache_recent_evaluation_path(mocker):
     return mocker.patch.object(Cache, "recent_evaluation_path")
 
 
+@pytest.fixture
+def mock_cache_extract_time_stamp_from_path(mocker):
+    return mocker.patch.object(Cache, "extract_time_stamp_from_path")
+
+
 # Evaluation Mocks
 
 
