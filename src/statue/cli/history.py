@@ -165,7 +165,7 @@ def clear_history_cli(force, limit):
         number_of_evaluation_files = limit
     if not force:
         confirmation = click.confirm(
-            f"{number_of_evaluation_files} evaluation files are bout to be deleted. "
+            f"{number_of_evaluation_files} evaluation files are about to be deleted. "
             "Are you wish to delete those?",
             default=False,
         )
@@ -174,3 +174,6 @@ def clear_history_cli(force, limit):
             return
     for evaluation_file in evaluation_files:
         evaluation_file.unlink()
+    click.echo(
+        f"{number_of_evaluation_files} evaluation files have been deleted successfully."
+    )
