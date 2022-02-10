@@ -63,11 +63,12 @@ def command_mock(
     return command
 
 
-def evaluation_mock(successful_commands, total_commands):
+def evaluation_mock(successful_commands, total_commands, total_execution_duration):
     evaluation = mock.Mock()
     evaluation.successful_commands_number = successful_commands
     evaluation.commands_number = total_commands
     evaluation.success = successful_commands == total_commands
+    evaluation.total_execution_duration = total_execution_duration
     return evaluation
 
 
