@@ -128,6 +128,6 @@ def case_and_grandparent_not_found():
 
 @parametrize_with_cases(argnames=["context", "setup", "returned"], cases=THIS_MODULE)
 def test_search_in_context(context, setup, returned):
-    assert returned == context.search_context(
+    assert returned == context.search_context_instructions(
         setup
     ), f"{returned} wasn't found in setup {setup} using context {context}"

@@ -27,7 +27,7 @@ class Context:
         """Extra initialization."""
         self._names = [self.name, *self.aliases]
 
-    def search_context(
+    def search_context_instructions(
         self, setups: MutableMapping[str, Any]
     ) -> Optional[MutableMapping[str, Any]]:
         """
@@ -43,7 +43,7 @@ class Context:
             if name_setups is not None:
                 return name_setups
         if self.parent is not None:
-            return self.parent.search_context(setups)
+            return self.parent.search_context_instructions(setups)
         if self.is_default:
             return setups
         return None

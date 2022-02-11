@@ -335,7 +335,7 @@ class Configuration:
                 )
         context_objects = [cls.get_context(context_name) for context_name in contexts]
         for context in context_objects:
-            context_obj = context.search_context(command_configuration)
+            context_obj = context.search_context_instructions(command_configuration)
             if context_obj is False or context_obj is None:
                 raise InvalidCommand(
                     f'Command "{command_name}" does not match context "{context.name}"'
