@@ -44,9 +44,10 @@ args = [
     "--remove-all-unused-imports"
 ]
 help = "Remove unused imports and variables"
+required_contexts = ['format']
 format = true
 fast = true
-standard = false
+test = true
 
 [commands.isort]
 args = [
