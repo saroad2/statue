@@ -10,6 +10,7 @@ from statue.constants import (
     COMMANDS,
     CONTEXTS,
     HELP,
+    REQUIRED_CONTEXTS,
     STANDARD,
 )
 from statue.context import Context
@@ -306,8 +307,45 @@ def case_on_standard_child_context_inheritance():
     return configuration, kwargs, command
 
 
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_one_required_context():
+    configuration = {
+        CONTEXTS: CONTEXTS_MAP,
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1],
+                REQUIRED_CONTEXTS: [CONTEXT1],
+                CONTEXT1: True,
+            }
+        },
+    }
+    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
+    command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
+    return configuration, kwargs, command
+
+
+@case(tags=[SUCCESSFUL_TAG])
+def case_with_two_required_contexts():
+    configuration = {
+        CONTEXTS: CONTEXTS_MAP,
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1],
+                REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
+                CONTEXT1: True,
+                CONTEXT2: True,
+            }
+        },
+    }
+    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, CONTEXT2])
+    command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
+    return configuration, kwargs, command
+
+
 @parametrize_with_cases(
-    argnames="configuration, kwargs, command",
+    argnames=["configuration", "kwargs", "command"],
     cases=THIS_MODULE,
     has_tag=SUCCESSFUL_TAG,
 )
@@ -467,8 +505,79 @@ def case_when_no_context_configuration_was_set():
     )
 
 
+@case(tags=[FAILED_TAG])
+def case_without_the_required_context():
+    configuration = {
+        CONTEXTS: CONTEXTS_MAP,
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1],
+                REQUIRED_CONTEXTS: [CONTEXT1],
+                CONTEXT1: True,
+            }
+        },
+    }
+    kwargs = dict(command_name=COMMAND1)
+    return (
+        configuration,
+        kwargs,
+        InvalidCommand,
+        f"^Command `{COMMAND1}`requires the following contexts, "
+        f"which are missing: {CONTEXT1}$",
+    )
+
+
+@case(tags=[FAILED_TAG])
+def case_without_one_of_two_required_contexts():
+    configuration = {
+        CONTEXTS: CONTEXTS_MAP,
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1],
+                REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
+                CONTEXT1: True,
+                CONTEXT2: True,
+            }
+        },
+    }
+    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
+    return (
+        configuration,
+        kwargs,
+        InvalidCommand,
+        f"^Command `{COMMAND1}`requires the following contexts, "
+        f"which are missing: {CONTEXT2}",
+    )
+
+
+@case(tags=[FAILED_TAG])
+def case_without_two_required_contexts():
+    configuration = {
+        CONTEXTS: CONTEXTS_MAP,
+        COMMANDS: {
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1],
+                REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
+                CONTEXT1: True,
+                CONTEXT2: True,
+            }
+        },
+    }
+    kwargs = dict(command_name=COMMAND1)
+    return (
+        configuration,
+        kwargs,
+        InvalidCommand,
+        f"^Command `{COMMAND1}`requires the following contexts, "
+        f"which are missing: {CONTEXT1}, {CONTEXT2}",
+    )
+
+
 @parametrize_with_cases(
-    argnames="configuration, kwargs, exception_class, exception_message",
+    argnames=["configuration", "kwargs", "exception_class", "exception_message"],
     cases=THIS_MODULE,
     has_tag=FAILED_TAG,
 )
