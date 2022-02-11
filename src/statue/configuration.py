@@ -15,6 +15,7 @@ from statue.constants import (
     DEFAULT_CONFIGURATION_FILE,
     HELP,
     OVERRIDE,
+    REQUIRED_CONTEXTS,
     SOURCES,
     STANDARD,
     STATUE,
@@ -321,6 +322,17 @@ class Configuration:
             raise UnknownCommand(command_name)
         if contexts is None or len(contexts) == 0:
             contexts = [STANDARD]
+        required_contexts = command_configuration.get(REQUIRED_CONTEXTS, None)
+        if required_contexts is not None:
+            missing_required_contexts = [
+                context for context in required_contexts if context not in contexts
+            ]
+            if len(missing_required_contexts) != 0:
+                raise InvalidCommand(
+                    f"Command `{command_name}`"
+                    "requires the following contexts, which are missing: "
+                    f"{', '.join(missing_required_contexts)}"
+                )
         context_objects = [cls.get_context(context_name) for context_name in contexts]
         for context in context_objects:
             context_obj = context.search_context(command_configuration)
