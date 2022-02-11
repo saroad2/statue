@@ -3,7 +3,7 @@ from unittest import mock
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.cli import statue_cli
-from statue.constants import CONTEXTS, SOURCES, STANDARD
+from statue.constants import CONTEXTS, SOURCES
 
 
 def mock_path(posix_path, is_dir=False):
@@ -20,13 +20,13 @@ def case_empty_sources():
 def case_one_source_with_default_yes():
     src_path = "src"
     src = mock_path(src_path)
-    return [src], ["", ""], {SOURCES: {src_path: {CONTEXTS: [STANDARD]}}}
+    return [src], ["", ""], {SOURCES: {src_path: {}}}
 
 
 def case_one_source_with_yes():
     src_path = "src"
     src = mock_path(src_path)
-    return [src], ["y", ""], {SOURCES: {src_path: {CONTEXTS: [STANDARD]}}}
+    return [src], ["y", ""], {SOURCES: {src_path: {}}}
 
 
 def case_one_source_with_no():
@@ -52,11 +52,7 @@ def case_expend_with_all_yes(mock_expend, mock_git_repo):
     one, two, three = "src/one", "src/two", "src/three"
     mock_expend.return_value = [mock_path(path) for path in [one, two, three]]
     yield [src], ["e", "y", "", "y", "", "y", ""], {
-        SOURCES: {
-            one: {CONTEXTS: [STANDARD]},
-            two: {CONTEXTS: [STANDARD]},
-            three: {CONTEXTS: [STANDARD]},
-        }
+        SOURCES: {one: {}, two: {}, three: {}}
     }
     mock_expend.assert_called_once_with(src, repo=mock_git_repo.return_value)
 
@@ -66,9 +62,7 @@ def case_expend_with_one_no(mock_expend, mock_git_repo):
     src = mock_path(src_path, is_dir=True)
     one, two, three = "src/one", "src/two", "src/three"
     mock_expend.return_value = [mock_path(path) for path in [one, two, three]]
-    yield [src], ["e", "y", "", "n", "y", ""], {
-        SOURCES: {one: {CONTEXTS: [STANDARD]}, three: {CONTEXTS: [STANDARD]}}
-    }
+    yield [src], ["e", "y", "", "n", "y", ""], {SOURCES: {one: {}, three: {}}}
     mock_expend.assert_called_once_with(src, repo=mock_git_repo.return_value)
 
 
@@ -81,7 +75,7 @@ def case_expended_get_contexts(mock_expend, mock_git_repo):
     mock_expend.return_value = [mock_path(path) for path in [one, two, three]]
     yield [src, test], ["y", "", "e", "y", "fast", "y", "", "y", "format"], {
         SOURCES: {
-            src_path: {CONTEXTS: [STANDARD]},
+            src_path: {},
             one: {CONTEXTS: ["fast"]},
             two: {CONTEXTS: ["test"]},
             three: {CONTEXTS: ["format"]},

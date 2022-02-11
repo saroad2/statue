@@ -222,8 +222,11 @@ def __update_sources_map(sources_map, sources, repo=None, interactive=False):
                 default=default_contexts_string,
                 show_default=False,
             )
-            contexts = re.split(r"[ \t]*,[ \t]*", contexts_string)
-        sources_map[source.as_posix()] = {CONTEXTS: contexts}
+            if len(contexts_string) != 0:
+                contexts = re.split(r"[ \t]*,[ \t]*", contexts_string)
+        sources_map[source.as_posix()] = {}
+        if len(contexts) != 0:
+            sources_map[source.as_posix()][CONTEXTS] = contexts
 
 
 def __get_default_contexts(source: Path):
@@ -231,7 +234,7 @@ def __get_default_contexts(source: Path):
         return ["test"]
     if source.name == "setup.py":
         return ["fast"]
-    return ["standard"]
+    return []
 
 
 def __join_names(names_list):

@@ -5,7 +5,7 @@ from git import InvalidGitRepositoryError
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli.cli import statue_cli
-from statue.constants import CONTEXTS, SOURCES, STANDARD
+from statue.constants import CONTEXTS, SOURCES
 
 
 def case_empty_sources():
@@ -14,12 +14,12 @@ def case_empty_sources():
 
 def case_regular_sources():
     src = "src"
-    return [src], {SOURCES: {src: {CONTEXTS: [STANDARD]}}}
+    return [src], {SOURCES: {src: {}}}
 
 
 def case_internal_path():
     """Paths should always be written as posix paths, even in windows"""
-    return [Path("src", "package")], {SOURCES: {"src/package": {CONTEXTS: [STANDARD]}}}
+    return [Path("src", "package")], {SOURCES: {"src/package": {}}}
 
 
 def case_test_sources():
@@ -35,7 +35,7 @@ def case_setup_sources():
 def case_all_sources():
     return ["src", "test", "setup.py"], {
         SOURCES: {
-            "src": {CONTEXTS: [STANDARD]},
+            "src": {},
             "test": {CONTEXTS: ["test"]},
             "setup.py": {CONTEXTS: ["fast"]},
         }
