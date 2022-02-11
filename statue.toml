@@ -30,7 +30,6 @@ version = "1.4"
 contexts = [ "fast",]
 
 [sources."src/statue"]
-contexts = [ "standard",]
 
 [sources.tests]
 contexts = [ "test",]
