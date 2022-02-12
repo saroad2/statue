@@ -3,7 +3,14 @@ from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, MutableMapping, Optional
 
-from statue.constants import ALIASES, HELP, IS_DEFAULT, PARENT
+from statue.constants import (
+    ALIASES,
+    ALLOWED_CONTEXTS,
+    HELP,
+    IS_DEFAULT,
+    PARENT,
+    REQUIRED_CONTEXTS,
+)
 from statue.exceptions import InvalidStatueConfiguration, UnknownContext
 
 
@@ -26,6 +33,30 @@ class Context:
     def __post_init__(self):
         """Extra initialization."""
         self._names = [self.name, *self.aliases]
+
+    def is_allowed(self, setups: MutableMapping[str, Any]) -> bool:
+        """
+        Check if this command is allowed in the given setup.
+
+        :param setups: Setup to check if the context is allowed in
+        :type setups: MutableMapping[str, Any]
+        :return: Is this context allowed or not
+        :rtype: bool
+        """
+        if self.is_default:
+            return True
+        required_contexts = setups.get(REQUIRED_CONTEXTS, None)
+        allowed_contexts = setups.get(ALLOWED_CONTEXTS, None)
+        for name in self._names:
+            if name in setups:
+                return True
+            if required_contexts is not None and name in required_contexts:
+                return True
+            if allowed_contexts is not None and name in allowed_contexts:
+                return True
+        if self.parent is not None:
+            return self.parent.is_allowed(setups)
+        return False
 
     def search_context_instructions(
         self, setups: MutableMapping[str, Any]

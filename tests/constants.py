@@ -41,6 +41,7 @@ CONTEXT2, CONTEXT_HELP_STRING2 = name_and_help_string("context2")
 CONTEXT3, CONTEXT_HELP_STRING3 = name_and_help_string("context3")
 CONTEXT4, CONTEXT_HELP_STRING4 = name_and_help_string("context4")
 CONTEXT5, CONTEXT_HELP_STRING5 = name_and_help_string("context5")
+CONTEXT6, CONTEXT_HELP_STRING6 = name_and_help_string("context6")
 NOT_EXISTING_CONTEXT = "not_existing_context"
 NOT_EXISTING_COMMAND = "not_existing_command"
 NOT_EXISTING_SOURCE = "not_existing_source"
