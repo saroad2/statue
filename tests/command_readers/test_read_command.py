@@ -5,6 +5,7 @@ from statue.command import Command
 from statue.configuration import Configuration
 from statue.constants import (
     ADD_ARGS,
+    ALLOWED_CONTEXTS,
     ARGS,
     CLEAR_ARGS,
     COMMANDS,
@@ -55,7 +56,6 @@ def case_with_no_contexts():
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
                 CONTEXT1: {ADD_ARGS: [ARG2, ARG3]},
-                CONTEXT2: True,
             }
         },
     }
@@ -65,14 +65,14 @@ def case_with_no_contexts():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_boolean_context():
+def case_with_allowed_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
-                CONTEXT1: True,
+                ALLOWED_CONTEXTS: [CONTEXT1],
             }
         },
     }
@@ -82,14 +82,14 @@ def case_with_boolean_context():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_boolean_context_and_standard():
+def case_with_allowed_context_and_standard():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
         COMMANDS: {
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
-                CONTEXT1: True,
+                ALLOWED_CONTEXTS: [CONTEXT1],
             }
         },
     }
@@ -106,30 +106,11 @@ def case_read_successful_with_two_contexts():
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
-                CONTEXT1: True,
-                CONTEXT2: True,
+                ALLOWED_CONTEXTS: [CONTEXT1, CONTEXT2],
             }
         },
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, CONTEXT2])
-    command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
-    return configuration, kwargs, command
-
-
-@case(tags=[SUCCESSFUL_TAG])
-def case_read_is_successful_with_non_standard_command():
-    configuration = {
-        CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                STANDARD: False,
-                CONTEXT1: True,
-            }
-        },
-    }
-    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
     return configuration, kwargs, command
 
@@ -316,7 +297,6 @@ def case_with_one_required_context():
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
                 REQUIRED_CONTEXTS: [CONTEXT1],
-                CONTEXT1: True,
             }
         },
     }
@@ -334,8 +314,6 @@ def case_with_two_required_contexts():
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
                 REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-                CONTEXT1: True,
-                CONTEXT2: True,
             }
         },
     }
@@ -387,7 +365,7 @@ def case_read_failed_with_two_contexts():
             COMMAND1: {
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
-                CONTEXT1: True,
+                ALLOWED_CONTEXTS: [CONTEXT1],
             }
         },
     }
@@ -396,29 +374,8 @@ def case_read_failed_with_two_contexts():
         configuration,
         kwargs,
         InvalidCommand,
-        f'^Command "{COMMAND1}" does not match context "{CONTEXT2}"',
-    )
-
-
-@case(tags=[FAILED_TAG])
-def case_read_failed_with_non_standard_command():
-    configuration = {
-        CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                STANDARD: False,
-                CONTEXT1: True,
-            }
-        },
-    }
-    kwargs = dict(command_name=COMMAND1)
-    return (
-        configuration,
-        kwargs,
-        InvalidCommand,
-        f'^Command "{COMMAND1}" does not match context "{STANDARD}"',
+        f"^Command `{COMMAND1}`is not allowed "
+        f"due to the following contexts: {CONTEXT2}",
     )
 
 
@@ -492,7 +449,11 @@ def case_with_no_commands_configuration():
 def case_when_no_context_configuration_was_set():
     configuration = {
         COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2], CONTEXT1: True},
+            COMMAND1: {
+                HELP: COMMAND_HELP_STRING1,
+                ARGS: [ARG1, ARG2],
+                ALLOWED_CONTEXTS: [CONTEXT1],
+            },
             COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG5]},
         },
     }
@@ -514,7 +475,6 @@ def case_without_the_required_context():
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
                 REQUIRED_CONTEXTS: [CONTEXT1],
-                CONTEXT1: True,
             }
         },
     }
@@ -537,8 +497,6 @@ def case_without_one_of_two_required_contexts():
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
                 REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-                CONTEXT1: True,
-                CONTEXT2: True,
             }
         },
     }
@@ -561,8 +519,6 @@ def case_without_two_required_contexts():
                 HELP: COMMAND_HELP_STRING1,
                 ARGS: [ARG1],
                 REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-                CONTEXT1: True,
-                CONTEXT2: True,
             }
         },
     }
