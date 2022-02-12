@@ -334,13 +334,20 @@ class Configuration:
                     f"{', '.join(missing_required_contexts)}"
                 )
         context_objects = [cls.get_context(context_name) for context_name in contexts]
+        not_allowed_contexts = [
+            context
+            for context in context_objects
+            if not context.is_allowed(command_configuration)
+        ]
+        if len(not_allowed_contexts) != 0:
+            raise InvalidCommand(
+                f"Command `{command_name}`"
+                "is not allowed due to the following contexts: "
+                f"{', '.join([context.name for context in not_allowed_contexts])}"
+            )
         for context in context_objects:
-            context_obj = context.search_context(command_configuration)
-            if context_obj is False or context_obj is None:
-                raise InvalidCommand(
-                    f'Command "{command_name}" does not match context "{context.name}"'
-                )
-            if context_obj is True:
+            context_obj = context.search_context_instructions(command_configuration)
+            if context_obj is None:
                 continue
             command_configuration = cls.__combine_command_setups(
                 command_configuration, context_obj
