@@ -5,6 +5,7 @@ from typing import Any, Dict, List, MutableMapping, Optional
 
 from statue.constants import (
     ALIASES,
+    ALLOWED_BY_DEFAULT,
     ALLOWED_CONTEXTS,
     HELP,
     IS_DEFAULT,
@@ -27,12 +28,13 @@ class Context:
     help: str
     aliases: List[str] = field(default_factory=list)
     parent: Optional["Context"] = field(default=None)
+    allowed_by_default: bool = field(default=False)
     is_default: bool = field(default=False)
-    _names: List[str] = field(init=False)
 
-    def __post_init__(self):
-        """Extra initialization."""
-        self._names = [self.name, *self.aliases]
+    @property
+    def all_names(self) -> List[str]:
+        """List of all possible names."""
+        return [self.name, *self.aliases]
 
     def is_allowed(self, setups: MutableMapping[str, Any]) -> bool:
         """
@@ -47,7 +49,7 @@ class Context:
             return True
         required_contexts = setups.get(REQUIRED_CONTEXTS, None)
         allowed_contexts = setups.get(ALLOWED_CONTEXTS, None)
-        for name in self._names:
+        for name in self.all_names:
             if name in setups:
                 return True
             if required_contexts is not None and name in required_contexts:
@@ -56,7 +58,7 @@ class Context:
                 return True
         if self.parent is not None:
             return self.parent.is_allowed(setups)
-        return False
+        return self.allowed_by_default
 
     def search_context_instructions(
         self, setups: MutableMapping[str, Any]
@@ -69,7 +71,7 @@ class Context:
         :return: Specific setups with context
         :rtype: None or MutableMapping[str, Any]
         """
-        for name in self._names:
+        for name in self.all_names:
             name_setups = setups.get(name, None)
             if name_setups is not None:
                 return name_setups
@@ -120,7 +122,10 @@ class Context:
         if config is None:
             raise UnknownContext(name)
         kwargs = dict(
-            name=name, help=config[HELP], is_default=config.get(IS_DEFAULT, False)
+            name=name,
+            help=config[HELP],
+            is_default=config.get(IS_DEFAULT, False),
+            allowed_by_default=config.get(ALLOWED_BY_DEFAULT, False),
         )
         if ALIASES in config:
             kwargs[ALIASES] = config[ALIASES]

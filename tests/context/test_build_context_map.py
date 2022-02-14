@@ -1,7 +1,7 @@
 import pytest
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.constants import ALIASES, HELP, IS_DEFAULT, PARENT
+from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, IS_DEFAULT, PARENT
 from statue.context import Context
 from statue.exceptions import UnknownContext
 from tests.constants import (
@@ -80,6 +80,22 @@ def case_context_inheritance_from_default():
     context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, is_default=True)
     context2 = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=context1)
     return context_config, build_contexts_map(context1, context2)
+
+
+def case_context_allowed_by_default():
+    context_config = {CONTEXT1: {HELP: CONTEXT_HELP_STRING1, ALLOWED_BY_DEFAULT: True}}
+    context1 = Context(
+        name=CONTEXT1, help=CONTEXT_HELP_STRING1, allowed_by_default=True
+    )
+    return context_config, build_contexts_map(context1)
+
+
+def case_context_not_allowed_by_default():
+    context_config = {CONTEXT1: {HELP: CONTEXT_HELP_STRING1, ALLOWED_BY_DEFAULT: False}}
+    context1 = Context(
+        name=CONTEXT1, help=CONTEXT_HELP_STRING1, allowed_by_default=False
+    )
+    return context_config, build_contexts_map(context1)
 
 
 @parametrize_with_cases(argnames=["context_config", "contexts_map"], cases=THIS_MODULE)

@@ -8,7 +8,7 @@ help = "Run short-time commands. Good for smoke tests"
 
 [contexts.strict]
 help = "Strict checks, for ones who never compromise!"
-parent = "standard"
+allowed_by_default = true
 
 [contexts.test]
 help = "Checks for test files."
