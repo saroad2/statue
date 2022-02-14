@@ -28,11 +28,11 @@ class Context:
     aliases: List[str] = field(default_factory=list)
     parent: Optional["Context"] = field(default=None)
     is_default: bool = field(default=False)
-    _names: List[str] = field(init=False)
 
-    def __post_init__(self):
-        """Extra initialization."""
-        self._names = [self.name, *self.aliases]
+    @property
+    def all_names(self) -> List[str]:
+        """List of all possible names."""
+        return [self.name, *self.aliases]
 
     def is_allowed(self, setups: MutableMapping[str, Any]) -> bool:
         """
@@ -47,7 +47,7 @@ class Context:
             return True
         required_contexts = setups.get(REQUIRED_CONTEXTS, None)
         allowed_contexts = setups.get(ALLOWED_CONTEXTS, None)
-        for name in self._names:
+        for name in self.all_names:
             if name in setups:
                 return True
             if required_contexts is not None and name in required_contexts:
@@ -69,7 +69,7 @@ class Context:
         :return: Specific setups with context
         :rtype: None or MutableMapping[str, Any]
         """
-        for name in self._names:
+        for name in self.all_names:
             name_setups = setups.get(name, None)
             if name_setups is not None:
                 return name_setups
