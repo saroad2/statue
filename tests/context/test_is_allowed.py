@@ -8,6 +8,7 @@ from tests.constants import (
     CONTEXT5,
     CONTEXT6,
     CONTEXT_HELP_STRING1,
+    CONTEXT_HELP_STRING3,
     STANDARD_HELP,
 )
 
@@ -71,10 +72,26 @@ def test_context_parent_is_allowed():
 
 def test_context_parent_alias_is_allowed():
     parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
-    context = Context(name=CONTEXT3, help=CONTEXT_HELP_STRING1, parent=parent)
+    context = Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3, parent=parent)
     setups = {ALLOWED_CONTEXTS: [CONTEXT2]}
 
     assert context.is_allowed(setups)
+
+
+def test_context_allowed_by_default():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, allowed_by_default=True)
+    setups = {}
+
+    assert context.is_allowed(setups)
+
+
+def test_context_is_not_allowed_by_default():
+    context = Context(
+        name=CONTEXT1, help=CONTEXT_HELP_STRING1, allowed_by_default=False
+    )
+    setups = {}
+
+    assert not context.is_allowed(setups)
 
 
 def test_context_is_not_allowed():

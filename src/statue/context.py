@@ -27,6 +27,7 @@ class Context:
     help: str
     aliases: List[str] = field(default_factory=list)
     parent: Optional["Context"] = field(default=None)
+    allowed_by_default: bool = field(default=False)
     is_default: bool = field(default=False)
 
     @property
@@ -56,7 +57,7 @@ class Context:
                 return True
         if self.parent is not None:
             return self.parent.is_allowed(setups)
-        return False
+        return self.allowed_by_default
 
     def search_context_instructions(
         self, setups: MutableMapping[str, Any]
