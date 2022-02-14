@@ -19,6 +19,7 @@ ALLOWED_CONTEXTS = "allowed_contexts"
 REQUIRED_CONTEXTS = "required_contexts"
 ALIASES = "aliases"
 PARENT = "parent"
+ALLOWED_BY_DEFAULT = "allowed_by_default"
 IS_DEFAULT = "is_default"
 VERSION = "version"
 

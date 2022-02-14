@@ -5,6 +5,7 @@ from typing import Any, Dict, List, MutableMapping, Optional
 
 from statue.constants import (
     ALIASES,
+    ALLOWED_BY_DEFAULT,
     ALLOWED_CONTEXTS,
     HELP,
     IS_DEFAULT,
@@ -121,7 +122,10 @@ class Context:
         if config is None:
             raise UnknownContext(name)
         kwargs = dict(
-            name=name, help=config[HELP], is_default=config.get(IS_DEFAULT, False)
+            name=name,
+            help=config[HELP],
+            is_default=config.get(IS_DEFAULT, False),
+            allowed_by_default=config.get(ALLOWED_BY_DEFAULT, False),
         )
         if ALIASES in config:
             kwargs[ALIASES] = config[ALIASES]
