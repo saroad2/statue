@@ -5,7 +5,7 @@ from unittest import mock
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
-from statue.runner import evaluate_commands_map
+from statue.runner import SynchronousEvaluationRunner
 from tests.constants import (
     COMMAND1,
     COMMAND2,
@@ -246,16 +246,16 @@ def case_two_sources_two_commands(mock_time):
 
 @parametrize_with_cases(argnames=["commands_map", "evaluation"], cases=THIS_MODULE)
 def test_evaluate_commands_map_result(commands_map, evaluation):
-    actual_evaluation = evaluate_commands_map(commands_map)
+    runner = SynchronousEvaluationRunner()
+    actual_evaluation = runner.evaluate(commands_map)
     assert_equal_evaluations(actual_evaluation, evaluation)
 
 
 @parametrize_with_cases(argnames=["commands_map", "evaluation"], cases=THIS_MODULE)
 def test_evaluate_commands_map_update_func(commands_map, evaluation):
     update_func_mock = mock.Mock()
-    actual_evaluation = evaluate_commands_map(
-        commands_map, update_func=update_func_mock
-    )
+    runner = SynchronousEvaluationRunner()
+    actual_evaluation = runner.evaluate(commands_map, update_func=update_func_mock)
     assert_equal_evaluations(actual_evaluation, evaluation)
     all_commands = list(itertools.chain.from_iterable(commands_map.values()))
     assert update_func_mock.call_count == len(all_commands)
