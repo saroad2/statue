@@ -1,17 +1,20 @@
 # noqa: D100
 # pylint: disable=missing-module-docstring
+import asyncio
 import importlib
 import os
 import subprocess  # nosec
 import sys
 import time
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 import pkg_resources
 
 from statue.constants import ENCODING
 from statue.exceptions import CommandExecutionError
+from statue.sources_locks_repository import SourcesLocksRepository
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
 
@@ -218,9 +221,18 @@ class Command:
         self.uninstall(verbosity=verbosity)
         self.install(verbosity=verbosity)
 
-    def execute(  # pylint: disable=too-many-arguments
-        self, source: str
-    ) -> CommandEvaluation:
+    def program_execution_args(self, source: Union[Path, str]) -> List[str]:
+        """
+        Get the program command to be run as a subprocess.
+
+        :param source: The source to run the command on.
+        :type source: Union[Path, str]
+        :return: Program arguments list
+        :rtype: List[str]
+        """
+        return [self.name, str(source), *self.args]
+
+    def execute(self, source: str) -> CommandEvaluation:
         """
         Execute the command.
 
@@ -228,10 +240,19 @@ class Command:
         :type: str
         :return: Command's evaluation including the command itself and is it successful
         :rtype: CommandEvaluation
+        :raises CommandExecutionError: raised when command is not found.
         """
-        start_time = time.time()
-        subprocess_result = self._run_subprocess(args=[self.name, source, *self.args])
-        end_time = time.time()
+        try:
+            start_time = time.time()
+            subprocess_result = subprocess.run(
+                self.program_execution_args(source),
+                env=os.environ,
+                check=False,
+                capture_output=True,
+            )
+            end_time = time.time()
+        except FileNotFoundError as error:
+            raise CommandExecutionError(self.name) from error
         captured_stdout = subprocess_result.stdout.decode(ENCODING)
         captured_stderr = subprocess_result.stderr.decode(ENCODING)
         return CommandEvaluation(
@@ -239,18 +260,46 @@ class Command:
             success=(subprocess_result.returncode == 0),
             execution_duration=end_time - start_time,
             captured_output=self._build_captured_output(
-                captured_stdout=captured_stdout,
-                captured_stderr=captured_stderr,
+                captured_stdout=captured_stdout, captured_stderr=captured_stderr
             ),
         )
 
-    def _run_subprocess(self, args: List[str]) -> subprocess.CompletedProcess:
+    async def execute_async(self, source) -> CommandEvaluation:
+        """
+        Execute the command asynchronously.
+
+        :param source: source files to check.
+        :type: str
+        :return: Command's evaluation including the command itself and is it successful
+        :rtype: CommandEvaluation
+        :raises CommandExecutionError: raised when command is not found.
+        """
+        source_lock = await SourcesLocksRepository.get_lock(source)
         try:
-            return subprocess.run(  # nosec
-                args, env=os.environ, check=False, capture_output=True
+            await source_lock.acquire()
+            start_time = time.time()
+            async_process = await asyncio.create_subprocess_exec(
+                *self.program_execution_args(source),
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=os.environ,
             )
+            stdout, stderr = await async_process.communicate()
+            end_time = time.time()
+            source_lock.release()
         except FileNotFoundError as error:
             raise CommandExecutionError(self.name) from error
+        captured_stdout, captured_stderr = stdout.decode(ENCODING), stderr.decode(
+            ENCODING
+        )
+        return CommandEvaluation(
+            command=self,
+            success=(async_process.returncode == 0),
+            execution_duration=end_time - start_time,
+            captured_output=self._build_captured_output(
+                captured_stdout=captured_stdout, captured_stderr=captured_stderr
+            ),
+        )
 
     @classmethod
     def _build_captured_output(cls, captured_stdout, captured_stderr):
