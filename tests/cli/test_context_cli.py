@@ -1,6 +1,5 @@
 from statue.cli import statue_cli
 from statue.command import Command
-from statue.constants import STANDARD
 from statue.context import Context
 from tests.constants import (
     COMMAND1,
@@ -19,7 +18,6 @@ from tests.constants import (
     CONTEXT_HELP_STRING5,
     CONTEXTS_MAP,
     NOT_EXISTING_CONTEXT,
-    STANDARD_HELP,
 )
 from tests.util import build_contexts_map
 
@@ -31,7 +29,6 @@ def test_contexts_list_of_full_configuration(
     result = cli_runner.invoke(statue_cli, ["context", "list"])
     assert result.exit_code == 0, "list contexts should exit with success."
     assert result.output == (
-        f"{STANDARD} - {STANDARD_HELP}\n"
         f"{CONTEXT1} - {CONTEXT_HELP_STRING1}\n"
         f"{CONTEXT2} - {CONTEXT_HELP_STRING2}\n"
         f"{CONTEXT3} - {CONTEXT_HELP_STRING3}\n"

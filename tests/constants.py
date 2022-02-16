@@ -1,6 +1,6 @@
 import random
 
-from statue.constants import HELP, STANDARD
+from statue.constants import HELP
 from statue.context import Context
 
 SUCCESSFUL_TAG = "successful"
@@ -55,9 +55,7 @@ COMMANDS_CONFIGURATION = {
     COMMAND5: {HELP: COMMAND_HELP_STRING5},
 }
 
-STANDARD_HELP = "Standard help"
 CONTEXTS_MAP = {
-    STANDARD: Context(name=STANDARD, help=STANDARD_HELP, is_default=True),
     CONTEXT1: Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
     CONTEXT2: Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
     CONTEXT3: Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),

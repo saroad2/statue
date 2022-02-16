@@ -1,4 +1,4 @@
-from statue.constants import ALLOWED_CONTEXTS, REQUIRED_CONTEXTS, STANDARD
+from statue.constants import ALLOWED_CONTEXTS, REQUIRED_CONTEXTS
 from statue.context import Context
 from tests.constants import (
     CONTEXT1,
@@ -9,15 +9,7 @@ from tests.constants import (
     CONTEXT6,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING3,
-    STANDARD_HELP,
 )
-
-
-def test_default_context_is_allowed():
-    context = Context(name=STANDARD, help=STANDARD_HELP, is_default=True)
-    setups = {}
-
-    assert context.is_allowed(setups)
 
 
 def test_required_context_is_allowed():

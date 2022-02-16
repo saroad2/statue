@@ -80,28 +80,6 @@ def case_context_choose_self_over_grandparent():
     return context, setup, returned
 
 
-def case_default_context_in_setup():
-    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, is_default=True)
-    setup = {CONTEXT1: ITEM}
-    returned = ITEM
-    return context, setup, returned
-
-
-def case_default_context_not_in_setup():
-    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, is_default=True)
-    setup = {CONTEXT2: ITEM}
-    returned = setup
-    return context, setup, returned
-
-
-def case_default_context_is_parent():
-    parent = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, is_default=True)
-    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent)
-    setup = {CONTEXT3: ITEM}
-    returned = setup
-    return context, setup, returned
-
-
 def case_context_not_found():
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     setup = {CONTEXT2: ITEM, CONTEXT3: ITEM2}
