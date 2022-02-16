@@ -8,7 +8,6 @@ from statue.constants import (
     ALLOWED_BY_DEFAULT,
     ALLOWED_CONTEXTS,
     HELP,
-    IS_DEFAULT,
     PARENT,
     REQUIRED_CONTEXTS,
 )
@@ -29,7 +28,6 @@ class Context:
     aliases: List[str] = field(default_factory=list)
     parent: Optional["Context"] = field(default=None)
     allowed_by_default: bool = field(default=False)
-    is_default: bool = field(default=False)
 
     @property
     def all_names(self) -> List[str]:
@@ -45,8 +43,6 @@ class Context:
         :return: Is this context allowed or not
         :rtype: bool
         """
-        if self.is_default:
-            return True
         required_contexts = setups.get(REQUIRED_CONTEXTS, None)
         allowed_contexts = setups.get(ALLOWED_CONTEXTS, None)
         for name in self.all_names:
@@ -77,8 +73,6 @@ class Context:
                 return name_setups
         if self.parent is not None:
             return self.parent.search_context_instructions(setups)
-        if self.is_default:
-            return setups
         return None
 
     @classmethod
@@ -124,7 +118,6 @@ class Context:
         kwargs = dict(
             name=name,
             help=config[HELP],
-            is_default=config.get(IS_DEFAULT, False),
             allowed_by_default=config.get(ALLOWED_BY_DEFAULT, False),
         )
         if ALIASES in config:

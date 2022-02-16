@@ -17,7 +17,6 @@ from statue.constants import (
     OVERRIDE,
     REQUIRED_CONTEXTS,
     SOURCES,
-    STANDARD,
     STATUE,
     VERSION,
 )
@@ -318,10 +317,10 @@ class Configuration:
                 f"was explicitly denied in deny list: {', '.join(deny_list)}"
             )
         command_configuration = cls.get_command_configuration(command_name)
+        if contexts is None:
+            contexts = []
         if command_configuration is None:
             raise UnknownCommand(command_name)
-        if contexts is None or len(contexts) == 0:
-            contexts = [STANDARD]
         required_contexts = command_configuration.get(REQUIRED_CONTEXTS, None)
         if required_contexts is not None:
             missing_required_contexts = [

@@ -12,7 +12,6 @@ from statue.constants import (
     CONTEXTS,
     HELP,
     REQUIRED_CONTEXTS,
-    STANDARD,
 )
 from statue.context import Context
 from statue.exceptions import (
@@ -77,23 +76,6 @@ def case_with_allowed_context():
         },
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
-    command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
-    return configuration, kwargs, command
-
-
-@case(tags=[SUCCESSFUL_TAG])
-def case_with_allowed_context_and_standard():
-    configuration = {
-        CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                ALLOWED_CONTEXTS: [CONTEXT1],
-            }
-        },
-    }
-    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, STANDARD])
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
     return configuration, kwargs, command
 
@@ -214,26 +196,6 @@ def case_not_in_deny_list():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_on_root_context_inheritance():
-    standard = Context(name=STANDARD, help="Some help", is_default=True)
-    parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
-    configuration = {
-        CONTEXTS: build_contexts_map(standard, context, parent),
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                CONTEXT1: {ARGS: [ARG3]},
-            },
-        },
-    }
-    kwargs = dict(command_name=COMMAND1)
-    command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
-    return configuration, kwargs, command
-
-
-@case(tags=[SUCCESSFUL_TAG])
 def case_on_child_context_inheritance():
     parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
@@ -267,24 +229,6 @@ def case_context_alias():
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT2])
     command = Command(name=COMMAND1, args=[ARG3], help=COMMAND_HELP_STRING1)
-    return configuration, kwargs, command
-
-
-@case(tags=[SUCCESSFUL_TAG])
-def case_on_standard_child_context_inheritance():
-    standard = Context(name=STANDARD, help=CONTEXT_HELP_STRING2, is_default=True)
-    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=standard)
-    configuration = {
-        CONTEXTS: build_contexts_map(standard, context),
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-            },
-        },
-    }
-    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
-    command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
     return configuration, kwargs, command
 
 
