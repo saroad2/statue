@@ -220,7 +220,7 @@ def test_command_execute_with_both_stdout_and_stderr(
     source = SOURCE1
     command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
     subprocess_response = mock_subprocess_response(
-        exit_code=0, stdout=stdout_line, stderr=stderr_line
+        exit_code=0, stdout=stdout_line + "\n", stderr=stderr_line
     )
     mock_subprocess.return_value = subprocess_response
     execution_duration = set_execution_duration(mock_time)
@@ -233,7 +233,7 @@ def test_command_execute_with_both_stdout_and_stderr(
             command=command,
             execution_duration=execution_duration,
             success=True,
-            captured_output=[stderr_line],
+            captured_output=[stdout_line, stderr_line],
         ),
     )
     mock_subprocess.assert_called_once_with(

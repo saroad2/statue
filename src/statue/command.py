@@ -232,11 +232,16 @@ class Command:
         start_time = time.time()
         subprocess_result = self._run_subprocess(args=[self.name, source, *self.args])
         end_time = time.time()
+        captured_stdout = subprocess_result.stdout.decode(ENCODING)
+        captured_stderr = subprocess_result.stderr.decode(ENCODING)
         return CommandEvaluation(
             command=self,
             success=(subprocess_result.returncode == 0),
             execution_duration=end_time - start_time,
-            captured_output=self._build_captured_output(subprocess_result),
+            captured_output=self._build_captured_output(
+                captured_stdout=captured_stdout,
+                captured_stderr=captured_stderr,
+            ),
         )
 
     def _run_subprocess(self, args: List[str]) -> subprocess.CompletedProcess:
@@ -248,12 +253,8 @@ class Command:
             raise CommandExecutionError(self.name) from error
 
     @classmethod
-    def _build_captured_output(cls, subprocess_result):
-        captured_stdout = subprocess_result.stdout.decode(ENCODING)
-        captured_stderr = subprocess_result.stderr.decode(ENCODING)
-        captured_output_as_string = (
-            captured_stderr if len(captured_stderr) != 0 else captured_stdout
-        )
+    def _build_captured_output(cls, captured_stdout, captured_stderr):
+        captured_output_as_string = captured_stdout + captured_stderr
         return (
             captured_output_as_string.split("\n")
             if len(captured_output_as_string) != 0
