@@ -6,7 +6,7 @@ import pytest
 from statue.command import Command, CommandEvaluation
 from statue.exceptions import CommandExecutionError
 from tests.constants import COMMAND1, COMMAND_HELP_STRING1, SOURCE1
-from tests.util import assert_equal_command_evaluations
+from tests.util import assert_equal_command_evaluations, set_execution_duration
 
 
 def mock_subprocess_response(exit_code, stdout, stderr):
@@ -15,12 +15,6 @@ def mock_subprocess_response(exit_code, stdout, stderr):
     subprocess_response.stdout.decode.return_value = stdout
     subprocess_response.stderr.decode.return_value = stderr
     return subprocess_response
-
-
-def set_execution_duration(mock_time):
-    start_time, execution_duration = random.uniform(0, 10000), random.random()
-    mock_time.side_effect = [start_time, start_time + execution_duration]
-    return execution_duration
 
 
 def test_simple_command_execute(mock_subprocess, environ, mock_time):
