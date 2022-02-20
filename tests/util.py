@@ -5,8 +5,7 @@ import pytest
 
 from statue.command import Command, CommandEvaluation
 from statue.evaluation import Evaluation, SourceEvaluation
-
-EPSILON = 1e-5
+from tests.constants import EPSILON
 
 
 def build_contexts_map(*contexts):
