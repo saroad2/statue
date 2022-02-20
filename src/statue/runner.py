@@ -1,4 +1,5 @@
 """Command map runner."""
+import abc
 import asyncio
 import time
 from typing import Callable, List, Optional
@@ -11,6 +12,7 @@ from statue.evaluation import Evaluation, SourceEvaluation
 class EvaluationRunner:  # pylint: disable=too-few-public-methods
     """Evaluation runner interface."""
 
+    @abc.abstractmethod
     def evaluate(  # pylint: disable=unused-argument, no-self-use
         self,
         commands_map: CommandsMap,
