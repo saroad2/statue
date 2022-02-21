@@ -3,6 +3,8 @@ import random
 from statue.constants import HELP
 from statue.context import Context
 
+EPSILON = 1e-5
+
 SUCCESSFUL_TAG = "successful"
 FAILED_TAG = "failed"
 

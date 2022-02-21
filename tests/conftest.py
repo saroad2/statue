@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 import pytest
@@ -144,3 +145,9 @@ def mock_evaluation_save_as_json(mocker):
 @pytest.fixture
 def print_mock(mocker):
     return mocker.patch("builtins.print")
+
+
+@pytest.fixture
+def reset_events_loop():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)

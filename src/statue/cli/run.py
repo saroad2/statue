@@ -27,7 +27,7 @@ from statue.commands_map import read_commands_map
 from statue.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
-from statue.runner import evaluate_commands_map
+from statue.runner import build_runner
 from statue.verbosity import is_silent
 
 
@@ -75,6 +75,13 @@ from statue.verbosity import is_silent
 @verbose_option
 @verbosity_option
 @click.option(
+    "--async/--no-async",
+    "is_async",
+    is_flag=True,
+    default=False,
+    help="Should run asynchronously or not.",
+)
+@click.option(
     "-o",
     "--output",
     type=click.Path(dir_okay=False),
@@ -91,6 +98,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     install: bool,
     cache: bool,
     verbosity: str,
+    is_async: bool,
     output: Optional[str],
 ) -> None:
     """
@@ -151,10 +159,11 @@ def run_cli(  # pylint: disable=too-many-arguments
                 "commands before running"
             )
             ctx.exit(1)
+    runner = build_runner(is_async=is_async)
     with click.progressbar(
         length=commands_map.total_commands_count, show_pos=True, show_eta=False
     ) as bar:
-        evaluation = evaluate_commands_map(
+        evaluation = runner.evaluate(
             commands_map=commands_map,
             update_func=lambda command: __bar_update_func(bar, command),
         )

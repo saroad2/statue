@@ -74,7 +74,7 @@ add_args = [
     "--disable=W0201,W0613,W0621"]
 
 [commands.bandit]
-args = ["-r"]
+args = ["-r", "--skip=B603"]
 help = "Python security checks tool."
 
 [commands.pydocstyle]

@@ -5,8 +5,7 @@ import pytest
 
 from statue.command import Command, CommandEvaluation
 from statue.evaluation import Evaluation, SourceEvaluation
-
-EPSILON = 1e-5
+from tests.constants import EPSILON
 
 
 def build_contexts_map(*contexts):
@@ -122,3 +121,9 @@ def assert_equal_evaluations(
     assert actual_evaluation.total_execution_duration == pytest.approx(
         expected_evaluation.total_execution_duration, rel=EPSILON
     )
+
+
+def set_execution_duration(mock_time):
+    start_time, execution_duration = random.uniform(0, 10000), random.random()
+    mock_time.side_effect = [start_time, start_time + execution_duration]
+    return execution_duration
