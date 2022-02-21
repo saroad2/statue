@@ -34,6 +34,32 @@ class Context:
         """List of all possible names."""
         return [self.name, *self.aliases]
 
+    def is_matching(self, name: str) -> bool:
+        """
+        Check if a given name is identical to one of the contexts names.
+
+        :param name: Name to be checked
+        :type name: str
+        :return: Is name equal to context name or one of its aliases
+        :rtype: bool
+        """
+        return name in self.all_names
+
+    def is_matching_recursively(self, name: str) -> bool:
+        """
+        Check if given name matches this context or its parent.
+
+        :param name: Name to be checked
+        :type name: str
+        :return: Is name matching to this context or its parent.
+        :rtype: bool
+        """
+        if self.is_matching(name):
+            return True
+        if self.parent is not None:
+            return self.parent.is_matching_recursively(name)
+        return False
+
     def is_allowed(self, setups: MutableMapping[str, Any]) -> bool:
         """
         Check if this command is allowed in the given setup.
@@ -43,17 +69,11 @@ class Context:
         :return: Is this context allowed or not
         :rtype: bool
         """
-        required_contexts = setups.get(REQUIRED_CONTEXTS, None)
-        allowed_contexts = setups.get(ALLOWED_CONTEXTS, None)
-        for name in self.all_names:
-            if name in setups:
-                return True
-            if required_contexts is not None and name in required_contexts:
-                return True
-            if allowed_contexts is not None and name in allowed_contexts:
-                return True
-        if self.parent is not None:
-            return self.parent.is_allowed(setups)
+        names_to_check = list(setups.keys())
+        names_to_check.extend(setups.get(REQUIRED_CONTEXTS, []))
+        names_to_check.extend(setups.get(ALLOWED_CONTEXTS, []))
+        if any(self.is_matching_recursively(name) for name in names_to_check):
+            return True
         return self.allowed_by_default
 
     def search_context_instructions(
