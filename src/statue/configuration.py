@@ -6,19 +6,14 @@ from typing import Any, Dict, List, MutableMapping, Optional, Union
 import toml
 
 from statue.command import Command
+from statue.command_builder import CommandBuilder
 from statue.constants import (
-    ADD_ARGS,
-    ARGS,
-    CLEAR_ARGS,
     COMMANDS,
     CONTEXTS,
     DEFAULT_CONFIGURATION_FILE,
-    HELP,
     OVERRIDE,
-    REQUIRED_CONTEXTS,
     SOURCES,
     STATUE,
-    VERSION,
 )
 from statue.context import Context
 from statue.exceptions import (
@@ -105,7 +100,7 @@ class Configuration:
         cls.__statue_configuration = statue_configuration
 
     @classmethod
-    def commands_configuration(cls) -> Optional[MutableMapping[str, Any]]:
+    def commands_configuration(cls) -> Optional[MutableMapping[str, CommandBuilder]]:
         """
         Getter of the commands configuration.
 
@@ -128,9 +123,7 @@ class Configuration:
         return list(commands_configuration.keys())
 
     @classmethod
-    def get_command_configuration(
-        cls, command_name: str
-    ) -> Optional[MutableMapping[str, Any]]:
+    def get_command_builder(cls, command_name: str) -> Optional[CommandBuilder]:
         """
         Get configuration dictionary of a context.
 
@@ -316,47 +309,15 @@ class Configuration:
                 f'Command "{command_name}" '
                 f"was explicitly denied in deny list: {', '.join(deny_list)}"
             )
-        command_configuration = cls.get_command_configuration(command_name)
+        command_builder = cls.get_command_builder(command_name)
         if contexts is None:
             contexts = []
-        if command_configuration is None:
+        if command_builder is None:
             raise UnknownCommand(command_name)
-        required_contexts = command_configuration.get(REQUIRED_CONTEXTS, None)
-        if required_contexts is not None:
-            missing_required_contexts = [
-                context for context in required_contexts if context not in contexts
-            ]
-            if len(missing_required_contexts) != 0:
-                raise InvalidCommand(
-                    f"Command `{command_name}`"
-                    "requires the following contexts, which are missing: "
-                    f"{', '.join(missing_required_contexts)}"
-                )
-        context_objects = [cls.get_context(context_name) for context_name in contexts]
-        not_allowed_contexts = [
-            context
-            for context in context_objects
-            if not context.is_allowed(command_configuration)
+        contexts_objects = [
+            cls.get_context(context_identifier) for context_identifier in contexts
         ]
-        if len(not_allowed_contexts) != 0:
-            raise InvalidCommand(
-                f"Command `{command_name}`"
-                "is not allowed due to the following contexts: "
-                f"{', '.join([context.name for context in not_allowed_contexts])}"
-            )
-        for context in context_objects:
-            context_obj = context.search_context_instructions(command_configuration)
-            if context_obj is None:
-                continue
-            command_configuration = cls.__combine_command_setups(
-                command_configuration, context_obj
-            )
-        return Command(
-            name=command_name,
-            args=command_configuration.get(ARGS, []),
-            help=command_configuration[HELP],
-            version=command_configuration.get(VERSION, None),
-        )
+        return command_builder.build_command(*contexts_objects)
 
     @classmethod
     def load_configuration(
@@ -397,6 +358,16 @@ class Configuration:
             default_configuration[CONTEXTS] = Context.build_contexts_map(
                 default_configuration[CONTEXTS]
             )
+        if COMMANDS in default_configuration:
+            default_configuration[COMMANDS] = {
+                command_name: CommandBuilder.from_json(
+                    command_name=command_name,
+                    builder_setups=command_instructions,
+                )
+                for command_name, command_instructions in default_configuration[
+                    COMMANDS
+                ].items()
+            }
         cls.set_default_configuration(default_configuration)
 
     @classmethod
@@ -451,7 +422,7 @@ class Configuration:
     def __build_commands_configuration(
         cls,
         statue_commands_configuration: Optional[MutableMapping[str, Any]],
-        default_commands_configuration: Optional[MutableMapping[str, Any]],
+        default_commands_configuration: Optional[MutableMapping[str, CommandBuilder]],
     ) -> Optional[MutableMapping[str, Any]]:
         if statue_commands_configuration is None:
             return default_commands_configuration
@@ -460,50 +431,9 @@ class Configuration:
         commands_configuration = deepcopy(default_commands_configuration)
         for command_name, command_setups in statue_commands_configuration.items():
             if command_name in commands_configuration:
-                commands_configuration[command_name] = cls.__combine_command_setups(
-                    commands_configuration[command_name], command_setups
-                )
+                commands_configuration[command_name].update_from_config(command_setups)
             else:
-                commands_configuration[command_name] = command_setups
+                commands_configuration[command_name] = CommandBuilder.from_json(
+                    command_name=command_name, builder_setups=command_setups
+                )
         return commands_configuration
-
-    @classmethod
-    def __combine_command_setups(
-        cls,
-        base_setup: MutableMapping[str, Any],
-        setup: MutableMapping[str, Any],
-    ) -> MutableMapping[str, Any]:
-        new_setup = cls.__remove_args_keys(base_setup)
-        args = cls.__combine_command_args(base_setup.get(ARGS, None), setup)
-        if args is not None:
-            new_setup[ARGS] = args
-        new_setup.update(cls.__remove_args_keys(setup))
-        return new_setup
-
-    @classmethod
-    def __combine_command_args(
-        cls, base_args: Optional[List[str]], command_setup: MutableMapping[str, Any]
-    ) -> Optional[List[str]]:
-        base_args = [] if base_args is None else base_args
-        args: List[str] = command_setup.get(ARGS, None)
-        if args is not None:
-            return args
-        add_args = command_setup.get(ADD_ARGS, None)
-        if add_args is not None:
-            return base_args + add_args
-        clear_args = command_setup.get(CLEAR_ARGS, False)
-        if clear_args:
-            return None
-        if len(base_args) == 0:
-            return None
-        return base_args
-
-    @classmethod
-    def __remove_args_keys(
-        cls, command_setup: MutableMapping[str, Any]
-    ) -> MutableMapping[str, Any]:
-        return {
-            key: value
-            for key, value in command_setup.items()
-            if key not in [ARGS, ADD_ARGS, CLEAR_ARGS]
-        }
