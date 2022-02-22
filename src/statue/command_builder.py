@@ -21,7 +21,7 @@ class ContextSpecification:
     """Specific instructions for building command in context."""
 
     args: Optional[List[str]] = field(default=None)
-    add_args: Optional[list[str]] = field(default=None)
+    add_args: Optional[List[str]] = field(default=None)
     clear_args: bool = field(default=False)
 
     def update_args(self, args: List[str]) -> List[str]:
