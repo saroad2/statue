@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
+from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.configuration import Configuration
 from statue.constants import (
     ADD_ARGS,
@@ -23,10 +24,11 @@ from tests.constants import (
     ARG1,
     ARG2,
     ARG3,
-    ARG5,
+    ARG4,
     COMMAND1,
     COMMAND2,
     COMMAND_HELP_STRING1,
+    COMMAND_HELP_STRING2,
     CONTEXT1,
     CONTEXT2,
     CONTEXT_HELP_STRING1,
@@ -34,7 +36,7 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
-from tests.util import build_contexts_map
+from tests.util import build_commands_builders_map, build_contexts_map
 
 # Success cases
 
@@ -52,71 +54,195 @@ def case_success_configuration_with_override():
 
 
 def case_success_commands_taken_from_default():
-    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            )
+        )
+    }
     statue_configuration = {"c": "d"}
-    result = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}, "c": "d"}
+    result = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            )
+        ),
+        "c": "d",
+    }
     return default_configuration, statue_configuration, result
 
 
 def case_success_commands_taken_from_user():
     default_configuration = {}
-    statue_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
-    result = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
+    statue_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            )
+        )
+    }
+    result = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            )
+        )
+    }
     return default_configuration, statue_configuration, result
 
 
 def case_success_merge_commands_from_user_and_default():
-    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "b"}}}
-    statue_configuration = {"c": "d", COMMANDS: {COMMAND2: {"e": "f"}}}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            )
+        )
+    }
+    statue_configuration = {
+        "c": "d",
+        COMMANDS: {COMMAND2: {HELP: COMMAND_HELP_STRING2, CONTEXT2: {ARGS: [ARG2]}}},
+    }
     result = {
-        COMMANDS: {COMMAND1: {CONTEXT1: "b"}, COMMAND2: {"e": "f"}},
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            ),
+            CommandBuilder(
+                name=COMMAND2,
+                help=COMMAND_HELP_STRING2,
+                contexts_specifications={CONTEXT2: ContextSpecification(args=[ARG2])},
+            ),
+        ),
         "c": "d",
     }
     return default_configuration, statue_configuration, result
 
 
 def case_success_user_override_default_command_in_context():
-    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "c"}}}
-    statue_configuration = {"c": "d", COMMANDS: {COMMAND1: {CONTEXT1: "f"}}}
-    result = {COMMANDS: {COMMAND1: {CONTEXT1: "f"}}, "c": "d"}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            )
+        )
+    }
+    statue_configuration = {
+        "c": "d",
+        COMMANDS: {COMMAND1: {CONTEXT1: {ARGS: [ARG2]}}},
+    }
+    result = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG2])},
+            )
+        ),
+        "c": "d",
+    }
     return default_configuration, statue_configuration, result
 
 
 def case_success_user_add_context_to_command():
-    default_configuration = {COMMANDS: {COMMAND1: {CONTEXT1: "c"}}}
-    statue_configuration = {"c": "d", COMMANDS: {COMMAND1: {CONTEXT2: "f"}}}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG3])},
+            )
+        )
+    }
+    statue_configuration = {
+        "c": "d",
+        COMMANDS: {COMMAND1: {CONTEXT2: {ADD_ARGS: [ARG4]}}},
+    }
     result = {
-        COMMANDS: {COMMAND1: {CONTEXT1: "c", CONTEXT2: "f"}},
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                contexts_specifications={
+                    CONTEXT1: ContextSpecification(args=[ARG3]),
+                    CONTEXT2: ContextSpecification(add_args=[ARG4]),
+                },
+            )
+        ),
         "c": "d",
     }
     return default_configuration, statue_configuration, result
 
 
 def case_success_user_override_command_args():
-    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
-    statue_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG3, ARG5]}}}
-    result = {COMMANDS: {COMMAND1: {ARGS: [ARG3, ARG5]}}}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            )
+        )
+    }
+    statue_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG3, ARG4]}}}
+    result = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG3, ARG4]
+            )
+        )
+    }
     return default_configuration, statue_configuration, result
 
 
 def case_success_user_add_command_args():
-    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
-    statue_configuration = {COMMANDS: {COMMAND1: {ADD_ARGS: [ARG3, ARG5]}}}
-    result = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2, ARG3, ARG5]}}}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            )
+        )
+    }
+    statue_configuration = {COMMANDS: {COMMAND1: {ADD_ARGS: [ARG3, ARG4]}}}
+    result = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2, ARG3, ARG4],
+            )
+        )
+    }
     return default_configuration, statue_configuration, result
 
 
 def case_success_user_clear_command_args():
-    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
+    default_configuration = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            )
+        )
+    }
     statue_configuration = {COMMANDS: {COMMAND1: {CLEAR_ARGS: True}}}
-    result = {COMMANDS: {COMMAND1: {}}}
-    return default_configuration, statue_configuration, result
-
-
-def case_success_command_args_are_not_affected():
-    default_configuration = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2]}}}
-    statue_configuration = {COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1}}}
-    result = {COMMANDS: {COMMAND1: {ARGS: [ARG1, ARG2], HELP: COMMAND_HELP_STRING1}}}
+    result = {
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+        )
+    }
     return default_configuration, statue_configuration, result
 
 
