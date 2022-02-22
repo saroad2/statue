@@ -5,7 +5,11 @@ class StatueException(Exception):
     """Exceptions base for Statue."""
 
 
-class EmptyConfiguration(StatueException):
+class StatueConfigurationError(StatueException):
+    """User-Defined Statue configuration is invalid."""
+
+
+class EmptyConfiguration(StatueConfigurationError):
     """Configuration must be set."""
 
     def __init__(self) -> None:
@@ -13,11 +17,7 @@ class EmptyConfiguration(StatueException):
         super().__init__("Statue configuration is empty!")
 
 
-class InvalidStatueConfiguration(StatueException):
-    """User-Defined Statue configuration is invalid."""
-
-
-class MissingConfiguration(InvalidStatueConfiguration):
+class MissingConfiguration(StatueConfigurationError):
     """Part of the Statue configuration is missing."""
 
     def __init__(self, part_name: str) -> None:
@@ -28,6 +28,10 @@ class MissingConfiguration(InvalidStatueConfiguration):
         :type part_name: str
         """
         super().__init__(f'"{part_name}" is missing from Statue configuration.')
+
+
+class InconsistentConfiguration(StatueConfigurationError):
+    """Some of statue's configurations are inconsistent."""
 
 
 class UnknownCommand(StatueException):

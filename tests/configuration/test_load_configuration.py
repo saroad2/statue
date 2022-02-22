@@ -18,7 +18,7 @@ from statue.constants import (
     STATUE,
 )
 from statue.context import Context
-from statue.exceptions import EmptyConfiguration, InvalidStatueConfiguration
+from statue.exceptions import EmptyConfiguration, InconsistentConfiguration
 from tests.constants import (
     ARG1,
     ARG2,
@@ -272,10 +272,10 @@ def test_load_configuration_from_default_path_successful(
 # Failure cases
 
 
-def case_failure_user_add_new_context():
+def case_failure_user_overrides_basic_context():
     default_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}}}
     statue_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING2}}}
-    exception_class = InvalidStatueConfiguration
+    exception_class = InconsistentConfiguration
     exception_message = f'^"{CONTEXT1}" is a predefined context and cannot be override$'
     return (
         default_configuration,
