@@ -2,17 +2,9 @@ import pytest
 from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
 from statue.command import Command
+from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.configuration import Configuration
-from statue.constants import (
-    ADD_ARGS,
-    ALLOWED_CONTEXTS,
-    ARGS,
-    CLEAR_ARGS,
-    COMMANDS,
-    CONTEXTS,
-    HELP,
-    REQUIRED_CONTEXTS,
-)
+from statue.constants import COMMANDS, CONTEXTS
 from statue.context import Context
 from statue.exceptions import (
     InvalidCommand,
@@ -41,22 +33,25 @@ from tests.constants import (
     NOT_EXISTING_CONTEXT,
     SUCCESSFUL_TAG,
 )
+from tests.util import build_commands_builders_map, build_contexts_map
 
 # Success cases
-from tests.util import build_contexts_map
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_with_no_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                CONTEXT1: {ADD_ARGS: [ARG2, ARG3]},
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                contexts_specifications={
+                    CONTEXT1: ContextSpecification(add_args=[ARG2, ARG3])
+                },
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1)
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
@@ -67,13 +62,14 @@ def case_with_no_contexts():
 def case_with_allowed_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                ALLOWED_CONTEXTS: [CONTEXT1],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                allowed_contexts=[CONTEXT1],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
@@ -84,13 +80,14 @@ def case_with_allowed_context():
 def case_read_successful_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                ALLOWED_CONTEXTS: [CONTEXT1, CONTEXT2],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                allowed_contexts=[CONTEXT1, CONTEXT2],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, CONTEXT2])
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
@@ -101,14 +98,17 @@ def case_read_successful_with_two_contexts():
 def case_with_override_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                CONTEXT1: {ARGS: [ARG3, ARG4]},
-                CONTEXT2: {ARGS: [ARG5]},
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2],
+                contexts_specifications={
+                    CONTEXT1: ContextSpecification(args=[ARG3, ARG4]),
+                    CONTEXT2: ContextSpecification(args=[ARG5]),
+                },
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     command = Command(
@@ -123,14 +123,17 @@ def case_with_override_context():
 def case_with_clear_args_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                CONTEXT1: {CLEAR_ARGS: True},
-                CONTEXT2: {ARGS: [ARG5]},
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2],
+                contexts_specifications={
+                    CONTEXT1: ContextSpecification(clear_args=True),
+                    CONTEXT2: ContextSpecification(args=[ARG5]),
+                },
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     command = Command(name=COMMAND1, args=[], help=COMMAND_HELP_STRING1)
@@ -141,14 +144,17 @@ def case_with_clear_args_context():
 def case_with_overrides_with_add_args_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                CONTEXT1: {ADD_ARGS: [ARG3, ARG4]},
-                CONTEXT2: {ARGS: [ARG5]},
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2],
+                contexts_specifications={
+                    CONTEXT1: ContextSpecification(add_args=[ARG3, ARG4]),
+                    CONTEXT2: ContextSpecification(args=[ARG5]),
+                },
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     command = Command(
@@ -163,7 +169,11 @@ def case_with_overrides_with_add_args_context():
 def case_with_empty_allow_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}},
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, allow_list=[])
     command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
@@ -174,7 +184,11 @@ def case_with_empty_allow_list():
 def case_in_allow_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}},
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, allow_list=[COMMAND1])
     command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
@@ -185,10 +199,14 @@ def case_in_allow_list():
 def case_not_in_deny_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3]},
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            ),
+            CommandBuilder(
+                name=COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3]
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND1, deny_list=[COMMAND2])
     command = Command(name=COMMAND1, args=[ARG1, ARG2], help=COMMAND_HELP_STRING1)
@@ -201,13 +219,14 @@ def case_on_child_context_inheritance():
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
     configuration = {
         CONTEXTS: build_contexts_map(parent, context),
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                CONTEXT1: {ARGS: [ARG3]},
-            },
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2],
+                contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG3])},
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT2])
     command = Command(name=COMMAND1, args=[ARG3], help=COMMAND_HELP_STRING1)
@@ -219,13 +238,14 @@ def case_context_alias():
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING2, aliases=[CONTEXT2])
     configuration = {
         CONTEXTS: build_contexts_map(context),
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                CONTEXT2: {ARGS: [ARG3]},
-            },
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2],
+                contexts_specifications={CONTEXT2: ContextSpecification(args=[ARG3])},
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT2])
     command = Command(name=COMMAND1, args=[ARG3], help=COMMAND_HELP_STRING1)
@@ -236,13 +256,14 @@ def case_context_alias():
 def case_with_one_required_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                REQUIRED_CONTEXTS: [CONTEXT1],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                required_contexts=[CONTEXT1],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
@@ -253,13 +274,14 @@ def case_with_one_required_context():
 def case_with_two_required_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                required_contexts=[CONTEXT1, CONTEXT2],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, CONTEXT2])
     command = Command(name=COMMAND1, args=[ARG1], help=COMMAND_HELP_STRING1)
@@ -284,13 +306,16 @@ def test_read_command_success(configuration, kwargs, command, clear_configuratio
 def case_with_non_existing_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                CONTEXT1: {ADD_ARGS: [ARG2, ARG3]},
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                contexts_specifications={
+                    CONTEXT1: ContextSpecification(add_args=[ARG2, ARG3])
+                },
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[NOT_EXISTING_CONTEXT])
     return (
@@ -305,13 +330,14 @@ def case_with_non_existing_context():
 def case_read_failed_with_two_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                ALLOWED_CONTEXTS: [CONTEXT1],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                allowed_contexts=[CONTEXT1],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1, CONTEXT2])
     return (
@@ -327,10 +353,14 @@ def case_read_failed_with_two_contexts():
 def case_not_in_allow_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3]},
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            ),
+            CommandBuilder(
+                name=COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3]
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND1, allow_list=[COMMAND2])
     return (
@@ -345,10 +375,14 @@ def case_not_in_allow_list():
 def case_in_deny_list():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG4]},
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            ),
+            CommandBuilder(
+                name=COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3, ARG4]
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND1, deny_list=[COMMAND1])
     return (
@@ -363,10 +397,14 @@ def case_in_deny_list():
 def case_non_existing_command():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]},
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG5]},
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
+            ),
+            CommandBuilder(
+                name=COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3, ARG5]
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND3)
     return (
@@ -392,14 +430,17 @@ def case_with_no_commands_configuration():
 @case(tags=[FAILED_TAG])
 def case_when_no_context_configuration_was_set():
     configuration = {
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1, ARG2],
-                ALLOWED_CONTEXTS: [CONTEXT1],
-            },
-            COMMAND2: {HELP: COMMAND_HELP_STRING2, ARGS: [ARG3, ARG5]},
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1, ARG2],
+                allowed_contexts=[CONTEXT1],
+            ),
+            CommandBuilder(
+                name=COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3, ARG5]
+            ),
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     return (
@@ -414,13 +455,14 @@ def case_when_no_context_configuration_was_set():
 def case_without_the_required_context():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                REQUIRED_CONTEXTS: [CONTEXT1],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                required_contexts=[CONTEXT1],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1)
     return (
@@ -436,13 +478,14 @@ def case_without_the_required_context():
 def case_without_one_of_two_required_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                required_contexts=[CONTEXT1, CONTEXT2],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
     return (
@@ -458,13 +501,14 @@ def case_without_one_of_two_required_contexts():
 def case_without_two_required_contexts():
     configuration = {
         CONTEXTS: CONTEXTS_MAP,
-        COMMANDS: {
-            COMMAND1: {
-                HELP: COMMAND_HELP_STRING1,
-                ARGS: [ARG1],
-                REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-            }
-        },
+        COMMANDS: build_commands_builders_map(
+            CommandBuilder(
+                name=COMMAND1,
+                help=COMMAND_HELP_STRING1,
+                default_args=[ARG1],
+                required_contexts=[CONTEXT1, CONTEXT2],
+            )
+        ),
     }
     kwargs = dict(command_name=COMMAND1)
     return (
@@ -498,16 +542,19 @@ def test_read_command_multiple_times(
     Configuration.set_statue_configuration(
         {
             CONTEXTS: CONTEXTS_MAP,
-            COMMANDS: {
-                COMMAND1: {
-                    HELP: COMMAND_HELP_STRING1,
-                    ARGS: [ARG1],
-                    CONTEXT1: {ADD_ARGS: [ARG2, ARG3]},
-                    CONTEXT2: {CLEAR_ARGS: True},
-                    CONTEXT3: {ARGS: [ARG5]},
-                }
-            },
-        }
+            COMMANDS: build_commands_builders_map(
+                CommandBuilder(
+                    name=COMMAND1,
+                    help=COMMAND_HELP_STRING1,
+                    default_args=[ARG1],
+                    contexts_specifications={
+                        CONTEXT1: ContextSpecification(add_args=[ARG2, ARG3]),
+                        CONTEXT2: ContextSpecification(clear_args=True),
+                        CONTEXT3: ContextSpecification(args=[ARG5]),
+                    },
+                )
+            ),
+        },
     )
     command1 = Configuration.read_command(command_name=COMMAND1, contexts=[CONTEXT1])
     assert command1 == Command(
