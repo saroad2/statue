@@ -92,6 +92,6 @@ def test_build_contexts_map(context_config, contexts_map):
 def test_config_with_unknown_parent_context():
     contexts_config = {CONTEXT1: {HELP: CONTEXT_HELP_STRING1, PARENT: CONTEXT2}}
     with pytest.raises(
-        UnknownContext, match=f'^Could not find context named "{CONTEXT2}".$'
+        UnknownContext, match=f'^Could not find context named "{CONTEXT2}"$'
     ):
         Context.build_contexts_map(contexts_config)

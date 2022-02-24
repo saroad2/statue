@@ -322,7 +322,7 @@ def case_with_non_existing_context():
         configuration,
         kwargs,
         UnknownContext,
-        f'^Could not find context named "{NOT_EXISTING_CONTEXT}".$',
+        f'^Could not find context named "{NOT_EXISTING_CONTEXT}"$',
     )
 
 
