@@ -1,7 +1,7 @@
 """Get Statue global configuration."""
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, List, MutableMapping, Optional, Union
+from typing import Any, List, MutableMapping, Optional, Union
 
 import toml
 
@@ -15,13 +15,12 @@ from statue.constants import (
     SOURCES,
     STATUE,
 )
-from statue.context import Context
+from statue.contexts_repository import ContextsRepository
 from statue.exceptions import (
     EmptyConfiguration,
     InvalidCommand,
     MissingConfiguration,
     UnknownCommand,
-    UnknownContext,
 )
 
 
@@ -30,6 +29,7 @@ class Configuration:
 
     __default_configuration: Optional[MutableMapping[str, Any]] = None
     __statue_configuration: Optional[MutableMapping[str, Any]] = None
+    contexts_repository = ContextsRepository()
 
     @classmethod
     def configuration_path(cls, directory: Union[Path, str]) -> Path:
@@ -190,52 +190,6 @@ class Configuration:
         return None
 
     @classmethod
-    def contexts_map(cls) -> Optional[Dict[str, Context]]:
-        """
-        Contexts configuration.
-
-        :return: Sources configuration dictionary
-        :rtype: None or dictionary
-        """
-        return cls.statue_configuration().get(CONTEXTS, None)
-
-    @classmethod
-    def contexts_list(cls) -> List[Context]:
-        """
-        List of all available contexts.
-
-        :return: Available contexts list
-        :rtype: List[Context]
-        """
-        contexts_map = cls.contexts_map()
-        if contexts_map is None:
-            return []
-        return list(contexts_map.values())
-
-    @classmethod
-    def get_context(cls, context_identifier: str) -> Context:
-        """
-        Get configuration dictionary of a context.
-
-        :param context_identifier: Name or alias of the desired context.
-        :type context_identifier: str
-        :return: configuration dictionary.
-        :rtype: Context
-        :raises MissingConfiguration: raised if no contexts configuration was set.
-        :raises UnknownContext: raised if context was not found.
-        """
-        contexts_configuration = cls.contexts_map()
-        if contexts_configuration is None:
-            raise MissingConfiguration(CONTEXTS)
-        for context_name, context in contexts_configuration.items():
-            if (
-                context_identifier == context_name
-                or context_identifier in context.aliases  # noqa: disable=W503
-            ):
-                return context
-        raise UnknownContext(context_identifier)
-
-    @classmethod
     def read_commands(
         cls,
         contexts: Optional[List[str]] = None,
@@ -315,7 +269,8 @@ class Configuration:
         if command_builder is None:
             raise UnknownCommand(command_name)
         contexts_objects = [
-            cls.get_context(context_identifier) for context_identifier in contexts
+            cls.contexts_repository.get_context(context_identifier)
+            for context_identifier in contexts
         ]
         return command_builder.build_command(*contexts_objects)
 
@@ -348,6 +303,7 @@ class Configuration:
         """Reset the general statue configuration."""
         cls.set_default_configuration(None)
         cls.set_statue_configuration(None)
+        cls.contexts_repository.reset()
 
     @classmethod
     def __load_default_configuration(cls) -> None:
@@ -355,9 +311,7 @@ class Configuration:
             return
         default_configuration = toml.load(DEFAULT_CONFIGURATION_FILE)
         if CONTEXTS in default_configuration:
-            default_configuration[CONTEXTS] = Context.build_contexts_map(
-                default_configuration[CONTEXTS]
-            )
+            cls.contexts_repository.update_from_config(default_configuration[CONTEXTS])
         if COMMANDS in default_configuration:
             default_configuration[COMMANDS] = {
                 command_name: CommandBuilder.from_json(
@@ -402,16 +356,8 @@ class Configuration:
         )
         if commands_configuration is not None:
             statue_config[COMMANDS] = commands_configuration
-        contexts_configuration = statue_config.get(CONTEXTS, None)
-        if contexts_configuration is None:
-            contexts_map = default_configuration.get(CONTEXTS, None)
-        else:
-            contexts_map = Context.build_contexts_map(
-                contexts_configuration,
-                base_contexts_map=default_configuration.get(CONTEXTS, None),
-            )
-        if contexts_map is not None:
-            statue_config[CONTEXTS] = contexts_map
+        if CONTEXTS in statue_config:
+            cls.contexts_repository.update_from_config(statue_config[CONTEXTS])
         if SOURCES in statue_config:
             statue_config[SOURCES] = {
                 Path(source): setup for source, setup in statue_config[SOURCES].items()

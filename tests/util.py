@@ -5,13 +5,8 @@ import pytest
 
 from statue.command import Command, CommandEvaluation
 from statue.command_builder import CommandBuilder
-from statue.context import Context
 from statue.evaluation import Evaluation, SourceEvaluation
 from tests.constants import EPSILON
-
-
-def build_contexts_map(*contexts: Context):
-    return {context.name: context for context in contexts}
 
 
 def build_commands_builders_map(*commands_builders: CommandBuilder):

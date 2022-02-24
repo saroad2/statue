@@ -17,11 +17,10 @@ def context_cli() -> None:
 @click.pass_context
 def contexts_list_cli(ctx: click.Context) -> None:
     """Print all available contexts."""
-    contexts_obj_list = Configuration.contexts_list()
-    if len(contexts_obj_list) == 0:
+    if Configuration.contexts_repository.contexts_number == 0:
         click.echo("No contexts were found.")
         ctx.exit(1)
-    for context in contexts_obj_list:
+    for context in Configuration.contexts_repository:
         click.echo(f"{name_style(context.name)} - {context.help}")
 
 
@@ -31,7 +30,7 @@ def contexts_list_cli(ctx: click.Context) -> None:
 def show_contexts_cli(ctx: click.Context, context_name: str) -> None:
     """Print all available contexts."""
     try:
-        context_instance = Configuration.get_context(context_name)
+        context_instance = Configuration.contexts_repository.get_context(context_name)
         click.echo(f"{bullet_style('Name')} - {name_style(context_instance.name)}")
         click.echo(f"{bullet_style('Description')} - {context_instance.help}")
         if len(context_instance.aliases) != 0:

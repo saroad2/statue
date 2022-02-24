@@ -14,12 +14,11 @@ from statue.constants import (
     CONTEXTS,
     HELP,
     OVERRIDE,
-    PARENT,
     SOURCES,
     STATUE,
 )
-from statue.context import Context
-from statue.exceptions import EmptyConfiguration, InconsistentConfiguration
+from statue.contexts_repository import ContextsRepository
+from statue.exceptions import EmptyConfiguration
 from tests.constants import (
     ARG1,
     ARG2,
@@ -31,12 +30,10 @@ from tests.constants import (
     COMMAND_HELP_STRING2,
     CONTEXT1,
     CONTEXT2,
-    CONTEXT_HELP_STRING1,
-    CONTEXT_HELP_STRING2,
     SOURCE1,
     SOURCE2,
 )
-from tests.util import build_commands_builders_map, build_contexts_map
+from tests.util import build_commands_builders_map
 
 # Success cases
 
@@ -246,63 +243,6 @@ def case_success_user_clear_command_args():
     return default_configuration, statue_configuration, result
 
 
-def case_success_contexts_taken_from_default():
-    contexts_map = build_contexts_map(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1))
-    default_configuration = {CONTEXTS: contexts_map}
-    statue_configuration = {"c": "d"}
-    result = {CONTEXTS: contexts_map, "c": "d"}
-    return default_configuration, statue_configuration, result
-
-
-def case_success_contexts_taken_from_user():
-    default_configuration = {}
-    statue_configuration = {
-        "c": "d",
-        CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}},
-    }
-    result = {
-        CONTEXTS: build_contexts_map(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)),
-        "c": "d",
-    }
-    return default_configuration, statue_configuration, result
-
-
-def case_success_user_add_new_context():
-    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    default_configuration = {CONTEXTS: build_contexts_map(context1)}
-    statue_configuration = {
-        "c": "d",
-        CONTEXTS: {CONTEXT2: {HELP: CONTEXT_HELP_STRING2}},
-    }
-    result = {
-        CONTEXTS: build_contexts_map(
-            context1,
-            Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-        ),
-        "c": "d",
-    }
-    return default_configuration, statue_configuration, result
-
-
-def case_success_user_context_inherit_predefined_context():
-    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    default_configuration = {CONTEXTS: build_contexts_map(context1)}
-    statue_configuration = {
-        "c": "d",
-        CONTEXTS: {CONTEXT2: {HELP: CONTEXT_HELP_STRING2, PARENT: CONTEXT1}},
-    }
-    result = {
-        CONTEXTS: {
-            CONTEXT1: context1,
-            CONTEXT2: Context(
-                name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=context1
-            ),
-        },
-        "c": "d",
-    }
-    return default_configuration, statue_configuration, result
-
-
 def case_success_read_sources():
     default_configuration = {}
     statue_configuration = {
@@ -395,49 +335,24 @@ def test_load_configuration_from_default_path_successful(
     mock_toml_load.assert_called_with(statue_path)
 
 
-# Failure cases
-
-
-def case_failure_user_overrides_basic_context():
-    default_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING1}}}
-    statue_configuration = {CONTEXTS: {CONTEXT1: {HELP: CONTEXT_HELP_STRING2}}}
-    exception_class = InconsistentConfiguration
-    exception_message = f'^"{CONTEXT1}" is a predefined context and cannot be override$'
-    return (
-        default_configuration,
-        statue_configuration,
-        exception_class,
-        exception_message,
-    )
-
-
-@parametrize_with_cases(
-    argnames=(
-        "default_configuration, statue_configuration, "
-        "exception_class, exception_message"
-    ),
-    cases=THIS_MODULE,
-    prefix="case_failure_",
-)
-def test_load_configuration_failure(
-    default_configuration,
-    statue_configuration,
-    exception_class,
-    exception_message,
-    mock_default_configuration,
-    mock_toml_load,
-    clear_configuration,
-):
-    statue_path = mock.Mock()
-    statue_path.exists.return_value = True
-    mock_default_configuration.return_value = default_configuration
-    mock_toml_load.return_value = statue_configuration
-
-    with pytest.raises(exception_class, match=exception_message):
-        Configuration.load_configuration(statue_path)
-
-
 # Additional cases
+
+
+def test_load_configuration_updates_context_repository(
+    tmpdir, mock_default_configuration, mock_toml_load
+):
+    contexts_config = mock.Mock()
+
+    statue_path = Path(tmpdir) / "configuration.toml"
+    statue_path.touch()
+    mock_default_configuration.return_value = {}
+    mock_toml_load.return_value = {
+        CONTEXTS: contexts_config
+    }
+
+    with mock.patch.object(ContextsRepository, "update_from_config") as update_from_config_patch:
+        Configuration.load_configuration(statue_path)
+        update_from_config_patch.assert_called_once_with(contexts_config)
 
 
 def test_load_configuration_fail_because_of_empty_configuration(

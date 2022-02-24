@@ -1,7 +1,6 @@
 import random
 
 from statue.constants import HELP
-from statue.context import Context
 
 EPSILON = 1e-5
 
@@ -55,12 +54,4 @@ COMMANDS_CONFIGURATION = {
     COMMAND3: {HELP: COMMAND_HELP_STRING3},
     COMMAND4: {HELP: COMMAND_HELP_STRING4},
     COMMAND5: {HELP: COMMAND_HELP_STRING5},
-}
-
-CONTEXTS_MAP = {
-    CONTEXT1: Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-    CONTEXT2: Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-    CONTEXT3: Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
-    CONTEXT4: Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
-    CONTEXT5: Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
 }

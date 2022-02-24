@@ -1,5 +1,6 @@
 from statue.cli import statue_cli
 from statue.command import Command
+from statue.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
     COMMAND1,
@@ -16,16 +17,20 @@ from tests.constants import (
     CONTEXT_HELP_STRING3,
     CONTEXT_HELP_STRING4,
     CONTEXT_HELP_STRING5,
-    CONTEXTS_MAP,
     NOT_EXISTING_CONTEXT,
 )
-from tests.util import build_contexts_map
 
 
 def test_contexts_list_of_full_configuration(
-    cli_runner, empty_configuration, mock_contexts_map
+    cli_runner, clear_configuration, mock_load_configuration
 ):
-    mock_contexts_map.return_value = CONTEXTS_MAP
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
+        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
+    )
     result = cli_runner.invoke(statue_cli, ["context", "list"])
     assert result.exit_code == 0, "list contexts should exit with success."
     assert result.output == (
@@ -37,10 +42,9 @@ def test_contexts_list_of_full_configuration(
     ), "List output is different than expected."
 
 
-def test_contexts_list_of_an_empty_configuration(
-    cli_runner, empty_configuration, mock_contexts_map
+def test_contexts_list_of_an_clear_configuration(
+    cli_runner, clear_configuration, mock_load_configuration
 ):
-    mock_contexts_map.return_value = None
     result = cli_runner.invoke(statue_cli, ["context", "list"])
     assert result.exit_code == 1, "list contexts should exit with failure."
     assert (
@@ -48,10 +52,14 @@ def test_contexts_list_of_an_empty_configuration(
     ), "List output is different than expected."
 
 
-def test_contexts_show_of_context(
-    cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
-):
-    mock_contexts_map.return_value = CONTEXTS_MAP
+def test_contexts_show_of_context(cli_runner, clear_configuration, mock_read_commands):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
+        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
+    )
     mock_read_commands.return_value = [
         Command(COMMAND1, help=COMMAND_HELP_STRING1),
         Command(COMMAND2, help=COMMAND_HELP_STRING2),
@@ -67,9 +75,9 @@ def test_contexts_show_of_context(
 
 
 def test_contexts_show_of_context_with_one_alias(
-    cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
+    cli_runner, clear_configuration, mock_read_commands
 ):
-    mock_contexts_map.return_value = build_contexts_map(
+    Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
     mock_read_commands.return_value = [
@@ -88,9 +96,9 @@ def test_contexts_show_of_context_with_one_alias(
 
 
 def test_contexts_show_of_context_with_by_alias(
-    cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
+    cli_runner, clear_configuration, mock_read_commands
 ):
-    mock_contexts_map.return_value = build_contexts_map(
+    Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
     mock_read_commands.return_value = [
@@ -108,9 +116,9 @@ def test_contexts_show_of_context_with_by_alias(
 
 
 def test_contexts_show_of_context_with_two_aliases(
-    cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
+    cli_runner, clear_configuration, mock_read_commands
 ):
-    mock_contexts_map.return_value = build_contexts_map(
+    Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2, CONTEXT3])
     )
     mock_read_commands.return_value = [
@@ -129,11 +137,11 @@ def test_contexts_show_of_context_with_two_aliases(
 
 
 def test_contexts_show_of_context_with_parent(
-    cli_runner, empty_configuration, mock_contexts_map, mock_read_commands
+    cli_runner, clear_configuration, mock_read_commands
 ):
     parent = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent)
-    mock_contexts_map.return_value = build_contexts_map(context, parent)
+    Configuration.contexts_repository.add_contexts(context, parent)
     mock_read_commands.return_value = [Command(COMMAND1, help=COMMAND_HELP_STRING1)]
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
@@ -146,10 +154,14 @@ def test_contexts_show_of_context_with_parent(
     mock_read_commands.assert_called_once_with(contexts=[CONTEXT1])
 
 
-def test_contexts_show_of_non_existing_context(
-    cli_runner, empty_configuration, mock_contexts_map
-):
-    mock_contexts_map.return_value = CONTEXTS_MAP
+def test_contexts_show_of_non_existing_context(cli_runner, clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
+        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
+    )
     result = cli_runner.invoke(statue_cli, ["context", "show", NOT_EXISTING_CONTEXT])
     assert result.exit_code == 1, "show context should exit with failure."
     assert (
