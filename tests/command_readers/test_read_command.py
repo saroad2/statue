@@ -4,7 +4,7 @@ from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 from statue.command import Command
 from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS
+from statue.constants import COMMANDS
 from statue.context import Context
 from statue.exceptions import (
     InvalidCommand,
@@ -28,9 +28,10 @@ from tests.constants import (
     CONTEXT3,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
+    CONTEXT_HELP_STRING3,
     FAILED_TAG,
     NOT_EXISTING_CONTEXT,
-    SUCCESSFUL_TAG, CONTEXT_HELP_STRING3,
+    SUCCESSFUL_TAG,
 )
 
 # Success cases
@@ -58,7 +59,9 @@ def case_with_no_contexts(clear_configuration):
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_with_allowed_context(clear_configuration):
-    Configuration.contexts_repository.add_contexts(Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1))
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
     configuration = {
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
@@ -224,9 +227,7 @@ def case_not_in_deny_list(clear_configuration):
 def case_on_child_context_inheritance(clear_configuration):
     parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
-    Configuration.contexts_repository.add_contexts(
-        parent, context
-    )
+    Configuration.contexts_repository.add_contexts(parent, context)
     configuration = {
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
@@ -528,9 +529,7 @@ def test_read_command_failure(
 # Additional tests
 
 
-def test_read_command_multiple_times(
-    clear_configuration
-):
+def test_read_command_multiple_times(clear_configuration):
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),

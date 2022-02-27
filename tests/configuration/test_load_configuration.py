@@ -346,11 +346,11 @@ def test_load_configuration_updates_context_repository(
     statue_path = Path(tmpdir) / "configuration.toml"
     statue_path.touch()
     mock_default_configuration.return_value = {}
-    mock_toml_load.return_value = {
-        CONTEXTS: contexts_config
-    }
+    mock_toml_load.return_value = {CONTEXTS: contexts_config}
 
-    with mock.patch.object(ContextsRepository, "update_from_config") as update_from_config_patch:
+    with mock.patch.object(
+        ContextsRepository, "update_from_config"
+    ) as update_from_config_patch:
         Configuration.load_configuration(statue_path)
         update_from_config_patch.assert_called_once_with(contexts_config)
 
