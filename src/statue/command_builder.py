@@ -153,14 +153,12 @@ class CommandBuilder:  # pylint: disable=too-many-instance-attributes
             *self.contexts_specifications.keys(),
         ]
 
-    def build_command(self, *contexts: Context) -> Command:
+    def validate_contexts(self, *contexts: Context):
         """
-        Build command according to given contexts.
+        Validate that given contexts are matching command builder.
 
-        :param contexts: Specified contexts to build command according to.
+        :param contexts: Specified contexts to check matching.
         :type contexts: Context
-        :return: Built command.
-        :rtype: Command
         :raises InvalidCommand: Raised when given contexts doesn't match
             the command's requirements
         """
@@ -192,6 +190,32 @@ class CommandBuilder:  # pylint: disable=too-many-instance-attributes
                 "is not allowed due to the following contexts: "
                 f"{', '.join(not_allowed_contexts)}"
             )
+
+    def match_contexts(self, *contexts: Context) -> bool:
+        """
+        Check if given contexts are matching builder.
+
+        :param contexts: Specified contexts to check matching.
+        :type contexts: Context
+        :return: does those contexts match builder
+        :rtype: bool
+        """
+        try:
+            self.validate_contexts(*contexts)
+        except InvalidCommand:
+            return False
+        return True
+
+    def build_command(self, *contexts: Context) -> Command:
+        """
+        Build command according to given contexts.
+
+        :param contexts: Specified contexts to build command according to.
+        :type contexts: Context
+        :return: Built command.
+        :rtype: Command
+        """
+        self.validate_contexts(*contexts)
         return Command(
             name=self.name,
             help=self.help,
