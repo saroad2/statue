@@ -36,18 +36,28 @@ def clear_configuration():
 
 
 @pytest.fixture
-def mock_read_command(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "read_command")
+def mock_command_names_list(mocker, clear_configuration):
+    return mocker.patch.object(Configuration, "command_names_list")
 
 
 @pytest.fixture
-def mock_read_commands(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "read_commands")
+def mock_command_builders_list(mocker, clear_configuration):
+    return mocker.patch.object(Configuration, "command_builders_list")
 
 
 @pytest.fixture
-def mock_commands_names_list(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "commands_names_list")
+def mock_get_command_builder(mocker, clear_configuration):
+    return mocker.patch.object(Configuration, "get_command_builder")
+
+
+@pytest.fixture
+def mock_build_commands(mocker, clear_configuration):
+    return mocker.patch.object(Configuration, "build_commands")
+
+
+@pytest.fixture
+def mock_build_commands_map(mocker, clear_configuration):
+    return mocker.patch.object(Configuration, "build_commands_map")
 
 
 @pytest.fixture

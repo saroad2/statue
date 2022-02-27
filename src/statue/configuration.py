@@ -7,21 +7,20 @@ import toml
 
 from statue.command import Command
 from statue.command_builder import CommandBuilder
+from statue.commands_filter import CommandsFilter
+from statue.commands_map import CommandsMap
 from statue.constants import (
+    ALLOW_LIST,
     COMMANDS,
     CONTEXTS,
     DEFAULT_CONFIGURATION_FILE,
+    DENY_LIST,
     OVERRIDE,
     SOURCES,
     STATUE,
 )
 from statue.contexts_repository import ContextsRepository
-from statue.exceptions import (
-    EmptyConfiguration,
-    InvalidCommand,
-    MissingConfiguration,
-    UnknownCommand,
-)
+from statue.exceptions import EmptyConfiguration, MissingConfiguration, UnknownCommand
 
 
 class Configuration:
@@ -110,9 +109,9 @@ class Configuration:
         return cls.statue_configuration().get(COMMANDS, None)
 
     @classmethod
-    def commands_names_list(cls) -> List[str]:
+    def command_names_list(cls) -> List[str]:
         """
-        List of all available commands.
+        List of names of all available commands.
 
         :return: Available commands list
         :rtype: List[str]
@@ -123,20 +122,36 @@ class Configuration:
         return list(commands_configuration.keys())
 
     @classmethod
-    def get_command_builder(cls, command_name: str) -> Optional[CommandBuilder]:
+    def command_builders_list(cls) -> List[CommandBuilder]:
+        """
+        List of all available commands builders.
+
+        :return: Available commands list
+        :rtype: List[CommandBuilder]
+        """
+        commands_configuration = cls.commands_configuration()
+        if commands_configuration is None:
+            return []
+        return list(commands_configuration.values())
+
+    @classmethod
+    def get_command_builder(cls, command_name: str) -> CommandBuilder:
         """
         Get configuration dictionary of a context.
 
         :param command_name: Name of the desired command.
         :type command_name: str
-        :return: configuration dictionary.
-        :rtype: None or mutable mapping
-        :raises MissingConfiguration: raised when no contexts configuration was set.
+        :return: Command builder with given name
+        :rtype: CommandBuilder
+        :raises MissingConfiguration: Raised when no command configuration was set.
+        :raises UnknownCommand: Raised when no command was found with given name.
         """
         commands_configuration = cls.commands_configuration()
         if commands_configuration is None:
             raise MissingConfiguration(COMMANDS)
-        return commands_configuration.get(command_name, None)
+        if command_name not in commands_configuration:
+            raise UnknownCommand(command_name)
+        return commands_configuration[command_name]
 
     @classmethod
     def sources_configuration(
@@ -167,16 +182,14 @@ class Configuration:
         return list(cls.sources_configuration().keys())
 
     @classmethod
-    def get_source_configuration(
-        cls, source: Union[Path, str]
-    ) -> Optional[MutableMapping[str, Any]]:
+    def get_source_commands_filter(cls, source: Union[Path, str]) -> CommandsFilter:
         """
         Get configuration dictionary of a context.
 
         :param source: Name of the desired source.
         :type source: str
-        :return: configuration dictionary.
-        :rtype: None or mutable mapping
+        :return: Commands filter of the given source
+        :rtype: CommandsFilter
         """
         sources_configuration = cls.sources_configuration()
         if not isinstance(source, Path):
@@ -184,95 +197,65 @@ class Configuration:
         for source_path, setup in sources_configuration.items():
             try:
                 source.relative_to(source_path)
-                return setup
+                contexts = frozenset(
+                    {
+                        cls.contexts_repository.get_context(context_name)
+                        for context_name in setup.get(CONTEXTS, [])
+                    }
+                )
+                allowed_commands = (
+                    None if ALLOW_LIST not in setup else frozenset(setup[ALLOW_LIST])
+                )
+                denied_commands = (
+                    None if DENY_LIST not in setup else frozenset(setup[DENY_LIST])
+                )
+                return CommandsFilter(
+                    contexts=contexts,
+                    allowed_commands=allowed_commands,
+                    denied_commands=denied_commands,
+                )
             except ValueError:
                 continue
-        return None
+        return CommandsFilter()
 
     @classmethod
-    def read_commands(
-        cls,
-        contexts: Optional[List[str]] = None,
-        allow_list: Optional[List[str]] = None,
-        deny_list: Optional[List[str]] = None,
-    ) -> List[Command]:
+    def build_commands_map(
+        cls, sources: List[Path], commands_filter: CommandsFilter
+    ) -> CommandsMap:
+        """
+        Build commands map from sources list and a commands filter.
+
+        :param sources: Sources list of the commands map
+        :type sources: List[Path]
+        :param commands_filter: Base filter to choose commands with
+        :type commands_filter: CommandsFilter
+        :return: Commands map with sources as keys
+        :rtype: CommandsMap
+        """
+        commands_map = CommandsMap()
+        for source in sources:
+            commands_map[str(source)] = cls.build_commands(
+                CommandsFilter.merge(
+                    commands_filter, cls.get_source_commands_filter(source)
+                )
+            )
+        return commands_map
+
+    @classmethod
+    def build_commands(cls, commands_filter: CommandsFilter) -> List[Command]:
         """
         Read commands with given constraints.
 
-        :param contexts: List of contexts to choose commands from.
-        :type contexts: None or List[str]
-        :param allow_list: List of allowed commands. If None, take all commands
-        :type allow_list: None or List[str]
-        :param deny_list: List of denied commands. If None, take all commands
-        :type deny_list: None or List[str]
+        :param commands_filter: Filter to choose commands according to.
+        :type commands_filter: CommandsFilter
         :return: List of commands according to constraints
         :rtype: List[Command]
         """
-        commands = []
-        contexts = [] if contexts is None else contexts
-        for command_name in cls.commands_names_list():
-            try:
-                commands.append(
-                    cls.read_command(
-                        command_name=command_name,
-                        contexts=contexts,
-                        allow_list=allow_list,
-                        deny_list=deny_list,
-                    )
-                )
-            except InvalidCommand:
-                continue
-        return commands
-
-    @classmethod
-    def read_command(
-        cls,
-        command_name: str,
-        contexts: Optional[List[str]] = None,
-        allow_list: Optional[List[str]] = None,
-        deny_list: Optional[List[str]] = None,
-    ) -> Command:
-        """
-        Read command with given constraints.
-
-        :param command_name: Name of the command to read
-        :type command_name: str
-        :param contexts: List of contexts to choose commands from.
-        :type contexts: None or List[str]
-        :param allow_list: List of allowed commands. If None, take all commands
-        :type allow_list: None or List[str]
-        :param deny_list: List of denied commands. If None, take all commands
-        :type deny_list: None or List[str]
-        :return: Command instance with constraints
-        :rtype: Command
-        :raises UnknownCommand: raised if command is missing from settings file.
-        :raises InvalidCommand: raised if command doesn't fit the given contexts,
-            allow list or deny list
-        """
-        if (
-            allow_list is not None
-            and len(allow_list) != 0
-            and command_name not in allow_list
-        ):
-            raise InvalidCommand(
-                f'Command "{command_name}" '
-                f"was not specified in allowed list: {', '.join(allow_list)}"
-            )
-        if deny_list is not None and command_name in deny_list:
-            raise InvalidCommand(
-                f'Command "{command_name}" '
-                f"was explicitly denied in deny list: {', '.join(deny_list)}"
-            )
-        command_builder = cls.get_command_builder(command_name)
-        if contexts is None:
-            contexts = []
-        if command_builder is None:
-            raise UnknownCommand(command_name)
-        contexts_objects = [
-            cls.contexts_repository.get_context(context_identifier)
-            for context_identifier in contexts
+        return [
+            command_builder.build_command(*commands_filter.contexts)
+            for command_builder in cls.command_builders_list()
+            if commands_filter.pass_filter(command_builder)
         ]
-        return command_builder.build_command(*contexts_objects)
 
     @classmethod
     def load_configuration(

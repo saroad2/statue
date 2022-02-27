@@ -100,6 +100,6 @@ def test_command_filter_merge_fail_on_command_both_allowed_and_denied():
         ),
     ):
         CommandsFilter.merge(
-            CommandsFilter(allowed_commands=([COMMAND1])),
-            CommandsFilter(denied_commands=([COMMAND1])),
+            CommandsFilter(allowed_commands=[COMMAND1]),
+            CommandsFilter(denied_commands=[COMMAND1]),
         )

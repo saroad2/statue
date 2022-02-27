@@ -1,12 +1,7 @@
 from statue.cli import statue_cli
-from statue.command import Command
 from statue.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
-    COMMAND1,
-    COMMAND2,
-    COMMAND_HELP_STRING1,
-    COMMAND_HELP_STRING2,
     CONTEXT1,
     CONTEXT2,
     CONTEXT3,
@@ -52,7 +47,7 @@ def test_contexts_list_of_an_clear_configuration(
     ), "List output is different than expected."
 
 
-def test_contexts_show_of_context(cli_runner, clear_configuration, mock_read_commands):
+def test_contexts_show_of_context(cli_runner, clear_configuration):
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
@@ -60,98 +55,63 @@ def test_contexts_show_of_context(cli_runner, clear_configuration, mock_read_com
         Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
         Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
     )
-    mock_read_commands.return_value = [
-        Command(COMMAND1, help=COMMAND_HELP_STRING1),
-        Command(COMMAND2, help=COMMAND_HELP_STRING2),
-    ]
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
-        f"Name - {CONTEXT2}\n"
-        f"Description - {CONTEXT_HELP_STRING2}\n"
-        f"Matching commands - {COMMAND1}, {COMMAND2}\n"
+        f"Name - {CONTEXT2}\n" f"Description - {CONTEXT_HELP_STRING2}\n"
     ), "Show output is different than expected."
-    mock_read_commands.assert_called_once_with(contexts=[CONTEXT2])
 
 
-def test_contexts_show_of_context_with_one_alias(
-    cli_runner, clear_configuration, mock_read_commands
-):
+def test_contexts_show_of_context_with_one_alias(cli_runner, clear_configuration):
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
-    mock_read_commands.return_value = [
-        Command(COMMAND1, help=COMMAND_HELP_STRING1),
-        Command(COMMAND2, help=COMMAND_HELP_STRING2),
-    ]
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
         f"Description - {CONTEXT_HELP_STRING1}\n"
         f"Aliases - {CONTEXT2}\n"
-        f"Matching commands - {COMMAND1}, {COMMAND2}\n"
     ), "Show output is different than expected."
-    mock_read_commands.assert_called_once_with(contexts=[CONTEXT1])
 
 
-def test_contexts_show_of_context_with_by_alias(
-    cli_runner, clear_configuration, mock_read_commands
-):
+def test_contexts_show_of_context_with_by_alias(cli_runner, clear_configuration):
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
-    mock_read_commands.return_value = [
-        Command(COMMAND1, help=COMMAND_HELP_STRING1),
-    ]
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
         f"Description - {CONTEXT_HELP_STRING1}\n"
         f"Aliases - {CONTEXT2}\n"
-        f"Matching commands - {COMMAND1}\n"
     ), "Show output is different than expected."
-    mock_read_commands.assert_called_once_with(contexts=[CONTEXT2])
 
 
-def test_contexts_show_of_context_with_two_aliases(
-    cli_runner, clear_configuration, mock_read_commands
-):
+def test_contexts_show_of_context_with_two_aliases(cli_runner, clear_configuration):
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2, CONTEXT3])
     )
-    mock_read_commands.return_value = [
-        Command(COMMAND1, help=COMMAND_HELP_STRING1),
-        Command(COMMAND2, help=COMMAND_HELP_STRING2),
-    ]
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
         f"Description - {CONTEXT_HELP_STRING1}\n"
         f"Aliases - {CONTEXT2}, {CONTEXT3}\n"
-        f"Matching commands - {COMMAND1}, {COMMAND2}\n"
     ), "Show output is different than expected."
-    mock_read_commands.assert_called_once_with(contexts=[CONTEXT1])
 
 
-def test_contexts_show_of_context_with_parent(
-    cli_runner, clear_configuration, mock_read_commands
-):
+def test_contexts_show_of_context_with_parent(cli_runner, clear_configuration):
     parent = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent)
     Configuration.contexts_repository.add_contexts(context, parent)
-    mock_read_commands.return_value = [Command(COMMAND1, help=COMMAND_HELP_STRING1)]
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
         f"Description - {CONTEXT_HELP_STRING1}\n"
         f"Parent - {CONTEXT2}\n"
-        f"Matching commands - {COMMAND1}\n"
     ), "Show output is different than expected."
-    mock_read_commands.assert_called_once_with(contexts=[CONTEXT1])
 
 
 def test_contexts_show_of_non_existing_context(cli_runner, clear_configuration):

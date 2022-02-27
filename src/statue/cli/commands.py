@@ -1,5 +1,5 @@
 """Commands CLI."""
-from typing import List, Optional
+from typing import List
 
 import click
 
@@ -13,8 +13,9 @@ from statue.cli.common_flags import (
     verbosity_option,
 )
 from statue.cli.styled_strings import bullet_style, name_style
+from statue.commands_filter import CommandsFilter
 from statue.configuration import Configuration
-from statue.exceptions import InvalidCommand, UnknownCommand
+from statue.exceptions import UnknownCommand
 
 
 @statue_cli.group("command")
@@ -27,15 +28,22 @@ def commands_cli() -> None:
 @allow_option
 @deny_option
 def list_commands_cli(
-    context: Optional[List[str]],
-    allow: Optional[List[str]],
-    deny: Optional[List[str]],
+    context: List[str],
+    allow: List[str],
+    deny: List[str],
 ) -> None:
     """List matching commands to contexts, allow list and deny list."""
-    commands = Configuration.read_commands(
-        contexts=context,
-        allow_list=allow,
-        deny_list=deny,
+    commands = Configuration.build_commands(
+        CommandsFilter(
+            contexts=frozenset(
+                {
+                    Configuration.contexts_repository.get_context(context_name)
+                    for context_name in context
+                }
+            ),
+            allowed_commands=(frozenset(allow) if len(allow) != 0 else None),
+            denied_commands=(frozenset(deny) if len(deny) != 0 else None),
+        )
     )
     for command_instance in commands:
         click.echo(f"{name_style(command_instance.name)} - {command_instance.help}")
@@ -49,14 +57,20 @@ def list_commands_cli(
 @verbose_option
 @verbosity_option
 def install_commands_cli(
-    context: Optional[List[str]],
-    allow: Optional[List[str]],
-    deny: Optional[List[str]],
-    verbosity: str,
+    context: List[str], allow: List[str], deny: List[str], verbosity: str
 ) -> None:
     """Install missing commands."""
-    commands_list = Configuration.read_commands(
-        contexts=context, allow_list=allow, deny_list=deny
+    commands_list = Configuration.build_commands(
+        CommandsFilter(
+            contexts=frozenset(
+                {
+                    Configuration.contexts_repository.get_context(context_name)
+                    for context_name in context
+                }
+            ),
+            allowed_commands=(frozenset(allow) if len(allow) != 0 else None),
+            denied_commands=(frozenset(deny) if len(deny) != 0 else None),
+        )
     )
     for command in commands_list:
         command.install(verbosity=verbosity)
@@ -65,27 +79,18 @@ def install_commands_cli(
 @commands_cli.command("show")
 @click.pass_context
 @click.argument("command_name", type=str)
-@contexts_option
-@allow_option
-@deny_option
 def show_command_cli(
     ctx: click.Context,
     command_name: str,
-    context: Optional[List[str]],
-    allow: Optional[List[str]],
-    deny: Optional[List[str]],
 ) -> None:
     """Show information about specific command."""
     try:
-        command_instance = Configuration.read_command(
-            command_name=command_name,
-            contexts=context,
-            allow_list=allow,
-            deny_list=deny,
-        )
+        command_instance = Configuration.get_command_builder(command_name)
         click.echo(f"{bullet_style('Name')} - {name_style(command_instance.name)}")
         click.echo(f"{bullet_style('Description')} - {command_instance.help}")
-        click.echo(f"{bullet_style('Arguments')} - {command_instance.args}")
-    except (UnknownCommand, InvalidCommand) as error:
+        click.echo(
+            f"{bullet_style('Default arguments')} - {command_instance.default_args}"
+        )
+    except UnknownCommand as error:
         click.echo(str(error))
         ctx.exit(1)

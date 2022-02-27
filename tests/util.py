@@ -66,6 +66,16 @@ def command_mock(
     return command
 
 
+def command_builder_mock(name, installed=True, installed_version="0.0.1"):
+    command_builder = CommandBuilder(name=name, help="This is help")
+    command_builder.build_command = mock.Mock(
+        return_value=command_mock(
+            name=name, installed=installed, installed_version=installed_version
+        )
+    )
+    return command_builder
+
+
 def evaluation_mock(successful_commands, total_commands, total_execution_duration):
     evaluation = mock.Mock()
     evaluation.successful_commands_number = successful_commands
