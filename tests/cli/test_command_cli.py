@@ -18,7 +18,7 @@ from tests.constants import (
 )
 
 
-def test_commands_list(cli_runner, empty_configuration, mock_read_commands):
+def test_commands_list(cli_runner, clear_configuration, mock_read_commands):
     mock_read_commands.return_value = [
         Command(COMMAND1, help=COMMAND_HELP_STRING1),
         Command(COMMAND2, help=COMMAND_HELP_STRING2),
@@ -39,13 +39,13 @@ def test_commands_list(cli_runner, empty_configuration, mock_read_commands):
 
 
 def test_commands_show_existing_command(
-    cli_runner, empty_configuration, mock_read_command
+    cli_runner, clear_configuration, mock_read_command
 ):
     mock_read_command.return_value = Command(
         COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG3]
     )
     result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
-    assert result.exit_code == 0, "show command should exit with success."
+    assert result.exit_code == 0, f"Existed with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
         f"Description - {COMMAND_HELP_STRING2}\n"
@@ -54,7 +54,7 @@ def test_commands_show_existing_command(
 
 
 def test_commands_show_unknown_command_side_effect(
-    cli_runner, empty_configuration, mock_read_command
+    cli_runner, clear_configuration, mock_read_command
 ):
     mock_read_command.side_effect = UnknownCommand(NOT_EXISTING_COMMAND)
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
@@ -65,7 +65,7 @@ def test_commands_show_unknown_command_side_effect(
 
 
 def test_commands_show_invalid_command_side_effect(
-    cli_runner, empty_configuration, mock_read_command
+    cli_runner, clear_configuration, mock_read_command
 ):
     error_msg = "That command does not exist"
     mock_read_command.side_effect = InvalidCommand(error_msg)
@@ -75,7 +75,7 @@ def test_commands_show_invalid_command_side_effect(
 
 
 def test_command_install_with_default_verbosity(
-    cli_runner, empty_configuration, mock_read_commands
+    cli_runner, clear_configuration, mock_read_commands
 ):
     commands = [mock.Mock(), mock.Mock(), mock.Mock()]
     mock_read_commands.return_value = commands
@@ -86,7 +86,7 @@ def test_command_install_with_default_verbosity(
 
 
 def test_command_install_with_verbose(
-    cli_runner, empty_configuration, mock_read_commands
+    cli_runner, clear_configuration, mock_read_commands
 ):
     commands = [mock.Mock(), mock.Mock(), mock.Mock()]
     mock_read_commands.return_value = commands

@@ -329,7 +329,7 @@ def test_run_with_unknown_context(
     result = cli_runner.invoke(statue_cli, ["run"])
 
     assert result.exit_code == 1
-    assert f'Could not find context named "{NOT_EXISTING_CONTEXT}".' in result.output
+    assert f'Could not find context named "{NOT_EXISTING_CONTEXT}"' in result.output
     mock_cache_save_evaluation.assert_not_called()
     mock_evaluation_string.assert_not_called()
 

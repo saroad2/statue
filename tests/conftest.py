@@ -32,7 +32,6 @@ def mock_toml_dump(mocker):
 
 @pytest.fixture
 def clear_configuration():
-    yield
     Configuration.reset_configuration()
 
 
@@ -59,11 +58,6 @@ def mock_sources_list(mocker):
 @pytest.fixture
 def mock_default_configuration(mocker, clear_configuration):
     return mocker.patch.object(Configuration, "default_configuration")
-
-
-@pytest.fixture
-def mock_contexts_map(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "contexts_map")
 
 
 @pytest.fixture

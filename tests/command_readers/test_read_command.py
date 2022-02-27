@@ -4,7 +4,7 @@ from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 from statue.command import Command
 from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS
+from statue.constants import COMMANDS
 from statue.context import Context
 from statue.exceptions import (
     InvalidCommand,
@@ -28,20 +28,19 @@ from tests.constants import (
     CONTEXT3,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
-    CONTEXTS_MAP,
+    CONTEXT_HELP_STRING3,
     FAILED_TAG,
     NOT_EXISTING_CONTEXT,
     SUCCESSFUL_TAG,
 )
-from tests.util import build_commands_builders_map, build_contexts_map
 
 # Success cases
+from tests.util import build_commands_builders_map
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_no_contexts():
+def case_with_no_contexts(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -59,9 +58,11 @@ def case_with_no_contexts():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_allowed_context():
+def case_with_allowed_context(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -77,9 +78,12 @@ def case_with_allowed_context():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_read_successful_with_two_contexts():
+def case_read_successful_with_two_contexts(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -95,9 +99,12 @@ def case_read_successful_with_two_contexts():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_override_context():
+def case_with_context_specification(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -120,9 +127,12 @@ def case_with_override_context():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_clear_args_context():
+def case_with_clear_args_context(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -141,9 +151,12 @@ def case_with_clear_args_context():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_overrides_with_add_args_context():
+def case_with_context_specification_add_args(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -166,9 +179,8 @@ def case_with_overrides_with_add_args_context():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_empty_allow_list():
+def case_with_empty_allow_list(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
@@ -181,9 +193,8 @@ def case_with_empty_allow_list():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_in_allow_list():
+def case_in_allow_list(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
@@ -196,9 +207,8 @@ def case_in_allow_list():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_not_in_deny_list():
+def case_not_in_deny_list(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
@@ -214,11 +224,11 @@ def case_not_in_deny_list():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_on_child_context_inheritance():
+def case_on_child_context_inheritance(clear_configuration):
     parent = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
+    Configuration.contexts_repository.add_contexts(parent, context)
     configuration = {
-        CONTEXTS: build_contexts_map(parent, context),
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -234,10 +244,11 @@ def case_on_child_context_inheritance():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_context_alias():
-    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING2, aliases=[CONTEXT2])
+def case_context_alias(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING2, aliases=[CONTEXT2])
+    )
     configuration = {
-        CONTEXTS: build_contexts_map(context),
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -253,9 +264,12 @@ def case_context_alias():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_one_required_context():
+def case_with_one_required_context(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -271,9 +285,12 @@ def case_with_one_required_context():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_with_two_required_contexts():
+def case_with_two_required_contexts(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -303,9 +320,8 @@ def test_read_command_success(configuration, kwargs, command, clear_configuratio
 
 
 @case(tags=[FAILED_TAG])
-def case_with_non_existing_context():
+def case_with_non_existing_context(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -322,14 +338,17 @@ def case_with_non_existing_context():
         configuration,
         kwargs,
         UnknownContext,
-        f'^Could not find context named "{NOT_EXISTING_CONTEXT}".$',
+        f'^Could not find context named "{NOT_EXISTING_CONTEXT}"$',
     )
 
 
 @case(tags=[FAILED_TAG])
-def case_read_failed_with_two_contexts():
+def case_read_failed_with_two_contexts(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -350,9 +369,8 @@ def case_read_failed_with_two_contexts():
 
 
 @case(tags=[FAILED_TAG])
-def case_not_in_allow_list():
+def case_not_in_allow_list(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
@@ -372,9 +390,8 @@ def case_not_in_allow_list():
 
 
 @case(tags=[FAILED_TAG])
-def case_in_deny_list():
+def case_in_deny_list(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
@@ -394,9 +411,8 @@ def case_in_deny_list():
 
 
 @case(tags=[FAILED_TAG])
-def case_non_existing_command():
+def case_non_existing_command(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
@@ -416,8 +432,8 @@ def case_non_existing_command():
 
 
 @case(tags=[FAILED_TAG])
-def case_with_no_commands_configuration():
-    configuration = {CONTEXTS: CONTEXTS_MAP}
+def case_with_no_commands_configuration(clear_configuration):
+    configuration = {}
     kwargs = dict(command_name=COMMAND3)
     return (
         configuration,
@@ -428,33 +444,8 @@ def case_with_no_commands_configuration():
 
 
 @case(tags=[FAILED_TAG])
-def case_when_no_context_configuration_was_set():
+def case_without_the_required_context(clear_configuration):
     configuration = {
-        COMMANDS: build_commands_builders_map(
-            CommandBuilder(
-                name=COMMAND1,
-                help=COMMAND_HELP_STRING1,
-                default_args=[ARG1, ARG2],
-                allowed_contexts=[CONTEXT1],
-            ),
-            CommandBuilder(
-                name=COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3, ARG5]
-            ),
-        ),
-    }
-    kwargs = dict(command_name=COMMAND1, contexts=[CONTEXT1])
-    return (
-        configuration,
-        kwargs,
-        MissingConfiguration,
-        f'^"{CONTEXTS}" is missing from Statue configuration.$',
-    )
-
-
-@case(tags=[FAILED_TAG])
-def case_without_the_required_context():
-    configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -475,9 +466,12 @@ def case_without_the_required_context():
 
 
 @case(tags=[FAILED_TAG])
-def case_without_one_of_two_required_contexts():
+def case_without_one_of_two_required_contexts(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -498,9 +492,8 @@ def case_without_one_of_two_required_contexts():
 
 
 @case(tags=[FAILED_TAG])
-def case_without_two_required_contexts():
+def case_without_two_required_contexts(clear_configuration):
     configuration = {
-        CONTEXTS: CONTEXTS_MAP,
         COMMANDS: build_commands_builders_map(
             CommandBuilder(
                 name=COMMAND1,
@@ -536,12 +529,14 @@ def test_read_command_failure(
 # Additional tests
 
 
-def test_read_command_multiple_times(
-    clear_configuration,
-):
+def test_read_command_multiple_times(clear_configuration):
+    Configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
     Configuration.set_statue_configuration(
         {
-            CONTEXTS: CONTEXTS_MAP,
             COMMANDS: build_commands_builders_map(
                 CommandBuilder(
                     name=COMMAND1,

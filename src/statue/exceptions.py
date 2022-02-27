@@ -61,7 +61,7 @@ class UnknownContext(StatueException):
         :param context_name: Name of the unfound context
         :type context_name: str
         """
-        super().__init__(f'Could not find context named "{context_name}".')
+        super().__init__(f'Could not find context named "{context_name}"')
 
 
 class CommandExecutionError(StatueException):
