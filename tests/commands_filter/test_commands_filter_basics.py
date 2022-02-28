@@ -71,21 +71,21 @@ def test_commands_filter_contexts_cannot_be_overridden():
         }
     )
 
-    with pytest.raises(AttributeError, match="^can't set attribute$"):
+    with pytest.raises(AttributeError, match="^can't set attribute"):
         commands_filter.contexts = {Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)}
 
 
 def test_commands_filter_allowed_commands_cannot_be_overridden():
     commands_filter = CommandsFilter(allowed_commands={COMMAND1, COMMAND2})
 
-    with pytest.raises(AttributeError, match="^can't set attribute$"):
+    with pytest.raises(AttributeError, match="^can't set attribute"):
         commands_filter.allowed_commands = {COMMAND3}
 
 
 def test_commands_filter_denied_commands_cannot_be_overridden():
     commands_filter = CommandsFilter(denied_commands={COMMAND1, COMMAND2})
 
-    with pytest.raises(AttributeError, match="^can't set attribute$"):
+    with pytest.raises(AttributeError, match="^can't set attribute"):
         commands_filter.denied_commands = {COMMAND3}
 
 
