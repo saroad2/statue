@@ -1,8 +1,10 @@
+from pathlib import Path
+
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli import statue_cli
+from statue.commands_filter import CommandsFilter
 from statue.configuration import Configuration
-from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from statue.context import Context
 from tests.constants import (
     COMMAND1,
@@ -18,60 +20,66 @@ from tests.constants import (
 from tests.util import command_mock
 
 
-def case_no_sources():
-    sources_config = {}
+def case_no_sources(clear_configuration):
     commands_lists = []
     printed_tree = "No sources configuration is specified.\n"
-    return sources_config, commands_lists, printed_tree
+    return commands_lists, printed_tree
 
 
-def case_one_source_empty_configuration():
-    sources_config = {SOURCE1: {}}
+def case_one_source_empty_configuration(clear_configuration):
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
     commands_lists = [[command_mock(name=COMMAND1)]]
     printed_tree = (
         f"{SOURCE1} (contexts: empty, allowed: empty, denied: empty):\n"
         f"\t{COMMAND1}\n"
     )
-    return sources_config, commands_lists, printed_tree
+    return commands_lists, printed_tree
 
 
 def case_one_source_with_configuration(clear_configuration):
-    Configuration.contexts_repository.add_contexts(
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    Configuration.contexts_repository.add_contexts(context)
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        contexts=[context], allowed_commands=[COMMAND1]
     )
-    sources_config = {SOURCE1: {CONTEXTS: [CONTEXT1], ALLOW_LIST: [COMMAND1]}}
     commands_lists = [[command_mock(name=COMMAND1)]]
     printed_tree = (
         f"{SOURCE1} (contexts: {CONTEXT1}, allowed: {COMMAND1}, denied: empty):\n"
         f"\t{COMMAND1}\n"
     )
-    return sources_config, commands_lists, printed_tree
+    return commands_lists, printed_tree
 
 
 def case_one_source_with_multiple_contexts(clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+    context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
     )
-    sources_config = {SOURCE1: {CONTEXTS: [CONTEXT1, CONTEXT2], ALLOW_LIST: [COMMAND1]}}
+    Configuration.contexts_repository.add_contexts(context1, context2)
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        contexts=[context1, context2], allowed_commands=[COMMAND1]
+    )
     commands_lists = [[command_mock(name=COMMAND1)]]
     printed_tree = (
         f"{SOURCE1} (contexts: {CONTEXT1}, {CONTEXT2}, "
         f"allowed: {COMMAND1}, denied: empty):\n"
         f"\t{COMMAND1}\n"
     )
-    return sources_config, commands_lists, printed_tree
+    return commands_lists, printed_tree
 
 
 def case_multiple_sources(clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+    context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
     )
-    sources_config = {
-        SOURCE1: {CONTEXTS: [CONTEXT1, CONTEXT2], ALLOW_LIST: [COMMAND1]},
-        SOURCE2: {CONTEXTS: [], DENY_LIST: [COMMAND2, COMMAND3]},
-    }
+    Configuration.contexts_repository.add_contexts(context1, context2)
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        contexts=[context1, context2], allowed_commands=[COMMAND1]
+    )
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
+        denied_commands=[COMMAND2, COMMAND3]
+    )
     commands_lists = [
         [command_mock(name=COMMAND1)],
         [command_mock(name=COMMAND2), command_mock(name=COMMAND3)],
@@ -84,21 +92,17 @@ def case_multiple_sources(clear_configuration):
         f"allowed: empty, denied: {COMMAND2}, {COMMAND3}):\n"
         f"\t{COMMAND2}, {COMMAND3}\n"
     )
-    return sources_config, commands_lists, printed_tree
+    return commands_lists, printed_tree
 
 
-@parametrize_with_cases(
-    argnames=["sources_config", "commands_lists", "printed_tree"], cases=THIS_MODULE
-)
+@parametrize_with_cases(argnames=["commands_lists", "printed_tree"], cases=THIS_MODULE)
 def test_config_show_tree(
-    sources_config,
     commands_lists,
     printed_tree,
     cli_runner,
-    mock_sources_configuration,
     mock_build_commands,
+    mock_load_configuration,
 ):
-    mock_sources_configuration.return_value = sources_config
     mock_build_commands.side_effect = commands_lists
     result = cli_runner.invoke(statue_cli, ["config", "show-tree"])
     assert (

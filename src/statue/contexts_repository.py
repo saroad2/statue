@@ -18,9 +18,13 @@ class ContextsRepository:
         """
         self.contexts_list = list(contexts)
 
-    @property
-    def contexts_number(self):
-        """Get number of available contexts."""
+    def __len__(self) -> int:
+        """
+        Number of available contexts.
+
+        :return: Number of contexts
+        :rtype: int
+        """
         return len(self.contexts_list)
 
     def __iter__(self) -> Iterator[Context]:
@@ -41,20 +45,20 @@ class ContextsRepository:
         """
         self.contexts_list.extend(contexts)
 
-    def get_context(self, context_name: str) -> Context:
+    def __getitem__(self, item: str) -> Context:
         """
         Get context by name or alias.
 
-        :param context_name: Context name or alias to be retrieved
-        :type context_name: str
+        :param item: Context name or alias to be retrieved
+        :type item: str
         :return: Context with given name
         :rtype: Context
         :raises UnknownContext: Raised when context is not found
         """
         for context in self.contexts_list:
-            if context.is_matching(context_name):
+            if context.is_matching(item):
                 return context
-        raise UnknownContext(context_name=context_name)
+        raise UnknownContext(context_name=item)
 
     def has_context(self, context_name: str) -> bool:
         """
@@ -66,7 +70,7 @@ class ContextsRepository:
         :rtype: bool
         """
         try:
-            self.get_context(context_name)
+            self[context_name]
         except UnknownContext:
             return False
         return True
@@ -115,7 +119,7 @@ class ContextsRepository:
             configuration.
         """
         if context_name not in config:
-            return self.get_context(context_name)
+            return self[context_name]
         context_config = dict(config[context_name])
         if PARENT in context_config:
             context_config[PARENT] = self.build_context_from_config(

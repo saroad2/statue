@@ -4,7 +4,6 @@ from unittest.mock import Mock, call
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
 from statue.configuration import Configuration
-from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from statue.context import Context
 from tests.constants import (
     COMMAND1,
@@ -38,18 +37,16 @@ def assert_commands(commands_map, source, commands):
     ), f"Commands of {source} are different than expected"
 
 
-def test_get_commands_map_source_from_config(
-    clear_configuration, mock_build_commands, mock_sources_configuration
-):
+def test_get_commands_map_source_from_config(clear_configuration, mock_build_commands):
     command = Mock()
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     Configuration.contexts_repository.add_contexts(context)
-    mock_sources_configuration.return_value = {
-        SOURCE1: dict(allow_list=[COMMAND1], contexts=[CONTEXT1])
-    }
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        allowed_commands=[COMMAND1], contexts=[context]
+    )
     mock_build_commands.return_value = [command]
     commands_map = Configuration.build_commands_map(
-        sources=[SOURCE1], commands_filter=CommandsFilter()
+        sources=[Path(SOURCE1)], commands_filter=CommandsFilter()
     )
     assert_commands_count(commands_map, 1)
     assert_sources(commands_map, [SOURCE1])
@@ -67,18 +64,16 @@ def test_get_commands_map_source_from_config(
     )
 
 
-def test_get_commands_map_source_not_from_config(
-    mock_build_commands, mock_sources_configuration
-):
+def test_get_commands_map_source_not_from_config(mock_build_commands):
     command = Mock()
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     Configuration.contexts_repository.add_contexts(context)
-    mock_sources_configuration.return_value = {
-        SOURCE1: dict(deny_list=[COMMAND3], contexts=[CONTEXT1])
-    }
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        denied_commands=[COMMAND3], contexts=[context]
+    )
     mock_build_commands.return_value = [command]
     commands_map = Configuration.build_commands_map(
-        [SOURCE2], commands_filter=CommandsFilter()
+        sources=[Path(SOURCE2)], commands_filter=CommandsFilter()
     )
     assert_commands_count(commands_map, 1)
     assert_sources(commands_map, [SOURCE2])
@@ -89,29 +84,27 @@ def test_get_commands_map_source_not_from_config(
     )
 
 
-def test_get_commands_map_with_no_commands(
-    mock_sources_configuration, mock_build_commands
-):
+def test_get_commands_map_with_no_commands(mock_build_commands):
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     Configuration.contexts_repository.add_contexts(context)
-    commands_filter = CommandsFilter(denied_commands=(COMMAND3), contexts=[context])
-    mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
+    commands_filter = CommandsFilter(denied_commands=COMMAND3, contexts=[context])
     mock_build_commands.side_effect = lambda _: []
     commands_map = Configuration.build_commands_map(
-        [SOURCE1, SOURCE2], commands_filter=commands_filter
+        sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=commands_filter
     )
     assert commands_map == CommandsMap({SOURCE1: [], SOURCE2: []})
     assert_calls(mock_build_commands, [call(commands_filter), call(commands_filter)])
 
 
-def test_get_commands_map_with_commands_without_directives(
-    mock_sources_configuration, mock_build_commands
-):
+def test_get_commands_map_with_commands_without_directives(mock_build_commands):
     command1, command2, command3 = Mock(), Mock(), Mock()
-    mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
     mock_build_commands.side_effect = [[command1], [command2, command3]]
     commands_map = Configuration.build_commands_map(
-        [SOURCE1, SOURCE2], commands_filter=CommandsFilter()
+        sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
     assert_commands_count(commands_map, 3)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
@@ -124,16 +117,17 @@ def test_get_commands_map_with_commands_without_directives(
 
 
 def test_get_commands_map_with_commands_and_directives(
-    clear_configuration, mock_sources_configuration, mock_build_commands
+    clear_configuration, mock_build_commands
 ):
     command1, command2, command3 = Mock(), Mock(), Mock()
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     Configuration.contexts_repository.add_contexts(context)
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
     commands_filter = CommandsFilter(allowed_commands=[COMMAND1], contexts=[context])
-    mock_sources_configuration.return_value = {SOURCE1: {}, SOURCE2: {}}
     mock_build_commands.side_effect = [[command1], [command2, command3]]
     commands_map = Configuration.build_commands_map(
-        sources=[SOURCE1, SOURCE2], commands_filter=commands_filter
+        sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=commands_filter
     )
     assert_commands_count(commands_map, 3)
     assert_sources(commands_map, [SOURCE1, SOURCE2])
@@ -142,21 +136,19 @@ def test_get_commands_map_with_commands_and_directives(
     assert_calls(mock_build_commands, [call(commands_filter), call(commands_filter)])
 
 
-def test_get_commands_map_with_source_context(
-    clear_configuration, mock_sources_configuration, mock_build_commands
-):
+def test_get_commands_map_with_source_context(clear_configuration, mock_build_commands):
     command1, command2, command3 = Mock(), Mock(), Mock()
     context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
         name=CONTEXT2, help=CONTEXT_HELP_STRING2
     )
     Configuration.contexts_repository.add_contexts(context1, context2)
-    mock_sources_configuration.return_value = {
-        SOURCE1: {CONTEXTS: [CONTEXT1]},
-        SOURCE2: {},
-    }
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        contexts=[context1]
+    )
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
     mock_build_commands.side_effect = [[command1, command2], [command3]]
     commands_map = Configuration.build_commands_map(
-        sources=[SOURCE1, SOURCE2],
+        sources=[Path(SOURCE1), Path(SOURCE2)],
         commands_filter=CommandsFilter(denied_commands=[COMMAND3], contexts=[context2]),
     )
     assert_commands_count(commands_map, 3)
@@ -182,20 +174,18 @@ def test_get_commands_map_with_source_context(
     )
 
 
-def test_get_commands_map_with_source_allow_list(
-    mock_sources_configuration, mock_build_commands
-):
+def test_get_commands_map_with_source_allow_list(mock_build_commands):
     command1, command2 = Mock(), Mock()
-    mock_sources_configuration.return_value = {
-        SOURCE1: {},
-        SOURCE2: {ALLOW_LIST: [COMMAND2]},
-    }
     mock_build_commands.side_effect = [[command1], [command2]]
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     )
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
+        allowed_commands=[COMMAND2]
+    )
     commands_map = Configuration.build_commands_map(
-        sources=[SOURCE1, SOURCE2],
+        sources=[Path(SOURCE1), Path(SOURCE2)],
         commands_filter=CommandsFilter(
             allowed_commands=[COMMAND1, COMMAND2], contexts=[CONTEXT1]
         ),
@@ -217,24 +207,22 @@ def test_get_commands_map_with_source_allow_list(
     )
 
 
-def test_get_commands_map_with_source_deny_list(
-    mock_sources_configuration, mock_build_commands
-):
+def test_get_commands_map_with_source_deny_list(mock_build_commands):
     command1, command2, command3, command4 = (
         Mock(),
         Mock(),
         Mock(),
         Mock(),
     )
-    mock_sources_configuration.return_value = {
-        SOURCE1: {},
-        SOURCE2: {DENY_LIST: [COMMAND2]},
-    }
     mock_build_commands.side_effect = [[command1, command2], [command3, command4]]
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     Configuration.contexts_repository.add_contexts(context)
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
+        denied_commands=[COMMAND2]
+    )
     commands_map = Configuration.build_commands_map(
-        sources=[SOURCE1, SOURCE2],
+        sources=[Path(SOURCE1), Path(SOURCE2)],
         commands_filter=CommandsFilter(denied_commands=[COMMAND3], contexts=[context]),
     )
     assert_commands_count(commands_map, 4)
@@ -252,18 +240,18 @@ def test_get_commands_map_with_source_deny_list(
     )
 
 
-def test_get_commands_map_from_relative_path(
-    mock_sources_configuration, mock_build_commands
-):
+def test_get_commands_map_from_relative_path(mock_build_commands):
     command1, command2 = (Mock(), Mock())
     context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
         name=CONTEXT2, help=CONTEXT_HELP_STRING2
     )
     Configuration.contexts_repository.add_contexts(context1, context2)
-    mock_sources_configuration.return_value = {
-        SOURCE1: {CONTEXTS: [CONTEXT1]},
-        SOURCE2: {CONTEXTS: [CONTEXT2]},
-    }
+    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+        contexts=[context1]
+    )
+    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
+        contexts=[context2]
+    )
     mock_build_commands.side_effect = [[command1, command2]]
     relative_source = Path(SOURCE2) / "i" / "am" / "relative"
     relative_source_string = str(relative_source)

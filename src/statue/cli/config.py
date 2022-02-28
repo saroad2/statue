@@ -34,11 +34,11 @@ def show_tree():
     This method prints the sources' configuration as a tree, including:
     contexts, allow and deny lists and matching commands.
     """
-    sources_list = Configuration.sources_list()
+    sources_list = Configuration.sources_repository.sources_list
     if len(sources_list) == 0:
         click.echo("No sources configuration is specified.")
     for source in sources_list:
-        source_commands_filter = Configuration.get_source_commands_filter(source)
+        source_commands_filter = Configuration.sources_repository[source]
         context_names = [context.name for context in source_commands_filter.contexts]
         click.echo(
             f"{source_style(source)} "

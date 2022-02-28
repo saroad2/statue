@@ -10,17 +10,16 @@ from statue.command_builder import CommandBuilder
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
 from statue.constants import (
-    ALLOW_LIST,
     COMMANDS,
     CONTEXTS,
     DEFAULT_CONFIGURATION_FILE,
-    DENY_LIST,
     OVERRIDE,
     SOURCES,
     STATUE,
 )
 from statue.contexts_repository import ContextsRepository
 from statue.exceptions import EmptyConfiguration, MissingConfiguration, UnknownCommand
+from statue.sources_repository import SourcesRepository
 
 
 class Configuration:
@@ -29,6 +28,7 @@ class Configuration:
     __default_configuration: Optional[MutableMapping[str, Any]] = None
     __statue_configuration: Optional[MutableMapping[str, Any]] = None
     contexts_repository = ContextsRepository()
+    sources_repository = SourcesRepository()
 
     @classmethod
     def configuration_path(cls, directory: Union[Path, str]) -> Path:
@@ -154,71 +154,6 @@ class Configuration:
         return commands_configuration[command_name]
 
     @classmethod
-    def sources_configuration(
-        cls,
-    ) -> MutableMapping[Path, MutableMapping[str, Any]]:
-        """
-        Getter of the sources configuration.
-
-        :return: Sources configuration dictionary
-        :rtype: MutableMapping[str, Any]
-        :raises MissingConfiguration: raised if no sources configuration was set.
-        """
-        sources_configuration: Optional[
-            MutableMapping[Path, MutableMapping[str, Any]]
-        ] = cls.statue_configuration().get(SOURCES, None)
-        if sources_configuration is None:
-            raise MissingConfiguration(SOURCES)
-        return sources_configuration
-
-    @classmethod
-    def sources_list(cls) -> List[Path]:
-        """
-        List of sources to run statue over, as specified in the configuration file.
-
-        :return: Available sources list
-        :rtype: List[Path]
-        """
-        return list(cls.sources_configuration().keys())
-
-    @classmethod
-    def get_source_commands_filter(cls, source: Union[Path, str]) -> CommandsFilter:
-        """
-        Get configuration dictionary of a context.
-
-        :param source: Name of the desired source.
-        :type source: str
-        :return: Commands filter of the given source
-        :rtype: CommandsFilter
-        """
-        sources_configuration = cls.sources_configuration()
-        if not isinstance(source, Path):
-            source = Path(source)
-        for source_path, setup in sources_configuration.items():
-            try:
-                source.relative_to(source_path)
-                contexts = frozenset(
-                    {
-                        cls.contexts_repository.get_context(context_name)
-                        for context_name in setup.get(CONTEXTS, [])
-                    }
-                )
-                allowed_commands = (
-                    None if ALLOW_LIST not in setup else frozenset(setup[ALLOW_LIST])
-                )
-                denied_commands = (
-                    None if DENY_LIST not in setup else frozenset(setup[DENY_LIST])
-                )
-                return CommandsFilter(
-                    contexts=contexts,
-                    allowed_commands=allowed_commands,
-                    denied_commands=denied_commands,
-                )
-            except ValueError:
-                continue
-        return CommandsFilter()
-
-    @classmethod
     def build_commands_map(
         cls, sources: List[Path], commands_filter: CommandsFilter
     ) -> CommandsMap:
@@ -235,9 +170,7 @@ class Configuration:
         commands_map = CommandsMap()
         for source in sources:
             commands_map[str(source)] = cls.build_commands(
-                CommandsFilter.merge(
-                    commands_filter, cls.get_source_commands_filter(source)
-                )
+                CommandsFilter.merge(commands_filter, cls.sources_repository[source])
             )
         return commands_map
 
@@ -287,6 +220,7 @@ class Configuration:
         cls.set_default_configuration(None)
         cls.set_statue_configuration(None)
         cls.contexts_repository.reset()
+        cls.sources_repository.reset()
 
     @classmethod
     def __load_default_configuration(cls) -> None:
@@ -342,9 +276,10 @@ class Configuration:
         if CONTEXTS in statue_config:
             cls.contexts_repository.update_from_config(statue_config[CONTEXTS])
         if SOURCES in statue_config:
-            statue_config[SOURCES] = {
-                Path(source): setup for source, setup in statue_config[SOURCES].items()
-            }
+            cls.sources_repository.update_from_config(
+                config=statue_config[SOURCES],
+                contexts_repository=cls.contexts_repository,
+            )
         return statue_config
 
     @classmethod

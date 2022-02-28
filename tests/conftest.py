@@ -61,18 +61,8 @@ def mock_build_commands_map(mocker, clear_configuration):
 
 
 @pytest.fixture
-def mock_sources_list(mocker):
-    return mocker.patch.object(Configuration, "sources_list")
-
-
-@pytest.fixture
 def mock_default_configuration(mocker, clear_configuration):
     return mocker.patch.object(Configuration, "default_configuration")
-
-
-@pytest.fixture
-def mock_sources_configuration(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "sources_configuration")
 
 
 @pytest.fixture
