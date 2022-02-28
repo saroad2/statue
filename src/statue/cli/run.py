@@ -215,7 +215,7 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
         deny = frozenset(deny) if len(deny) != 0 else None
         context = frozenset(
             {
-                Configuration.contexts_repository.get_context(context_name)
+                Configuration.contexts_repository[context_name]
                 for context_name in context
             }
         )

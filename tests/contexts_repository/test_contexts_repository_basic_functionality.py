@@ -20,15 +20,15 @@ from tests.constants import (
 def test_contexts_repository_simple_constructor():
     contexts_repository = ContextsRepository()
 
-    assert contexts_repository.contexts_number == 0
+    assert len(contexts_repository) == 0
 
 
 def test_contexts_repository_with_one_simple_context():
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     contexts_repository = ContextsRepository(context)
 
-    assert contexts_repository.contexts_number == 1
-    assert contexts_repository.get_context(CONTEXT1) == context
+    assert len(contexts_repository) == 1
+    assert contexts_repository[CONTEXT1] == context
     assert contexts_repository.has_context(CONTEXT1)
     assert not contexts_repository.has_context(CONTEXT2)
 
@@ -39,10 +39,10 @@ def test_contexts_repository_with_three_simple_context():
     context3 = Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)
     contexts_repository = ContextsRepository(context1, context2, context3)
 
-    assert contexts_repository.contexts_number == 3
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == context3
+    assert len(contexts_repository) == 3
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == context3
     assert contexts_repository.has_context(CONTEXT1)
     assert contexts_repository.has_context(CONTEXT2)
     assert contexts_repository.has_context(CONTEXT3)
@@ -55,10 +55,10 @@ def test_contexts_repository_with_one_context_with_aliases():
     )
     contexts_repository = ContextsRepository(context)
 
-    assert contexts_repository.contexts_number == 1
-    assert contexts_repository.get_context(CONTEXT1) == context
-    assert contexts_repository.get_context(CONTEXT2) == context
-    assert contexts_repository.get_context(CONTEXT3) == context
+    assert len(contexts_repository) == 1
+    assert contexts_repository[CONTEXT1] == context
+    assert contexts_repository[CONTEXT2] == context
+    assert contexts_repository[CONTEXT3] == context
     assert contexts_repository.has_context(CONTEXT1)
     assert contexts_repository.has_context(CONTEXT2)
     assert contexts_repository.has_context(CONTEXT3)
@@ -70,9 +70,9 @@ def test_contexts_repository_with_one_context_with_parent():
     context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, parent=parent)
     contexts_repository = ContextsRepository(context, parent)
 
-    assert contexts_repository.contexts_number == 2
-    assert contexts_repository.get_context(CONTEXT1) == parent
-    assert contexts_repository.get_context(CONTEXT2) == context
+    assert len(contexts_repository) == 2
+    assert contexts_repository[CONTEXT1] == parent
+    assert contexts_repository[CONTEXT2] == context
 
     assert contexts_repository.has_context(CONTEXT1)
     assert contexts_repository.has_context(CONTEXT2)
@@ -89,12 +89,12 @@ def test_contexts_repository_with_multiple_contexts():
         parent, context1, context2, parent2, context3
     )
 
-    assert contexts_repository.contexts_number == 5
-    assert contexts_repository.get_context(CONTEXT1) == parent
-    assert contexts_repository.get_context(CONTEXT2) == context1
-    assert contexts_repository.get_context(CONTEXT3) == parent2
-    assert contexts_repository.get_context(CONTEXT4) == context2
-    assert contexts_repository.get_context(CONTEXT5) == context3
+    assert len(contexts_repository) == 5
+    assert contexts_repository[CONTEXT1] == parent
+    assert contexts_repository[CONTEXT2] == context1
+    assert contexts_repository[CONTEXT3] == parent2
+    assert contexts_repository[CONTEXT4] == context2
+    assert contexts_repository[CONTEXT5] == context3
     assert contexts_repository.has_context(CONTEXT1)
     assert contexts_repository.has_context(CONTEXT2)
     assert contexts_repository.has_context(CONTEXT3)
@@ -114,7 +114,7 @@ def test_contexts_repository_reset():
     )
     contexts_repository.reset()
 
-    assert contexts_repository.contexts_number == 0
+    assert len(contexts_repository) == 0
     assert not contexts_repository.has_context(CONTEXT1)
 
 
@@ -127,12 +127,12 @@ def test_contexts_repository_add_contexts():
     contexts_repository = ContextsRepository(context1, context2)
     contexts_repository.add_contexts(context3, context4)
 
-    assert contexts_repository.contexts_number == 4
+    assert len(contexts_repository) == 4
 
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == context3
-    assert contexts_repository.get_context(CONTEXT4) == context4
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == context3
+    assert contexts_repository[CONTEXT4] == context4
     assert contexts_repository.has_context(CONTEXT1)
     assert contexts_repository.has_context(CONTEXT2)
     assert contexts_repository.has_context(CONTEXT3)
@@ -157,4 +157,4 @@ def test_contexts_repository_fail_getting_unknown_context():
     with pytest.raises(
         UnknownContext, match=f'^Could not find context named "{CONTEXT3}"$'
     ):
-        contexts_repository.get_context(CONTEXT3)
+        contexts_repository[CONTEXT3]  # pylint: disable=W0104

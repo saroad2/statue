@@ -24,9 +24,9 @@ def test_contexts_repository_update_from_empty_config():
 
     contexts_repository.update_from_config({})
 
-    assert contexts_repository.contexts_number == 2
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
+    assert len(contexts_repository) == 2
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
 
 
 def test_contexts_repository_update_adds_new_simple_context():
@@ -36,10 +36,10 @@ def test_contexts_repository_update_adds_new_simple_context():
 
     contexts_repository.update_from_config({CONTEXT3: {HELP: CONTEXT_HELP_STRING3}})
 
-    assert contexts_repository.contexts_number == 3
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == Context(
+    assert len(contexts_repository) == 3
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == Context(
         name=CONTEXT3, help=CONTEXT_HELP_STRING3
     )
 
@@ -57,12 +57,12 @@ def test_contexts_repository_update_adds_aliased_context():
         name=CONTEXT3, help=CONTEXT_HELP_STRING3, aliases=[CONTEXT4, CONTEXT5]
     )
 
-    assert contexts_repository.contexts_number == 3
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == new_context
-    assert contexts_repository.get_context(CONTEXT4) == new_context
-    assert contexts_repository.get_context(CONTEXT5) == new_context
+    assert len(contexts_repository) == 3
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == new_context
+    assert contexts_repository[CONTEXT4] == new_context
+    assert contexts_repository[CONTEXT5] == new_context
 
 
 def test_contexts_repository_update_adds_allowed_by_default_context():
@@ -74,10 +74,10 @@ def test_contexts_repository_update_adds_allowed_by_default_context():
         {CONTEXT3: {HELP: CONTEXT_HELP_STRING3, ALLOWED_BY_DEFAULT: True}}
     )
 
-    assert contexts_repository.contexts_number == 3
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == Context(
+    assert len(contexts_repository) == 3
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == Context(
         name=CONTEXT3, help=CONTEXT_HELP_STRING3, allowed_by_default=True
     )
 
@@ -91,10 +91,10 @@ def test_contexts_repository_update_adds_context_with_existing_parent():
         {CONTEXT3: {HELP: CONTEXT_HELP_STRING3, PARENT: CONTEXT1}}
     )
 
-    assert contexts_repository.contexts_number == 3
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == Context(
+    assert len(contexts_repository) == 3
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == Context(
         name=CONTEXT3, help=CONTEXT_HELP_STRING3, parent=context1
     )
 
@@ -114,13 +114,13 @@ def test_contexts_repository_update_adds_two_contexts():
         }
     )
 
-    assert contexts_repository.contexts_number == 4
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == Context(
+    assert len(contexts_repository) == 4
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == Context(
         name=CONTEXT3, help=CONTEXT_HELP_STRING3
     )
-    assert contexts_repository.get_context(CONTEXT4) == Context(
+    assert contexts_repository[CONTEXT4] == Context(
         name=CONTEXT4, help=CONTEXT_HELP_STRING4, allowed_by_default=True
     )
 
@@ -144,13 +144,13 @@ def test_contexts_repository_update_adds_context_with_new_parent():
         name=CONTEXT4, help=CONTEXT_HELP_STRING4, allowed_by_default=True
     )
 
-    assert contexts_repository.contexts_number == 4
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
-    assert contexts_repository.get_context(CONTEXT3) == Context(
+    assert len(contexts_repository) == 4
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
+    assert contexts_repository[CONTEXT3] == Context(
         name=CONTEXT3, help=CONTEXT_HELP_STRING3, parent=new_parent
     )
-    assert contexts_repository.get_context(CONTEXT4) == new_parent
+    assert contexts_repository[CONTEXT4] == new_parent
 
 
 def test_contexts_repository_update_fail_redefining_same_context():
@@ -166,9 +166,9 @@ def test_contexts_repository_update_fail_redefining_same_context():
             {CONTEXT1: {HELP: CONTEXT_HELP_STRING3, ALLOWED_BY_DEFAULT: True}}
         )
 
-    assert contexts_repository.contexts_number == 2
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
+    assert len(contexts_repository) == 2
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2
 
 
 def test_contexts_repository_update_fail_aliasing_existing_context():
@@ -193,6 +193,6 @@ def test_contexts_repository_update_fail_aliasing_existing_context():
             }
         )
 
-    assert contexts_repository.contexts_number == 2
-    assert contexts_repository.get_context(CONTEXT1) == context1
-    assert contexts_repository.get_context(CONTEXT2) == context2
+    assert len(contexts_repository) == 2
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT2] == context2

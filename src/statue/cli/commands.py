@@ -37,7 +37,7 @@ def list_commands_cli(
         CommandsFilter(
             contexts=frozenset(
                 {
-                    Configuration.contexts_repository.get_context(context_name)
+                    Configuration.contexts_repository[context_name]
                     for context_name in context
                 }
             ),
@@ -64,7 +64,7 @@ def install_commands_cli(
         CommandsFilter(
             contexts=frozenset(
                 {
-                    Configuration.contexts_repository.get_context(context_name)
+                    Configuration.contexts_repository[context_name]
                     for context_name in context
                 }
             ),

@@ -199,7 +199,7 @@ class Configuration:
                 source.relative_to(source_path)
                 contexts = frozenset(
                     {
-                        cls.contexts_repository.get_context(context_name)
+                        cls.contexts_repository[context_name]
                         for context_name in setup.get(CONTEXTS, [])
                     }
                 )
