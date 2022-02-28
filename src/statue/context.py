@@ -20,6 +20,15 @@ class Context:
     parent: Optional["Context"] = field(default=None)
     allowed_by_default: bool = field(default=False)
 
+    def __hash__(self) -> int:
+        """
+        Hash context according to its name.
+
+        :return: hash
+        :rtype: int
+        """
+        return hash(self.name)
+
     @property
     def all_names(self) -> List[str]:
         """List of all possible names."""

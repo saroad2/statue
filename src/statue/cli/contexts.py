@@ -41,11 +41,6 @@ def show_contexts_cli(ctx: click.Context, context_name: str) -> None:
             click.echo(
                 f"{bullet_style('Parent')} - {name_style(context_instance.parent.name)}"
             )
-        commands = Configuration.read_commands(contexts=[context_name])
-        click.echo(
-            f"{bullet_style('Matching commands')} - "
-            f"{', '.join([name_style(command.name) for command in commands])}"
-        )
     except UnknownContext:
         click.echo(f'Could not find the context "{context_name}".')
         ctx.exit(1)

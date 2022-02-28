@@ -9,23 +9,10 @@ import git
 import toml
 
 from statue.cli.cli import statue_cli
-from statue.cli.common_flags import (
-    allow_option,
-    contexts_option,
-    deny_option,
-    verbose_option,
-)
+from statue.cli.common_flags import verbose_option
 from statue.cli.styled_strings import bullet_style, name_style, source_style
 from statue.configuration import Configuration
-from statue.constants import (
-    ALLOW_LIST,
-    COMMANDS,
-    CONTEXTS,
-    DENY_LIST,
-    ENCODING,
-    SOURCES,
-    VERSION,
-)
+from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 
 YES = ["y", "yes"]
@@ -51,19 +38,18 @@ def show_tree():
     if len(sources_list) == 0:
         click.echo("No sources configuration is specified.")
     for source in sources_list:
-        source_config = Configuration.get_source_configuration(source)
-        contexts = source_config.get(CONTEXTS)
-        allowed = source_config.get(ALLOW_LIST)
-        denied = source_config.get(DENY_LIST)
+        source_commands_filter = Configuration.get_source_commands_filter(source)
+        context_names = [context.name for context in source_commands_filter.contexts]
         click.echo(
             f"{source_style(source)} "
-            f"({bullet_style('contexts')}: {__join_names(contexts)}, "
-            f"{bullet_style('allowed')}: {__join_names(allowed)}, "
-            f"{bullet_style('denied')}: {__join_names(denied)}):"
+            f"({bullet_style('contexts')}: "
+            f"{__join_names(context_names)}, "
+            f"{bullet_style('allowed')}: "
+            f"{__join_names(source_commands_filter.allowed_commands)}, "
+            f"{bullet_style('denied')}: "
+            f"{__join_names(source_commands_filter.denied_commands)}):"
         )
-        commands = Configuration.read_commands(
-            contexts=contexts, allow_list=allowed, deny_list=denied
-        )
+        commands = Configuration.build_commands(source_commands_filter)
         click.echo(f"\t{__join_names([command.name for command in commands])}")
 
 
@@ -139,15 +125,9 @@ def init_config_cli(directory, interactive):
         "If a command is not installed, will install it."
     ),
 )
-@contexts_option
-@allow_option
-@deny_option
 @verbose_option
 def fixate_commands_versions(
     directory,
-    context,
-    allow,
-    deny,
     latest,
     verbosity,
 ):
@@ -165,17 +145,16 @@ def fixate_commands_versions(
         directory = Path(directory)
     configuration_path = Configuration.configuration_path(directory)
     Configuration.load_configuration(configuration_path)
-    commands_list = Configuration.read_commands(
-        contexts=context, allow_list=allow, deny_list=deny
-    )
-    if len(commands_list) == 0:
+    command_builders_list = Configuration.command_builders_list()
+    if len(command_builders_list) == 0:
         click.echo("No commands to fixate.")
         return
     with open(configuration_path, mode="r", encoding=ENCODING) as config_file:
         raw_config_dict = toml.load(config_file)
     if COMMANDS not in raw_config_dict:
         raw_config_dict[COMMANDS] = {}
-    for command in commands_list:
+    for command_builder in command_builders_list:
+        command = command_builder.build_command()
         if latest:
             command.update(verbosity=verbosity)
         if not command.installed():
@@ -240,4 +219,6 @@ def __get_default_contexts(source: Path):
 def __join_names(names_list):
     if names_list is None or len(names_list) == 0:
         return "empty"
+    names_list = list(names_list)
+    names_list.sort()
     return ", ".join([name_style(name) for name in names_list])

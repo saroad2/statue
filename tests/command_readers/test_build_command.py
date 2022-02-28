@@ -180,7 +180,16 @@ def test_command_builder_build_command_successfully(command_builder, contexts, c
     assert command_builder.build_command(*contexts) == command
 
 
-# Successful tests
+@parametrize_with_cases(
+    argnames=["command_builder", "contexts", "command"],
+    cases=THIS_MODULE,
+    has_tag=SUCCESSFUL_TAG,
+)
+def test_command_builder_match_contexts(command_builder, contexts, command):
+    assert command_builder.match_contexts(*contexts)
+
+
+# Failure tests
 
 
 @case(tags=FAILED_TAG)
@@ -225,3 +234,14 @@ def case_command_builder_with_not_allowed_context():
 def test_command_builder_build_command_failed(command_builder, contexts, error_message):
     with pytest.raises(InvalidCommand, match=f"^{error_message}$"):
         command_builder.build_command(*contexts)
+
+
+@parametrize_with_cases(
+    argnames=["command_builder", "contexts", "error_message"],
+    cases=THIS_MODULE,
+    has_tag=FAILED_TAG,
+)
+def test_command_builder_does_not_match_contexts(
+    command_builder, contexts, error_message
+):
+    assert not command_builder.match_contexts(*contexts)

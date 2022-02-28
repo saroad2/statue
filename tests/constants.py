@@ -1,7 +1,5 @@
 import random
 
-from statue.constants import HELP
-
 EPSILON = 1e-5
 
 SUCCESSFUL_TAG = "successful"
@@ -47,11 +45,3 @@ NOT_EXISTING_CONTEXT = "not_existing_context"
 NOT_EXISTING_COMMAND = "not_existing_command"
 NOT_EXISTING_SOURCE = "not_existing_source"
 ENCODING = "utf8"
-
-COMMANDS_CONFIGURATION = {
-    COMMAND1: {HELP: COMMAND_HELP_STRING1},
-    COMMAND2: {HELP: COMMAND_HELP_STRING2},
-    COMMAND3: {HELP: COMMAND_HELP_STRING3},
-    COMMAND4: {HELP: COMMAND_HELP_STRING4},
-    COMMAND5: {HELP: COMMAND_HELP_STRING5},
-}

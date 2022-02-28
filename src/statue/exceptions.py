@@ -44,7 +44,7 @@ class UnknownCommand(StatueException):
         :param command_name: Name of the unfound command
         :type command_name: str
         """
-        super().__init__(f'Could not find command named "{command_name}".')
+        super().__init__(f'Could not find command named "{command_name}"')
 
 
 class InvalidCommand(StatueException):

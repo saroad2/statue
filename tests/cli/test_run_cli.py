@@ -38,11 +38,6 @@ def build_commands_map():
 
 
 @fixture
-def mock_read_commands_map(mocker):
-    return mocker.patch("statue.cli.run.read_commands_map")
-
-
-@fixture
 def mock_evaluation_string(mocker):
     evaluation_string_mock = mocker.patch("statue.cli.run.evaluation_string")
     evaluation_string_mock.return_value = EVALUATION_STRING
@@ -68,17 +63,17 @@ def assert_usage_was_shown(result):
 def test_simple_run(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
 ):
-    mock_read_commands_map.return_value = build_commands_map()
+    mock_build_commands_map.return_value = build_commands_map()
 
     result = cli_runner.invoke(statue_cli, ["run"])
 
     assert_successful_run(result)
-    mock_read_commands_map.assert_called_once()
+    mock_build_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
@@ -86,17 +81,17 @@ def test_simple_run(
 def test_run_with_no_cache(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
 ):
-    mock_read_commands_map.return_value = build_commands_map()
+    mock_build_commands_map.return_value = build_commands_map()
 
     result = cli_runner.invoke(statue_cli, ["run", "--no-cache"])
 
     assert_successful_run(result)
-    mock_read_commands_map.assert_called_once()
+    mock_build_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_not_called()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
@@ -104,7 +99,7 @@ def test_run_with_no_cache(
 def test_run_and_install_uninstalled_commands(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
@@ -112,7 +107,7 @@ def test_run_and_install_uninstalled_commands(
     command1 = command_mock(COMMAND1, installed=True)
     command2 = command_mock(COMMAND2, installed=False)
     command3 = command_mock(COMMAND3, installed=True)
-    mock_read_commands_map.return_value = CommandsMap(
+    mock_build_commands_map.return_value = CommandsMap(
         {
             SOURCE1: [command1, command2],
             SOURCE2: [command3],
@@ -122,7 +117,7 @@ def test_run_and_install_uninstalled_commands(
     result = cli_runner.invoke(statue_cli, ["run", "-i"])
 
     assert_successful_run(result)
-    mock_read_commands_map.assert_called_once()
+    mock_build_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
@@ -134,19 +129,19 @@ def test_run_and_install_uninstalled_commands(
 def test_run_and_save_to_file(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
     mock_evaluation_save_as_json,
 ):
-    mock_read_commands_map.return_value = build_commands_map()
+    mock_build_commands_map.return_value = build_commands_map()
     output_path = Path("path/to/output/dir")
 
     result = cli_runner.invoke(statue_cli, ["run", "-o", str(output_path)])
 
     assert_successful_run(result)
-    mock_read_commands_map.assert_called_once()
+    mock_build_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
@@ -270,7 +265,7 @@ def test_run_over_recent_commands_with_empty_cache(
 def test_run_has_failed(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
@@ -294,12 +289,12 @@ def test_run_has_failed(
             SOURCE2: [command_mock(name=COMMAND3, success=False)],
         }
     )
-    mock_read_commands_map.return_value = commands_map
+    mock_build_commands_map.return_value = commands_map
 
     result = cli_runner.invoke(statue_cli, ["run"])
 
     assert result.exit_code == 1
-    mock_read_commands_map.assert_called_once()
+    mock_build_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
@@ -317,12 +312,12 @@ def test_run_has_failed(
 def test_run_with_unknown_context(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
 ):
-    mock_read_commands_map.side_effect = UnknownContext(
+    mock_build_commands_map.side_effect = UnknownContext(
         context_name=NOT_EXISTING_CONTEXT
     )
 
@@ -337,12 +332,12 @@ def test_run_with_unknown_context(
 def test_run_with_missing_configuration(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
 ):
-    mock_read_commands_map.side_effect = MissingConfiguration(part_name=SOURCES)
+    mock_build_commands_map.side_effect = MissingConfiguration(part_name=SOURCES)
 
     result = cli_runner.invoke(statue_cli, ["run"])
 
@@ -360,12 +355,12 @@ def test_run_with_missing_configuration(
 def test_run_with_none_commands_map(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
 ):
-    mock_read_commands_map.return_value = None
+    mock_build_commands_map.return_value = None
 
     result = cli_runner.invoke(statue_cli, ["run"])
     assert_usage_was_shown(result)
@@ -376,7 +371,7 @@ def test_run_with_none_commands_map(
 def test_run_uninstalled_command(
     cli_runner,
     mock_sources_list,
-    mock_read_commands_map,
+    mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
     mock_evaluation_string,
@@ -384,7 +379,7 @@ def test_run_uninstalled_command(
     command1 = command_mock(COMMAND1, installed=True)
     command2 = command_mock(COMMAND2, installed=False)
     command3 = command_mock(COMMAND3, installed=True)
-    mock_read_commands_map.return_value = {
+    mock_build_commands_map.return_value = {
         SOURCE1: [command1, command2],
         SOURCE2: [command3],
     }
@@ -397,6 +392,6 @@ def test_run_uninstalled_command(
         "Consider using the '-i' flag in order to install missing "
         "commands before running"
     ) in result.output
-    mock_read_commands_map.assert_called_once()
+    mock_build_commands_map.assert_called_once()
     mock_cache_save_evaluation.assert_not_called()
     mock_evaluation_string.assert_not_called()

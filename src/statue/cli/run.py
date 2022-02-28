@@ -23,7 +23,7 @@ from statue.cli.styled_strings import (
     source_style,
     success_style,
 )
-from statue.commands_map import read_commands_map
+from statue.commands_filter import CommandsFilter
 from statue.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
@@ -211,11 +211,19 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
     if failed and previous is None:
         previous = 1
     if previous is None:
-        return read_commands_map(
-            sources,
-            contexts=context,
-            allow_list=allow,
-            deny_list=deny,
+        allow = frozenset(allow) if len(allow) != 0 else None
+        deny = frozenset(deny) if len(deny) != 0 else None
+        context = frozenset(
+            {
+                Configuration.contexts_repository.get_context(context_name)
+                for context_name in context
+            }
+        )
+        return Configuration.build_commands_map(
+            sources=sources,
+            commands_filter=CommandsFilter(
+                contexts=context, allowed_commands=allow, denied_commands=deny
+            ),
         )
     evaluation_path = Cache.evaluation_path(previous - 1)
     if evaluation_path is None or not evaluation_path.exists():
