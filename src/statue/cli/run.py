@@ -110,7 +110,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     """
     commands_map = None
     if len(sources) == 0:
-        sources = Configuration.sources_list()
+        sources = Configuration.sources_repository.sources_list
     try:
         commands_map = __get_commands_map(
             sources=sources,

@@ -14,7 +14,6 @@ from statue.constants import (
     CONTEXTS,
     HELP,
     OVERRIDE,
-    SOURCES,
     STATUE,
 )
 from statue.contexts_repository import ContextsRepository
@@ -30,8 +29,6 @@ from tests.constants import (
     COMMAND_HELP_STRING2,
     CONTEXT1,
     CONTEXT2,
-    SOURCE1,
-    SOURCE2,
 )
 from tests.util import build_commands_builders_map
 
@@ -239,20 +236,6 @@ def case_success_user_clear_command_args():
         COMMANDS: build_commands_builders_map(
             CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
         )
-    }
-    return default_configuration, statue_configuration, result
-
-
-def case_success_read_sources():
-    default_configuration = {}
-    statue_configuration = {
-        SOURCES: {SOURCE1: {CONTEXTS: [CONTEXT1]}, SOURCE2: {CONTEXTS: [CONTEXT1]}}
-    }
-    result = {
-        SOURCES: {
-            Path(SOURCE1): {CONTEXTS: [CONTEXT1]},
-            Path(SOURCE2): {CONTEXTS: [CONTEXT1]},
-        }
     }
     return default_configuration, statue_configuration, result
 

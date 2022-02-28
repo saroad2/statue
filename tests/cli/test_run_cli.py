@@ -62,7 +62,6 @@ def assert_usage_was_shown(result):
 
 def test_simple_run(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -80,7 +79,6 @@ def test_simple_run(
 
 def test_run_with_no_cache(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -98,7 +96,6 @@ def test_run_with_no_cache(
 
 def test_run_and_install_uninstalled_commands(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -128,7 +125,6 @@ def test_run_and_install_uninstalled_commands(
 
 def test_run_and_save_to_file(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -150,7 +146,6 @@ def test_run_and_save_to_file(
 
 def test_run_over_recent_commands(
     cli_runner,
-    mock_sources_list,
     mock_cache_evaluation_path,
     mock_evaluation_load_from_file,
     mock_cache_save_evaluation,
@@ -173,7 +168,6 @@ def test_run_over_recent_commands(
 
 def test_run_over_failed_commands(
     cli_runner,
-    mock_sources_list,
     mock_cache_evaluation_path,
     mock_cache_save_evaluation,
     mock_evaluation_load_from_file,
@@ -198,7 +192,6 @@ def test_run_over_failed_commands(
 
 def test_run_over_previous_commands(
     cli_runner,
-    mock_sources_list,
     mock_cache_evaluation_path,
     mock_cache_save_evaluation,
     mock_evaluation_load_from_file,
@@ -222,7 +215,6 @@ def test_run_over_previous_commands(
 
 def test_run_over_previous_failed_commands(
     cli_runner,
-    mock_sources_list,
     mock_cache_evaluation_path,
     mock_cache_save_evaluation,
     mock_evaluation_load_from_file,
@@ -248,7 +240,6 @@ def test_run_over_previous_failed_commands(
 
 def test_run_over_recent_commands_with_empty_cache(
     cli_runner,
-    mock_sources_list,
     mock_cache_evaluation_path,
     mock_cwd,
     mock_evaluation_string,
@@ -264,7 +255,6 @@ def test_run_over_recent_commands_with_empty_cache(
 
 def test_run_has_failed(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -311,7 +301,6 @@ def test_run_has_failed(
 
 def test_run_with_unknown_context(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -331,7 +320,6 @@ def test_run_with_unknown_context(
 
 def test_run_with_missing_configuration(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -354,7 +342,6 @@ def test_run_with_missing_configuration(
 
 def test_run_with_none_commands_map(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
@@ -370,7 +357,6 @@ def test_run_with_none_commands_map(
 
 def test_run_uninstalled_command(
     cli_runner,
-    mock_sources_list,
     mock_build_commands_map,
     mock_cache_save_evaluation,
     mock_cwd,
