@@ -427,7 +427,7 @@ def case_non_existing_command(clear_configuration):
         configuration,
         kwargs,
         UnknownCommand,
-        f'^Could not find command named "{COMMAND3}".$',
+        f'^Could not find command named "{COMMAND3}"$',
     )
 
 

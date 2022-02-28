@@ -60,7 +60,7 @@ def test_commands_show_unknown_command_side_effect(
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
     assert (
-        result.output == f'Could not find command named "{NOT_EXISTING_COMMAND}".\n'
+        result.output == f'Could not find command named "{NOT_EXISTING_COMMAND}"\n'
     ), "Show output is different than expected."
 
 
