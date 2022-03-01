@@ -17,7 +17,7 @@ from tests.constants import (
 
 
 def test_contexts_list_of_full_configuration(
-    cli_runner, clear_configuration, mock_load_configuration
+    cli_runner, clear_configuration, mock_load_from_configuration_file
 ):
     Configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
@@ -38,7 +38,7 @@ def test_contexts_list_of_full_configuration(
 
 
 def test_contexts_list_of_an_clear_configuration(
-    cli_runner, clear_configuration, mock_load_configuration
+    cli_runner, clear_configuration, mock_load_from_configuration_file
 ):
     result = cli_runner.invoke(statue_cli, ["context", "list"])
     assert result.exit_code == 1, "list contexts should exit with failure."

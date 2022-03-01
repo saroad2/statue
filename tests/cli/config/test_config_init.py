@@ -46,7 +46,7 @@ def case_all_sources():
 def test_config_init(
     sources,
     expected_config,
-    mock_load_configuration,
+    mock_load_from_configuration_file,
     mock_configuration_path,
     mock_cwd,
     mock_find_sources,
@@ -70,7 +70,7 @@ def test_config_init(
 def test_config_init_without_repo(
     sources,
     expected_config,
-    mock_load_configuration,
+    mock_load_from_configuration_file,
     mock_configuration_path,
     mock_cwd,
     mock_find_sources,
@@ -95,7 +95,7 @@ def test_config_init_without_repo(
 def test_config_init_with_directory(
     sources,
     expected_config,
-    mock_load_configuration,
+    mock_load_from_configuration_file,
     mock_configuration_path,
     tmp_path,
     mock_find_sources,
