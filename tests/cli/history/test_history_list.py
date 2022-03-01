@@ -180,9 +180,11 @@ def test_history_list(
     evaluation_datetimes,
     output,
     cli_runner,
+    clear_configuration,
     mock_cache_all_evaluation_paths,
     mock_evaluation_load_from_file,
     mock_cache_extract_time_stamp_from_path,
+    mock_load_from_configuration_file,
 ):
     mock_cache_all_evaluation_paths.return_value = [
         f"evaluation_{uuid.uuid4()}.json" for _ in range(len(evaluations))

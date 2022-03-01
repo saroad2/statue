@@ -1,4 +1,5 @@
 """Main CLI for statue."""
+from pathlib import Path
 from typing import Optional
 
 import click
@@ -17,4 +18,5 @@ from statue.configuration import Configuration
 )
 def statue_cli(config: Optional[str]) -> None:
     """Statue is a static code analysis tools orchestrator."""
-    Configuration.load_configuration(config)
+    config_path = Path(config) if config is not None else None
+    Configuration.load_from_configuration_file(config_path)

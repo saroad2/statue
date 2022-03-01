@@ -4,7 +4,7 @@ from statue.cli import statue_cli
 from statue.command import Command
 from statue.command_builder import CommandBuilder
 from statue.commands_filter import CommandsFilter
-from statue.exceptions import UnknownCommand
+from statue.configuration import Configuration
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG3,
@@ -28,7 +28,9 @@ def test_commands_list(cli_runner, clear_configuration, mock_build_commands):
         Command(COMMAND4, help=COMMAND_HELP_STRING4),
     ]
     result = cli_runner.invoke(statue_cli, ["command", "list"])
-    assert result.exit_code == 0, "list command should exit with success."
+    assert (
+        result.exit_code == 0
+    ), f"Existed unsuccessfully with the following exception: {result.exception}"
     assert result.output == (
         f"{COMMAND1} - {COMMAND_HELP_STRING1}\n"
         f"{COMMAND2} - {COMMAND_HELP_STRING2}\n"
@@ -38,11 +40,9 @@ def test_commands_list(cli_runner, clear_configuration, mock_build_commands):
     mock_build_commands.assert_called_once_with(CommandsFilter())
 
 
-def test_commands_show_existing_command(
-    cli_runner, clear_configuration, mock_get_command_builder
-):
-    mock_get_command_builder.return_value = CommandBuilder(
-        COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3]
+def test_commands_show_existing_command(cli_runner, clear_configuration):
+    Configuration.commands_repository.add_command_builders(
+        CommandBuilder(COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3])
     )
     result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
     assert result.exit_code == 0, f"Existed with exception: {result.exception}"
@@ -53,10 +53,7 @@ def test_commands_show_existing_command(
     ), "Show output is different than expected."
 
 
-def test_commands_show_unknown_command_side_effect(
-    cli_runner, clear_configuration, mock_get_command_builder
-):
-    mock_get_command_builder.side_effect = UnknownCommand(NOT_EXISTING_COMMAND)
+def test_commands_show_unknown_command_side_effect(cli_runner, clear_configuration):
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
     assert (

@@ -85,7 +85,7 @@ def show_command_cli(
 ) -> None:
     """Show information about specific command."""
     try:
-        command_instance = Configuration.get_command_builder(command_name)
+        command_instance = Configuration.commands_repository[command_name]
         click.echo(f"{bullet_style('Name')} - {name_style(command_instance.name)}")
         click.echo(f"{bullet_style('Description')} - {command_instance.help}")
         click.echo(

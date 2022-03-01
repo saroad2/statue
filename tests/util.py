@@ -66,13 +66,19 @@ def command_mock(
     return command
 
 
-def command_builder_mock(name, installed=True, installed_version="0.0.1"):
-    command_builder = CommandBuilder(name=name, help="This is help")
+def command_builder_mock(
+    name, default_args=None, installed=True, installed_version="0.0.1"
+):
+    default_args = default_args if default_args is not None else []
+    command_builder = CommandBuilder(
+        name=name, help="This is help", default_args=default_args
+    )
     command_builder.build_command = mock.Mock(
         return_value=command_mock(
             name=name, installed=installed, installed_version=installed_version
         )
     )
+    command_builder.update_from_config = mock.Mock()
     return command_builder
 
 

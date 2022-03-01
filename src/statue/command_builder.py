@@ -283,7 +283,7 @@ class CommandBuilder:  # pylint: disable=too-many-instance-attributes
         )
 
     @classmethod
-    def from_json(cls, command_name, builder_setups: Dict[str, Any]):
+    def from_config(cls, command_name, builder_setups: Dict[str, Any]):
         """
         Build command builder according to a given configuration.
 

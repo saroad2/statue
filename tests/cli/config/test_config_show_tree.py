@@ -101,7 +101,7 @@ def test_config_show_tree(
     printed_tree,
     cli_runner,
     mock_build_commands,
-    mock_load_configuration,
+    mock_load_from_configuration_file,
 ):
     mock_build_commands.side_effect = commands_lists
     result = cli_runner.invoke(statue_cli, ["config", "show-tree"])
