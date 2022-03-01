@@ -36,15 +36,6 @@ class ContextsRepository:
         """
         return iter(self.contexts_list)
 
-    def add_contexts(self, *contexts: Context):
-        """
-        Add contexts to repository.
-
-        :param contexts: Contexts to be added to the repository
-        :type contexts: Context
-        """
-        self.contexts_list.extend(contexts)
-
     def __getitem__(self, item: str) -> Context:
         """
         Get context by name or alias.
@@ -59,6 +50,15 @@ class ContextsRepository:
             if context.is_matching(item):
                 return context
         raise UnknownContext(context_name=item)
+
+    def add_contexts(self, *contexts: Context):
+        """
+        Add contexts to repository.
+
+        :param contexts: Contexts to be added to the repository
+        :type contexts: Context
+        """
+        self.contexts_list.extend(contexts)
 
     def has_context(self, context_name: str) -> bool:
         """
