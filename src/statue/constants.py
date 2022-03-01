@@ -1,12 +1,9 @@
 """Constants module."""
-from pathlib import Path
 
 STATUE = "STATUE"
 ENCODING = "utf-8"
 
 HISTORY_SIZE = 30
-
-DEFAULT_CONFIGURATION_FILE = Path(__file__).parent / "resources" / "defaults.toml"
 
 HELP = "help"
 ARGS = "args"

@@ -144,16 +144,15 @@ def fixate_commands_versions(
     if isinstance(directory, str):
         directory = Path(directory)
     configuration_path = Configuration.configuration_path(directory)
-    Configuration.load_configuration(configuration_path)
-    command_builders_list = Configuration.command_builders_list()
-    if len(command_builders_list) == 0:
+    Configuration.load_from_configuration_file(configuration_path)
+    if len(Configuration.commands_repository) == 0:
         click.echo("No commands to fixate.")
         return
     with open(configuration_path, mode="r", encoding=ENCODING) as config_file:
         raw_config_dict = toml.load(config_file)
     if COMMANDS not in raw_config_dict:
         raw_config_dict[COMMANDS] = {}
-    for command_builder in command_builders_list:
+    for command_builder in Configuration.commands_repository:
         command = command_builder.build_command()
         if latest:
             command.update(verbosity=verbosity)

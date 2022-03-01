@@ -9,14 +9,6 @@ class StatueConfigurationError(StatueException):
     """User-Defined Statue configuration is invalid."""
 
 
-class EmptyConfiguration(StatueConfigurationError):
-    """Configuration must be set."""
-
-    def __init__(self) -> None:
-        """Exception constructor."""
-        super().__init__("Statue configuration is empty!")
-
-
 class MissingConfiguration(StatueConfigurationError):
     """Part of the Statue configuration is missing."""
 
