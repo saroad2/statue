@@ -231,7 +231,7 @@ class Configuration:
             cls.contexts_repository.update_from_config(default_configuration[CONTEXTS])
         if COMMANDS in default_configuration:
             default_configuration[COMMANDS] = {
-                command_name: CommandBuilder.from_json(
+                command_name: CommandBuilder.from_config(
                     command_name=command_name,
                     builder_setups=command_instructions,
                 )
@@ -297,7 +297,7 @@ class Configuration:
             if command_name in commands_configuration:
                 commands_configuration[command_name].update_from_config(command_setups)
             else:
-                commands_configuration[command_name] = CommandBuilder.from_json(
+                commands_configuration[command_name] = CommandBuilder.from_config(
                     command_name=command_name, builder_setups=command_setups
                 )
         return commands_configuration

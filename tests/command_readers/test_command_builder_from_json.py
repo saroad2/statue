@@ -185,7 +185,7 @@ def case_command_builder_from_json_with_verything():
     argnames=["json_dict", "command_builder"], cases=THIS_MODULE, has_tag=SUCCESSFUL_TAG
 )
 def test_command_builder_from_json_successful(json_dict, command_builder):
-    actual_builder = CommandBuilder.from_json(
+    actual_builder = CommandBuilder.from_config(
         command_name=COMMAND1, builder_setups=json_dict
     )
     assert actual_builder == command_builder
@@ -243,4 +243,4 @@ def case_command_builder_from_json_fail_on_both_args_and_add_args():
 )
 def test_command_builder_build_command_failed(json_dict, error_message):
     with pytest.raises(InconsistentConfiguration, match=f"^{error_message}$"):
-        CommandBuilder.from_json(command_name=COMMAND1, builder_setups=json_dict)
+        CommandBuilder.from_config(command_name=COMMAND1, builder_setups=json_dict)
