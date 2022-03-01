@@ -5,7 +5,7 @@ import pytest
 import toml
 
 from statue.cache import Cache
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.constants import OVERRIDE, STATUE
 from statue.evaluation import Evaluation
 

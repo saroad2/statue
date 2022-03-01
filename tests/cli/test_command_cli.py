@@ -4,7 +4,7 @@ from statue.cli import statue_cli
 from statue.command import Command
 from statue.command_builder import CommandBuilder
 from statue.commands_filter import CommandsFilter
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG3,

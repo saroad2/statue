@@ -5,7 +5,7 @@ from typing import Optional
 import click
 
 from statue import __version__
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 
 
 @click.group(name="statue", no_args_is_help=True)

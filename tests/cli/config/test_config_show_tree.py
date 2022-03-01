@@ -4,7 +4,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli import statue_cli
 from statue.commands_filter import CommandsFilter
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
     COMMAND1,

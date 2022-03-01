@@ -7,10 +7,10 @@ import toml
 from statue.command import Command
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
-from statue.commands_repository import CommandsRepository
+from statue.config.commands_repository import CommandsRepository
+from statue.config.contexts_repository import ContextsRepository
+from statue.config.sources_repository import SourcesRepository
 from statue.constants import COMMANDS, CONTEXTS, OVERRIDE, SOURCES, STATUE
-from statue.contexts_repository import ContextsRepository
-from statue.sources_repository import SourcesRepository
 
 
 class Configuration:
@@ -28,7 +28,7 @@ class Configuration:
         :return: Default configuration path
         :rtype: Path
         """
-        return Path(__file__).parent / "resources" / "defaults.toml"
+        return Path(__file__).parent.parent / "resources" / "defaults.toml"
 
     @classmethod
     def configuration_path(cls, directory: Path) -> Path:

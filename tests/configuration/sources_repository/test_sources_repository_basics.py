@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from statue.commands_filter import CommandsFilter
+from statue.config.sources_repository import SourcesRepository
 from statue.context import Context
-from statue.sources_repository import SourcesRepository
 from tests.constants import (
     COMMAND1,
     COMMAND2,

@@ -24,7 +24,7 @@ from statue.cli.styled_strings import (
     success_style,
 )
 from statue.commands_filter import CommandsFilter
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import MissingConfiguration, UnknownContext
 from statue.runner import build_runner

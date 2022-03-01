@@ -1,6 +1,6 @@
 import mock
 
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from tests.constants import COMMAND1, COMMAND2, COMMAND3, CONTEXT1, CONTEXT2
 from tests.util import command_builder_mock
 

@@ -11,7 +11,7 @@ import toml
 from statue.cli.cli import statue_cli
 from statue.cli.common_flags import verbose_option
 from statue.cli.styled_strings import bullet_style, name_style, source_style
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 

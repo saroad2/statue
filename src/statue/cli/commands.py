@@ -14,7 +14,7 @@ from statue.cli.common_flags import (
 )
 from statue.cli.styled_strings import bullet_style, name_style
 from statue.commands_filter import CommandsFilter
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.exceptions import UnknownCommand
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from statue.commands_repository import CommandsRepository
+from statue.config.commands_repository import CommandsRepository
 from statue.exceptions import UnknownCommand
 from tests.constants import ARG1, ARG2, COMMAND1, COMMAND2, COMMAND3, COMMAND4, COMMAND5
 from tests.util import command_builder_mock

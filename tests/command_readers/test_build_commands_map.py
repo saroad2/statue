@@ -3,7 +3,7 @@ from unittest.mock import Mock, call
 
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
     COMMAND1,

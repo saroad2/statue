@@ -1,5 +1,5 @@
 from statue.cli import statue_cli
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
     CONTEXT1,

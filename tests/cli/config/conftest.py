@@ -1,6 +1,6 @@
 from pytest_cases import fixture
 
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 
 
 @fixture

@@ -1,7 +1,7 @@
 from unittest import mock
 
 from statue.cli.cli import statue_cli
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, SOURCES, VERSION
 from tests.constants import (
     COMMAND1,

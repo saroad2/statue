@@ -1,10 +1,10 @@
 from pathlib import Path
 
 from statue.commands_filter import CommandsFilter
+from statue.config.contexts_repository import ContextsRepository
+from statue.config.sources_repository import SourcesRepository
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from statue.context import Context
-from statue.contexts_repository import ContextsRepository
-from statue.sources_repository import SourcesRepository
 from tests.constants import (
     COMMAND1,
     COMMAND2,
