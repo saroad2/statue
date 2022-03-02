@@ -7,7 +7,7 @@ from typing import List, Optional, Sequence, Union
 import click
 
 from statue.cache import Cache
-from statue.cli.cli import statue_cli
+from statue.cli.cli import pass_configuration, statue_cli
 from statue.cli.common_flags import (
     allow_option,
     contexts_option,
@@ -26,13 +26,12 @@ from statue.cli.styled_strings import (
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.evaluation import Evaluation
-from statue.exceptions import MissingConfiguration, UnknownContext
+from statue.exceptions import UnknownContext
 from statue.runner import build_runner
 from statue.verbosity import is_silent
 
 
 @statue_cli.command("run")
-@click.pass_context
 @click.argument("sources", nargs=-1)
 @contexts_option
 @allow_option
@@ -87,7 +86,10 @@ from statue.verbosity import is_silent
     type=click.Path(dir_okay=False),
     help="Output path to save evaluation result",
 )
+@click.pass_context
+@pass_configuration
 def run_cli(  # pylint: disable=too-many-arguments
+    configuration: Configuration,
     ctx: click.Context,
     sources: Sequence[Union[Path, str]],
     context: Optional[List[str]],
@@ -109,10 +111,20 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = None
+    sources = __get_sources(sources, configuration)
     if len(sources) == 0:
-        sources = Configuration.sources_repository.sources_list
+        click.echo(
+            '"Run" command cannot be run without a specified source '
+            "or a sources section in Statue's configuration."
+        )
+        click.echo(
+            'Please consider running "statue config init" in order to initialize '
+            "default configuration."
+        )
+        ctx.exit(1)
     try:
         commands_map = __get_commands_map(
+            configuration=configuration,
             sources=sources,
             context=context,
             allow=allow,
@@ -123,20 +135,9 @@ def run_cli(  # pylint: disable=too-many-arguments
     except UnknownContext as error:
         click.echo(error)
         ctx.exit(1)
-    except MissingConfiguration:
-        click.echo(
-            '"Run" command cannot be run without a specified source '
-            "or a sources section in Statue's configuration."
-        )
-        click.echo(
-            'Please consider running "statue config init" in order to initialize '
-            "default configuration."
-        )
-        ctx.exit(1)
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
-
     missing_commands = [
         command
         for command in chain.from_iterable(commands_map.values())
@@ -181,6 +182,12 @@ def run_cli(  # pylint: disable=too-many-arguments
     ctx.exit(__print_evaluation_and_return_exit_code(evaluation))
 
 
+def __get_sources(sources, configuration):
+    if len(sources) == 0:
+        return configuration.sources_repository.sources_list
+    return [Path(source) for source in sources]
+
+
 def __print_evaluation_and_return_exit_code(evaluation: Evaluation):
     if evaluation.success:
         click.echo(
@@ -206,7 +213,7 @@ def __print_evaluation_and_return_exit_code(evaluation: Evaluation):
 
 
 def __get_commands_map(  # pylint: disable=too-many-arguments
-    sources, context, allow, deny, failed, previous
+    configuration, sources, context, allow, deny, failed, previous
 ):
     if failed and previous is None:
         previous = 1
@@ -215,11 +222,11 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
         deny = frozenset(deny) if len(deny) != 0 else None
         context = frozenset(
             {
-                Configuration.contexts_repository[context_name]
+                configuration.contexts_repository[context_name]
                 for context_name in context
             }
         )
-        return Configuration.build_commands_map(
+        return configuration.build_commands_map(
             sources=sources,
             commands_filter=CommandsFilter(
                 contexts=context, allowed_commands=allow, denied_commands=deny

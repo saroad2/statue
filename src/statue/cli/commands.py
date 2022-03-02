@@ -3,7 +3,7 @@ from typing import List
 
 import click
 
-from statue.cli.cli import statue_cli
+from statue.cli.cli import pass_configuration, statue_cli
 from statue.cli.common_flags import (
     allow_option,
     contexts_option,
@@ -27,17 +27,19 @@ def commands_cli() -> None:
 @contexts_option
 @allow_option
 @deny_option
+@pass_configuration
 def list_commands_cli(
+    configuration: Configuration,
     context: List[str],
     allow: List[str],
     deny: List[str],
 ) -> None:
     """List matching commands to contexts, allow list and deny list."""
-    commands = Configuration.build_commands(
+    commands = configuration.build_commands(
         CommandsFilter(
             contexts=frozenset(
                 {
-                    Configuration.contexts_repository[context_name]
+                    configuration.contexts_repository[context_name]
                     for context_name in context
                 }
             ),
@@ -56,15 +58,20 @@ def list_commands_cli(
 @silent_option
 @verbose_option
 @verbosity_option
+@pass_configuration
 def install_commands_cli(
-    context: List[str], allow: List[str], deny: List[str], verbosity: str
+    configuration: Configuration,
+    context: List[str],
+    allow: List[str],
+    deny: List[str],
+    verbosity: str,
 ) -> None:
     """Install missing commands."""
-    commands_list = Configuration.build_commands(
+    commands_list = configuration.build_commands(
         CommandsFilter(
             contexts=frozenset(
                 {
-                    Configuration.contexts_repository[context_name]
+                    configuration.contexts_repository[context_name]
                     for context_name in context
                 }
             ),
@@ -77,15 +84,17 @@ def install_commands_cli(
 
 
 @commands_cli.command("show")
-@click.pass_context
 @click.argument("command_name", type=str)
+@click.pass_context
+@pass_configuration
 def show_command_cli(
+    configuration: Configuration,
     ctx: click.Context,
     command_name: str,
 ) -> None:
     """Show information about specific command."""
     try:
-        command_instance = Configuration.commands_repository[command_name]
+        command_instance = configuration.commands_repository[command_name]
         click.echo(f"{bullet_style('Name')} - {name_style(command_instance.name)}")
         click.echo(f"{bullet_style('Description')} - {command_instance.help}")
         click.echo(

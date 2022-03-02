@@ -3,15 +3,17 @@
 import re
 from collections import OrderedDict
 from pathlib import Path
+from typing import Union
 
 import click
 import git
 import toml
 
-from statue.cli.cli import statue_cli
+from statue.cli.cli import pass_configuration, statue_cli
 from statue.cli.common_flags import verbose_option
 from statue.cli.styled_strings import bullet_style, name_style, source_style
 from statue.config.configuration import Configuration
+from statue.config.configuration_builder import ConfigurationBuilder
 from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
 from statue.sources_finder import expend, find_sources
 
@@ -27,18 +29,21 @@ def config_cli():
 
 
 @config_cli.command("show-tree")
-def show_tree():
+@pass_configuration
+def show_tree(configuration: Configuration):
     """
     Show sources configuration as a tree.
 
     This method prints the sources' configuration as a tree, including:
     contexts, allow and deny lists and matching commands.
+
+    # noqa: DAR101
     """
-    sources_list = Configuration.sources_repository.sources_list
+    sources_list = configuration.sources_repository.sources_list
     if len(sources_list) == 0:
         click.echo("No sources configuration is specified.")
     for source in sources_list:
-        source_commands_filter = Configuration.sources_repository[source]
+        source_commands_filter = configuration.sources_repository[source]
         context_names = [context.name for context in source_commands_filter.contexts]
         click.echo(
             f"{source_style(source)} "
@@ -49,7 +54,7 @@ def show_tree():
             f"{bullet_style('denied')}: "
             f"{__join_names(source_commands_filter.denied_commands)}):"
         )
-        commands = Configuration.build_commands(source_commands_filter)
+        commands = configuration.build_commands(source_commands_filter)
         click.echo(f"\t{__join_names([command.name for command in commands])}")
 
 
@@ -100,7 +105,7 @@ def init_config_cli(directory, interactive):
         interactive=interactive,
     )
     with open(
-        Configuration.configuration_path(directory), mode="w", encoding=ENCODING
+        ConfigurationBuilder.configuration_path(directory), mode="w", encoding=ENCODING
     ) as config_file:
         toml.dump({SOURCES: sources_map}, config_file)
 
@@ -127,9 +132,9 @@ def init_config_cli(directory, interactive):
 )
 @verbose_option
 def fixate_commands_versions(
-    directory,
-    latest,
-    verbosity,
+    directory: Union[str, Path],
+    latest: bool,
+    verbosity: str,
 ):
     """
     Fixate the installed version of the commands.
@@ -143,16 +148,18 @@ def fixate_commands_versions(
         directory = Path.cwd()
     if isinstance(directory, str):
         directory = Path(directory)
-    configuration_path = Configuration.configuration_path(directory)
-    Configuration.load_from_configuration_file(configuration_path)
-    if len(Configuration.commands_repository) == 0:
+    configuration_path = ConfigurationBuilder.configuration_path(directory)
+    configuration = ConfigurationBuilder.build_configuration_from_file(
+        configuration_path
+    )
+    if len(configuration.commands_repository) == 0:
         click.echo("No commands to fixate.")
         return
     with open(configuration_path, mode="r", encoding=ENCODING) as config_file:
         raw_config_dict = toml.load(config_file)
     if COMMANDS not in raw_config_dict:
         raw_config_dict[COMMANDS] = {}
-    for command_builder in Configuration.commands_repository:
+    for command_builder in configuration.commands_repository:
         command = command_builder.build_command()
         if latest:
             command.update(verbosity=verbosity)
