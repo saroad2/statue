@@ -5,7 +5,11 @@ from typing import Optional
 import click
 
 from statue import __version__
-from statue.configuration import Configuration
+from statue.config.configuration import Configuration
+from statue.config.configuration_builder import ConfigurationBuilder
+from statue.exceptions import MissingConfiguration
+
+pass_configuration = click.make_pass_decorator(Configuration)
 
 
 @click.group(name="statue", no_args_is_help=True)
@@ -16,7 +20,12 @@ from statue.configuration import Configuration
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )
-def statue_cli(config: Optional[str]) -> None:
+@click.pass_context
+def statue_cli(ctx, config: Optional[str]) -> None:
     """Statue is a static code analysis tools orchestrator."""
     config_path = Path(config) if config is not None else None
-    Configuration.load_from_configuration_file(config_path)
+    try:
+        ctx.obj = ConfigurationBuilder.build_configuration_from_file(config_path)
+    except MissingConfiguration as error:
+        click.echo(click.style(error))
+        ctx.exit(3)

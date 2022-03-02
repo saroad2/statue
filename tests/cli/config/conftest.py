@@ -1,6 +1,6 @@
 from pytest_cases import fixture
 
-from statue.configuration import Configuration
+from statue.config.configuration_builder import ConfigurationBuilder
 
 
 @fixture
@@ -15,7 +15,7 @@ def mock_expend(mocker):
 
 @fixture
 def mock_configuration_path(mocker):
-    return mocker.patch.object(Configuration, "configuration_path")
+    return mocker.patch.object(ConfigurationBuilder, "configuration_path")
 
 
 @fixture

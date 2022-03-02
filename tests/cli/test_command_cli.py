@@ -4,7 +4,6 @@ from statue.cli import statue_cli
 from statue.command import Command
 from statue.command_builder import CommandBuilder
 from statue.commands_filter import CommandsFilter
-from statue.configuration import Configuration
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG3,
@@ -20,8 +19,9 @@ from tests.constants import (
 )
 
 
-def test_commands_list(cli_runner, clear_configuration, mock_build_commands):
-    mock_build_commands.return_value = [
+def test_commands_list(cli_runner, mock_build_configuration_from_file):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.build_commands.return_value = [
         Command(COMMAND1, help=COMMAND_HELP_STRING1),
         Command(COMMAND2, help=COMMAND_HELP_STRING2),
         Command(COMMAND3, help=COMMAND_HELP_STRING3),
@@ -37,11 +37,12 @@ def test_commands_list(cli_runner, clear_configuration, mock_build_commands):
         f"{COMMAND3} - {COMMAND_HELP_STRING3}\n"
         f"{COMMAND4} - {COMMAND_HELP_STRING4}\n"
     ), "List output is different than expected."
-    mock_build_commands.assert_called_once_with(CommandsFilter())
+    configuration.build_commands.assert_called_once_with(CommandsFilter())
 
 
-def test_commands_show_existing_command(cli_runner, clear_configuration):
-    Configuration.commands_repository.add_command_builders(
+def test_commands_show_existing_command(cli_runner, mock_build_configuration_from_file):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository.add_command_builders(
         CommandBuilder(COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3])
     )
     result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
@@ -53,7 +54,9 @@ def test_commands_show_existing_command(cli_runner, clear_configuration):
     ), "Show output is different than expected."
 
 
-def test_commands_show_unknown_command_side_effect(cli_runner, clear_configuration):
+def test_commands_show_unknown_command_side_effect(
+    cli_runner, mock_build_configuration_from_file
+):
     result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
     assert (
@@ -62,21 +65,21 @@ def test_commands_show_unknown_command_side_effect(cli_runner, clear_configurati
 
 
 def test_command_install_with_default_verbosity(
-    cli_runner, clear_configuration, mock_build_commands
+    cli_runner, mock_build_configuration_from_file
 ):
     commands = [mock.Mock(), mock.Mock(), mock.Mock()]
-    mock_build_commands.return_value = commands
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.build_commands.return_value = commands
     result = cli_runner.invoke(statue_cli, ["command", "install"])
     for command in commands:
         command.install.assert_called_with(verbosity=DEFAULT_VERBOSITY)
     assert result.exit_code == 0, "Show command returned with no success code"
 
 
-def test_command_install_with_verbose(
-    cli_runner, clear_configuration, mock_build_commands
-):
+def test_command_install_with_verbose(cli_runner, mock_build_configuration_from_file):
     commands = [mock.Mock(), mock.Mock(), mock.Mock()]
-    mock_build_commands.return_value = commands
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.build_commands.return_value = commands
     result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
     for command in commands:
         command.install.assert_called_with(verbosity=VERBOSE)

@@ -4,7 +4,6 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.cli import statue_cli
 from statue.commands_filter import CommandsFilter
-from statue.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
     COMMAND1,
@@ -20,14 +19,15 @@ from tests.constants import (
 from tests.util import command_mock
 
 
-def case_no_sources(clear_configuration):
+def case_no_sources():
     commands_lists = []
     printed_tree = "No sources configuration is specified.\n"
     return commands_lists, printed_tree
 
 
-def case_one_source_empty_configuration(clear_configuration):
-    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
+def case_one_source_empty_configuration(mock_build_configuration_from_file):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
     commands_lists = [[command_mock(name=COMMAND1)]]
     printed_tree = (
         f"{SOURCE1} (contexts: empty, allowed: empty, denied: empty):\n"
@@ -36,10 +36,11 @@ def case_one_source_empty_configuration(clear_configuration):
     return commands_lists, printed_tree
 
 
-def case_one_source_with_configuration(clear_configuration):
+def case_one_source_with_configuration(mock_build_configuration_from_file):
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    Configuration.contexts_repository.add_contexts(context)
-    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(context)
+    configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         contexts=[context], allowed_commands=[COMMAND1]
     )
     commands_lists = [[command_mock(name=COMMAND1)]]
@@ -50,13 +51,14 @@ def case_one_source_with_configuration(clear_configuration):
     return commands_lists, printed_tree
 
 
-def case_one_source_with_multiple_contexts(clear_configuration):
+def case_one_source_with_multiple_contexts(mock_build_configuration_from_file):
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
     )
-    Configuration.contexts_repository.add_contexts(context1, context2)
-    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(context1, context2)
+    configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         contexts=[context1, context2], allowed_commands=[COMMAND1]
     )
     commands_lists = [[command_mock(name=COMMAND1)]]
@@ -68,16 +70,17 @@ def case_one_source_with_multiple_contexts(clear_configuration):
     return commands_lists, printed_tree
 
 
-def case_multiple_sources(clear_configuration):
+def case_multiple_sources(mock_build_configuration_from_file):
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
     )
-    Configuration.contexts_repository.add_contexts(context1, context2)
-    Configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(context1, context2)
+    configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         contexts=[context1, context2], allowed_commands=[COMMAND1]
     )
-    Configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
+    configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
         denied_commands=[COMMAND2, COMMAND3]
     )
     commands_lists = [
@@ -100,10 +103,10 @@ def test_config_show_tree(
     commands_lists,
     printed_tree,
     cli_runner,
-    mock_build_commands,
-    mock_load_from_configuration_file,
+    mock_build_configuration_from_file,
 ):
-    mock_build_commands.side_effect = commands_lists
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.build_commands.side_effect = commands_lists
     result = cli_runner.invoke(statue_cli, ["config", "show-tree"])
     assert (
         result.exit_code == 0

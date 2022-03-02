@@ -1,7 +1,7 @@
 import pytest
 
+from statue.config.contexts_repository import ContextsRepository
 from statue.context import Context
-from statue.contexts_repository import ContextsRepository
 from statue.exceptions import UnknownContext
 from tests.constants import (
     CONTEXT1,

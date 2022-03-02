@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Any, Dict, List, MutableMapping
 
 from statue.commands_filter import CommandsFilter
+from statue.config.contexts_repository import ContextsRepository
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
-from statue.contexts_repository import ContextsRepository
 
 
 class SourcesRepository:

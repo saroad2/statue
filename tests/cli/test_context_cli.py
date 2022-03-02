@@ -1,5 +1,4 @@
 from statue.cli import statue_cli
-from statue.configuration import Configuration
 from statue.context import Context
 from tests.constants import (
     CONTEXT1,
@@ -17,9 +16,10 @@ from tests.constants import (
 
 
 def test_contexts_list_of_full_configuration(
-    cli_runner, clear_configuration, mock_load_from_configuration_file
+    cli_runner, mock_build_configuration_from_file
 ):
-    Configuration.contexts_repository.add_contexts(
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
         Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
@@ -38,7 +38,7 @@ def test_contexts_list_of_full_configuration(
 
 
 def test_contexts_list_of_an_clear_configuration(
-    cli_runner, clear_configuration, mock_load_from_configuration_file
+    cli_runner, mock_build_configuration_from_file
 ):
     result = cli_runner.invoke(statue_cli, ["context", "list"])
     assert result.exit_code == 1, "list contexts should exit with failure."
@@ -47,8 +47,9 @@ def test_contexts_list_of_an_clear_configuration(
     ), "List output is different than expected."
 
 
-def test_contexts_show_of_context(cli_runner, clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+def test_contexts_show_of_context(cli_runner, mock_build_configuration_from_file):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
         Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
@@ -62,8 +63,11 @@ def test_contexts_show_of_context(cli_runner, clear_configuration):
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_one_alias(cli_runner, clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+def test_contexts_show_of_context_with_one_alias(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
@@ -75,8 +79,11 @@ def test_contexts_show_of_context_with_one_alias(cli_runner, clear_configuration
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_by_alias(cli_runner, clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+def test_contexts_show_of_context_with_by_alias(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
@@ -88,8 +95,11 @@ def test_contexts_show_of_context_with_by_alias(cli_runner, clear_configuration)
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_two_aliases(cli_runner, clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+def test_contexts_show_of_context_with_two_aliases(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2, CONTEXT3])
     )
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
@@ -101,10 +111,13 @@ def test_contexts_show_of_context_with_two_aliases(cli_runner, clear_configurati
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_parent(cli_runner, clear_configuration):
+def test_contexts_show_of_context_with_parent(
+    cli_runner, mock_build_configuration_from_file
+):
     parent = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent)
-    Configuration.contexts_repository.add_contexts(context, parent)
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(context, parent)
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
@@ -114,8 +127,11 @@ def test_contexts_show_of_context_with_parent(cli_runner, clear_configuration):
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_non_existing_context(cli_runner, clear_configuration):
-    Configuration.contexts_repository.add_contexts(
+def test_contexts_show_of_non_existing_context(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
         Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),

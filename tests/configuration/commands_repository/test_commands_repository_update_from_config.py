@@ -1,7 +1,7 @@
 import mock
 
 from statue.command_builder import CommandBuilder
-from statue.commands_repository import CommandsRepository
+from statue.config.commands_repository import CommandsRepository
 from tests.constants import COMMAND1, COMMAND2, COMMAND3
 from tests.util import command_builder_mock
 

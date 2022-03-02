@@ -1,8 +1,8 @@
 import pytest
 
+from statue.config.contexts_repository import ContextsRepository
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 from statue.context import Context
-from statue.contexts_repository import ContextsRepository
 from statue.exceptions import InconsistentConfiguration
 from tests.constants import (
     CONTEXT1,
