@@ -12,14 +12,11 @@ class StatueConfigurationError(StatueException):
 class MissingConfiguration(StatueConfigurationError):
     """Part of the Statue configuration is missing."""
 
-    def __init__(self, part_name: str) -> None:
-        """
-        Exception constructor.
+    message = "Statue was unable to load configuration"
 
-        :param part_name: The missing part from the configuration
-        :type part_name: str
-        """
-        super().__init__(f'"{part_name}" is missing from Statue configuration.')
+    def __init__(self):
+        """Exception constructor."""
+        super().__init__(self.message)
 
 
 class InconsistentConfiguration(StatueConfigurationError):

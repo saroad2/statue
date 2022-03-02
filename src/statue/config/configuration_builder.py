@@ -1,0 +1,102 @@
+"""Singleton class for building configuration instances."""
+from pathlib import Path
+from typing import Any, MutableMapping, Optional
+
+import toml
+
+from statue.config.configuration import Configuration
+from statue.constants import COMMANDS, CONTEXTS, OVERRIDE, SOURCES
+from statue.exceptions import MissingConfiguration
+
+
+class ConfigurationBuilder:
+    """Build configuration instances from configuration file."""
+
+    @classmethod
+    def build_configuration_from_file(
+        cls,
+        statue_configuration_path: Optional[Path] = None,
+    ) -> Configuration:
+        """
+        Load statue configuration.
+
+        This method combines default configuration with user-defined configuration, read
+        from configuration file.
+
+        :param statue_configuration_path: User-defined file path containing
+            repository-specific configurations
+        :type statue_configuration_path: None, str or Path
+        :return: Configuration instance
+        :rtype: Configuration
+        :raises MissingConfiguration: Raised when could not load
+        """
+        default_configuration_path = cls.default_configuration_path()
+        if statue_configuration_path is None:
+            statue_configuration_path = cls.configuration_path(Path.cwd())
+        if (
+            not default_configuration_path.exists()
+            and not statue_configuration_path.exists()
+        ):
+            raise MissingConfiguration()
+        statue_config = (
+            toml.load(statue_configuration_path)
+            if statue_configuration_path.exists()
+            else {}
+        )
+        configuration = Configuration()
+        if not statue_config.get(OVERRIDE, False):
+            if default_configuration_path.exists():
+                cls.update_from_config(
+                    configuration=configuration,
+                    statue_config=toml.load(default_configuration_path),
+                )
+        cls.update_from_config(configuration=configuration, statue_config=statue_config)
+        return configuration
+
+    @classmethod
+    def update_from_config(
+        cls, configuration: Configuration, statue_config: MutableMapping[str, Any]
+    ):
+        """
+        Update configuration from a loaded config map.
+
+        :param configuration: Configuration instance to be updated
+        :type configuration: Configuration
+        :param statue_config: Configuration map as loaded from config file
+        :type statue_config: MutableMapping[str, Any]
+        """
+        if CONTEXTS in statue_config:
+            configuration.contexts_repository.update_from_config(
+                statue_config[CONTEXTS]
+            )
+        if SOURCES in statue_config:
+            configuration.sources_repository.update_from_config(
+                config=statue_config[SOURCES],
+                contexts_repository=configuration.contexts_repository,
+            )
+        if COMMANDS in statue_config:
+            configuration.commands_repository.update_from_config(
+                statue_config[COMMANDS]
+            )
+
+    @classmethod
+    def default_configuration_path(cls) -> Path:
+        """
+        Get default configuration path.
+
+        :return: Default configuration path
+        :rtype: Path
+        """
+        return Path(__file__).parent.parent / "resources" / "defaults.toml"
+
+    @classmethod
+    def configuration_path(cls, directory: Path) -> Path:
+        """
+        Search for configuration file in directory.
+
+        :param directory: Directory in which the configuration path is supposed to be
+        :type directory: Path
+        :return: Configuration path location
+        :rtype: Path
+        """
+        return directory / "statue.toml"
