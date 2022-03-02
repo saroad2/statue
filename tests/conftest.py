@@ -1,12 +1,12 @@
 import asyncio
 from pathlib import Path
 
+import mock
 import pytest
-import toml
 
 from statue.cache import Cache
 from statue.config.configuration import Configuration
-from statue.constants import OVERRIDE, STATUE
+from statue.config.configuration_builder import ConfigurationBuilder
 from statue.evaluation import Evaluation
 
 # 3rd Party Mocks
@@ -31,33 +31,14 @@ def mock_toml_dump(mocker):
 
 
 @pytest.fixture
-def clear_configuration():
-    Configuration.reset_configuration()
-
-
-@pytest.fixture
-def mock_command_names_list(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "command_names_list")
-
-
-@pytest.fixture
-def mock_build_commands(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "build_commands")
-
-
-@pytest.fixture
-def mock_build_commands_map(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "build_commands_map")
-
-
-@pytest.fixture
-def mock_default_configuration(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "default_configuration")
-
-
-@pytest.fixture
-def mock_load_from_configuration_file(mocker, clear_configuration):
-    return mocker.patch.object(Configuration, "load_from_configuration_file")
+def mock_build_configuration_from_file(mocker):
+    builder_mock = mocker.patch.object(
+        ConfigurationBuilder, "build_configuration_from_file"
+    )
+    builder_mock.return_value = Configuration()
+    builder_mock.return_value.build_commands = mock.Mock()
+    builder_mock.return_value.build_commands_map = mock.Mock()
+    return builder_mock
 
 
 @pytest.fixture
@@ -66,20 +47,6 @@ def mock_cwd(mocker, tmpdir_factory):
     cwd_method_mock = mocker.patch.object(Path, "cwd")
     cwd_method_mock.return_value = cwd
     return cwd
-
-
-@pytest.fixture
-def empty_configuration(mock_cwd, clear_configuration):
-    configuration = {
-        STATUE: {OVERRIDE: True},
-    }
-    with open(
-        mock_cwd / "statue.toml",
-        mode="w",
-        encoding="utf-8",
-    ) as configuration_file:
-        toml.dump(configuration, configuration_file)
-    return configuration
 
 
 # Cache Mocks

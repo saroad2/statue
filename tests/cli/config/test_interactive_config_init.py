@@ -91,7 +91,7 @@ def test_interactive_config_init(
     sources,
     inputs,
     expected_config,
-    mock_load_from_configuration_file,
+    mock_build_configuration_from_file,
     mock_configuration_path,
     mock_cwd,
     mock_find_sources,
