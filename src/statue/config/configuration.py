@@ -34,9 +34,11 @@ class Configuration:
         """
         commands_map = CommandsMap()
         for source in sources:
-            commands_map[str(source)] = self.build_commands(
+            commands = self.build_commands(
                 CommandsFilter.merge(commands_filter, self.sources_repository[source])
             )
+            if len(commands) != 0:
+                commands_map[str(source)] = commands
         return commands_map
 
     def build_commands(self, commands_filter: CommandsFilter) -> List[Command]:

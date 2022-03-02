@@ -104,7 +104,7 @@ def test_get_commands_map_with_no_commands(mock_build_commands):
     commands_map = configuration.build_commands_map(
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=commands_filter
     )
-    assert commands_map == CommandsMap({SOURCE1: [], SOURCE2: []})
+    assert commands_map == CommandsMap()
     assert_calls(mock_build_commands, [call(commands_filter), call(commands_filter)])
 
 
