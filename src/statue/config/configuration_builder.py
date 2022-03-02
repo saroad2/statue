@@ -16,6 +16,7 @@ class ConfigurationBuilder:
     def build_configuration_from_file(
         cls,
         statue_configuration_path: Optional[Path] = None,
+        cache_dir: Optional[Path] = None,
     ) -> Configuration:
         """
         Load statue configuration.
@@ -25,7 +26,9 @@ class ConfigurationBuilder:
 
         :param statue_configuration_path: User-defined file path containing
             repository-specific configurations
-        :type statue_configuration_path: None, str or Path
+        :type statue_configuration_path: Optional[Path]
+        :param cache_dir: Optional Caching directory
+        :type cache_dir: Optional[Path]
         :return: Configuration instance
         :rtype: Configuration
         :raises MissingConfiguration: Raised when could not load
@@ -43,7 +46,12 @@ class ConfigurationBuilder:
             if statue_configuration_path.exists()
             else {}
         )
-        configuration = Configuration()
+        cache_dir = (
+            cls.cache_path(statue_configuration_path.parent)
+            if cache_dir is None
+            else cache_dir
+        )
+        configuration = Configuration(cache_root_directory=cache_dir)
         if not statue_config.get(OVERRIDE, False):
             if default_configuration_path.exists():
                 cls.update_from_config(
@@ -100,3 +108,15 @@ class ConfigurationBuilder:
         :rtype: Path
         """
         return directory / "statue.toml"
+
+    @classmethod
+    def cache_path(cls, directory: Path) -> Path:
+        """
+        Default caching directory for statue history saving.
+
+        :param directory: Directory in which cache directory will be created
+        :type directory: Path
+        :return: Cache directory
+        :rtype: Path
+        """
+        return directory / ".statue"

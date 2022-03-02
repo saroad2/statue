@@ -6,7 +6,7 @@ from typing import Union
 import click
 
 from statue.cache import Cache
-from statue.cli.cli import statue_cli
+from statue.cli.cli import pass_configuration, statue_cli
 from statue.cli.styled_strings import (
     bullet_style,
     failure_style,
@@ -15,6 +15,7 @@ from statue.cli.styled_strings import (
     success_style,
 )
 from statue.command import CommandEvaluation
+from statue.config.configuration import Configuration
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import Evaluation
 
@@ -59,27 +60,6 @@ def evaluation_success_ratio(evaluation: Evaluation) -> str:
     return f"{evaluation.successful_commands_number}/{evaluation.commands_number}"
 
 
-def positive_validation(  # pylint: disable=unused-argument
-    ctx: click.Context, param: click.Parameter, value: int
-) -> int:
-    """
-    Validate number is 1 or greater.
-
-    :param ctx: Unused context variable
-    :type ctx: click.Context
-    :param param: Unused parameter variable
-    :type param: click.Parameter
-    :param value: value to be validated
-    :type value: int
-    :return: Returns the value as it is.
-    :rtype: int
-    :raises BadParameter: Raised when parameter value is less then 1.
-    """
-    if value < 1:
-        raise click.BadParameter(f"Number should be 1 or greater. got {value}")
-    return value
-
-
 def total_evaluation_string(evaluation_path: Path, evaluation: Evaluation) -> str:
     """
     Create a string representing an evaluation.
@@ -105,9 +85,10 @@ def history_cli() -> None:
 
 @history_cli.command("list")
 @click.option("--head", type=int, help="Show only the nth recent evaluations")
-def list_evaluations_cli(head):
+@pass_configuration
+def list_evaluations_cli(configuration: Configuration, head: int):
     """List all recent evaluations."""
-    evaluation_paths = Cache.all_evaluation_paths()
+    evaluation_paths = configuration.cache.all_evaluation_paths
     if len(evaluation_paths) == 0:
         click.echo("No previous evaluations.")
         return
@@ -120,16 +101,20 @@ def list_evaluations_cli(head):
 
 @history_cli.command("show")
 @click.option(
-    "-n",
-    "number",
-    type=int,
-    default=1,
-    callback=positive_validation,
-    help="Show nth recent evaluation. 1 by default",
+    "-n", "number", type=int, default=1, help="Show nth recent evaluation. 1 by default"
 )
-def show_evaluation_cli(number):
+@click.pass_context
+@pass_configuration
+def show_evaluation_cli(configuration: Configuration, ctx: click.Context, number: int):
     """Show past evaluation."""
-    evaluation_path = Cache.evaluation_path(number - 1)
+    evaluation_path = None
+    try:
+        evaluation_path = configuration.cache.evaluation_path(number - 1)
+    except IndexError:
+        click.echo(
+            failure_style(f"Could not find evaluation with given index {number}")
+        )
+        ctx.exit(1)
     evaluation = Evaluation.load_from_file(evaluation_path)
     click.echo(total_evaluation_string(evaluation_path, evaluation))
     for source, source_evaluation in evaluation.items():
@@ -153,9 +138,10 @@ def show_evaluation_cli(number):
     type=int,
     help="Limit the number of deleted records. Deletes earliest evaluations.",
 )
-def clear_history_cli(force, limit):
+@pass_configuration
+def clear_history_cli(configuration: Configuration, force: bool, limit: int):
     """Clear records of previous statue runs."""
-    evaluation_files = Cache.all_evaluation_paths()
+    evaluation_files = configuration.cache.all_evaluation_paths
     number_of_evaluation_files = len(evaluation_files)
     if number_of_evaluation_files == 0:
         click.echo("No previous evaluations.")

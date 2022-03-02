@@ -1,6 +1,6 @@
 """Main CLI for statue."""
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 import click
 
@@ -20,12 +20,23 @@ pass_configuration = click.make_pass_decorator(Configuration)
     type=click.Path(exists=True, dir_okay=False),
     help="Statue configuration file.",
 )
+@click.option(
+    "--cache-dir",
+    envvar="STATUE_CACHE_CONFIG",
+    type=click.Path(exists=True, file_okay=False),
+    help="Statue caching directory path",
+)
 @click.pass_context
-def statue_cli(ctx, config: Optional[str]) -> None:
+def statue_cli(
+    ctx, config: Optional[Union[str, Path]], cache_dir: Optional[Union[str, Path]]
+) -> None:
     """Statue is a static code analysis tools orchestrator."""
     config_path = Path(config) if config is not None else None
+    cache_dir = Path(cache_dir) if cache_dir is not None else None
     try:
-        ctx.obj = ConfigurationBuilder.build_configuration_from_file(config_path)
+        ctx.obj = ConfigurationBuilder.build_configuration_from_file(
+            statue_configuration_path=config_path, cache_dir=cache_dir
+        )
     except MissingConfiguration as error:
         click.echo(click.style(error))
         ctx.exit(3)

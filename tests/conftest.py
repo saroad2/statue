@@ -4,7 +4,6 @@ from pathlib import Path
 import mock
 import pytest
 
-from statue.cache import Cache
 from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
 from statue.evaluation import Evaluation
@@ -36,6 +35,7 @@ def mock_build_configuration_from_file(mocker):
         ConfigurationBuilder, "build_configuration_from_file"
     )
     builder_mock.return_value = Configuration()
+    builder_mock.return_value.cache = mock.Mock()
     builder_mock.return_value.build_commands = mock.Mock()
     builder_mock.return_value.build_commands_map = mock.Mock()
     return builder_mock
@@ -47,34 +47,6 @@ def mock_cwd(mocker, tmpdir_factory):
     cwd_method_mock = mocker.patch.object(Path, "cwd")
     cwd_method_mock.return_value = cwd
     return cwd
-
-
-# Cache Mocks
-
-
-@pytest.fixture
-def mock_cache_save_evaluation(mocker):
-    return mocker.patch.object(Cache, "save_evaluation")
-
-
-@pytest.fixture
-def mock_cache_evaluation_path(mocker):
-    return mocker.patch.object(Cache, "evaluation_path")
-
-
-@pytest.fixture
-def mock_cache_all_evaluation_paths(mocker):
-    return mocker.patch.object(Cache, "all_evaluation_paths")
-
-
-@pytest.fixture
-def mock_cache_recent_evaluation_path(mocker):
-    return mocker.patch.object(Cache, "recent_evaluation_path")
-
-
-@pytest.fixture
-def mock_cache_extract_time_stamp_from_path(mocker):
-    return mocker.patch.object(Cache, "extract_time_stamp_from_path")
 
 
 # Evaluation Mocks
