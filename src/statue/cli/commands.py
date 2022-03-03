@@ -25,9 +25,7 @@ def commands_cli() -> None:
 
 @commands_cli.command("list")
 @pass_configuration
-def list_commands_cli(
-    configuration: Configuration
-) -> None:
+def list_commands_cli(configuration: Configuration) -> None:
     """List matching commands to contexts, allow list and deny list."""
     for command_builder in configuration.commands_repository:
         click.echo(f"{name_style(command_builder.name)} - {command_builder.help}")
@@ -75,13 +73,31 @@ def show_command_cli(
     command_name: str,
 ) -> None:
     """Show information about specific command."""
+    command_builder = None
     try:
-        command_instance = configuration.commands_repository[command_name]
-        click.echo(f"{bullet_style('Name')} - {name_style(command_instance.name)}")
-        click.echo(f"{bullet_style('Description')} - {command_instance.help}")
-        click.echo(
-            f"{bullet_style('Default arguments')} - {command_instance.default_args}"
-        )
+        command_builder = configuration.commands_repository[command_name]
     except UnknownCommand as error:
         click.echo(str(error))
         ctx.exit(1)
+    click.echo(f"{bullet_style('Name')} - {name_style(command_builder.name)}")
+    click.echo(f"{bullet_style('Description')} - {command_builder.help}")
+    if len(command_builder.default_args) != 0:
+        click.echo(
+            f"{bullet_style('Default arguments')} - "
+            f"{' '.join(command_builder.default_args)}"
+        )
+    if len(command_builder.required_contexts) != 0:
+        click.echo(
+            f"{bullet_style('Required contexts')} - "
+            f"{', '.join(command_builder.required_contexts)}"
+        )
+    if len(command_builder.allowed_contexts) != 0:
+        click.echo(
+            f"{bullet_style('Allowed contexts')} - "
+            f"{', '.join(command_builder.allowed_contexts)}"
+        )
+    if len(command_builder.specified_contexts) != 0:
+        click.echo(
+            f"{bullet_style('Specified contexts')} - "
+            f"{', '.join(command_builder.specified_contexts)}"
+        )
