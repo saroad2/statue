@@ -21,12 +21,12 @@ from tests.constants import (
 
 def test_commands_list(cli_runner, mock_build_configuration_from_file):
     configuration = mock_build_configuration_from_file.return_value
-    configuration.build_commands.return_value = [
-        Command(COMMAND1, help=COMMAND_HELP_STRING1),
-        Command(COMMAND2, help=COMMAND_HELP_STRING2),
-        Command(COMMAND3, help=COMMAND_HELP_STRING3),
-        Command(COMMAND4, help=COMMAND_HELP_STRING4),
-    ]
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(COMMAND1, help=COMMAND_HELP_STRING1),
+        CommandBuilder(COMMAND2, help=COMMAND_HELP_STRING2),
+        CommandBuilder(COMMAND3, help=COMMAND_HELP_STRING3),
+        CommandBuilder(COMMAND4, help=COMMAND_HELP_STRING4),
+    )
     result = cli_runner.invoke(statue_cli, ["command", "list"])
     assert (
         result.exit_code == 0
@@ -37,7 +37,6 @@ def test_commands_list(cli_runner, mock_build_configuration_from_file):
         f"{COMMAND3} - {COMMAND_HELP_STRING3}\n"
         f"{COMMAND4} - {COMMAND_HELP_STRING4}\n"
     ), "List output is different than expected."
-    configuration.build_commands.assert_called_once_with(CommandsFilter())
 
 
 def test_commands_show_existing_command(cli_runner, mock_build_configuration_from_file):

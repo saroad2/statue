@@ -24,31 +24,13 @@ def commands_cli() -> None:
 
 
 @commands_cli.command("list")
-@contexts_option
-@allow_option
-@deny_option
 @pass_configuration
 def list_commands_cli(
-    configuration: Configuration,
-    context: List[str],
-    allow: List[str],
-    deny: List[str],
+    configuration: Configuration
 ) -> None:
     """List matching commands to contexts, allow list and deny list."""
-    commands = configuration.build_commands(
-        CommandsFilter(
-            contexts=frozenset(
-                {
-                    configuration.contexts_repository[context_name]
-                    for context_name in context
-                }
-            ),
-            allowed_commands=(frozenset(allow) if len(allow) != 0 else None),
-            denied_commands=(frozenset(deny) if len(deny) != 0 else None),
-        )
-    )
-    for command_instance in commands:
-        click.echo(f"{name_style(command_instance.name)} - {command_instance.help}")
+    for command_builder in configuration.commands_repository:
+        click.echo(f"{name_style(command_builder.name)} - {command_builder.help}")
 
 
 @commands_cli.command("install")
