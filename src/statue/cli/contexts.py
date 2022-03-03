@@ -45,6 +45,36 @@ def show_contexts_cli(
             click.echo(
                 f"{bullet_style('Parent')} - {name_style(context_instance.parent.name)}"
             )
+        required_by = [
+            name_style(command_builder.name)
+            for command_builder in configuration.commands_repository
+            if any(
+                context_instance.is_matching(required_context)
+                for required_context in command_builder.required_contexts
+            )
+        ]
+        if len(required_by) != 0:
+            click.echo(f"{bullet_style('Required by')} - {', '.join(required_by)}")
+        allowed_for = [
+            name_style(command_builder.name)
+            for command_builder in configuration.commands_repository
+            if any(
+                context_instance.is_matching(allowed_context)
+                for allowed_context in command_builder.allowed_contexts
+            )
+        ]
+        if len(allowed_for) != 0:
+            click.echo(f"{bullet_style('Allowed for')} - {', '.join(allowed_for)}")
+        specified_for = [
+            name_style(command_builder.name)
+            for command_builder in configuration.commands_repository
+            if any(
+                context_instance.is_matching(specified_context)
+                for specified_context in command_builder.specified_contexts
+            )
+        ]
+        if len(specified_for) != 0:
+            click.echo(f"{bullet_style('Specified for')} - {', '.join(specified_for)}")
     except UnknownContext:
         click.echo(f'Could not find the context "{context_name}".')
         ctx.exit(1)

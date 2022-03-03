@@ -145,12 +145,17 @@ class CommandBuilder:  # pylint: disable=too-many-instance-attributes
     )
 
     @property
+    def specified_contexts(self) -> List[str]:
+        """Contexts names list with arguments specifications."""
+        return list(self.contexts_specifications.keys())
+
+    @property
     def available_contexts(self) -> List[str]:
         """Contexts which are available to use according to this command."""
         return [
             *self.required_contexts,
             *self.allowed_contexts,
-            *self.contexts_specifications.keys(),
+            *self.specified_contexts,
         ]
 
     def validate_contexts(self, *contexts: Context):

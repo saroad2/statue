@@ -1,6 +1,21 @@
 from statue.cli import statue_cli
+from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.context import Context
 from tests.constants import (
+    ARG1,
+    ARG2,
+    COMMAND1,
+    COMMAND2,
+    COMMAND3,
+    COMMAND4,
+    COMMAND5,
+    COMMAND6,
+    COMMAND_HELP_STRING1,
+    COMMAND_HELP_STRING2,
+    COMMAND_HELP_STRING3,
+    COMMAND_HELP_STRING4,
+    COMMAND_HELP_STRING5,
+    COMMAND_HELP_STRING6,
     CONTEXT1,
     CONTEXT2,
     CONTEXT3,
@@ -37,7 +52,7 @@ def test_contexts_list_of_full_configuration(
     ), "List output is different than expected."
 
 
-def test_contexts_list_of_an_clear_configuration(
+def test_contexts_list_of_an_empty_configuration(
     cli_runner, mock_build_configuration_from_file
 ):
     result = cli_runner.invoke(statue_cli, ["context", "list"])
@@ -47,7 +62,7 @@ def test_contexts_list_of_an_clear_configuration(
     ), "List output is different than expected."
 
 
-def test_contexts_show_of_context(cli_runner, mock_build_configuration_from_file):
+def test_contexts_show_simple_context(cli_runner, mock_build_configuration_from_file):
     configuration = mock_build_configuration_from_file.return_value
     configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
@@ -63,7 +78,7 @@ def test_contexts_show_of_context(cli_runner, mock_build_configuration_from_file
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_one_alias(
+def test_contexts_show_context_with_one_alias(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
@@ -79,23 +94,7 @@ def test_contexts_show_of_context_with_one_alias(
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_by_alias(
-    cli_runner, mock_build_configuration_from_file
-):
-    configuration = mock_build_configuration_from_file.return_value
-    configuration.contexts_repository.add_contexts(
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
-    )
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
-    assert result.exit_code == 0, "show context should exit with success."
-    assert result.output == (
-        f"Name - {CONTEXT1}\n"
-        f"Description - {CONTEXT_HELP_STRING1}\n"
-        f"Aliases - {CONTEXT2}\n"
-    ), "Show output is different than expected."
-
-
-def test_contexts_show_of_context_with_two_aliases(
+def test_contexts_show_context_with_two_aliases(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
@@ -111,7 +110,7 @@ def test_contexts_show_of_context_with_two_aliases(
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_context_with_parent(
+def test_contexts_show_context_with_parent(
     cli_runner, mock_build_configuration_from_file
 ):
     parent = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
@@ -127,7 +126,114 @@ def test_contexts_show_of_context_with_parent(
     ), "Show output is different than expected."
 
 
-def test_contexts_show_of_non_existing_context(
+def test_contexts_show_context_required_by_command(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
+        )
+    )
+    configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
+    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    assert result.exit_code == 0, "show context should exit with success."
+    assert result.output == (
+        f"Name - {CONTEXT1}\n"
+        f"Description - {CONTEXT_HELP_STRING1}\n"
+        f"Required by - {COMMAND1}\n"
+    ), "Show output is different than expected."
+
+
+def test_contexts_show_context_allowed_for_command(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[CONTEXT1]
+        )
+    )
+    configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
+    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    assert result.exit_code == 0, "show context should exit with success."
+    assert result.output == (
+        f"Name - {CONTEXT1}\n"
+        f"Description - {CONTEXT_HELP_STRING1}\n"
+        f"Allowed for - {COMMAND1}\n"
+    ), "Show output is different than expected."
+
+
+def test_contexts_show_context_specified_for_command(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+        )
+    )
+    configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
+    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    assert result.exit_code == 0, "show context should exit with success."
+    assert result.output == (
+        f"Name - {CONTEXT1}\n"
+        f"Description - {CONTEXT_HELP_STRING1}\n"
+        f"Specified for - {COMMAND1}\n"
+    ), "Show output is different than expected."
+
+
+def test_contexts_show_context_with_multiple_available_commands(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
+        ),
+        CommandBuilder(
+            name=COMMAND2, help=COMMAND_HELP_STRING2, required_contexts=[CONTEXT1]
+        ),
+        CommandBuilder(
+            name=COMMAND3, help=COMMAND_HELP_STRING3, allowed_contexts=[CONTEXT1]
+        ),
+        CommandBuilder(
+            name=COMMAND4, help=COMMAND_HELP_STRING4, allowed_contexts=[CONTEXT1]
+        ),
+        CommandBuilder(
+            name=COMMAND5,
+            help=COMMAND_HELP_STRING5,
+            contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+        ),
+        CommandBuilder(
+            name=COMMAND6,
+            help=COMMAND_HELP_STRING6,
+            contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG2])},
+        ),
+    )
+    configuration.contexts_repository.add_contexts(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
+    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    assert result.exit_code == 0, "show context should exit with success."
+    assert result.output == (
+        f"Name - {CONTEXT1}\n"
+        f"Description - {CONTEXT_HELP_STRING1}\n"
+        f"Required by - {COMMAND1}, {COMMAND2}\n"
+        f"Allowed for - {COMMAND3}, {COMMAND4}\n"
+        f"Specified for - {COMMAND5}, {COMMAND6}\n"
+    ), "Show output is different than expected."
+
+
+def test_contexts_show_non_existing_context(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
