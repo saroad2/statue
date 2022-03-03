@@ -6,8 +6,9 @@ import pytest
 from statue.cli import statue_cli
 
 
-def test_history_clear_empty_history(cli_runner, mock_cache_all_evaluation_paths):
-    mock_cache_all_evaluation_paths.return_value = []
+def test_history_clear_empty_history(cli_runner, mock_build_configuration_from_file):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.all_evaluation_paths = []
 
     result = cli_runner.invoke(statue_cli, ["history", "clear"])
 
@@ -17,12 +18,12 @@ def test_history_clear_empty_history(cli_runner, mock_cache_all_evaluation_paths
 
 def test_history_clear_confirmed(
     cli_runner,
-    mock_cache_all_evaluation_paths,
     mock_build_configuration_from_file,
 ):
     number_of_evaluations = random.randint(1, 5)
     evaluation_paths = [mock.Mock() for _ in range(number_of_evaluations)]
-    mock_cache_all_evaluation_paths.return_value = evaluation_paths
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.all_evaluation_paths = evaluation_paths
 
     result = cli_runner.invoke(statue_cli, ["history", "clear"], input="y")
 
@@ -39,12 +40,12 @@ def test_history_clear_confirmed(
 
 def test_history_clear_not_confirmed(
     cli_runner,
-    mock_cache_all_evaluation_paths,
     mock_build_configuration_from_file,
 ):
     number_of_evaluations = random.randint(1, 5)
     evaluation_paths = [mock.Mock() for _ in range(number_of_evaluations)]
-    mock_cache_all_evaluation_paths.return_value = evaluation_paths
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.all_evaluation_paths = evaluation_paths
 
     result = cli_runner.invoke(statue_cli, ["history", "clear"], input="n")
 
@@ -63,12 +64,12 @@ def test_history_clear_not_confirmed(
 def test_history_clear_forced(
     force_flag,
     cli_runner,
-    mock_cache_all_evaluation_paths,
     mock_build_configuration_from_file,
 ):
     number_of_evaluations = random.randint(1, 5)
     evaluation_paths = [mock.Mock() for _ in range(number_of_evaluations)]
-    mock_cache_all_evaluation_paths.return_value = evaluation_paths
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.all_evaluation_paths = evaluation_paths
 
     result = cli_runner.invoke(statue_cli, ["history", "clear", force_flag])
 
@@ -85,13 +86,13 @@ def test_history_clear_forced(
 def test_history_clear_limited(
     limit_flag,
     cli_runner,
-    mock_cache_all_evaluation_paths,
     mock_build_configuration_from_file,
 ):
     limited_number = 3
     number_of_evaluations = limited_number + random.randint(1, 5)
     evaluation_paths = [mock.Mock() for _ in range(number_of_evaluations)]
-    mock_cache_all_evaluation_paths.return_value = evaluation_paths
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.all_evaluation_paths = evaluation_paths
 
     result = cli_runner.invoke(
         statue_cli, ["history", "clear", limit_flag, limited_number], input="y"

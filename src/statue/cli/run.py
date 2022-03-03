@@ -6,7 +6,6 @@ from typing import List, Optional, Sequence, Union
 
 import click
 
-from statue.cache import Cache
 from statue.cli.cli import pass_configuration, statue_cli
 from statue.cli.common_flags import (
     allow_option,
@@ -172,7 +171,7 @@ def run_cli(  # pylint: disable=too-many-arguments
         click.echo(boxed_string("Evaluation"))
         click.echo(evaluation_string(evaluation, verbosity=verbosity))
     if cache:
-        Cache.save_evaluation(evaluation)
+        configuration.cache.save_evaluation(evaluation)
     if output is not None:
         evaluation.save_as_json(output)
     click.echo()
@@ -232,7 +231,7 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
                 contexts=context, allowed_commands=allow, denied_commands=deny
             ),
         )
-    evaluation_path = Cache.evaluation_path(previous - 1)
+    evaluation_path = configuration.cache.evaluation_path(previous - 1)
     if evaluation_path is None or not evaluation_path.exists():
         return None
     evaluation = Evaluation.load_from_file(evaluation_path)

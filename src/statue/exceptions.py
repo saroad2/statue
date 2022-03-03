@@ -66,3 +66,7 @@ class CommandExecutionError(StatueException):
         super().__init__(
             f'Cannot execute "{command_name}" because it is not installed.'
         )
+
+
+class CacheError(StatueException):
+    """Cache related exception."""

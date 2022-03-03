@@ -38,6 +38,11 @@ def mock_configuration_path(mocker):
     return mocker.patch.object(ConfigurationBuilder, "configuration_path")
 
 
+@pytest.fixture
+def mock_cache_dir_path(mocker):
+    return mocker.patch.object(ConfigurationBuilder, "cache_path")
+
+
 def test_configuration_builder_configuration_path(tmp_path):
     assert ConfigurationBuilder.configuration_path(tmp_path) == tmp_path / "statue.toml"
 
@@ -48,6 +53,7 @@ def test_configuration_builder_default_path():
 
 def test_load_configuration_from_file_with_override(
     mock_toml_load,
+    mock_cache_dir_path,
     mock_contexts_repository_update_from_config,
     mock_sources_repository_update_from_config,
     mock_commands_repository_update_from_config,
@@ -65,10 +71,13 @@ def test_load_configuration_from_file_with_override(
     }
     configuration_path = mock.Mock()
     configuration_path.exists.return_value = True
+    cache_path = mock_cache_dir_path.return_value
+    cache_path.exists.return_value = True
 
     configuration = ConfigurationBuilder.build_configuration_from_file(
         configuration_path
     )
+    mock_cache_dir_path.assert_called_with(configuration_path.parent)
     mock_toml_load.assert_called_once_with(configuration_path)
     mock_contexts_repository_update_from_config.assert_called_once_with(
         new_contexts_config
@@ -79,11 +88,13 @@ def test_load_configuration_from_file_with_override(
     mock_commands_repository_update_from_config.assert_called_once_with(
         new_commands_config
     )
+    assert configuration.cache.cache_root_directory == cache_path
 
 
-def test_load_configuration_from_file_without_override(
+def test_load_configuration_without_override(  # pylint: disable=too-many-locals
     mock_toml_load,
     mock_default_configuration_path,
+    mock_cache_dir_path,
     mock_contexts_repository_update_from_config,
     mock_sources_repository_update_from_config,
     mock_commands_repository_update_from_config,
@@ -111,10 +122,13 @@ def test_load_configuration_from_file_without_override(
     mock_toml_load.side_effect = [new_config, default_config]
     configuration_path = mock.Mock()
     configuration_path.exists.return_value = True
+    cache_path = mock_cache_dir_path.return_value
+    cache_path.exists.return_value = True
 
     configuration = ConfigurationBuilder.build_configuration_from_file(
         configuration_path
     )
+    mock_cache_dir_path.assert_called_with(configuration_path.parent)
     assert mock_toml_load.call_count == 2
     assert mock_toml_load.call_args_list == [
         mock.call(configuration_path),
@@ -141,6 +155,7 @@ def test_load_configuration_from_file_without_override(
         mock.call(default_commands_config),
         mock.call(new_commands_config),
     ]
+    assert configuration.cache.cache_root_directory == cache_path
 
 
 def test_load_configuration_from_file_with_cwd_file(  # pylint: disable=too-many-locals
@@ -209,6 +224,7 @@ def test_load_configuration_from_file_with_cwd_file(  # pylint: disable=too-many
 def test_load_configuration_from_non_existing_file(
     mock_toml_load,
     mock_default_configuration_path,
+    mock_cache_dir_path,
     mock_contexts_repository_update_from_config,
     mock_sources_repository_update_from_config,
     mock_commands_repository_update_from_config,
@@ -226,11 +242,14 @@ def test_load_configuration_from_non_existing_file(
     }
     configuration_path = mock.Mock()
     configuration_path.exists.return_value = False
+    cache_path = mock_cache_dir_path.return_value
+    cache_path.exists.return_value = True
 
     configuration = ConfigurationBuilder.build_configuration_from_file(
         configuration_path
     )
     mock_toml_load.assert_called_once_with(mock_default_configuration_path.return_value)
+    mock_cache_dir_path.assert_called_with(configuration_path.parent)
     mock_contexts_repository_update_from_config.assert_called_once_with(
         default_contexts_config
     )
@@ -241,6 +260,7 @@ def test_load_configuration_from_non_existing_file(
     mock_commands_repository_update_from_config.assert_called_once_with(
         default_commands_config
     )
+    assert configuration.cache.cache_root_directory == cache_path
 
 
 def test_load_configuration_raises_missing_configuration(

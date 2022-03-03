@@ -181,14 +181,15 @@ def case_number_flag():
 @parametrize_with_cases(argnames="case", cases=THIS_MODULE, prefix="case_")
 def test_history_show(
     case,
+    tmp_path,
     cli_runner,
-    mock_cache_evaluation_path,
-    mock_evaluation_load_from_file,
     mock_cache_extract_time_stamp_from_path,
+    mock_evaluation_load_from_file,
     mock_build_configuration_from_file,
 ):
-    evaluation_path = f"evaluation_{uuid.uuid4()}.json"
-    mock_cache_evaluation_path.return_value = evaluation_path
+    evaluation_path = tmp_path / f"evaluation_{uuid.uuid4()}.json"
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.evaluation_path.return_value = evaluation_path
     mock_evaluation_load_from_file.return_value = case["evaluation"]
     mock_cache_extract_time_stamp_from_path.return_value = case["datetime"].timestamp()
 
@@ -199,15 +200,21 @@ def test_history_show(
     assert (
         result.exit_code == 0
     ), f"Execution failed with the following error: '{result.exception}'"
-    mock_cache_evaluation_path.assert_called_once_with(case["evaluation_number"])
+    configuration.cache.evaluation_path.assert_called_once_with(
+        case["evaluation_number"]
+    )
     mock_evaluation_load_from_file.assert_called_once_with(evaluation_path)
     mock_cache_extract_time_stamp_from_path.assert_called_once_with(evaluation_path)
     assert result.output == case["output"]
 
 
-def test_history_show_fail_on_negative_number(cli_runner):
+def test_history_show_fail_on_invalid_index(
+    cli_runner, mock_build_configuration_from_file
+):
 
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.evaluation_path.side_effect = IndexError
     result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "-6"])
 
-    assert result.exit_code == 2
-    assert "Number should be 1 or greater. got -6" in result.output
+    assert result.exit_code == 1
+    assert result.output == "Could not find evaluation with given index -6\n"

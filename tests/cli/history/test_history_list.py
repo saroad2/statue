@@ -180,12 +180,12 @@ def test_history_list(
     evaluation_datetimes,
     output,
     cli_runner,
-    mock_cache_all_evaluation_paths,
     mock_evaluation_load_from_file,
     mock_cache_extract_time_stamp_from_path,
     mock_build_configuration_from_file,
 ):
-    mock_cache_all_evaluation_paths.return_value = [
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.cache.all_evaluation_paths = [
         f"evaluation_{uuid.uuid4()}.json" for _ in range(len(evaluations))
     ]
     mock_evaluation_load_from_file.side_effect = evaluations

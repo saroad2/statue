@@ -1,7 +1,8 @@
 """Get Statue global configuration."""
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
+from statue.cache import Cache
 from statue.command import Command
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
@@ -13,8 +14,14 @@ from statue.config.sources_repository import SourcesRepository
 class Configuration:
     """Configuration singleton for statue."""
 
-    def __init__(self):
-        """Initialize configuration."""
+    def __init__(self, cache_root_directory: Optional[Path] = None):
+        """
+        Initialize configuration.
+
+        :param cache_root_directory: Root directory for caching
+        :type cache_root_directory: Optional[Path]
+        """
+        self.cache = Cache(cache_root_directory)
         self.contexts_repository = ContextsRepository()
         self.sources_repository = SourcesRepository()
         self.commands_repository = CommandsRepository()
