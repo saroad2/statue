@@ -5,6 +5,11 @@ ENCODING = "utf-8"
 
 HISTORY_SIZE = 30
 
+GENERAL = "general"
+COMMANDS = "commands"
+CONTEXTS = "contexts"
+SOURCES = "sources"
+
 HELP = "help"
 ARGS = "args"
 CLEAR_ARGS = "clear_args"
@@ -17,11 +22,7 @@ ALIASES = "aliases"
 PARENT = "parent"
 ALLOWED_BY_DEFAULT = "allowed_by_default"
 VERSION = "version"
-
-COMMANDS = "commands"
-CONTEXTS = "contexts"
-SOURCES = "sources"
-
 OVERRIDE = "OVERRIDE"
+MODE = "mode"
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"

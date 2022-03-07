@@ -19,6 +19,10 @@ class MissingConfiguration(StatueConfigurationError):
         super().__init__(self.message)
 
 
+class InvalidConfiguration(StatueConfigurationError):
+    """Some of statue's configurations are invalid."""
+
+
 class InconsistentConfiguration(StatueConfigurationError):
     """Some of statue's configurations are inconsistent."""
 

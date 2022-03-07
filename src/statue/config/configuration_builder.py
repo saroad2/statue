@@ -5,8 +5,9 @@ from typing import Any, MutableMapping, Optional
 import toml
 
 from statue.config.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, OVERRIDE, SOURCES
-from statue.exceptions import MissingConfiguration
+from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, OVERRIDE, SOURCES
+from statue.exceptions import InvalidConfiguration, MissingConfiguration
+from statue.runner import RunnerMode
 
 
 class ConfigurationBuilder:
@@ -52,7 +53,7 @@ class ConfigurationBuilder:
             else cache_dir
         )
         configuration = Configuration(cache_root_directory=cache_dir)
-        if not statue_config.get(OVERRIDE, False):
+        if not statue_config.get(GENERAL, {}).get(OVERRIDE, False):
             if default_configuration_path.exists():
                 cls.update_from_config(
                     configuration=configuration,
@@ -72,7 +73,18 @@ class ConfigurationBuilder:
         :type configuration: Configuration
         :param statue_config: Configuration map as loaded from config file
         :type statue_config: MutableMapping[str, Any]
+        :raises InvalidConfiguration: Raised when some fields are invalid
+            in configuration
         """
+        general_configuration = statue_config.get(GENERAL, {})
+        if MODE in general_configuration:
+            mode = general_configuration[MODE].upper()
+            try:
+                configuration.default_mode = RunnerMode[mode]
+            except KeyError as error:
+                raise InvalidConfiguration(
+                    f"Got unexpected runner mode in configuration: {mode}"
+                ) from error
         if CONTEXTS in statue_config:
             configuration.contexts_repository.update_from_config(
                 statue_config[CONTEXTS]
