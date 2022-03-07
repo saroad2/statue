@@ -9,18 +9,26 @@ from statue.commands_map import CommandsMap
 from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
+from statue.runner import RunnerMode
 
 
 class Configuration:
     """Configuration singleton for statue."""
 
-    def __init__(self, cache_root_directory: Optional[Path] = None):
+    def __init__(
+        self,
+        default_mode: RunnerMode = RunnerMode.SYNC,
+        cache_root_directory: Optional[Path] = None,
+    ):
         """
         Initialize configuration.
 
+        :param default_mode: Default mode for evaluation runner
+        :type default_mode: RunnerMode
         :param cache_root_directory: Root directory for caching
         :type cache_root_directory: Optional[Path]
         """
+        self.default_mode = default_mode
         self.cache = Cache(cache_root_directory)
         self.contexts_repository = ContextsRepository()
         self.sources_repository = SourcesRepository()
