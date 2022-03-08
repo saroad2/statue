@@ -1,12 +1,14 @@
+import random
 from pathlib import Path
 
 import mock
-from pytest_cases import fixture
+from pytest_cases import fixture, parametrize
 
 from statue.cli.cli import statue_cli
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
 from statue.exceptions import UnknownContext
+from statue.runner import RunnerMode
 from statue.verbosity import DEFAULT_VERBOSITY
 from tests.constants import (
     COMMAND1,
@@ -43,6 +45,11 @@ def mock_evaluation_string(mocker):
     evaluation_string_mock = mocker.patch("statue.cli.run.evaluation_string")
     evaluation_string_mock.return_value = EVALUATION_STRING
     return evaluation_string_mock
+
+
+@fixture
+def mock_build_runner(mocker):
+    return mocker.patch("statue.cli.run.build_runner")
 
 
 def assert_evaluation_was_printed(result, evaluation_string_mock):
@@ -446,6 +453,64 @@ def test_run_on_given_source(
     assert "Statue finished successfully" in result.output
     configuration.build_commands_map.assert_called_once_with(
         sources=[Path(SOURCE1)], commands_filter=CommandsFilter()
+    )
+    configuration.cache.save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
+
+
+@parametrize(argnames="runner_mode", argvalues=[RunnerMode.SYNC, RunnerMode.ASYNC])
+def test_run_with_mode(
+    cli_runner,
+    runner_mode,
+    mock_cwd,
+    mock_build_configuration_from_file,
+    mock_build_runner,
+    mock_evaluation_string,
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
+    configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
+    configuration.build_commands_map.return_value = build_commands_map()
+    evaluation = mock_build_runner.return_value.evaluate.return_value
+    evaluation.success = True
+    evaluation.total_execution_duration = random.random()
+
+    result = cli_runner.invoke(
+        statue_cli, ["run", f"--mode={runner_mode.name.lower()}"]
+    )
+
+    assert (
+        result.exit_code == 0
+    ), f"Command failed with the following exception: {result.exception}"
+    assert "Statue finished successfully" in result.output
+    configuration.build_commands_map.assert_called_once_with(
+        sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
+    )
+    mock_build_runner.assert_called_once_with(runner_mode.name)
+    configuration.cache.save_evaluation.assert_called_once()
+    assert_evaluation_was_printed(result, mock_evaluation_string)
+
+
+def test_run_verbosely(
+    cli_runner,
+    mock_build_configuration_from_file,
+    mock_cwd,
+    mock_evaluation_string,
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
+    configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
+    configuration.build_commands_map.return_value = build_commands_map()
+
+    result = cli_runner.invoke(statue_cli, ["run", "--verbose"])
+
+    assert (
+        result.exit_code == 0
+    ), f"Command failed with the following exception: {result.exception}"
+    assert "Statue finished successfully" in result.output
+    assert "Running evaluation in sync mode" in result.output
+    configuration.build_commands_map.assert_called_once_with(
+        sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
     configuration.cache.save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)

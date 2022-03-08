@@ -5,9 +5,10 @@ from typing import Optional, Union
 import click
 
 from statue import __version__
+from statue.cli.styled_strings import failure_style
 from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
-from statue.exceptions import MissingConfiguration
+from statue.exceptions import StatueConfigurationError
 
 pass_configuration = click.make_pass_decorator(Configuration)
 
@@ -37,6 +38,6 @@ def statue_cli(
         ctx.obj = ConfigurationBuilder.build_configuration_from_file(
             statue_configuration_path=config_path, cache_dir=cache_dir
         )
-    except MissingConfiguration as error:
-        click.echo(click.style(error))
+    except StatueConfigurationError as error:
+        click.echo(failure_style(click.style(error)))
         ctx.exit(3)

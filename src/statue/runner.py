@@ -2,11 +2,19 @@
 import abc
 import asyncio
 import time
+from enum import Enum, auto
 from typing import Callable, List, Optional
 
 from statue.command import Command
 from statue.commands_map import CommandsMap
 from statue.evaluation import Evaluation, SourceEvaluation
+
+
+class RunnerMode(Enum):
+    """Enum indicating in which mode are we running evaluation."""
+
+    SYNC = auto()
+    ASYNC = auto()
 
 
 class EvaluationRunner:  # pylint: disable=too-few-public-methods
@@ -196,13 +204,19 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         self.update_lock.release()
 
 
-def build_runner(is_async):
+MODE_TO_RUNNER_DICT = {
+    RunnerMode.SYNC.name: SynchronousEvaluationRunner,
+    RunnerMode.ASYNC.name: AsynchronousEvaluationRunner,
+}
+
+
+def build_runner(runner_mode: str) -> EvaluationRunner:
     """
     Build commands runner.
 
-    :param is_async: Should create async runner or not
-    :type is_async: bool:
+    :param runner_mode: Which mode should the runner work in
+    :type runner_mode: str
     :return: Runner instance.
     :rtype: EvaluationRunner
     """
-    return AsynchronousEvaluationRunner() if is_async else SynchronousEvaluationRunner()
+    return MODE_TO_RUNNER_DICT[runner_mode]()

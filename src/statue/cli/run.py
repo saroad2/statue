@@ -26,8 +26,8 @@ from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.evaluation import Evaluation
 from statue.exceptions import UnknownContext
-from statue.runner import build_runner
-from statue.verbosity import is_silent
+from statue.runner import RunnerMode, build_runner
+from statue.verbosity import is_silent, is_verbose
 
 
 @statue_cli.command("run")
@@ -73,10 +73,9 @@ from statue.verbosity import is_silent
 @verbose_option
 @verbosity_option
 @click.option(
-    "--async/--no-async",
-    "is_async",
-    is_flag=True,
-    default=False,
+    "--mode",
+    type=click.Choice([mode.name.lower() for mode in RunnerMode], case_sensitive=False),
+    callback=lambda ctx, param, value: (None if value is None else value.upper()),
     help="Should run asynchronously or not.",
 )
 @click.option(
@@ -99,7 +98,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     install: bool,
     cache: bool,
     verbosity: str,
-    is_async: bool,
+    mode: Optional[str],
     output: Optional[str],
 ) -> None:
     """
@@ -142,24 +141,17 @@ def run_cli(  # pylint: disable=too-many-arguments
         for command in chain.from_iterable(commands_map.values())
         if not command.installed_correctly()
     ]
-    if len(missing_commands) != 0:
-        if install:
-            for command in missing_commands:
-                command.update_to_version(verbosity=verbosity)
-        else:
-            missing_commands_names = [command.name for command in missing_commands]
-            click.echo(
-                failure_style(
-                    "The following commands are not installed correctly: "
-                    f"{', '.join(missing_commands_names)}"
-                )
-            )
-            click.echo(
-                "Consider using the '-i' flag in order to install missing "
-                "commands before running"
-            )
-            ctx.exit(1)
-    runner = build_runner(is_async=is_async)
+    __handle_missing_commands(
+        ctx=ctx,
+        missing_commands=missing_commands,
+        install=install,
+        verbosity=verbosity,
+    )
+    if mode is None:
+        mode = configuration.default_mode.name
+    if is_verbose(verbosity):
+        click.echo(f"Running evaluation in {mode.lower()} mode")
+    runner = build_runner(mode)
     with click.progressbar(
         length=commands_map.total_commands_count, show_pos=True, show_eta=False
     ) as bar:
@@ -238,6 +230,26 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
     if failed:
         return evaluation.failure_evaluation.commands_map
     return evaluation.commands_map
+
+
+def __handle_missing_commands(ctx, missing_commands, install, verbosity):
+    if len(missing_commands) != 0:
+        if install:
+            for command in missing_commands:
+                command.update_to_version(verbosity=verbosity)
+        else:
+            missing_commands_names = [command.name for command in missing_commands]
+            click.echo(
+                failure_style(
+                    "The following commands are not installed correctly: "
+                    f"{', '.join(missing_commands_names)}"
+                )
+            )
+            click.echo(
+                "Consider using the '-i' flag in order to install missing "
+                "commands before running"
+            )
+            ctx.exit(1)
 
 
 def __bar_update_func(bar, partial_evaluation: Evaluation):

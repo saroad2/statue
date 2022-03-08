@@ -189,7 +189,7 @@ async def test_asynchronous_runner_evaluate_commands_map_with_update_func(mock_t
     )
 
 
-def test_asynchronous_runner_evaluate(reset_events_loop):
+def test_asynchronous_runner_evaluate(event_loop):
     commands_map = mock.Mock()
     runner = AsynchronousEvaluationRunner()
 
@@ -203,7 +203,7 @@ def test_asynchronous_runner_evaluate(reset_events_loop):
         )
 
 
-def test_asynchronous_runner_evaluate_with_update_func(reset_events_loop):
+def test_asynchronous_runner_evaluate_with_update_func(event_loop):
     commands_map = mock.Mock()
     update_func = mock.Mock()
     runner = AsynchronousEvaluationRunner()
