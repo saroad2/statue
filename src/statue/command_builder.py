@@ -131,7 +131,7 @@ class ContextSpecification:
 
 
 @dataclass
-class CommandBuilder:  # pylint: disable=too-many-instance-attributes
+class CommandBuilder:
     """Command builder as specified in configuration."""
 
     name: str

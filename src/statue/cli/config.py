@@ -1,4 +1,3 @@
-# pylint: disable=too-many-arguments
 """Config CLI."""
 import re
 from collections import OrderedDict
