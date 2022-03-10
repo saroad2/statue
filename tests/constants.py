@@ -1,6 +1,7 @@
 import random
 
 EPSILON = 1e-5
+ENVIRON = dict(s=2, d=5, g=8)
 
 SUCCESSFUL_TAG = "successful"
 FAILED_TAG = "failed"

@@ -148,7 +148,7 @@ def test_command_builder_with_all_fields():
     )
 
     assert command_builder.name == COMMAND1
-    assert command_builder.install_name == COMMAND1
+    assert command_builder.install_name == f"{COMMAND1}=={version}"
     assert command_builder.help == COMMAND_HELP_STRING1
     assert command_builder.default_args == [ARG1, ARG2]
     assert command_builder.version == version
