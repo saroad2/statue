@@ -31,7 +31,7 @@ from tests.constants import (
 def case_simple_command_builder():
     command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
     contexts = []
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
 
     return command_builder, contexts, command
 
@@ -42,7 +42,7 @@ def case_command_builder_with_default_args():
         name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
     )
     contexts = []
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2])
+    command = Command(name=COMMAND1, args=[ARG1, ARG2])
 
     return command_builder, contexts, command
 
@@ -54,7 +54,7 @@ def case_command_builder_with_version():
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
     )
     contexts = []
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, version=version)
+    command = Command(name=COMMAND1)
 
     return command_builder, contexts, command
 
@@ -65,7 +65,7 @@ def case_command_builder_with_allowed_context():
         name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[CONTEXT1]
     )
     contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
 
     return command_builder, contexts, command
 
@@ -76,7 +76,7 @@ def case_command_builder_with_required_context():
         name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
     )
     contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
 
     return command_builder, contexts, command
 
@@ -92,7 +92,7 @@ def case_command_builder_with_overriding_args():
         },
     )
     contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG3, ARG4, ARG5])
+    command = Command(name=COMMAND1, args=[ARG3, ARG4, ARG5])
 
     return command_builder, contexts, command
 
@@ -106,9 +106,7 @@ def case_command_builder_with_added_args():
         contexts_specifications={CONTEXT1: ContextSpecification(add_args=[ARG3, ARG4])},
     )
     contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
-    command = Command(
-        name=COMMAND1, help=COMMAND_HELP_STRING1, args=[ARG1, ARG2, ARG3, ARG4]
-    )
+    command = Command(name=COMMAND1, args=[ARG1, ARG2, ARG3, ARG4])
 
     return command_builder, contexts, command
 
@@ -122,7 +120,7 @@ def case_command_builder_with_clear_args():
         contexts_specifications={CONTEXT1: ContextSpecification(clear_args=True)},
     )
     contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
 
     return command_builder, contexts, command
 
@@ -144,7 +142,6 @@ def case_command_builder_with_two_added_args_contexts():
     ]
     command = Command(
         name=COMMAND1,
-        help=COMMAND_HELP_STRING1,
         args=[ARG1, ARG2, ARG3, ARG4, ARG5, ARG6],
     )
 
@@ -166,7 +163,7 @@ def case_command_builder_with_add_and_clear_contexts():
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
     ]
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
 
     return command_builder, contexts, command
 

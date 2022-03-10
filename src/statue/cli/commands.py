@@ -1,19 +1,9 @@
 """Commands CLI."""
-from typing import List
-
 import click
 
 from statue.cli.cli import pass_configuration, statue_cli
-from statue.cli.common_flags import (
-    allow_option,
-    contexts_option,
-    deny_option,
-    silent_option,
-    verbose_option,
-    verbosity_option,
-)
+from statue.cli.common_flags import silent_option, verbose_option, verbosity_option
 from statue.cli.styled_strings import bullet_style, name_style
-from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.exceptions import UnknownCommand
 
@@ -32,35 +22,18 @@ def list_commands_cli(configuration: Configuration) -> None:
 
 
 @commands_cli.command("install")
-@contexts_option
-@allow_option
-@deny_option
 @silent_option
 @verbose_option
 @verbosity_option
 @pass_configuration
 def install_commands_cli(
     configuration: Configuration,
-    context: List[str],
-    allow: List[str],
-    deny: List[str],
     verbosity: str,
 ) -> None:
     """Install missing commands."""
-    commands_list = configuration.build_commands(
-        CommandsFilter(
-            contexts=frozenset(
-                {
-                    configuration.contexts_repository[context_name]
-                    for context_name in context
-                }
-            ),
-            allowed_commands=(frozenset(allow) if len(allow) != 0 else None),
-            denied_commands=(frozenset(deny) if len(deny) != 0 else None),
-        )
-    )
-    for command in commands_list:
-        command.install(verbosity=verbosity)
+    for command_builder in configuration.commands_repository:
+        if not command_builder.installed_correctly():
+            command_builder.install(verbosity=verbosity)
 
 
 @commands_cli.command("show")

@@ -159,14 +159,15 @@ def fixate_commands_versions(
     if COMMANDS not in raw_config_dict:
         raw_config_dict[COMMANDS] = {}
     for command_builder in configuration.commands_repository:
-        command = command_builder.build_command()
         if latest:
-            command.update(verbosity=verbosity)
-        if not command.installed():
+            command_builder.update(verbosity=verbosity)
+        if not command_builder.installed():
             continue
-        if command.name not in raw_config_dict[COMMANDS]:
-            raw_config_dict[COMMANDS][command.name] = {}
-        raw_config_dict[COMMANDS][command.name][VERSION] = command.installed_version
+        if command_builder.name not in raw_config_dict[COMMANDS]:
+            raw_config_dict[COMMANDS][command_builder.name] = {}
+        raw_config_dict[COMMANDS][command_builder.name][
+            VERSION
+        ] = command_builder.installed_version
     with open(configuration_path, mode="w", encoding=ENCODING) as config_file:
         toml.dump(raw_config_dict, config_file)
 

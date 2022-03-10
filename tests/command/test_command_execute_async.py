@@ -8,7 +8,7 @@ import pytest_asyncio
 from statue.command import Command, CommandEvaluation
 from statue.exceptions import CommandExecutionError
 from statue.sources_locks_repository import SourcesLocksRepository
-from tests.constants import COMMAND1, COMMAND_HELP_STRING1, SOURCE1
+from tests.constants import COMMAND1, SOURCE1
 from tests.util import assert_equal_command_evaluations, set_execution_duration
 
 
@@ -46,7 +46,7 @@ async def test_simple_command_execute(
     mock_async_create_subprocess, mock_get_source_lock, environ, mock_time
 ):
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess, exit_code=0, stdout="", stderr=""
     )
@@ -88,7 +88,7 @@ async def test_command_execute_with_args(
 ):
     args = ["a", "b", "c", "d"]
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=args)
+    command = Command(name=COMMAND1, args=args)
     set_async_subprocess_response(
         mock_async_create_subprocess, exit_code=0, stdout="", stderr=""
     )
@@ -130,7 +130,7 @@ async def test_command_execute_with_non_zero_exit_code(
     mock_async_create_subprocess, mock_get_source_lock, environ, mock_time
 ):
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess,
         exit_code=random.randint(1, 10),
@@ -175,7 +175,7 @@ async def test_command_execute_with_one_line_stdout(
 ):
     stdout_line = "This is a line"
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess, exit_code=0, stdout=stdout_line, stderr=""
     )
@@ -217,7 +217,7 @@ async def test_command_execute_with_two_lines_stdout(
 ):
     stdout = ["This is a line", "This is also a line"]
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess,
         exit_code=0,
@@ -262,7 +262,7 @@ async def test_command_execute_with_one_line_stderr(
 ):
     stderr_line = "This is a line"
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess, exit_code=0, stdout="", stderr=stderr_line
     )
@@ -304,7 +304,7 @@ async def test_command_execute_with_two_lines_stderr(
 ):
     stderr = ["This is a line", "This is also a line"]
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess,
         exit_code=0,
@@ -349,7 +349,7 @@ async def test_command_execute_with_both_stdout_and_stderr(
 ):
     stdout_line, stderr_line = "This is an stdout line", "This is an stderr line"
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     set_async_subprocess_response(
         mock_async_create_subprocess,
         exit_code=0,
@@ -391,7 +391,7 @@ async def test_command_execute_with_both_stdout_and_stderr(
 @pytest.mark.asyncio
 async def test_command_execute_raises_file_not_found_exception(mock_subprocess):
     mock_async_create_subprocess.side_effect = FileNotFoundError
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     source = SOURCE1
     with pytest.raises(
         CommandExecutionError,

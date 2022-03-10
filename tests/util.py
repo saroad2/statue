@@ -35,27 +35,9 @@ def build_failure_evaluation(commands_map):
 
 
 def command_mock(
-    name,
-    installed=True,
-    version=None,
-    execution_duration=0,
-    success=True,
-    args=None,
-    captured_output=None,
-    installed_version="0.0.1",
+    name, execution_duration=0, success=True, args=None, captured_output=None
 ):
-    command = Command(name=name, help="This is help", version=version)
-    command.name = name
-    command.args = args
-    command.install = mock.Mock()
-    command.update = mock.Mock()
-    command.update_to_version = mock.Mock()
-    get_package = mock.Mock()
-    if not installed:
-        get_package.return_value = None
-    else:
-        get_package.return_value.version = installed_version
-    command._get_package = get_package  # pylint: disable=protected-access
+    command = Command(name=name, args=args)
     command_evaluation = CommandEvaluation(
         command=command,
         success=success,
@@ -67,18 +49,27 @@ def command_mock(
 
 
 def command_builder_mock(
-    name, default_args=None, installed=True, installed_version="0.0.1"
+    name,
+    version=None,
+    default_args=None,
+    installed=True,
+    installed_version="0.0.1",
 ):
     default_args = default_args if default_args is not None else []
     command_builder = CommandBuilder(
-        name=name, help="This is help", default_args=default_args
+        name=name, help="This is help", version=version, default_args=default_args
     )
-    command_builder.build_command = mock.Mock(
-        return_value=command_mock(
-            name=name, installed=installed, installed_version=installed_version
-        )
-    )
+    command_builder.build_command = mock.Mock(return_value=command_mock(name=name))
     command_builder.update_from_config = mock.Mock()
+    get_package = mock.Mock()
+    if not installed:
+        get_package.return_value = None
+    else:
+        get_package.return_value.version = installed_version
+    command_builder._get_package = get_package  # pylint: disable=protected-access
+    command_builder.install = mock.Mock()
+    command_builder.update = mock.Mock()
+    command_builder.update_to_version = mock.Mock()
     return command_builder
 
 

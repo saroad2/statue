@@ -19,7 +19,7 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
-from tests.util import build_failure_evaluation, command_mock
+from tests.util import build_failure_evaluation, command_builder_mock, command_mock
 
 EVALUATION_STRING = "This is an evaluation"
 
@@ -114,16 +114,24 @@ def test_run_and_install_uninstalled_commands(
     mock_cwd,
     mock_evaluation_string,
 ):
-    command1 = command_mock(COMMAND1, installed=True)
-    command2 = command_mock(COMMAND2, installed=False)
-    command3 = command_mock(COMMAND3, installed=True)
+    command_builder1, command_builder2, command_builder3 = (
+        command_builder_mock(COMMAND1, installed=True),
+        command_builder_mock(COMMAND2, installed=False),
+        command_builder_mock(COMMAND3, installed=True),
+    )
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
+    configuration.commands_repository.add_command_builders(
+        command_builder1, command_builder2, command_builder3
+    )
     configuration.build_commands_map.return_value = CommandsMap(
         {
-            SOURCE1: [command1, command2],
-            SOURCE2: [command3],
+            SOURCE1: [
+                command_builder1.build_command.return_value,
+                command_builder2.build_command.return_value,
+            ],
+            SOURCE2: [command_builder3.build_command.return_value],
         }
     )
 
@@ -137,9 +145,11 @@ def test_run_and_install_uninstalled_commands(
     configuration.cache.save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
-    command1.update_to_version.assert_not_called()
-    command2.update_to_version.assert_called_once_with(verbosity=DEFAULT_VERBOSITY)
-    command3.update_to_version.assert_not_called()
+    command_builder1.update_to_version.assert_not_called()
+    command_builder2.update_to_version.assert_called_once_with(
+        verbosity=DEFAULT_VERBOSITY
+    )
+    command_builder3.update_to_version.assert_not_called()
 
 
 def test_run_and_save_to_file(
@@ -412,16 +422,26 @@ def test_run_uninstalled_command(
     mock_cwd,
     mock_evaluation_string,
 ):
-    command1 = command_mock(COMMAND1, installed=True)
-    command2 = command_mock(COMMAND2, installed=False)
-    command3 = command_mock(COMMAND3, installed=True)
+    command_builder1, command_builder2, command_builder3 = (
+        command_builder_mock(COMMAND1, installed=True),
+        command_builder_mock(COMMAND2, installed=False),
+        command_builder_mock(COMMAND3, installed=True),
+    )
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.build_commands_map.return_value = {
-        SOURCE1: [command1, command2],
-        SOURCE2: [command3],
-    }
+    configuration.commands_repository.add_command_builders(
+        command_builder1, command_builder2, command_builder3
+    )
+    configuration.build_commands_map.return_value = CommandsMap(
+        {
+            SOURCE1: [
+                command_builder1.build_command.return_value,
+                command_builder2.build_command.return_value,
+            ],
+            SOURCE2: [command_builder3.build_command.return_value],
+        }
+    )
 
     result = cli_runner.invoke(statue_cli, ["run"])
 

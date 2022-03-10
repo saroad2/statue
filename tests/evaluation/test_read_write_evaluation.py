@@ -13,8 +13,6 @@ from tests.constants import (
     COMMAND2,
     COMMAND_CAPTURED_OUTPUT1,
     COMMAND_CAPTURED_OUTPUT2,
-    COMMAND_HELP_STRING1,
-    COMMAND_HELP_STRING2,
     SOURCE1,
     SOURCE2,
 )
@@ -51,7 +49,7 @@ def case_one_source_one_commands():
                 source_execution_duration=source_execution_duration,
                 commands_evaluations=[
                     dict(
-                        command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+                        command=dict(name=COMMAND1, args=[]),
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                         execution_duration=command_execution_duration,
                         success=True,
@@ -64,7 +62,7 @@ def case_one_source_one_commands():
     evaluation[SOURCE1] = SourceEvaluation(
         commands_evaluations=[
             CommandEvaluation(
-                command=Command(COMMAND1, help=COMMAND_HELP_STRING1),
+                command=Command(COMMAND1),
                 captured_output=COMMAND_CAPTURED_OUTPUT1,
                 execution_duration=command_execution_duration,
                 success=True,
@@ -89,15 +87,13 @@ def case_one_source_two_commands():
                 source_execution_duration=source_execution_duration,
                 commands_evaluations=[
                     dict(
-                        command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+                        command=dict(name=COMMAND1, args=[]),
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                         execution_duration=command_execution_duration1,
                         success=True,
                     ),
                     dict(
-                        command=dict(
-                            name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]
-                        ),
+                        command=dict(name=COMMAND2, args=[ARG1, ARG2]),
                         captured_output=COMMAND_CAPTURED_OUTPUT2,
                         execution_duration=command_execution_duration2,
                         success=False,
@@ -111,13 +107,13 @@ def case_one_source_two_commands():
         source_execution_duration=source_execution_duration,
         commands_evaluations=[
             CommandEvaluation(
-                command=Command(COMMAND1, help=COMMAND_HELP_STRING1),
+                command=Command(COMMAND1),
                 captured_output=COMMAND_CAPTURED_OUTPUT1,
                 execution_duration=command_execution_duration1,
                 success=True,
             ),
             CommandEvaluation(
-                command=Command(COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]),
+                command=Command(COMMAND2, args=[ARG1, ARG2]),
                 captured_output=COMMAND_CAPTURED_OUTPUT2,
                 execution_duration=command_execution_duration2,
                 success=False,
@@ -148,7 +144,7 @@ def case_two_sources_two_commands():
                 source_execution_duration=source_execution_duration1,
                 commands_evaluations=[
                     dict(
-                        command=dict(name=COMMAND1, help=COMMAND_HELP_STRING1, args=[]),
+                        command=dict(name=COMMAND1, args=[]),
                         captured_output=COMMAND_CAPTURED_OUTPUT1,
                         execution_duration=command_execution_duration1,
                         success=True,
@@ -159,9 +155,7 @@ def case_two_sources_two_commands():
                 source_execution_duration=source_execution_duration2,
                 commands_evaluations=[
                     dict(
-                        command=dict(
-                            name=COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]
-                        ),
+                        command=dict(name=COMMAND2, args=[ARG1, ARG2]),
                         captured_output=COMMAND_CAPTURED_OUTPUT2,
                         execution_duration=command_execution_duration2,
                         success=False,
@@ -175,7 +169,7 @@ def case_two_sources_two_commands():
         source_execution_duration=source_execution_duration1,
         commands_evaluations=[
             CommandEvaluation(
-                command=Command(COMMAND1, help=COMMAND_HELP_STRING1),
+                command=Command(COMMAND1),
                 captured_output=COMMAND_CAPTURED_OUTPUT1,
                 execution_duration=command_execution_duration1,
                 success=True,
@@ -186,7 +180,7 @@ def case_two_sources_two_commands():
         source_execution_duration=source_execution_duration2,
         commands_evaluations=[
             CommandEvaluation(
-                command=Command(COMMAND2, help=COMMAND_HELP_STRING2, args=[ARG1, ARG2]),
+                command=Command(COMMAND2, args=[ARG1, ARG2]),
                 captured_output=COMMAND_CAPTURED_OUTPUT2,
                 execution_duration=command_execution_duration2,
                 success=False,

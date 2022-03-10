@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import mock
@@ -8,6 +9,7 @@ from statue.config.configuration_builder import ConfigurationBuilder
 from statue.evaluation import Evaluation
 
 # 3rd Party Mocks
+from tests.constants import ENVIRON
 
 
 @pytest.fixture
@@ -23,6 +25,17 @@ def mock_toml_load(mocker):
 @pytest.fixture
 def mock_toml_dump(mocker):
     return mocker.patch("toml.dump")
+
+
+@pytest.fixture
+def mock_subprocess(mocker):
+    return mocker.patch("subprocess.run")
+
+
+@pytest.fixture
+def environ(monkeypatch):
+    monkeypatch.setattr(os, "environ", ENVIRON)
+    return ENVIRON
 
 
 # Configuration Mocks
