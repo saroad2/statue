@@ -364,12 +364,7 @@ class CommandBuilder:
         :rtype: Command
         """
         self.validate_contexts(*contexts)
-        return Command(
-            name=self.name,
-            help=self.help,
-            args=self.build_args(*contexts),
-            version=self.version,
-        )
+        return Command(name=self.name, args=self.build_args(*contexts))
 
     def build_args(self, *contexts: Context) -> List[str]:
         """

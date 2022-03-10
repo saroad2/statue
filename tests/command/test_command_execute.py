@@ -5,7 +5,7 @@ import pytest
 
 from statue.command import Command, CommandEvaluation
 from statue.exceptions import CommandExecutionError
-from tests.constants import COMMAND1, COMMAND_HELP_STRING1, SOURCE1
+from tests.constants import COMMAND1, SOURCE1
 from tests.util import assert_equal_command_evaluations, set_execution_duration
 
 
@@ -19,7 +19,7 @@ def mock_subprocess_response(exit_code, stdout, stderr):
 
 def test_simple_command_execute(mock_subprocess, environ, mock_time):
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(exit_code=0, stdout="", stderr="")
     mock_subprocess.return_value = subprocess_response
     execution_duration = set_execution_duration(mock_time)
@@ -45,7 +45,7 @@ def test_simple_command_execute(mock_subprocess, environ, mock_time):
 def test_command_execute_with_args(mock_subprocess, environ, mock_time):
     args = ["a", "b", "c", "d"]
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1, args=args)
+    command = Command(name=COMMAND1, args=args)
     subprocess_response = mock_subprocess_response(exit_code=0, stdout="", stderr="")
     mock_subprocess.return_value = subprocess_response
     execution_duration = set_execution_duration(mock_time)
@@ -70,7 +70,7 @@ def test_command_execute_with_args(mock_subprocess, environ, mock_time):
 
 def test_command_execute_with_non_zero_exit_code(mock_subprocess, environ, mock_time):
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(
         exit_code=random.randint(1, 10), stdout="", stderr=""
     )
@@ -98,7 +98,7 @@ def test_command_execute_with_non_zero_exit_code(mock_subprocess, environ, mock_
 def test_command_execute_with_one_line_stdout(mock_subprocess, environ, mock_time):
     stdout_line = "This is a line"
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(
         exit_code=0, stdout=stdout_line, stderr=""
     )
@@ -126,7 +126,7 @@ def test_command_execute_with_one_line_stdout(mock_subprocess, environ, mock_tim
 def test_command_execute_with_two_lines_stdout(mock_subprocess, environ, mock_time):
     stdout = ["This is a line", "This is also a line"]
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(
         exit_code=0, stdout="\n".join(stdout), stderr=""
     )
@@ -154,7 +154,7 @@ def test_command_execute_with_two_lines_stdout(mock_subprocess, environ, mock_ti
 def test_command_execute_with_one_line_stderr(mock_subprocess, environ, mock_time):
     stderr_line = "This is a line"
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(
         exit_code=0, stdout="", stderr=stderr_line
     )
@@ -182,7 +182,7 @@ def test_command_execute_with_one_line_stderr(mock_subprocess, environ, mock_tim
 def test_command_execute_with_two_lines_stderr(mock_subprocess, environ, mock_time):
     stderr = ["This is a line", "This is also a line"]
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(
         exit_code=0, stdout="", stderr="\n".join(stderr)
     )
@@ -212,7 +212,7 @@ def test_command_execute_with_both_stdout_and_stderr(
 ):
     stdout_line, stderr_line = "This is an stdout line", "This is an stderr line"
     source = SOURCE1
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     subprocess_response = mock_subprocess_response(
         exit_code=0, stdout=stdout_line + "\n", stderr=stderr_line
     )
@@ -239,7 +239,7 @@ def test_command_execute_with_both_stdout_and_stderr(
 
 def test_command_execute_raises_file_not_found_exception(mock_subprocess):
     mock_subprocess.side_effect = FileNotFoundError
-    command = Command(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    command = Command(name=COMMAND1)
     source = SOURCE1
     with pytest.raises(
         CommandExecutionError,

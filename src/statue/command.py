@@ -6,7 +6,7 @@ import subprocess  # nosec
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 from statue.constants import ENCODING
 from statue.exceptions import CommandExecutionError
@@ -69,9 +69,7 @@ class Command:
     """Runnable evaluation command."""
 
     name: str
-    help: str
     args: List[str] = field(default_factory=list)
-    version: Optional[str] = field(default=None)
 
     def program_execution_args(self, source: Union[Path, str]) -> List[str]:
         """

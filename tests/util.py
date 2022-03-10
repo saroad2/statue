@@ -35,16 +35,9 @@ def build_failure_evaluation(commands_map):
 
 
 def command_mock(
-    name,
-    version=None,
-    execution_duration=0,
-    success=True,
-    args=None,
-    captured_output=None,
+    name, execution_duration=0, success=True, args=None, captured_output=None
 ):
-    command = Command(name=name, help="This is help", version=version)
-    command.name = name
-    command.args = args
+    command = Command(name=name, args=args)
     command_evaluation = CommandEvaluation(
         command=command,
         success=success,
@@ -66,9 +59,7 @@ def command_builder_mock(
     command_builder = CommandBuilder(
         name=name, help="This is help", version=version, default_args=default_args
     )
-    command_builder.build_command = mock.Mock(
-        return_value=command_mock(name=name, version=version)
-    )
+    command_builder.build_command = mock.Mock(return_value=command_mock(name=name))
     command_builder.update_from_config = mock.Mock()
     get_package = mock.Mock()
     if not installed:
