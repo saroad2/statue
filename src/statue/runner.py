@@ -21,7 +21,7 @@ class EvaluationRunner:  # pylint: disable=too-few-public-methods
     """Evaluation runner interface."""
 
     @abc.abstractmethod
-    def evaluate(  # pylint: disable=unused-argument, no-self-use
+    def evaluate(
         self,
         commands_map: CommandsMap,
         update_func: Optional[Callable[[Evaluation], None]] = None,
