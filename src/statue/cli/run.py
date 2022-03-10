@@ -1,6 +1,5 @@
 # pylint: disable=too-many-locals
 """Run CLI."""
-from itertools import chain
 from pathlib import Path
 from typing import List, Optional, Sequence, Union
 
@@ -136,10 +135,12 @@ def run_cli(  # pylint: disable=too-many-arguments
     if commands_map is None or len(commands_map) == 0:
         click.echo(ctx.get_help())
         return
+    command_names = commands_map.command_names
     missing_commands = [
-        command
-        for command in chain.from_iterable(commands_map.values())
-        if not command.installed_correctly()
+        command_builder
+        for command_builder in configuration.commands_repository
+        if command_builder.name in command_names
+        and not command_builder.installed_correctly()
     ]
     __handle_missing_commands(
         ctx=ctx,
