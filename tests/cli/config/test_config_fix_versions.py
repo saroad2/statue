@@ -172,8 +172,8 @@ def test_config_fix_version_latest(
             },
             mock_open.return_value,
         )
-    command_builder1.build_command.return_value.update.assert_called_once()
-    command_builder2.build_command.return_value.update.assert_called_once()
+    command_builder1.update.assert_called_once()
+    command_builder2.update.assert_called_once()
 
     assert result.exit_code == 0
 
