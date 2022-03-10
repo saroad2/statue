@@ -1,7 +1,6 @@
-from unittest import mock
-
 from statue.cli import statue_cli
 from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.config.configuration import Configuration
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG1,
@@ -24,6 +23,7 @@ from tests.constants import (
     CONTEXT6,
     NOT_EXISTING_COMMAND,
 )
+from tests.util import command_builder_mock
 
 
 def test_commands_list(cli_runner, mock_build_configuration_from_file):
@@ -161,20 +161,52 @@ def test_commands_show_unknown_command_side_effect(
 def test_command_install_with_default_verbosity(
     cli_runner, mock_build_configuration_from_file
 ):
-    commands = [mock.Mock(), mock.Mock(), mock.Mock()]
-    configuration = mock_build_configuration_from_file.return_value
-    configuration.build_commands.return_value = commands
+    command_builders = [
+        command_builder_mock(name=COMMAND1, installed=False),
+        command_builder_mock(name=COMMAND2, installed=False),
+        command_builder_mock(name=COMMAND3, installed=False),
+    ]
+    configuration = Configuration()
+    configuration.commands_repository.add_command_builders(*command_builders)
+    mock_build_configuration_from_file.return_value = configuration
     result = cli_runner.invoke(statue_cli, ["command", "install"])
-    for command in commands:
-        command.install.assert_called_with(verbosity=DEFAULT_VERBOSITY)
+    for command_builder in command_builders:
+        command_builder.install.assert_called_once_with(verbosity=DEFAULT_VERBOSITY)
     assert result.exit_code == 0, "Show command returned with no success code"
 
 
 def test_command_install_with_verbose(cli_runner, mock_build_configuration_from_file):
-    commands = [mock.Mock(), mock.Mock(), mock.Mock()]
-    configuration = mock_build_configuration_from_file.return_value
-    configuration.build_commands.return_value = commands
+    command_builders = [
+        command_builder_mock(name=COMMAND1, installed=False),
+        command_builder_mock(name=COMMAND2, installed=False),
+        command_builder_mock(name=COMMAND3, installed=False),
+    ]
+    configuration = Configuration()
+    configuration.commands_repository.add_command_builders(*command_builders)
+    mock_build_configuration_from_file.return_value = configuration
     result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
-    for command in commands:
-        command.install.assert_called_with(verbosity=VERBOSE)
+    for command_builder in command_builders:
+        command_builder.install.assert_called_with(verbosity=VERBOSE)
+    assert result.exit_code == 0, "Show command returned with no success code"
+
+
+def test_command_install_only_uninstalled(
+    cli_runner, mock_build_configuration_from_file
+):
+    command_builder1, command_builder2, command_builder3 = (
+        command_builder_mock(name=COMMAND1, installed=True),
+        command_builder_mock(name=COMMAND2, installed=False),
+        command_builder_mock(
+            name=COMMAND3, installed=True, version="0.2.8", installed_version="0.2.7"
+        ),
+    )
+    configuration = Configuration()
+    configuration.commands_repository.add_command_builders(
+        command_builder1, command_builder2, command_builder3
+    )
+    mock_build_configuration_from_file.return_value = configuration
+    result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
+    command_builder1.install.assert_not_called()
+    command_builder2.install.assert_called_with(verbosity=VERBOSE)
+    command_builder3.install.assert_called_with(verbosity=VERBOSE)
     assert result.exit_code == 0, "Show command returned with no success code"
