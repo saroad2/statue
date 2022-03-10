@@ -8,7 +8,6 @@ def test_simple_command_init():
     assert command.help == COMMAND_HELP_STRING1
     assert command.args == []
     assert command.version is None
-    assert command.install_name == COMMAND1
 
 
 def test_command_init_with_args():
@@ -18,7 +17,6 @@ def test_command_init_with_args():
     assert command.help == COMMAND_HELP_STRING1
     assert command.args == args
     assert command.version is None
-    assert command.install_name == COMMAND1
 
 
 def test_command_init_with_version():
@@ -28,7 +26,6 @@ def test_command_init_with_version():
     assert command.help == COMMAND_HELP_STRING1
     assert command.args == []
     assert command.version == version
-    assert command.install_name == f"{COMMAND1}=={version}"
 
 
 def test_command_init_with_args_and_version():
@@ -41,4 +38,3 @@ def test_command_init_with_args_and_version():
     assert command.help == COMMAND_HELP_STRING1
     assert command.args == args
     assert command.version == version
-    assert command.install_name == f"{COMMAND1}=={version}"
