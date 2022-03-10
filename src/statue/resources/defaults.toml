@@ -62,7 +62,12 @@ allowed_contexts = ["test"]
 add_args = ["--strict"]
 
 [commands.pylint]
-args = ["--ignore-imports=y", "--disable=bad-continuation"]
+args = [
+    "--ignore-imports=y",
+    "--disable=bad-continuation",
+    "--enable=useless-suppression",
+    "--fail-on=useless-suppression"
+]
 help = "Python code linter"
 allowed_contexts = ["documentation"]
 
