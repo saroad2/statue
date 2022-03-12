@@ -2,8 +2,6 @@
 from dataclasses import dataclass, field
 from typing import Any, List, MutableMapping, Optional
 
-from statue.constants import ALLOWED_CONTEXTS, REQUIRED_CONTEXTS
-
 
 @dataclass
 class Context:
@@ -59,22 +57,6 @@ class Context:
         if self.parent is not None:
             return self.parent.is_matching_recursively(name)
         return False
-
-    def is_allowed(self, setups: MutableMapping[str, Any]) -> bool:
-        """
-        Check if this command is allowed in the given setup.
-
-        :param setups: Setup to check if the context is allowed in
-        :type setups: MutableMapping[str, Any]
-        :return: Is this context allowed or not
-        :rtype: bool
-        """
-        names_to_check = list(setups.keys())
-        names_to_check.extend(setups.get(REQUIRED_CONTEXTS, []))
-        names_to_check.extend(setups.get(ALLOWED_CONTEXTS, []))
-        if any(self.is_matching_recursively(name) for name in names_to_check):
-            return True
-        return self.allowed_by_default
 
     def search_context_instructions(
         self, setups: MutableMapping[str, Any]
