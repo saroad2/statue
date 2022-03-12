@@ -71,6 +71,17 @@ def case_command_builder_with_allowed_context():
 
 
 @case(tags=SUCCESSFUL_TAG)
+def case_command_builder_with_allowed_context_by_default():
+    command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    contexts = [
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, allowed_by_default=True)
+    ]
+    command = Command(name=COMMAND1)
+
+    return command_builder, contexts, command
+
+
+@case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_required_context():
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]

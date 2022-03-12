@@ -327,7 +327,8 @@ class CommandBuilder:
         not_allowed_contexts = [
             context.name
             for context in contexts
-            if all(
+            if not context.allowed_by_default
+            and all(
                 not context.is_matching_recursively(available_context)
                 for available_context in self.available_contexts
             )
