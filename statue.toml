@@ -15,13 +15,13 @@ version = "4.0.1"
 version = "5.10.1"
 
 [commands.mypy]
-version = "0.931"
+version = "0.940"
 
 [commands.pylint]
 version = "2.12.2"
 
 [commands.bandit]
-version = "1.7.2"
+version = "1.7.4"
 
 [commands.pydocstyle]
 version = "6.1.1"
