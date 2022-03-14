@@ -23,7 +23,7 @@ pass_configuration = click.make_pass_decorator(Configuration)
 )
 @click.option(
     "--cache-dir",
-    envvar="STATUE_CACHE_CONFIG",
+    envvar="STATUE_CACHE",
     type=click.Path(exists=True, file_okay=False),
     help="Statue caching directory path",
 )
