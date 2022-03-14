@@ -91,14 +91,15 @@ def test_interactive_config_init(
     sources,
     inputs,
     expected_config,
-    mock_build_configuration_from_file,
     mock_configuration_path,
-    mock_cwd,
+    tmp_path,
     mock_find_sources,
     mock_toml_dump,
     mock_git_repo,
     cli_runner,
 ):
+    configuration_path = tmp_path / "statue.toml"
+    mock_configuration_path.return_value = configuration_path
     mock_sources = []
     for source in sources:
         mock_source = mock.Mock()
@@ -115,4 +116,4 @@ def test_interactive_config_init(
         mock_configuration_path.return_value, mode="w", encoding="utf-8"
     )
     mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(mock_cwd, repo=mock_git_repo.return_value)
+    mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)

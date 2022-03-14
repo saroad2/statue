@@ -46,56 +46,6 @@ def case_all_sources():
 def test_config_init(
     sources,
     expected_config,
-    mock_build_configuration_from_file,
-    mock_configuration_path,
-    mock_cwd,
-    mock_find_sources,
-    mock_toml_dump,
-    mock_git_repo,
-    cli_runner,
-):
-    mock_find_sources.return_value = [mock_cwd / source for source in sources]
-    mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(statue_cli, ["config", "init"])
-        mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w", encoding="utf-8"
-        )
-        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(mock_cwd, repo=mock_git_repo.return_value)
-    assert result.exit_code == 0
-
-
-@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
-def test_config_init_without_repo(
-    sources,
-    expected_config,
-    mock_build_configuration_from_file,
-    mock_configuration_path,
-    mock_cwd,
-    mock_find_sources,
-    mock_toml_dump,
-    mock_git_repo,
-    cli_runner,
-):
-    mock_git_repo.side_effect = InvalidGitRepositoryError()
-    mock_find_sources.return_value = [mock_cwd / source for source in sources]
-    mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(statue_cli, ["config", "init"])
-        mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w", encoding="utf-8"
-        )
-        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(mock_cwd, repo=None)
-    assert result.exit_code == 0
-
-
-@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
-def test_config_init_with_directory(
-    sources,
-    expected_config,
-    mock_build_configuration_from_file,
     mock_configuration_path,
     tmp_path,
     mock_find_sources,
@@ -103,15 +53,69 @@ def test_config_init_with_directory(
     mock_git_repo,
     cli_runner,
 ):
+    configuration_path = tmp_path / "statue.toml"
+    mock_configuration_path.return_value = configuration_path
     mock_find_sources.return_value = [tmp_path / source for source in sources]
     mock_open = mock.mock_open()
     with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(
-            statue_cli, ["config", "init", "--directory", str(tmp_path)]
-        )
+        result = cli_runner.invoke(statue_cli, ["config", "init"])
+        assert result.exit_code == 0
         mock_open.assert_called_once_with(
             mock_configuration_path.return_value, mode="w", encoding="utf-8"
         )
         mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
     mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)
+
+
+@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
+def test_config_init_without_repo(
+    sources,
+    expected_config,
+    mock_configuration_path,
+    tmp_path,
+    mock_find_sources,
+    mock_toml_dump,
+    mock_git_repo,
+    cli_runner,
+):
+    configuration_path = tmp_path / "statue.toml"
+    mock_configuration_path.return_value = configuration_path
+    mock_git_repo.side_effect = InvalidGitRepositoryError()
+    mock_find_sources.return_value = [tmp_path / source for source in sources]
+    mock_open = mock.mock_open()
+    with mock.patch("statue.cli.config.open", mock_open):
+        result = cli_runner.invoke(statue_cli, ["config", "init"])
+        mock_open.assert_called_once_with(
+            mock_configuration_path.return_value, mode="w", encoding="utf-8"
+        )
+        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
+    mock_find_sources.assert_called_once_with(tmp_path, repo=None)
     assert result.exit_code == 0
+
+
+@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
+def test_config_init_with_directory(
+    sources,
+    expected_config,
+    mock_configuration_path,
+    tmp_path,
+    mock_find_sources,
+    mock_toml_dump,
+    mock_git_repo,
+    cli_runner,
+):
+    configuration_path = tmp_path / "statue.toml"
+    configuration_path.touch()
+    mock_find_sources.return_value = [tmp_path / source for source in sources]
+    mock_open = mock.mock_open()
+    with mock.patch("statue.cli.config.open", mock_open):
+        result = cli_runner.invoke(
+            statue_cli, ["config", "init", "--config", str(configuration_path)]
+        )
+        assert result.exit_code == 0
+        mock_configuration_path.assert_not_called()
+        mock_open.assert_called_once_with(
+            configuration_path, mode="w", encoding="utf-8"
+        )
+        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
+    mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)

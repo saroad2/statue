@@ -5,6 +5,7 @@ from typing import Optional, Union
 import click
 
 from statue import __version__
+from statue.cli.common_flags import config_path_option
 from statue.cli.styled_strings import failure_style
 from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
@@ -15,12 +16,7 @@ pass_configuration = click.make_pass_decorator(Configuration)
 
 @click.group(name="statue", no_args_is_help=True)
 @click.version_option(version=__version__)
-@click.option(
-    "--config",
-    envvar="STATUE_CONFIG",
-    type=click.Path(exists=True, dir_okay=False),
-    help="Statue configuration file.",
-)
+@config_path_option
 @click.option(
     "--cache-dir",
     envvar="STATUE_CACHE",
@@ -29,9 +25,13 @@ pass_configuration = click.make_pass_decorator(Configuration)
 )
 @click.pass_context
 def statue_cli(
-    ctx, config: Optional[Union[str, Path]], cache_dir: Optional[Union[str, Path]]
-) -> None:
+    ctx: click.Context,
+    config: Optional[Union[str, Path]],
+    cache_dir: Optional[Union[str, Path]],
+):
     """Statue is a static code analysis tools orchestrator."""
+    if ctx.invoked_subcommand == "config":
+        return
     config_path = Path(config) if config is not None else None
     cache_dir = Path(cache_dir) if cache_dir is not None else None
     try:
