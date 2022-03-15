@@ -70,6 +70,7 @@ def command_builder_mock(
     command_builder.install = mock.Mock()
     command_builder.update = mock.Mock()
     command_builder.update_to_version = mock.Mock()
+    command_builder.as_dict = mock.Mock()
     return command_builder
 
 

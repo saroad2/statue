@@ -97,3 +97,17 @@ class CommandsRepository:
                         command_name=command_name, builder_setups=builder_setups
                     )
                 )
+
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Encode commands repository as a dictionary.
+
+        This is used in order to serialize the commands repository in
+        a configuration file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        return {
+            command_builder.name: command_builder.as_dict() for command_builder in self
+        }
