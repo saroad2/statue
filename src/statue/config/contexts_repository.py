@@ -1,5 +1,5 @@
 """Place for saving all available contexts."""
-from typing import Any, Iterator, MutableMapping
+from typing import Any, Dict, Iterator, MutableMapping
 
 from statue.constants import ALIASES, PARENT
 from statue.context import Context
@@ -134,3 +134,15 @@ class ContextsRepository:
                     "because a context is already defined with this name"
                 )
         return Context(name=context_name, **context_config)
+
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Encode contexts repository as a dictionary.
+
+        This is used in order to serialize the contexts repository in
+        a configuration file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        return {context.name: context.as_dict() for context in self}

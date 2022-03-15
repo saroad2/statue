@@ -1,3 +1,4 @@
+import mock
 import pytest
 
 from statue.config.contexts_repository import ContextsRepository
@@ -146,6 +147,18 @@ def test_contexts_repository_iterate():
     contexts_repository = ContextsRepository(context1, context2, context3)
 
     assert list(contexts_repository) == [context1, context2, context3]
+
+
+def test_contexts_repository_as_dict():
+    context1, context2, context3 = (mock.Mock(), mock.Mock(), mock.Mock())
+    context1.name, context2.name, context3.name = CONTEXT1, CONTEXT2, CONTEXT3
+
+    contexts_repository = ContextsRepository(context1, context2, context3)
+    assert contexts_repository.as_dict() == {
+        CONTEXT1: context1.as_dict.return_value,
+        CONTEXT2: context2.as_dict.return_value,
+        CONTEXT3: context3.as_dict.return_value,
+    }
 
 
 def test_contexts_repository_fail_getting_unknown_context():
