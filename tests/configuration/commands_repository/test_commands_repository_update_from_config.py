@@ -35,10 +35,10 @@ def test_commands_repository_update_adds_new_builder():
     commands_repository = CommandsRepository()
     commands_repository.add_command_builders(command_builder1, command_builder2)
 
-    with mock.patch.object(CommandBuilder, "from_config") as from_config_mock:
-        from_config_mock.return_value = command_builder3
+    with mock.patch.object(CommandBuilder, "from_dict") as from_dict_mock:
+        from_dict_mock.return_value = command_builder3
         commands_repository.update_from_config({COMMAND3: builder_config})
-        from_config_mock.assert_called_once_with(
+        from_dict_mock.assert_called_once_with(
             command_name=COMMAND3, builder_setups=builder_config
         )
 

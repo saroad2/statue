@@ -93,7 +93,7 @@ class CommandsRepository:
                 self[command_name].update_from_config(builder_setups)
             else:
                 self.add_command_builders(
-                    CommandBuilder.from_config(
+                    CommandBuilder.from_dict(
                         command_name=command_name, builder_setups=builder_setups
                     )
                 )

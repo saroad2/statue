@@ -427,7 +427,7 @@ class CommandBuilder:
         )
 
     @classmethod
-    def from_config(cls, command_name, builder_setups: Dict[str, Any]):
+    def from_dict(cls, command_name, builder_setups: Dict[str, Any]):
         """
         Build command builder according to a given configuration.
 
