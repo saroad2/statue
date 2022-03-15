@@ -47,7 +47,7 @@ class CommandEvaluation:
         )
 
     @classmethod
-    def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
+    def from_dict(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
         """
         Read command evaluation from json dictionary.
 

@@ -99,7 +99,7 @@ class SourceEvaluation:
         return self.commands_number - self.successful_commands_number
 
     @classmethod
-    def from_json(cls, source_evaluation: Dict[str, Any]) -> "SourceEvaluation":
+    def from_dict(cls, source_evaluation: Dict[str, Any]) -> "SourceEvaluation":
         """
         Read source evaluation from json list.
 
@@ -110,7 +110,7 @@ class SourceEvaluation:
         """
         return SourceEvaluation(
             commands_evaluations=[
-                CommandEvaluation.from_json(command_evaluation)
+                CommandEvaluation.from_dict(command_evaluation)
                 for command_evaluation in source_evaluation["commands_evaluations"]
             ],
             source_execution_duration=source_evaluation["source_execution_duration"],
@@ -278,7 +278,7 @@ class Evaluation:
         :rtype: Evaluation
         """
         with open(input_path, mode="r", encoding=ENCODING) as input_file:
-            return Evaluation.from_json(json.load(input_file))
+            return Evaluation.from_dict(json.load(input_file))
 
     @property
     def commands_map(self) -> CommandsMap:
@@ -324,7 +324,7 @@ class Evaluation:
         return Evaluation(sources_evaluations=failure_dict)
 
     @classmethod
-    def from_json(cls, evaluation: Dict[str, Any]) -> "Evaluation":
+    def from_dict(cls, evaluation: Dict[str, Any]) -> "Evaluation":
         """
         Read evaluation from json dictionary.
 
@@ -335,7 +335,7 @@ class Evaluation:
         """
         return Evaluation(
             sources_evaluations={
-                input_path: SourceEvaluation.from_json(source_evaluation)
+                input_path: SourceEvaluation.from_dict(source_evaluation)
                 for input_path, source_evaluation in evaluation[
                     "sources_evaluations"
                 ].items()

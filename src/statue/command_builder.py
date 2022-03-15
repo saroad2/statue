@@ -95,7 +95,7 @@ class ContextSpecification:
             )
 
     @classmethod
-    def from_json(
+    def from_dict(
         cls,
         command_name: str,
         context_specification_setups: Dict[str, Any],
@@ -406,7 +406,7 @@ class CommandBuilder:
         # Copy in order to avoid configuration contamination
         builder_setups = dict(builder_setups)
 
-        self.default_args = ContextSpecification.from_json(
+        self.default_args = ContextSpecification.from_dict(
             command_name=self.name, context_specification_setups=builder_setups
         ).update_args(self.default_args)
 
@@ -417,7 +417,7 @@ class CommandBuilder:
         self.allowed_contexts.extend(builder_setups.pop(ALLOWED_CONTEXTS, []))
         self.contexts_specifications.update(
             {
-                context_name: ContextSpecification.from_json(
+                context_name: ContextSpecification.from_dict(
                     command_name=self.name,
                     context_name=context_name,
                     context_specification_setups=context_specification,
