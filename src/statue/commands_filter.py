@@ -1,7 +1,8 @@
 """Filter commands using simple checks."""
-from typing import Any, Collection, FrozenSet, Optional
+from typing import Any, Collection, Dict, FrozenSet, Optional
 
 from statue.command_builder import CommandBuilder
+from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
 from statue.context import Context
 
 
@@ -111,6 +112,31 @@ class CommandsFilter:
         ):
             return False
         return command_builder.match_contexts(*self.contexts)
+
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Encode commands filter as a dictionary.
+
+        This is used in order to serialize the commands filter in
+        a configuration file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        filter_as_dict = {}
+        if len(self.contexts) != 0:
+            context_names = [context.name for context in self.contexts]
+            context_names.sort()
+            filter_as_dict[CONTEXTS] = context_names
+        if self.allowed_commands is not None:
+            allowed_commands = list(self.allowed_commands)
+            allowed_commands.sort()
+            filter_as_dict[ALLOW_LIST] = allowed_commands
+        if self.denied_commands is not None:
+            denied_commands = list(self.denied_commands)
+            denied_commands.sort()
+            filter_as_dict[DENY_LIST] = denied_commands
+        return filter_as_dict
 
     @classmethod
     def merge(
