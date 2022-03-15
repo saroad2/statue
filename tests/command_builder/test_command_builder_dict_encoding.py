@@ -199,6 +199,15 @@ def test_command_builder_from_dict_successful(command_builder_dict, command_buil
     assert actual_builder == command_builder
 
 
+@parametrize_with_cases(
+    argnames=["command_builder_dict", "command_builder"],
+    cases=THIS_MODULE,
+    has_tag=SUCCESSFUL_TAG,
+)
+def test_command_builder_as_dict_successful(command_builder_dict, command_builder):
+    assert command_builder.as_dict() == command_builder_dict
+
+
 # Failed tests
 
 

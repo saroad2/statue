@@ -48,6 +48,25 @@ class ContextSpecification:
             return []
         return args
 
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Encode context specification as a dictionary.
+
+        This is used in order to serialize the context specification in
+        a configuration file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        specification_as_dict: Dict[str, Any] = {}
+        if self.args is not None:
+            specification_as_dict[ARGS] = self.args
+        if self.add_args is not None:
+            specification_as_dict[ADD_ARGS] = self.add_args
+        if self.clear_args:
+            specification_as_dict[CLEAR_ARGS] = True
+        return specification_as_dict
+
     @classmethod
     def validate(  # pylint: disable=too-many-arguments
         cls,
@@ -425,6 +444,33 @@ class CommandBuilder:
                 for context_name, context_specification in builder_setups.items()
             }
         )
+
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Encode command builder as a dictionary.
+
+        This is used in order to serialize the command builder in
+        a configuration file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        builder_as_dict: Dict[str, Any] = {HELP: self.help}
+        if self.version is not None:
+            builder_as_dict[VERSION] = self.version
+        if len(self.default_args) != 0:
+            builder_as_dict[ARGS] = self.default_args
+        if len(self.required_contexts) != 0:
+            builder_as_dict[REQUIRED_CONTEXTS] = self.required_contexts
+        if len(self.allowed_contexts) != 0:
+            builder_as_dict[ALLOWED_CONTEXTS] = self.allowed_contexts
+        builder_as_dict.update(
+            {
+                context_name: specification.as_dict()
+                for context_name, specification in self.contexts_specifications.items()
+            }
+        )
+        return builder_as_dict
 
     @classmethod
     def from_dict(cls, command_name, builder_setups: Dict[str, Any]):
