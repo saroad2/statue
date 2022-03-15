@@ -67,6 +67,18 @@ class SourcesRepository:
         """Reset sources repository."""
         self.sources_filters_map.clear()
 
+    def as_dict(self):
+        """
+        Encode sources repository as a dictionary.
+
+        This is used in order to serialize the sources repository in
+        a configuration file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        return {str(source): self[source].as_dict() for source in self.sources_list}
+
     def update_from_config(
         self, config: MutableMapping[str, Any], contexts_repository: ContextsRepository
     ):
