@@ -9,6 +9,7 @@ from statue.commands_map import CommandsMap
 from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
+from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
 from statue.runner import RunnerMode
 
 
@@ -70,3 +71,20 @@ class Configuration:
             for command_builder in self.commands_repository
             if commands_filter.pass_filter(command_builder)
         ]
+
+    def as_dict(self):
+        """
+        Encode configuration as a dictionary.
+
+        This is used in order to serialize the configuration to be later saved
+        in a file.
+
+        :return: Serialized representation dictionary
+        :rtype: Dict[str, Any]
+        """
+        return {
+            GENERAL: {MODE: self.default_mode.name.lower()},
+            CONTEXTS: self.contexts_repository.as_dict(),
+            COMMANDS: self.commands_repository.as_dict(),
+            SOURCES: self.sources_repository.as_dict(),
+        }

@@ -34,7 +34,7 @@ class SourceEvaluation:
         """
         self.commands_evaluations.append(command_evaluation)
 
-    def as_json(self) -> Dict[str, Any]:
+    def as_dict(self) -> Dict[str, Any]:
         """
         Return source evaluation as json dictionary.
 
@@ -43,7 +43,7 @@ class SourceEvaluation:
         """
         return dict(
             commands_evaluations=[
-                command_evaluation.as_json()
+                command_evaluation.as_dict()
                 for command_evaluation in self.commands_evaluations
             ],
             source_execution_duration=self.source_execution_duration,
@@ -99,7 +99,7 @@ class SourceEvaluation:
         return self.commands_number - self.successful_commands_number
 
     @classmethod
-    def from_json(cls, source_evaluation: Dict[str, Any]) -> "SourceEvaluation":
+    def from_dict(cls, source_evaluation: Dict[str, Any]) -> "SourceEvaluation":
         """
         Read source evaluation from json list.
 
@@ -110,7 +110,7 @@ class SourceEvaluation:
         """
         return SourceEvaluation(
             commands_evaluations=[
-                CommandEvaluation.from_json(command_evaluation)
+                CommandEvaluation.from_dict(command_evaluation)
                 for command_evaluation in source_evaluation["commands_evaluations"]
             ],
             source_execution_duration=source_evaluation["source_execution_duration"],
@@ -191,14 +191,14 @@ class Evaluation:
         """
         return self.sources_evaluations.items()
 
-    def as_json(self) -> Dict[str, Any]:
+    def as_dict(self) -> Dict[str, Any]:
         """
         Return evaluation as json dictionary.
 
         :return: Self as dictionary
         :rtype: Dict[str, List[Dict[str, Any]]]
         """
-        sources_evaluations = {key: value.as_json() for key, value in self.items()}
+        sources_evaluations = {key: value.as_dict() for key, value in self.items()}
         return dict(
             sources_evaluations=sources_evaluations,
             total_execution_duration=self.total_execution_duration,
@@ -212,7 +212,7 @@ class Evaluation:
         :type output: Path or str
         """
         with open(output, mode="w", encoding=ENCODING) as output_file:
-            json.dump(self.as_json(), output_file, indent=2)
+            json.dump(self.as_dict(), output_file, indent=2)
 
     @property
     def success(self) -> bool:
@@ -278,7 +278,7 @@ class Evaluation:
         :rtype: Evaluation
         """
         with open(input_path, mode="r", encoding=ENCODING) as input_file:
-            return Evaluation.from_json(json.load(input_file))
+            return Evaluation.from_dict(json.load(input_file))
 
     @property
     def commands_map(self) -> CommandsMap:
@@ -324,7 +324,7 @@ class Evaluation:
         return Evaluation(sources_evaluations=failure_dict)
 
     @classmethod
-    def from_json(cls, evaluation: Dict[str, Any]) -> "Evaluation":
+    def from_dict(cls, evaluation: Dict[str, Any]) -> "Evaluation":
         """
         Read evaluation from json dictionary.
 
@@ -335,7 +335,7 @@ class Evaluation:
         """
         return Evaluation(
             sources_evaluations={
-                input_path: SourceEvaluation.from_json(source_evaluation)
+                input_path: SourceEvaluation.from_dict(source_evaluation)
                 for input_path, source_evaluation in evaluation[
                     "sources_evaluations"
                 ].items()

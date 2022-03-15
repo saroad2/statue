@@ -27,7 +27,7 @@ class CommandEvaluation:
         """Join captured output into a single string."""
         return "\n".join(self.captured_output)
 
-    def as_json(self) -> Dict[str, Any]:
+    def as_dict(self) -> Dict[str, Any]:
         """
         Return command evaluation as json dictionary.
 
@@ -47,7 +47,7 @@ class CommandEvaluation:
         )
 
     @classmethod
-    def from_json(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
+    def from_dict(cls, command_evaluation: Dict[str, Any]) -> "CommandEvaluation":
         """
         Read command evaluation from json dictionary.
 

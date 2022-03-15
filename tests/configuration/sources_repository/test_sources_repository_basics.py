@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import mock
+
 from statue.commands_filter import CommandsFilter
 from statue.config.sources_repository import SourcesRepository
 from statue.context import Context
@@ -109,3 +111,17 @@ def test_sources_repository_reset():
 
     assert len(sources_repository) == 0
     assert not sources_repository.sources_list
+
+
+def test_sources_repository_as_dict():
+    filter1, filter2, filter3 = (mock.Mock(), mock.Mock(), mock.Mock())
+    sources_repository = SourcesRepository()
+    sources_repository[Path(SOURCE1)] = filter1
+    sources_repository[Path(SOURCE2)] = filter2
+    sources_repository[Path(SOURCE3)] = filter3
+
+    assert sources_repository.as_dict() == {
+        SOURCE1: filter1.as_dict.return_value,
+        SOURCE2: filter2.as_dict.return_value,
+        SOURCE3: filter3.as_dict.return_value,
+    }

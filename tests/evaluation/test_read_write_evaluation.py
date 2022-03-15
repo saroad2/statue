@@ -191,8 +191,8 @@ def case_two_sources_two_commands():
 
 
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
-def test_evaluation_from_json(evaluation_json, evaluation):
-    assert evaluation == Evaluation.from_json(evaluation_json)
+def test_evaluation_from_dict(evaluation_json, evaluation):
+    assert evaluation == Evaluation.from_dict(evaluation_json)
 
 
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
@@ -207,8 +207,8 @@ def test_evaluation_load_from_file(evaluation_json, evaluation):
 
 
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
-def test_evaluation_as_json(evaluation_json, evaluation):
-    assert evaluation_json == evaluation.as_json()
+def test_evaluation_as_dict(evaluation_json, evaluation):
+    assert evaluation_json == evaluation.as_dict()
 
 
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
@@ -226,6 +226,6 @@ def test_evaluation_save_as_json(evaluation_json, evaluation):
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
 def test_iterate_evaluation(evaluation_json, evaluation):
     for source in evaluation:
-        assert evaluation[source] == SourceEvaluation.from_json(
+        assert evaluation[source] == SourceEvaluation.from_dict(
             evaluation_json["sources_evaluations"][source]
         )
