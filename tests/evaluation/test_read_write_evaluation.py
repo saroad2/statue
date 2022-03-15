@@ -207,8 +207,8 @@ def test_evaluation_load_from_file(evaluation_json, evaluation):
 
 
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
-def test_evaluation_as_json(evaluation_json, evaluation):
-    assert evaluation_json == evaluation.as_json()
+def test_evaluation_as_dict(evaluation_json, evaluation):
+    assert evaluation_json == evaluation.as_dict()
 
 
 @parametrize_with_cases(argnames=["evaluation_json", "evaluation"], cases=THIS_MODULE)
