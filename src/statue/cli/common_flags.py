@@ -3,6 +3,12 @@ import click
 
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES
 
+config_path_option = click.option(
+    "--config",
+    envvar="STATUE_CONFIG",
+    type=click.Path(exists=True, dir_okay=False),
+    help="Statue configuration file.",
+)
 contexts_option = click.option(
     "-c",
     "--context",

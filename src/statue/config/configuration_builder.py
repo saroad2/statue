@@ -36,7 +36,7 @@ class ConfigurationBuilder:
         """
         default_configuration_path = cls.default_configuration_path()
         if statue_configuration_path is None:
-            statue_configuration_path = cls.configuration_path(Path.cwd())
+            statue_configuration_path = cls.configuration_path()
         if (
             not default_configuration_path.exists()
             and not statue_configuration_path.exists()
@@ -110,7 +110,7 @@ class ConfigurationBuilder:
         return Path(__file__).parent.parent / "resources" / "defaults.toml"
 
     @classmethod
-    def configuration_path(cls, directory: Path) -> Path:
+    def configuration_path(cls, directory: Optional[Path] = None) -> Path:
         """
         Search for configuration file in directory.
 
@@ -119,6 +119,8 @@ class ConfigurationBuilder:
         :return: Configuration path location
         :rtype: Path
         """
+        if directory is None:
+            directory = Path.cwd()
         return directory / "statue.toml"
 
     @classmethod

@@ -104,7 +104,6 @@ def test_configuration_builder_build_with_no_config_path(
     mock_default_configuration_path,
     mock_config_path,
     mock_cache_path,
-    mock_cwd,
     mock_toml_load,
 ):
     mock_default_configuration_path.touch()
@@ -131,7 +130,7 @@ def test_configuration_builder_build_with_no_config_path(
         mock.call(configuration=configuration, statue_config=default_config),
         mock.call(configuration=configuration, statue_config=statue_config),
     ]
-    mock_config_path.assert_called_once_with(mock_cwd)
+    mock_config_path.assert_called_once_with()
     mock_cache_path.assert_called_once_with(tmp_path)
     assert configuration.cache.cache_root_directory == cache_path
 

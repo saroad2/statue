@@ -178,14 +178,15 @@ def test_config_fix_version_latest(
     assert result.exit_code == 0
 
 
-def test_config_fix_version_with_direction(
+def test_config_fix_version_with_configuration_path(
     cli_runner,
     mock_build_configuration_from_file,
     tmp_path,
-    mock_cwd,
     mock_toml_load,
     mock_toml_dump,
 ):
+    config_path = tmp_path / "statue.toml"
+    config_path.touch()
     version1 = VERSION1
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
@@ -200,8 +201,11 @@ def test_config_fix_version_with_direction(
     mock_open = mock.mock_open()
     with mock.patch("statue.cli.config.open", mock_open):
         result = cli_runner.invoke(
-            statue_cli, ["config", "fix-versions", "--directory", str(tmp_path)]
+            statue_cli, ["config", "fix-versions", "--config", str(config_path)]
         )
+        assert (
+            result.exit_code == 0
+        ), f"Exited with error code and exception: {result.exception}"
         mock_toml_load.assert_called_once_with(mock_open.return_value)
         mock_toml_dump.assert_called_once_with(
             {
@@ -210,5 +214,3 @@ def test_config_fix_version_with_direction(
             },
             mock_open.return_value,
         )
-
-    assert result.exit_code == 0
