@@ -30,7 +30,7 @@ def statue_cli(
     cache_dir: Optional[Union[str, Path]],
 ):
     """Statue is a static code analysis tools orchestrator."""
-    if ctx.invoked_subcommand == "config":
+    if ctx.invoked_subcommand in ["config", "templates"]:
         return
     config_path = Path(config) if config is not None else None
     cache_dir = Path(cache_dir) if cache_dir is not None else None

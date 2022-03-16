@@ -10,9 +10,10 @@ from statue.config.configuration_builder import ConfigurationBuilder
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
 from statue.evaluation import Evaluation
+from statue.templates.templates_provider import TemplatesProvider
+from tests.constants import ENVIRON
 
 # 3rd Party Mocks
-from tests.constants import ENVIRON
 
 
 @pytest.fixture
@@ -97,6 +98,19 @@ def mock_cwd(mocker, tmpdir_factory):
     cwd_method_mock = mocker.patch.object(Path, "cwd")
     cwd_method_mock.return_value = cwd
     return cwd
+
+
+# Templates Provider Mocks
+
+
+@pytest.fixture()
+def mock_templates_provider_names(mocker):
+    return mocker.patch.object(TemplatesProvider, "template_names")
+
+
+@pytest.fixture()
+def mock_templates_provider_get_template_path(mocker):
+    return mocker.patch.object(TemplatesProvider, "get_template_path")
 
 
 # Evaluation Mocks
