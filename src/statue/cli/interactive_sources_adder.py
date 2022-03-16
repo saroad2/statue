@@ -112,6 +112,8 @@ class InteractiveSourcesAdder:
         :return: Sources list for source
         :rtype: List[Context]
         """
+        if len(configuration.contexts_repository) == 0:
+            return []
         contexts_options = ", ".join(
             [name_style(context.name) for context in configuration.contexts_repository]
         )
@@ -157,6 +159,8 @@ class InteractiveSourcesAdder:
         :return: Sources list for source
         :rtype: List[Context]
         """
+        if len(configuration.commands_repository) == 0:
+            return None
         commands_options = ", ".join(
             [
                 name_style(command_builder.name)
