@@ -50,16 +50,6 @@ def mock_update_from_config(mocker):
 
 
 @pytest.fixture
-def mock_default_configuration_path(mocker, tmp_path):
-    default_path = tmp_path / "default"
-    default_path_mock = mocker.patch.object(
-        ConfigurationBuilder, "default_configuration_path"
-    )
-    default_path_mock.return_value = default_path
-    return default_path
-
-
-@pytest.fixture
 def mock_configuration_path(mocker, tmp_path):
     dummy_path = tmp_path / "bla.toml"
     configuration_path_mock = mocker.patch.object(

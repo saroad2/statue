@@ -22,7 +22,6 @@ ALIASES = "aliases"
 PARENT = "parent"
 ALLOWED_BY_DEFAULT = "allowed_by_default"
 VERSION = "version"
-OVERRIDE = "OVERRIDE"
 MODE = "mode"
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"
