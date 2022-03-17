@@ -93,6 +93,11 @@ def mock_sources_repository_as_dict(mocker):
 
 
 @pytest.fixture
+def mock_configuration_as_dict(mocker):
+    return mocker.patch.object(Configuration, "as_dict")
+
+
+@pytest.fixture
 def mock_cwd(mocker, tmpdir_factory):
     cwd = Path(tmpdir_factory.mktemp("bla"))
     cwd_method_mock = mocker.patch.object(Path, "cwd")
