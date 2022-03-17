@@ -17,6 +17,7 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
     SOURCE3,
+    SOURCE4,
 )
 
 
@@ -113,15 +114,15 @@ def test_sources_repository_reset():
     assert not sources_repository.sources_list
 
 
-def test_sources_repository_as_dict():
+def test_sources_repository_as_dict(tmp_path):
     filter1, filter2, filter3 = (mock.Mock(), mock.Mock(), mock.Mock())
     sources_repository = SourcesRepository()
-    sources_repository[Path(SOURCE1)] = filter1
-    sources_repository[Path(SOURCE2)] = filter2
-    sources_repository[Path(SOURCE3)] = filter3
+    sources_repository[tmp_path / SOURCE1] = filter1
+    sources_repository[tmp_path / SOURCE2 / SOURCE3] = filter2
+    sources_repository[tmp_path / SOURCE4] = filter3
 
     assert sources_repository.as_dict() == {
-        SOURCE1: filter1.as_dict.return_value,
-        SOURCE2: filter2.as_dict.return_value,
-        SOURCE3: filter3.as_dict.return_value,
+        f"{tmp_path.as_posix()}/{SOURCE1}": filter1.as_dict.return_value,
+        f"{tmp_path.as_posix()}/{SOURCE2}/{SOURCE3}": filter2.as_dict.return_value,
+        f"{tmp_path.as_posix()}/{SOURCE4}": filter3.as_dict.return_value,
     }
