@@ -1,26 +1,6 @@
-import pytest
-
-from statue.config.commands_repository import CommandsRepository
 from statue.config.configuration import Configuration
-from statue.config.contexts_repository import ContextsRepository
-from statue.config.sources_repository import SourcesRepository
 from statue.constants import COMMANDS, CONTEXTS, GENERAL, HISTORY_SIZE, MODE, SOURCES
 from statue.runner import RunnerMode
-
-
-@pytest.fixture
-def mock_contexts_repository_as_dict(mocker):
-    return mocker.patch.object(ContextsRepository, "as_dict")
-
-
-@pytest.fixture
-def mock_commands_repository_as_dict(mocker):
-    return mocker.patch.object(CommandsRepository, "as_dict")
-
-
-@pytest.fixture
-def mock_sources_repository_as_dict(mocker):
-    return mocker.patch.object(SourcesRepository, "as_dict")
 
 
 def test_configuration_default_constructor(

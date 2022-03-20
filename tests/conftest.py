@@ -4,8 +4,11 @@ from pathlib import Path
 import mock
 import pytest
 
+from statue.config.commands_repository import CommandsRepository
 from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
+from statue.config.contexts_repository import ContextsRepository
+from statue.config.sources_repository import SourcesRepository
 from statue.evaluation import Evaluation
 
 # 3rd Party Mocks
@@ -42,6 +45,36 @@ def environ(monkeypatch):
 
 
 @pytest.fixture
+def mock_update_from_config(mocker):
+    return mocker.patch.object(ConfigurationBuilder, "update_from_config")
+
+
+@pytest.fixture
+def mock_default_configuration_path(mocker, tmp_path):
+    default_path = tmp_path / "default"
+    default_path_mock = mocker.patch.object(
+        ConfigurationBuilder, "default_configuration_path"
+    )
+    default_path_mock.return_value = default_path
+    return default_path
+
+
+@pytest.fixture
+def mock_configuration_path(mocker, tmp_path):
+    dummy_path = tmp_path / "bla.toml"
+    configuration_path_mock = mocker.patch.object(
+        ConfigurationBuilder, "configuration_path"
+    )
+    configuration_path_mock.return_value = dummy_path
+    return configuration_path_mock
+
+
+@pytest.fixture
+def mock_cache_path(mocker, tmp_path):
+    return mocker.patch.object(ConfigurationBuilder, "cache_path")
+
+
+@pytest.fixture
 def mock_build_configuration_from_file(mocker):
     builder_mock = mocker.patch.object(
         ConfigurationBuilder, "build_configuration_from_file"
@@ -51,6 +84,21 @@ def mock_build_configuration_from_file(mocker):
     builder_mock.return_value.build_commands = mock.Mock()
     builder_mock.return_value.build_commands_map = mock.Mock()
     return builder_mock
+
+
+@pytest.fixture
+def mock_contexts_repository_as_dict(mocker):
+    return mocker.patch.object(ContextsRepository, "as_dict")
+
+
+@pytest.fixture
+def mock_commands_repository_as_dict(mocker):
+    return mocker.patch.object(CommandsRepository, "as_dict")
+
+
+@pytest.fixture
+def mock_sources_repository_as_dict(mocker):
+    return mocker.patch.object(SourcesRepository, "as_dict")
 
 
 @pytest.fixture
