@@ -77,7 +77,9 @@ class SourcesRepository:
         :return: Serialized representation dictionary
         :rtype: Dict[str, Any]
         """
-        return {str(source): self[source].as_dict() for source in self.sources_list}
+        return {
+            source.as_posix(): self[source].as_dict() for source in self.sources_list
+        }
 
     def update_from_config(
         self, config: MutableMapping[str, Any], contexts_repository: ContextsRepository

@@ -6,31 +6,6 @@ from statue.constants import GENERAL, OVERRIDE
 from statue.exceptions import MissingConfiguration
 
 
-@pytest.fixture
-def mock_update_from_config(mocker):
-    return mocker.patch.object(ConfigurationBuilder, "update_from_config")
-
-
-@pytest.fixture
-def mock_default_configuration_path(mocker, tmp_path):
-    default_path = tmp_path / "default"
-    default_path_mock = mocker.patch.object(
-        ConfigurationBuilder, "default_configuration_path"
-    )
-    default_path_mock.return_value = default_path
-    return default_path
-
-
-@pytest.fixture
-def mock_cache_path(mocker, tmp_path):
-    return mocker.patch.object(ConfigurationBuilder, "cache_path")
-
-
-@pytest.fixture
-def mock_config_path(mocker, tmp_path):
-    return mocker.patch.object(ConfigurationBuilder, "configuration_path")
-
-
 def test_configuration_builder_build_with_existing_path(
     tmp_path,
     mock_update_from_config,
@@ -102,14 +77,14 @@ def test_configuration_builder_build_with_no_config_path(
     tmp_path,
     mock_update_from_config,
     mock_default_configuration_path,
-    mock_config_path,
+    mock_configuration_path,
     mock_cache_path,
     mock_toml_load,
 ):
     mock_default_configuration_path.touch()
     statue_config_path = tmp_path / "statue"
     statue_config_path.touch()
-    mock_config_path.return_value = statue_config_path
+    mock_configuration_path.return_value = statue_config_path
     default_config, statue_config = {"a": 1}, {"b": 2}
     mock_toml_load.side_effect = {
         mock_default_configuration_path: default_config,
@@ -130,7 +105,7 @@ def test_configuration_builder_build_with_no_config_path(
         mock.call(configuration=configuration, statue_config=default_config),
         mock.call(configuration=configuration, statue_config=statue_config),
     ]
-    mock_config_path.assert_called_once_with()
+    mock_configuration_path.assert_called_once_with()
     mock_cache_path.assert_called_once_with(tmp_path)
     assert configuration.cache.cache_root_directory == cache_path
 

@@ -1,121 +1,300 @@
-from pathlib import Path
-from unittest import mock
+import git
+import mock
+import pytest
 
-from git import InvalidGitRepositoryError
-from pytest_cases import THIS_MODULE, parametrize_with_cases
-
-from statue.cli.cli import statue_cli
-from statue.constants import CONTEXTS, SOURCES
-
-
-def case_empty_sources():
-    return [], {SOURCES: {}}
+from statue.cli import statue_cli
+from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
+from statue.commands_filter import CommandsFilter
+from statue.config.configuration import Configuration
+from statue.constants import SOURCES
+from tests.constants import SOURCE1, SOURCE2, SOURCE3
 
 
-def case_regular_sources():
-    src = "src"
-    return [src], {SOURCES: {src: {}}}
+@pytest.fixture
+def mock_git_repo(mocker):
+    return mocker.patch("git.Repo")
 
 
-def case_internal_path():
-    """Paths should always be written as posix paths, even in windows"""
-    return [Path("src", "package")], {SOURCES: {"src/package": {}}}
+@pytest.fixture
+def mock_update_sources_repository(mocker):
+    return mocker.patch.object(InteractiveSourcesAdder, "update_sources_repository")
 
 
-def case_test_sources():
-    test = "test"
-    return [test], {SOURCES: {test: {CONTEXTS: ["test"]}}}
-
-
-def case_setup_sources():
-    setup = "setup.py"
-    return [setup], {SOURCES: {setup: {CONTEXTS: ["fast"]}}}
-
-
-def case_all_sources():
-    return ["src", "test", "setup.py"], {
-        SOURCES: {
-            "src": {},
-            "test": {CONTEXTS: ["test"]},
-            "setup.py": {CONTEXTS: ["fast"]},
-        }
-    }
-
-
-@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
-def test_config_init(
-    sources,
-    expected_config,
-    mock_configuration_path,
-    tmp_path,
-    mock_find_sources,
-    mock_toml_dump,
-    mock_git_repo,
+def test_config_init_simple_case(
     cli_runner,
-):
-    configuration_path = tmp_path / "statue.toml"
-    mock_configuration_path.return_value = configuration_path
-    mock_find_sources.return_value = [tmp_path / source for source in sources]
-    mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(statue_cli, ["config", "init"])
-        assert result.exit_code == 0
-        mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w", encoding="utf-8"
-        )
-        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)
-
-
-@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
-def test_config_init_without_repo(
-    sources,
-    expected_config,
     mock_configuration_path,
-    tmp_path,
-    mock_find_sources,
-    mock_toml_dump,
+    mock_default_configuration_path,
+    mock_update_from_config,
     mock_git_repo,
-    cli_runner,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_toml_load,
+    mock_toml_dump,
+    mock_sources_repository_as_dict,
 ):
-    configuration_path = tmp_path / "statue.toml"
-    mock_configuration_path.return_value = configuration_path
-    mock_git_repo.side_effect = InvalidGitRepositoryError()
-    mock_find_sources.return_value = [tmp_path / source for source in sources]
-    mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(statue_cli, ["config", "init"])
-        mock_open.assert_called_once_with(
-            mock_configuration_path.return_value, mode="w", encoding="utf-8"
-        )
-        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(tmp_path, repo=None)
-    assert result.exit_code == 0
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    result = cli_runner.invoke(statue_cli, ["config", "init"])
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_called_once_with(mock_cwd)
+    mock_toml_load.assert_called_once_with(mock_default_configuration_path)
+    mock_update_from_config.assert_called_once_with(
+        mock.ANY, mock_toml_load.return_value
+    )
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(
+        configuration, Configuration
+    ), f"Configuration of invalid type: {type(configuration).__name__}"
+    assert len(configuration.sources_repository) == 3
+    assert configuration.sources_repository[source_path1] == CommandsFilter()
+    assert configuration.sources_repository[source_path2] == CommandsFilter()
+    assert configuration.sources_repository[source_path3] == CommandsFilter()
+    mock_update_sources_repository.assert_not_called()
+    mock_toml_dump.assert_called_once_with(
+        {SOURCES: mock_sources_repository_as_dict.return_value},
+        mock.ANY,
+    )
 
 
-@parametrize_with_cases(argnames="sources, expected_config", cases=THIS_MODULE)
-def test_config_init_with_directory(
-    sources,
-    expected_config,
+def test_config_init_interactive(
+    cli_runner,
     mock_configuration_path,
-    tmp_path,
-    mock_find_sources,
-    mock_toml_dump,
+    mock_default_configuration_path,
+    mock_update_from_config,
     mock_git_repo,
-    cli_runner,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_toml_load,
+    mock_toml_dump,
+    mock_sources_repository_as_dict,
 ):
-    configuration_path = tmp_path / "statue.toml"
-    configuration_path.touch()
-    mock_find_sources.return_value = [tmp_path / source for source in sources]
-    mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
-        result = cli_runner.invoke(
-            statue_cli, ["config", "init", "--config", str(configuration_path)]
-        )
-        assert result.exit_code == 0
-        mock_configuration_path.assert_not_called()
-        mock_open.assert_called_once_with(
-            configuration_path, mode="w", encoding="utf-8"
-        )
-        mock_toml_dump.assert_called_once_with(expected_config, mock_open.return_value)
-    mock_find_sources.assert_called_once_with(tmp_path, repo=mock_git_repo.return_value)
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    result = cli_runner.invoke(statue_cli, ["config", "init", "--interactive"])
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_called_once_with(mock_cwd)
+    mock_toml_load.assert_called_once_with(mock_default_configuration_path)
+    mock_update_from_config.assert_called_once_with(
+        mock.ANY, mock_toml_load.return_value
+    )
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(
+        configuration, Configuration
+    ), f"Configuration of invalid type: {type(configuration).__name__}"
+    mock_update_sources_repository.assert_called_once_with(
+        configuration=configuration,
+        sources=[
+            source_path1.relative_to(mock_cwd),
+            source_path2.relative_to(mock_cwd),
+            source_path3.relative_to(mock_cwd),
+        ],
+        repo=mock_git_repo.return_value,
+    )
+    mock_toml_dump.assert_called_once_with(
+        {SOURCES: mock_sources_repository_as_dict.return_value},
+        mock.ANY,
+    )
+
+
+def test_config_init_without_git(
+    cli_runner,
+    mock_configuration_path,
+    mock_default_configuration_path,
+    mock_update_from_config,
+    mock_git_repo,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_toml_load,
+    mock_toml_dump,
+    mock_sources_repository_as_dict,
+):
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    result = cli_runner.invoke(statue_cli, ["config", "init", "--no-git"])
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_not_called()
+    mock_toml_load.assert_called_once_with(mock_default_configuration_path)
+    mock_update_from_config.assert_called_once_with(
+        mock.ANY, mock_toml_load.return_value
+    )
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(
+        configuration, Configuration
+    ), f"Configuration of invalid type: {type(configuration).__name__}"
+    assert len(configuration.sources_repository) == 3
+    assert configuration.sources_repository[source_path1] == CommandsFilter()
+    assert configuration.sources_repository[source_path2] == CommandsFilter()
+    assert configuration.sources_repository[source_path3] == CommandsFilter()
+    mock_update_sources_repository.assert_not_called()
+    mock_toml_dump.assert_called_once_with(
+        {SOURCES: mock_sources_repository_as_dict.return_value},
+        mock.ANY,
+    )
+
+
+def test_config_init_interactive_without_git(
+    cli_runner,
+    mock_configuration_path,
+    mock_default_configuration_path,
+    mock_update_from_config,
+    mock_git_repo,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_toml_load,
+    mock_toml_dump,
+    mock_sources_repository_as_dict,
+):
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    result = cli_runner.invoke(
+        statue_cli, ["config", "init", "--interactive", "--no-git"]
+    )
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_not_called()
+    mock_toml_load.assert_called_once_with(mock_default_configuration_path)
+    mock_update_from_config.assert_called_once_with(
+        mock.ANY, mock_toml_load.return_value
+    )
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(
+        configuration, Configuration
+    ), f"Configuration of invalid type: {type(configuration).__name__}"
+    mock_update_sources_repository.assert_called_once_with(
+        configuration=configuration,
+        sources=[
+            source_path1.relative_to(mock_cwd),
+            source_path2.relative_to(mock_cwd),
+            source_path3.relative_to(mock_cwd),
+        ],
+        repo=None,
+    )
+    mock_toml_dump.assert_called_once_with(
+        {SOURCES: mock_sources_repository_as_dict.return_value},
+        mock.ANY,
+    )
+
+
+def test_config_init_with_git_raises_exception(
+    cli_runner,
+    mock_configuration_path,
+    mock_default_configuration_path,
+    mock_update_from_config,
+    mock_git_repo,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_toml_load,
+    mock_toml_dump,
+    mock_sources_repository_as_dict,
+):
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    mock_git_repo.side_effect = git.InvalidGitRepositoryError
+    result = cli_runner.invoke(statue_cli, ["config", "init"])
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_called_once_with(mock_cwd)
+    mock_toml_load.assert_called_once_with(mock_default_configuration_path)
+    mock_update_from_config.assert_called_once_with(
+        mock.ANY, mock_toml_load.return_value
+    )
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(
+        configuration, Configuration
+    ), f"Configuration of invalid type: {type(configuration).__name__}"
+    assert len(configuration.sources_repository) == 3
+    assert configuration.sources_repository[source_path1] == CommandsFilter()
+    assert configuration.sources_repository[source_path2] == CommandsFilter()
+    assert configuration.sources_repository[source_path3] == CommandsFilter()
+    mock_update_sources_repository.assert_not_called()
+    mock_toml_dump.assert_called_once_with(
+        {SOURCES: mock_sources_repository_as_dict.return_value},
+        mock.ANY,
+    )
+
+
+def test_config_init_interactive_with_git_raises_exception(
+    cli_runner,
+    mock_configuration_path,
+    mock_default_configuration_path,
+    mock_update_from_config,
+    mock_git_repo,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_toml_load,
+    mock_toml_dump,
+    mock_sources_repository_as_dict,
+):
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    mock_git_repo.side_effect = git.InvalidGitRepositoryError
+    result = cli_runner.invoke(statue_cli, ["config", "init", "--interactive"])
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_called_once_with(mock_cwd)
+    mock_toml_load.assert_called_once_with(mock_default_configuration_path)
+    mock_update_from_config.assert_called_once_with(
+        mock.ANY, mock_toml_load.return_value
+    )
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(
+        configuration, Configuration
+    ), f"Configuration of invalid type: {type(configuration).__name__}"
+    mock_update_sources_repository.assert_called_once_with(
+        configuration=configuration,
+        sources=[
+            source_path1.relative_to(mock_cwd),
+            source_path2.relative_to(mock_cwd),
+            source_path3.relative_to(mock_cwd),
+        ],
+        repo=None,
+    )
+    mock_toml_dump.assert_called_once_with(
+        {SOURCES: mock_sources_repository_as_dict.return_value},
+        mock.ANY,
+    )

@@ -1,6 +1,4 @@
 """Config CLI."""
-import re
-from collections import OrderedDict
 from pathlib import Path
 from typing import Optional, Union
 
@@ -10,15 +8,13 @@ import toml
 
 from statue.cli.cli import statue_cli
 from statue.cli.common_flags import config_path_option, verbose_option
+from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
 from statue.cli.styled_strings import bullet_style, name_style, source_style
+from statue.commands_filter import CommandsFilter
+from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
-from statue.constants import COMMANDS, CONTEXTS, ENCODING, SOURCES, VERSION
-from statue.sources_finder import expend, find_sources
-
-YES = ["y", "yes"]
-NO = ["n", "no"]
-EXPEND = ["e", "expend"]
-DEFAULT_OPTION = "yes"
+from statue.constants import COMMANDS, ENCODING, SOURCES, VERSION
+from statue.sources_finder import find_sources
 
 
 @statue_cli.group("config")
@@ -89,7 +85,7 @@ def init_config_cli(config, interactive, use_git):
         if config is not None
         else ConfigurationBuilder.configuration_path()
     )
-    directory = config.parent
+    directory = Path.cwd()
     repo = None
     if use_git:
         try:
@@ -99,15 +95,22 @@ def init_config_cli(config, interactive, use_git):
     sources = [
         source.relative_to(directory) for source in find_sources(directory, repo=repo)
     ]
-    sources_map = OrderedDict()
-    __update_sources_map(
-        sources_map,
-        sources,
-        repo=repo,
-        interactive=interactive,
+    configuration = Configuration()
+    ConfigurationBuilder.update_from_config(
+        configuration, toml.load(ConfigurationBuilder.default_configuration_path())
     )
+    if interactive:
+        InteractiveSourcesAdder.update_sources_repository(
+            configuration=configuration,
+            sources=sources,
+            repo=repo,
+        )
+    else:
+        for source in sources:
+            configuration.sources_repository[source] = CommandsFilter()
     with open(config, mode="w", encoding=ENCODING) as config_file:
-        toml.dump({SOURCES: sources_map}, config_file)
+        toml_dict = {SOURCES: configuration.sources_repository.as_dict()}
+        toml.dump(toml_dict, config_file)
 
 
 @config_cli.command("fix-versions")
@@ -161,56 +164,6 @@ def fixate_commands_versions(
         ] = command_builder.installed_version
     with open(config, mode="w", encoding=ENCODING) as config_file:
         toml.dump(raw_config_dict, config_file)
-
-
-def __update_sources_map(sources_map, sources, repo=None, interactive=False):
-    for source in sources:
-        option = "y"
-        if interactive:
-            choices = YES + NO
-            choices_string = "[Y]es, [N]o"
-            if source.is_dir():
-                choices.extend(EXPEND)
-                choices_string += ", [E]xpend"
-            option = click.prompt(
-                f'Would you like to track "{source}" ({choices_string}. '
-                f"default: {DEFAULT_OPTION})",
-                type=click.Choice(choices, case_sensitive=False),
-                show_choices=False,
-                show_default=False,
-                default=DEFAULT_OPTION,
-            ).lower()
-        if option in EXPEND:
-            __update_sources_map(
-                sources_map,
-                expend(source, repo=repo),
-                repo=repo,
-                interactive=interactive,
-            )
-        if option not in YES:
-            continue
-        contexts = __get_default_contexts(source)
-        if interactive:
-            default_contexts_string = ",".join(contexts)
-            contexts_string = click.prompt(
-                f'Add contexts to "{source}" (default: [{default_contexts_string}])',
-                type=str,
-                default=default_contexts_string,
-                show_default=False,
-            )
-            if len(contexts_string) != 0:
-                contexts = re.split(r"[ \t]*,[ \t]*", contexts_string)
-        sources_map[source.as_posix()] = {}
-        if len(contexts) != 0:
-            sources_map[source.as_posix()][CONTEXTS] = contexts
-
-
-def __get_default_contexts(source: Path):
-    if "test" in source.as_posix():
-        return ["test"]
-    if source.name == "setup.py":
-        return ["fast"]
-    return []
 
 
 def __join_names(names_list):
