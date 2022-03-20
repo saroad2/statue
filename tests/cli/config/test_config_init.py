@@ -49,8 +49,8 @@ def test_config_init_simple_case(
     mock_update_from_config.assert_called_once_with(
         mock.ANY, mock_toml_load.return_value
     )
-    configuration = mock_update_from_config.call_args_list[0].args[0]
-    assert isinstance(configuration, Configuration)
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(configuration, Configuration), f"Configuration of invalid type: {type(configuration).__name__}"
     assert len(configuration.sources_repository) == 3
     assert configuration.sources_repository[source_path1] == CommandsFilter()
     assert configuration.sources_repository[source_path2] == CommandsFilter()
@@ -91,8 +91,8 @@ def test_config_init_interactive(
     mock_update_from_config.assert_called_once_with(
         mock.ANY, mock_toml_load.return_value
     )
-    configuration = mock_update_from_config.call_args_list[0].args[0]
-    assert isinstance(configuration, Configuration)
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(configuration, Configuration), f"Configuration of invalid type: {type(configuration).__name__}"
     mock_update_sources_repository.assert_called_once_with(
         configuration=configuration,
         sources=[
@@ -137,8 +137,8 @@ def test_config_init_without_git(
     mock_update_from_config.assert_called_once_with(
         mock.ANY, mock_toml_load.return_value
     )
-    configuration = mock_update_from_config.call_args_list[0].args[0]
-    assert isinstance(configuration, Configuration)
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(configuration, Configuration), f"Configuration of invalid type: {type(configuration).__name__}"
     assert len(configuration.sources_repository) == 3
     assert configuration.sources_repository[source_path1] == CommandsFilter()
     assert configuration.sources_repository[source_path2] == CommandsFilter()
@@ -181,8 +181,8 @@ def test_config_init_interactive_without_git(
     mock_update_from_config.assert_called_once_with(
         mock.ANY, mock_toml_load.return_value
     )
-    configuration = mock_update_from_config.call_args_list[0].args[0]
-    assert isinstance(configuration, Configuration)
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(configuration, Configuration), f"Configuration of invalid type: {type(configuration).__name__}"
     mock_update_sources_repository.assert_called_once_with(
         configuration=configuration,
         sources=[
@@ -228,8 +228,8 @@ def test_config_init_with_git_raises_exception(
     mock_update_from_config.assert_called_once_with(
         mock.ANY, mock_toml_load.return_value
     )
-    configuration = mock_update_from_config.call_args_list[0].args[0]
-    assert isinstance(configuration, Configuration)
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(configuration, Configuration), f"Configuration of invalid type: {type(configuration).__name__}"
     assert len(configuration.sources_repository) == 3
     assert configuration.sources_repository[source_path1] == CommandsFilter()
     assert configuration.sources_repository[source_path2] == CommandsFilter()
@@ -271,8 +271,8 @@ def test_config_init_interactive_with_git_raises_exception(
     mock_update_from_config.assert_called_once_with(
         mock.ANY, mock_toml_load.return_value
     )
-    configuration = mock_update_from_config.call_args_list[0].args[0]
-    assert isinstance(configuration, Configuration)
+    configuration = mock_update_from_config.call_args_list[0][0][0]
+    assert isinstance(configuration, Configuration), f"Configuration of invalid type: {type(configuration).__name__}"
     mock_update_sources_repository.assert_called_once_with(
         configuration=configuration,
         sources=[
