@@ -4,10 +4,10 @@ from typing import Dict, List
 
 from statue.exceptions import UnknownTemplate
 
-if sys.version_info < (3, 9):
+if sys.version_info < (3, 9):  # pragma: no cover
     import importlib_resources as resources
     from importlib_resources.abc import Traversable
-else:
+else:  # pragma: no cover
     from importlib import resources
     from importlib.abc import Traversable
 

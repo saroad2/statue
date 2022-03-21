@@ -10,9 +10,9 @@ from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
 from statue.exceptions import InvalidConfiguration, MissingConfiguration
 from statue.runner import RunnerMode
 
-if sys.version_info < (3, 9):
+if sys.version_info < (3, 9):  # pragma: no cover
     from importlib_resources.abc import Traversable
-else:
+else:  # pragma: no cover
     from importlib.abc import Traversable
 
 
