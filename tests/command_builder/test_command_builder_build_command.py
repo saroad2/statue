@@ -25,6 +25,7 @@ from tests.constants import (
 )
 
 # Successful tests
+from tests.util import dummy_version
 
 
 @case(tags=SUCCESSFUL_TAG)
@@ -49,7 +50,7 @@ def case_command_builder_with_default_args():
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_version():
-    version = "1.2.3"
+    version = dummy_version()
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
     )

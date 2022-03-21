@@ -9,6 +9,15 @@ from statue.evaluation import Evaluation, SourceEvaluation
 from tests.constants import EPSILON
 
 
+def dummy_version():
+    major, minor, patch = (
+        random.randint(0, 10),
+        random.randint(0, 10),
+        random.randint(0, 10),
+    )
+    return f"{major}.{minor}.{patch}"
+
+
 def build_commands_builders_map(*commands_builders: CommandBuilder):
     return {
         commands_builders.name: commands_builders

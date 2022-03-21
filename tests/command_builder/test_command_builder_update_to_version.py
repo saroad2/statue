@@ -4,6 +4,7 @@ from unittest import mock
 from statue.command_builder import CommandBuilder
 from statue.verbosity import SILENT
 from tests.constants import COMMAND1, COMMAND_HELP_STRING1
+from tests.util import dummy_version
 
 
 def test_command_builder_update_to_version(mock_get_package, mock_subprocess, environ):
@@ -23,7 +24,7 @@ def test_command_builder_update_to_version(mock_get_package, mock_subprocess, en
 def test_command_builder_will_update_to_version_even_if_already_installed(
     mock_get_package, mock_subprocess, environ
 ):
-    version = "6.2.1"
+    version = dummy_version()
     mock_get_package.return_value.version = version
     command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
 
@@ -56,7 +57,7 @@ def test_command_builder_update_to_version_silently(
 def test_command_builder_update_to_specific_version_when_not_already_installed(
     mock_get_package, mock_subprocess, environ
 ):
-    version = "4.2.1"
+    version = dummy_version()
     mock_get_package.return_value = None
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
@@ -75,7 +76,7 @@ def test_command_builder_update_to_specific_version_when_not_already_installed(
 def test_command_builder_update_to_specific_version_when_installed_version_match(
     mock_get_package, mock_subprocess, environ
 ):
-    version = "4.2.1"
+    version = dummy_version()
     mock_get_package.return_value.version = version
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
@@ -89,7 +90,7 @@ def test_command_builder_update_to_specific_version_when_installed_version_match
 def test_command_builder_update_to_specific_version_when_already_installed(
     mock_subprocess, environ
 ):
-    version, installed_version = "6.2.1", "4.2.1"
+    version, installed_version = dummy_version(), dummy_version()
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
     )

@@ -29,11 +29,12 @@ from tests.constants import (
 )
 
 # Successful tests
+from tests.util import dummy_version
 
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_update_from_config_with_nothing():
-    version = "1.3.4"
+    version = dummy_version()
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
@@ -65,7 +66,7 @@ def case_command_builder_update_from_config_with_nothing():
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_update_from_config_version():
-    old_version, new_version = "1.3.4", "1.3.5"
+    old_version, new_version = dummy_version(), dummy_version()
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=old_version
     )

@@ -10,10 +10,8 @@ from tests.constants import (
     CONTEXT3,
     SOURCE1,
     SOURCE2,
-    VERSION1,
-    VERSION2,
 )
-from tests.util import command_builder_mock
+from tests.util import command_builder_mock, dummy_version
 
 
 def build_default_toml():
@@ -60,7 +58,7 @@ def test_config_fix_version_with_one_installed_package(
     mock_toml_load,
     mock_toml_dump,
 ):
-    version1 = VERSION1
+    version1 = dummy_version()
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
         command_builder_mock(name=COMMAND2, installed=False),
@@ -77,7 +75,7 @@ def test_config_fix_version_with_one_installed_package(
         mock_toml_load.assert_called_once_with(mock_open.return_value)
         mock_toml_dump.assert_called_once_with(
             {
-                COMMANDS: {COMMAND1: {VERSION: VERSION1}},
+                COMMANDS: {COMMAND1: {VERSION: version1}},
                 **build_default_toml(),
             },
             mock_open.return_value,
@@ -93,7 +91,7 @@ def test_config_fix_version_with_two_installed_packages(
     mock_toml_load,
     mock_toml_dump,
 ):
-    version1, version2 = VERSION1, VERSION2
+    version1, version2 = dummy_version(), dummy_version()
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
         command_builder_mock(name=COMMAND2, installed=True, installed_version=version2),
@@ -111,8 +109,8 @@ def test_config_fix_version_with_two_installed_packages(
         mock_toml_dump.assert_called_once_with(
             {
                 COMMANDS: {
-                    COMMAND1: {VERSION: VERSION1},
-                    COMMAND2: {VERSION: VERSION2},
+                    COMMAND1: {VERSION: version1},
+                    COMMAND2: {VERSION: version2},
                 },
                 **build_default_toml(),
             },
@@ -147,7 +145,7 @@ def test_config_fix_version_latest(
     mock_toml_load,
     mock_toml_dump,
 ):
-    version1, version2 = VERSION1, VERSION2
+    version1, version2 = dummy_version(), dummy_version()
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
         command_builder_mock(name=COMMAND2, installed=True, installed_version=version2),
@@ -165,8 +163,8 @@ def test_config_fix_version_latest(
         mock_toml_dump.assert_called_once_with(
             {
                 COMMANDS: {
-                    COMMAND1: {VERSION: VERSION1},
-                    COMMAND2: {VERSION: VERSION2},
+                    COMMAND1: {VERSION: version1},
+                    COMMAND2: {VERSION: version2},
                 },
                 **build_default_toml(),
             },
@@ -187,7 +185,7 @@ def test_config_fix_version_with_configuration_path(
 ):
     config_path = tmp_path / "statue.toml"
     config_path.touch()
-    version1 = VERSION1
+    version1 = dummy_version()
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
         command_builder_mock(name=COMMAND2, installed=False),
@@ -209,7 +207,7 @@ def test_config_fix_version_with_configuration_path(
         mock_toml_load.assert_called_once_with(mock_open.return_value)
         mock_toml_dump.assert_called_once_with(
             {
-                COMMANDS: {COMMAND1: {VERSION: VERSION1}},
+                COMMANDS: {COMMAND1: {VERSION: version1}},
                 **build_default_toml(),
             },
             mock_open.return_value,
