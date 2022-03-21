@@ -1,5 +1,5 @@
 """Singleton class for building configuration instances."""
-from importlib.abc import Traversable
+import sys
 from pathlib import Path
 from typing import Any, MutableMapping, Optional, Union
 
@@ -9,6 +9,11 @@ from statue.config.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
 from statue.exceptions import InvalidConfiguration, MissingConfiguration
 from statue.runner import RunnerMode
+
+if sys.version_info < (3, 9):
+    from importlib_resources.abc import Traversable
+else:
+    from importlib.abc import Traversable
 
 
 class ConfigurationBuilder:

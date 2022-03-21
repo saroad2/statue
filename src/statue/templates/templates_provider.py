@@ -1,9 +1,15 @@
 """Configuration templates provider."""
-from importlib import resources
-from importlib.abc import Traversable
+import sys
 from typing import Dict, List
 
 from statue.exceptions import UnknownTemplate
+
+if sys.version_info < (3, 9):
+    import importlib_resources as resources
+    from importlib_resources.abc import Traversable
+else:
+    from importlib import resources
+    from importlib.abc import Traversable
 
 
 class TemplatesProvider:
