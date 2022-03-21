@@ -1,4 +1,5 @@
 """Config CLI."""
+import sys
 from pathlib import Path
 from typing import Optional, Union
 
@@ -9,12 +10,18 @@ import toml
 from statue.cli.cli import statue_cli
 from statue.cli.common_flags import config_path_option, verbose_option
 from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
-from statue.cli.styled_strings import bullet_style, name_style, source_style
+from statue.cli.styled_strings import (
+    bullet_style,
+    failure_style,
+    name_style,
+    source_style,
+)
 from statue.commands_filter import CommandsFilter
-from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
-from statue.constants import COMMANDS, ENCODING, SOURCES, VERSION
+from statue.constants import COMMANDS, ENCODING, VERSION
+from statue.exceptions import StatueConfigurationError, UnknownTemplate
 from statue.sources_finder import find_sources
+from statue.templates.templates_provider import TemplatesProvider
 
 
 @statue_cli.group("config")
@@ -57,12 +64,13 @@ def show_tree(config: Optional[Union[str, Path]]):
 @config_cli.command("init")
 @config_path_option
 @click.option(
-    "-i",
-    "--interactive",
-    is_flag=True,
-    default=False,
-    help="Run interactively in order to determine tracked sources and contexts.",
+    "-t",
+    "--template",
+    type=str,
+    default="defaults",
+    help="Configuration template name",
 )
+@click.option("-y", "interactive", flag_value=False, default=True)
 @click.option(
     "--git/--no-git",
     "use_git",
@@ -70,7 +78,12 @@ def show_tree(config: Optional[Union[str, Path]]):
     default=True,
     help="Should use git to trace ignored files",
 )
-def init_config_cli(config, interactive, use_git):
+def init_config_cli(
+    config: Optional[Union[str, Path]],
+    template: str,
+    interactive: bool,
+    use_git: bool,
+):
     """
     Initialize configuration for Statue.
 
@@ -80,7 +93,14 @@ def init_config_cli(config, interactive, use_git):
     You can run this command with the "-i" flag in order to choose interactively which
      source files to track and which contexts to assign to them.
     """
-    config = (
+    try:
+        configuration = ConfigurationBuilder.build_configuration_from_file(
+            TemplatesProvider.get_template_path(template)
+        )
+    except (UnknownTemplate, StatueConfigurationError) as error:
+        click.echo(failure_style(str(error)))
+        sys.exit(3)
+    output_path = (
         Path(config)
         if config is not None
         else ConfigurationBuilder.configuration_path()
@@ -95,10 +115,6 @@ def init_config_cli(config, interactive, use_git):
     sources = [
         source.relative_to(directory) for source in find_sources(directory, repo=repo)
     ]
-    configuration = Configuration()
-    ConfigurationBuilder.update_from_config(
-        configuration, toml.load(ConfigurationBuilder.default_configuration_path())
-    )
     if interactive:
         InteractiveSourcesAdder.update_sources_repository(
             configuration=configuration,
@@ -108,9 +124,9 @@ def init_config_cli(config, interactive, use_git):
     else:
         for source in sources:
             configuration.sources_repository[source] = CommandsFilter()
-    with open(config, mode="w", encoding=ENCODING) as config_file:
-        toml_dict = {SOURCES: configuration.sources_repository.as_dict()}
-        toml.dump(toml_dict, config_file)
+    with open(output_path, mode="w", encoding=ENCODING) as config_file:
+        toml.dump(configuration.as_dict(), config_file)
+    click.echo("Done!")
 
 
 @config_cli.command("fix-versions")

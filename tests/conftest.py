@@ -10,9 +10,10 @@ from statue.config.configuration_builder import ConfigurationBuilder
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
 from statue.evaluation import Evaluation
+from statue.templates.templates_provider import TemplatesProvider
+from tests.constants import ENVIRON
 
 # 3rd Party Mocks
-from tests.constants import ENVIRON
 
 
 @pytest.fixture
@@ -47,16 +48,6 @@ def environ(monkeypatch):
 @pytest.fixture
 def mock_update_from_config(mocker):
     return mocker.patch.object(ConfigurationBuilder, "update_from_config")
-
-
-@pytest.fixture
-def mock_default_configuration_path(mocker, tmp_path):
-    default_path = tmp_path / "default"
-    default_path_mock = mocker.patch.object(
-        ConfigurationBuilder, "default_configuration_path"
-    )
-    default_path_mock.return_value = default_path
-    return default_path
 
 
 @pytest.fixture
@@ -102,11 +93,29 @@ def mock_sources_repository_as_dict(mocker):
 
 
 @pytest.fixture
+def mock_configuration_as_dict(mocker):
+    return mocker.patch.object(Configuration, "as_dict")
+
+
+@pytest.fixture
 def mock_cwd(mocker, tmpdir_factory):
     cwd = Path(tmpdir_factory.mktemp("bla"))
     cwd_method_mock = mocker.patch.object(Path, "cwd")
     cwd_method_mock.return_value = cwd
     return cwd
+
+
+# Templates Provider Mocks
+
+
+@pytest.fixture()
+def mock_templates_provider_names(mocker):
+    return mocker.patch.object(TemplatesProvider, "template_names")
+
+
+@pytest.fixture()
+def mock_templates_provider_get_template_path(mocker):
+    return mocker.patch.object(TemplatesProvider, "get_template_path")
 
 
 # Evaluation Mocks

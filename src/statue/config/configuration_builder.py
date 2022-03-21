@@ -1,13 +1,19 @@
 """Singleton class for building configuration instances."""
+import sys
 from pathlib import Path
-from typing import Any, MutableMapping, Optional
+from typing import Any, MutableMapping, Optional, Union
 
 import toml
 
 from statue.config.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, OVERRIDE, SOURCES
+from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
 from statue.exceptions import InvalidConfiguration, MissingConfiguration
 from statue.runner import RunnerMode
+
+if sys.version_info < (3, 9):  # pragma: no cover
+    from importlib_resources.abc import Traversable
+else:  # pragma: no cover
+    from importlib.abc import Traversable
 
 
 class ConfigurationBuilder:
@@ -16,7 +22,7 @@ class ConfigurationBuilder:
     @classmethod
     def build_configuration_from_file(
         cls,
-        statue_configuration_path: Optional[Path] = None,
+        statue_configuration_path: Optional[Union[Path, Traversable]] = None,
         cache_dir: Optional[Path] = None,
     ) -> Configuration:
         """
@@ -34,31 +40,17 @@ class ConfigurationBuilder:
         :rtype: Configuration
         :raises MissingConfiguration: Raised when could not load
         """
-        default_configuration_path = cls.default_configuration_path()
         if statue_configuration_path is None:
             statue_configuration_path = cls.configuration_path()
         if (
-            not default_configuration_path.exists()
+            isinstance(statue_configuration_path, Path)
             and not statue_configuration_path.exists()
         ):
             raise MissingConfiguration()
-        statue_config = (
-            toml.load(statue_configuration_path)
-            if statue_configuration_path.exists()
-            else {}
-        )
-        cache_dir = (
-            cls.cache_path(statue_configuration_path.parent)
-            if cache_dir is None
-            else cache_dir
-        )
+        with statue_configuration_path.open(mode="r") as configuration_file:
+            statue_config = toml.load(configuration_file)
+        cache_dir = cls.cache_path(Path.cwd()) if cache_dir is None else cache_dir
         configuration = Configuration(cache_root_directory=cache_dir)
-        if not statue_config.get(GENERAL, {}).get(OVERRIDE, False):
-            if default_configuration_path.exists():
-                cls.update_from_config(
-                    configuration=configuration,
-                    statue_config=toml.load(default_configuration_path),
-                )
         cls.update_from_config(configuration=configuration, statue_config=statue_config)
         return configuration
 
@@ -98,16 +90,6 @@ class ConfigurationBuilder:
             configuration.commands_repository.update_from_config(
                 statue_config[COMMANDS]
             )
-
-    @classmethod
-    def default_configuration_path(cls) -> Path:
-        """
-        Get default configuration path.
-
-        :return: Default configuration path
-        :rtype: Path
-        """
-        return Path(__file__).parent.parent / "resources" / "defaults.toml"
 
     @classmethod
     def configuration_path(cls, directory: Optional[Path] = None) -> Path:

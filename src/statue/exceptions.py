@@ -5,6 +5,9 @@ class StatueException(Exception):
     """Exceptions base for Statue."""
 
 
+# Configuration related exceptions
+
+
 class StatueConfigurationError(StatueException):
     """User-Defined Statue configuration is invalid."""
 
@@ -27,6 +30,9 @@ class InconsistentConfiguration(StatueConfigurationError):
     """Some of statue's configurations are inconsistent."""
 
 
+# Command related exceptions
+
+
 class UnknownCommand(StatueException):
     """Command isn't recognized."""
 
@@ -44,19 +50,6 @@ class InvalidCommand(StatueException):
     """Command doesn't fit restrictions."""
 
 
-class UnknownContext(StatueException):
-    """Context isn't recognized."""
-
-    def __init__(self, context_name: str) -> None:
-        """
-        Exception constructor.
-
-        :param context_name: Name of the unfound context
-        :type context_name: str
-        """
-        super().__init__(f'Could not find context named "{context_name}"')
-
-
 class CommandExecutionError(StatueException):
     """Command cannot be executed."""
 
@@ -70,6 +63,35 @@ class CommandExecutionError(StatueException):
         super().__init__(
             f'Cannot execute "{command_name}" because it is not installed.'
         )
+
+
+# Other exceptions
+
+
+class UnknownContext(StatueException):
+    """Context isn't recognized."""
+
+    def __init__(self, context_name: str) -> None:
+        """
+        Exception constructor.
+
+        :param context_name: Name of the unfound context
+        :type context_name: str
+        """
+        super().__init__(f'Could not find context named "{context_name}"')
+
+
+class UnknownTemplate(StatueException):
+    """Template isn't recognized."""
+
+    def __init__(self, template_name: str) -> None:
+        """
+        Exception constructor.
+
+        :param template_name: Name of the unfound template
+        :type template_name: str
+        """
+        super().__init__(f'Could not find template named "{template_name}"')
 
 
 class CacheError(StatueException):

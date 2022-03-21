@@ -5,6 +5,7 @@ from statue.cli.config import config_cli
 from statue.cli.contexts import context_cli
 from statue.cli.history import history_cli
 from statue.cli.run import run_cli
+from statue.cli.templates import templates_cli
 
 __all__ = [
     "statue_cli",
@@ -13,4 +14,5 @@ __all__ = [
     "context_cli",
     "run_cli",
     "history_cli",
+    "templates_cli",
 ]
