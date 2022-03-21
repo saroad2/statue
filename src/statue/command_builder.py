@@ -225,6 +225,14 @@ class CommandBuilder:
         """
         return self.installed_version is not None
 
+    def set_version_as_installed(self):
+        """
+        Set version to be the installed version.
+
+        PAY ATTENTION: if command is not installed, version will be set to None
+        """
+        self.version = self.installed_version
+
     def installed_correctly(self) -> bool:
         """
         Checks that command is installed and its version matches.
