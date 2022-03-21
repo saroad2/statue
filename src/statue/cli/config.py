@@ -18,7 +18,7 @@ from statue.cli.styled_strings import (
 )
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration_builder import ConfigurationBuilder
-from statue.constants import COMMANDS, ENCODING, VERSION
+from statue.constants import ENCODING
 from statue.exceptions import StatueConfigurationError, UnknownTemplate
 from statue.sources_finder import find_sources
 from statue.templates.templates_provider import TemplatesProvider
@@ -164,22 +164,14 @@ def fixate_commands_versions(
     if len(configuration.commands_repository) == 0:
         click.echo("No commands to fixate.")
         return
-    with open(config, mode="r", encoding=ENCODING) as config_file:
-        raw_config_dict = toml.load(config_file)
-    if COMMANDS not in raw_config_dict:
-        raw_config_dict[COMMANDS] = {}
     for command_builder in configuration.commands_repository:
         if latest:
             command_builder.update(verbosity=verbosity)
         if not command_builder.installed():
             continue
-        if command_builder.name not in raw_config_dict[COMMANDS]:
-            raw_config_dict[COMMANDS][command_builder.name] = {}
-        raw_config_dict[COMMANDS][command_builder.name][
-            VERSION
-        ] = command_builder.installed_version
+        command_builder.set_version_as_installed()
     with open(config, mode="w", encoding=ENCODING) as config_file:
-        toml.dump(raw_config_dict, config_file)
+        toml.dump(configuration.as_dict(), config_file)
 
 
 def __join_names(names_list):
