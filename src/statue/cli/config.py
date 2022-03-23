@@ -1,4 +1,5 @@
 """Config CLI."""
+# pylint: disable=too-many-arguments
 import sys
 from pathlib import Path
 from typing import Optional, Union
@@ -78,11 +79,26 @@ def show_tree(config: Optional[Union[str, Path]]):
     default=True,
     help="Should use git to trace ignored files",
 )
+@click.option(
+    "--fix-versions",
+    is_flag=True,
+    default=False,
+    help="Fix versions in config when running",
+)
+@click.option(
+    "-i",
+    "--install",
+    is_flag=True,
+    default=False,
+    help="Install latest version for all commands in configuration",
+)
 def init_config_cli(
     config: Optional[Union[str, Path]],
     template: str,
     interactive: bool,
     use_git: bool,
+    fix_versions: bool,
+    install: bool,
 ):
     """
     Initialize configuration for Statue.
@@ -124,6 +140,12 @@ def init_config_cli(
     else:
         for source in sources:
             configuration.sources_repository[source] = CommandsFilter()
+    if fix_versions or install:
+        for command_builder in configuration.commands_repository:
+            if install:
+                command_builder.update()
+            if fix_versions and command_builder.installed():
+                command_builder.set_version_as_installed()
     with open(output_path, mode="w", encoding=ENCODING) as config_file:
         toml.dump(configuration.as_dict(), config_file)
     click.echo("Done!")
