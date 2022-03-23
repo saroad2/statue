@@ -30,6 +30,7 @@ from tests.constants import (
 )
 
 # Successful tests
+from tests.util import dummy_version
 
 
 @case(tags=[SUCCESSFUL_TAG])
@@ -42,7 +43,7 @@ def case_simple_command_builder_from_dict():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_version():
-    version = "7.1.4"
+    version = dummy_version()
     command_builder_dict = {HELP: COMMAND_HELP_STRING1, VERSION: version}
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
@@ -161,7 +162,7 @@ def case_command_builder_from_dict_with_two_contexts_specifications():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_verything():
-    version = "5.2.6"
+    version = dummy_version()
     command_builder_dict = {
         HELP: COMMAND_HELP_STRING1,
         ARGS: [ARG1, ARG2],

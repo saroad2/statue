@@ -3,10 +3,11 @@ import sys
 from statue.command_builder import CommandBuilder
 from statue.verbosity import SILENT
 from tests.constants import COMMAND1, COMMAND_HELP_STRING1
+from tests.util import dummy_version
 
 
 def test_command_builder_uninstall(mock_get_package, mock_subprocess, environ):
-    version = "6.2.1"
+    version = dummy_version()
     mock_get_package.return_value.version = version
     command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
 
@@ -32,7 +33,7 @@ def test_command_builder_uninstall_if_not_already_uninstalled(
 
 
 def test_command_builder_uninstall_silently(mock_get_package, mock_subprocess, environ):
-    version = "6.2.1"
+    version = dummy_version()
     mock_get_package.return_value.version = version
     command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
 
@@ -49,7 +50,7 @@ def test_command_builder_uninstall_silently(mock_get_package, mock_subprocess, e
 def test_command_builder_uninstall_specified_version(
     mock_get_package, mock_subprocess, environ
 ):
-    version, installed_version = "4.2.1", "6.2.1"
+    version, installed_version = dummy_version(), dummy_version()
     mock_get_package.return_value.version = installed_version
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version

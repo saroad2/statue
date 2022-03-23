@@ -13,6 +13,7 @@ from tests.constants import (
     CONTEXT5,
     CONTEXT6,
 )
+from tests.util import dummy_version
 
 
 def test_command_builder_empty_constructor():
@@ -31,7 +32,7 @@ def test_command_builder_empty_constructor():
 
 
 def test_command_builder_with_version():
-    version = "6.5.2"
+    version = dummy_version()
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
     )
@@ -133,7 +134,7 @@ def test_command_builder_with_all_fields():
         ContextSpecification(args=[ARG3]),
         ContextSpecification(add_args=[ARG4]),
     )
-    version = "4.5.1"
+    version = dummy_version()
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
