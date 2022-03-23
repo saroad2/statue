@@ -3,7 +3,7 @@ import abc
 import asyncio
 import time
 from enum import Enum, auto
-from typing import Callable, List, Optional
+from typing import List
 
 from statue.command import Command
 from statue.commands_map import CommandsMap
@@ -24,7 +24,6 @@ class EvaluationRunner:  # pylint: disable=too-few-public-methods
     def evaluate(
         self,
         commands_map: CommandsMap,
-        update_func: Optional[Callable[[Evaluation], None]] = None,
     ) -> Evaluation:
         """
         Abstract evaluation method.
@@ -33,9 +32,6 @@ class EvaluationRunner:  # pylint: disable=too-few-public-methods
 
         :param commands_map: map from source file to list of commands to run on it
         :type commands_map: CommandsMap
-        :param update_func: Function to be called before every command is
-            executed. Skip if None
-        :type update_func: Optional[Callable[[Command], None]]
         :return: Total evaluation after running all commands.
         :rtype: Evaluation
         """
@@ -50,16 +46,12 @@ class SynchronousEvaluationRunner(  # pylint: disable=too-few-public-methods
     def evaluate(
         self,
         commands_map: CommandsMap,
-        update_func: Optional[Callable[[Evaluation], None]] = None,
     ) -> Evaluation:
         """
         Run commands map and return evaluation report.
 
         :param commands_map: map from source file to list of commands to run on it
         :type commands_map: CommandsMap
-        :param update_func: Function to be called before every command is
-            executed. Skip if None
-        :type update_func: Optional[Callable[[Command], None]]
         :return: Total evaluation after running all commands.
         :rtype: Evaluation
         """
@@ -70,8 +62,6 @@ class SynchronousEvaluationRunner(  # pylint: disable=too-few-public-methods
             evaluation[source] = SourceEvaluation()
             for command in commands:
                 evaluation[source].append(command.execute(source))
-                if update_func is not None:
-                    update_func(evaluation)
             source_end_time = time.time()
             evaluation[source].source_execution_duration = (
                 source_end_time - source_start_time
@@ -91,48 +81,33 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
     def evaluate(
         self,
         commands_map: CommandsMap,
-        update_func: Optional[Callable[[Evaluation], None]] = None,
     ) -> Evaluation:
         """
         Run commands map asynchronously and return evaluation report.
 
         :param commands_map: map from source file to list of commands to run on it
         :type commands_map: CommandsMap
-        :param update_func: Function to be called before every command is
-            executed. Skip if None
-        :type update_func: Optional[Callable[[Command], None]]
         :return: Total evaluation after running all commands.
         :rtype: Evaluation
         """
-        return asyncio.run(
-            self.evaluate_commands_map(
-                commands_map=commands_map, update_func=update_func
-            )
-        )
+        return asyncio.run(self.evaluate_commands_map(commands_map))
 
     async def evaluate_commands_map(
         self,
         commands_map: CommandsMap,
-        update_func: Optional[Callable[[Evaluation], None]] = None,
     ):
         """
         Main async function to run commands map and return evaluation report.
 
         :param commands_map: map from source file to list of commands to run on it
         :type commands_map: CommandsMap
-        :param update_func: Function to be called before every command is
-            executed. Skip if None
-        :type update_func: Optional[Callable[[Command], None]]
         :return: Evaluation
         """
         evaluation = Evaluation()
         start_time = time.time()
         coros = [
             self.evaluate_source(
-                source=source,
-                commands=commands,
-                evaluation=evaluation,
-                update_func=update_func,
+                source=source, commands=commands, evaluation=evaluation
             )
             for source, commands in commands_map.items()
         ]
@@ -146,7 +121,6 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         source: str,
         commands: List[Command],
         evaluation: Evaluation,
-        update_func: Optional[Callable[[Evaluation], None]] = None,
     ):
         """
         Evaluate commands on source and return source evaluation report.
@@ -157,9 +131,6 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         :type commands: List[Command]
         :param evaluation: Evaluation instance to be updated after commands are running.
         :type evaluation: Evaluation
-        :param update_func: Function to be called before every command is
-            executed. Skip if None
-        :type update_func: Optional[Callable[[Command], None]]
         """
         evaluation[source] = SourceEvaluation()
         start_time = time.time()
@@ -168,7 +139,6 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
                 command=command,
                 source=source,
                 evaluation=evaluation,
-                update_func=update_func,
             )
             for command in commands
         ]
@@ -181,7 +151,6 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         command: Command,
         source: str,
         evaluation: Evaluation,
-        update_func: Optional[Callable[[Evaluation], None]] = None,
     ):
         """
         Evaluate command on source and return command evaluation report.
@@ -192,15 +161,10 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         :type command: Command
         :param evaluation: Evaluation instance to be updated after commands are running.
         :type evaluation: Evaluation
-        :param update_func: Function to be called before every command is
-            executed. Skip if None
-        :type update_func: Optional[Callable[[Command], None]]
         """
         command_evaluation = await command.execute_async(source)
         await self.update_lock.acquire()
         evaluation[source].append(command_evaluation)
-        if update_func is not None:
-            update_func(evaluation)
         self.update_lock.release()
 
 
