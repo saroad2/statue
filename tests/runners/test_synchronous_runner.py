@@ -1,9 +1,10 @@
-import itertools
 import random
-from unittest import mock
 
+import mock
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
+from statue.commands_map import CommandsMap
+from statue.constants import BAR_FORMAT
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
 from statue.runner import SynchronousEvaluationRunner
 from tests.constants import (
@@ -19,9 +20,13 @@ from tests.constants import (
 from tests.util import assert_equal_evaluations, command_mock
 
 
+def tqdm_side_effect(items, *args, **kwargs):
+    return items
+
+
 def case_empty_commands_map(mock_time):
     mock_time.side_effect = [0, 0]
-    commands_map = {}
+    commands_map = CommandsMap()
     evaluation = Evaluation()
     return commands_map, evaluation, []
 
@@ -44,7 +49,7 @@ def case_one_source_one_command(mock_time):
         execution_duration=command_execution_duration,
         captured_output=COMMAND_CAPTURED_OUTPUT1,
     )
-    commands_map = {SOURCE1: [command1]}
+    commands_map = CommandsMap({SOURCE1: [command1]})
 
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
     evaluation[SOURCE1] = SourceEvaluation(
@@ -86,7 +91,7 @@ def case_one_source_two_commands(mock_time):
         success=False,
         captured_output=COMMAND_CAPTURED_OUTPUT2,
     )
-    commands_map = {SOURCE1: [command1, command2]}
+    commands_map = CommandsMap({SOURCE1: [command1, command2]})
 
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
     evaluation[SOURCE1] = SourceEvaluation(
@@ -148,7 +153,7 @@ def case_one_source_three_commands(mock_time):
         success=False,
         captured_output=COMMAND_CAPTURED_OUTPUT3,
     )
-    commands_map = {SOURCE1: [command1, command2, command3]}
+    commands_map = CommandsMap({SOURCE1: [command1, command2, command3]})
 
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
     evaluation[SOURCE1] = SourceEvaluation(
@@ -215,7 +220,7 @@ def case_two_sources_two_commands(mock_time):
         success=False,
         captured_output=COMMAND_CAPTURED_OUTPUT2,
     )
-    commands_map = {SOURCE1: [command1], SOURCE2: [command2]}
+    commands_map = CommandsMap({SOURCE1: [command1], SOURCE2: [command2]})
 
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
     evaluation[SOURCE1] = SourceEvaluation(
@@ -245,17 +250,24 @@ def case_two_sources_two_commands(mock_time):
 
 
 @parametrize_with_cases(argnames=["commands_map", "evaluation"], cases=THIS_MODULE)
-def test_evaluate_commands_map_result(commands_map, evaluation):
+def test_evaluate_commands_map_result(
+    commands_map, evaluation, mock_tqdm, mock_tqdm_range
+):
     runner = SynchronousEvaluationRunner()
+    mock_tqdm.side_effect = tqdm_side_effect
     actual_evaluation = runner.evaluate(commands_map)
     assert_equal_evaluations(actual_evaluation, evaluation)
-
-
-@parametrize_with_cases(argnames=["commands_map", "evaluation"], cases=THIS_MODULE)
-def test_evaluate_commands_map_update_func(commands_map, evaluation):
-    update_func_mock = mock.Mock()
-    runner = SynchronousEvaluationRunner()
-    actual_evaluation = runner.evaluate(commands_map, update_func=update_func_mock)
-    assert_equal_evaluations(actual_evaluation, evaluation)
-    all_commands = list(itertools.chain.from_iterable(commands_map.values()))
-    assert update_func_mock.call_count == len(all_commands)
+    mock_tqdm_range.assert_called_once_with(
+        commands_map.total_commands_count,
+        bar_format=BAR_FORMAT,
+        colour="blue",
+    )
+    assert mock_tqdm.call_count == len(commands_map)
+    for i, key in enumerate(commands_map.keys()):
+        assert mock_tqdm.call_args_list[i] == mock.call(
+            commands_map[key],
+            bar_format=BAR_FORMAT,
+            colour="yellow",
+            leave=False,
+            desc=key,
+        )

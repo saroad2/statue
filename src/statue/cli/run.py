@@ -15,12 +15,7 @@ from statue.cli.common_flags import (
     verbosity_option,
 )
 from statue.cli.string_util import boxed_string, evaluation_string
-from statue.cli.styled_strings import (
-    failure_style,
-    name_style,
-    source_style,
-    success_style,
-)
+from statue.cli.styled_strings import failure_style, name_style, source_style
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.evaluation import Evaluation
@@ -153,13 +148,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     if is_verbose(verbosity):
         click.echo(f"Running evaluation in {mode.lower()} mode")
     runner = build_runner(mode)
-    with click.progressbar(
-        length=commands_map.total_commands_count, show_pos=True, show_eta=False
-    ) as bar:
-        evaluation = runner.evaluate(
-            commands_map=commands_map,
-            update_func=lambda command: __bar_update_func(bar, command),
-        )
+    evaluation = runner.evaluate(commands_map)
     if not is_silent(verbosity):
         click.echo(boxed_string("Evaluation"))
         click.echo(evaluation_string(evaluation, verbosity=verbosity))
@@ -251,13 +240,3 @@ def __handle_missing_commands(ctx, missing_commands, install, verbosity):
                 "commands before running"
             )
             ctx.exit(1)
-
-
-def __bar_update_func(bar, partial_evaluation: Evaluation):
-    bar.update(1)
-
-    failures = failure_style(f"{partial_evaluation.failed_commands_number} failed")
-    success = success_style(
-        f"{partial_evaluation.successful_commands_number} succeeded"
-    )
-    bar.label = f"{failures}, {success}"
