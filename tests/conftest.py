@@ -32,14 +32,13 @@ def mock_toml_dump(mocker):
 
 
 @pytest.fixture
-def mock_subprocess(mocker):
-    return mocker.patch("subprocess.run")
+def mock_tqdm(mocker):
+    return mocker.patch("tqdm.tqdm")
 
 
 @pytest.fixture
-def environ(monkeypatch):
-    monkeypatch.setattr(os, "environ", ENVIRON)
-    return ENVIRON
+def mock_tqdm_range(mocker):
+    return mocker.patch("tqdm.trange")
 
 
 # Configuration Mocks
@@ -137,3 +136,14 @@ def mock_evaluation_save_as_json(mocker):
 @pytest.fixture
 def print_mock(mocker):
     return mocker.patch("builtins.print")
+
+
+@pytest.fixture
+def mock_subprocess(mocker):
+    return mocker.patch("subprocess.run")
+
+
+@pytest.fixture
+def environ(monkeypatch):
+    monkeypatch.setattr(os, "environ", ENVIRON)
+    return ENVIRON
