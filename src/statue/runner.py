@@ -5,8 +5,11 @@ import time
 from enum import Enum, auto
 from typing import List
 
+import tqdm
+
 from statue.command import Command
 from statue.commands_map import CommandsMap
+from statue.constants import BAR_FORMAT, MAIN_BAR_COLOR, SECONDARY_BAR_COLOR
 from statue.evaluation import Evaluation, SourceEvaluation
 
 
@@ -57,15 +60,27 @@ class SynchronousEvaluationRunner(  # pylint: disable=too-few-public-methods
         """
         evaluation = Evaluation()
         total_start_time = time.time()
-        for source, commands in commands_map.items():
-            source_start_time = time.time()
-            evaluation[source] = SourceEvaluation()
-            for command in commands:
-                evaluation[source].append(command.execute(source))
-            source_end_time = time.time()
-            evaluation[source].source_execution_duration = (
-                source_end_time - source_start_time
-            )
+        with tqdm.trange(
+            commands_map.total_commands_count,
+            bar_format=BAR_FORMAT,
+            colour=MAIN_BAR_COLOR,
+        ) as main_bar:
+            for source, commands in commands_map.items():
+                source_start_time = time.time()
+                evaluation[source] = SourceEvaluation()
+                for command in tqdm.tqdm(
+                    commands,
+                    bar_format=BAR_FORMAT,
+                    colour=SECONDARY_BAR_COLOR,
+                    leave=False,
+                    desc=source,
+                ):
+                    evaluation[source].append(command.execute(source))
+                    main_bar.update(1)
+                source_end_time = time.time()
+                evaluation[source].source_execution_duration = (
+                    source_end_time - source_start_time
+                )
         total_end_time = time.time()
         evaluation.total_execution_duration = total_end_time - total_start_time
         return evaluation
@@ -105,52 +120,86 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         """
         evaluation = Evaluation()
         start_time = time.time()
-        coros = [
-            self.evaluate_source(
-                source=source, commands=commands, evaluation=evaluation
-            )
-            for source, commands in commands_map.items()
-        ]
-        await asyncio.gather(*coros)
+        max_source_name_length = max([len(source) for source in commands_map.keys()])
+        with tqdm.trange(
+            commands_map.total_commands_count,
+            bar_format=BAR_FORMAT,
+            colour=MAIN_BAR_COLOR,
+        ) as main_bar:
+            coros = [
+                self.evaluate_source(
+                    source_bar_pos=pos,
+                    source=source,
+                    commands=commands,
+                    evaluation=evaluation,
+                    main_bar=main_bar,
+                    max_source_name_length=max_source_name_length,
+                )
+                for pos, (source, commands) in enumerate(commands_map.items(), start=1)
+            ]
+            await asyncio.gather(*coros)
         end_time = time.time()
         evaluation.total_execution_duration = end_time - start_time
         return evaluation
 
-    async def evaluate_source(
+    async def evaluate_source(  # pylint: disable=too-many-arguments
         self,
         source: str,
         commands: List[Command],
         evaluation: Evaluation,
+        main_bar: tqdm.tqdm,
+        source_bar_pos: int,
+        max_source_name_length: int,
     ):
         """
         Evaluate commands on source and return source evaluation report.
 
+        :param source_bar_pos: Position of the source bar to print
+        :type source_bar_pos: int
         :param source: Path of the desired source.
         :type source: str
         :param commands: List of commands to run on the source.
         :type commands: List[Command]
         :param evaluation: Evaluation instance to be updated after commands are running.
         :type evaluation: Evaluation
+        :param main_bar: progress bar that shows how far are we in evaluating the source
+        :type main_bar: tqdm.tqdm
+        :param max_source_name_length: Maximum source name length
+        :type max_source_name_length: int
         """
         evaluation[source] = SourceEvaluation()
         start_time = time.time()
-        coros = [
-            self.evaluate_command(
-                command=command,
-                source=source,
-                evaluation=evaluation,
-            )
-            for command in commands
-        ]
-        await asyncio.gather(*coros)
+        with tqdm.trange(
+            len(commands),
+            bar_format=BAR_FORMAT,
+            position=source_bar_pos,
+            leave=False,
+            colour=SECONDARY_BAR_COLOR,
+            desc=f"{source:{max_source_name_length}}",
+        ) as source_bar:
+            coros = [
+                self.evaluate_command(
+                    command=command,
+                    source=source,
+                    evaluation=evaluation,
+                    source_bar=source_bar,
+                    main_bar=main_bar,
+                )
+                for command in commands
+            ]
+            await asyncio.gather(*coros)
         end_time = time.time()
         evaluation[source].source_execution_duration = end_time - start_time
+        await self.update_lock.acquire()
+        self.update_lock.release()
 
-    async def evaluate_command(
+    async def evaluate_command(  # pylint: disable=too-many-arguments
         self,
         command: Command,
         source: str,
         evaluation: Evaluation,
+        source_bar: tqdm.tqdm,
+        main_bar: tqdm.tqdm,
     ):
         """
         Evaluate command on source and return command evaluation report.
@@ -161,10 +210,17 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         :type command: Command
         :param evaluation: Evaluation instance to be updated after commands are running.
         :type evaluation: Evaluation
+        :param source_bar: tqdm progress bar to show the progress
+            of evaluating this specific source.
+        :type source_bar: tqdm.tqdm
+        :param main_bar: tqdm progress bar to show total progress
+        :type main_bar: tqdm.tqdm
         """
         command_evaluation = await command.execute_async(source)
         await self.update_lock.acquire()
         evaluation[source].append(command_evaluation)
+        source_bar.update(1)
+        main_bar.update(1)
         self.update_lock.release()
 
 

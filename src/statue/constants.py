@@ -25,3 +25,6 @@ VERSION = "version"
 MODE = "mode"
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"
+BAR_FORMAT = "{l_bar}{bar}| {n_fmt}/{total_fmt}"
+MAIN_BAR_COLOR = "blue"
+SECONDARY_BAR_COLOR = "yellow"
