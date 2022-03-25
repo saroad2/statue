@@ -1,77 +1,77 @@
 [general]
 mode = "sync"
 
-[contexts.format]
-help = "Reformating commands, with in-file replacements."
-aliases = [ "fmt",]
-
-[contexts.documentation]
-help = "Commands regarding code documentation."
-aliases = [ "docs",]
+[contexts.fast]
+help = "Run short-time commands. Good for smoke tests"
 
 [contexts.strict]
 help = "Strict checks, for ones who never compromise!"
 allowed_by_default = true
 
+[contexts.format]
+help = "Reformating commands, with in-file replacements."
+aliases = [ "fmt",]
+
 [contexts.test]
 help = "Checks for test files."
 
-[contexts.fast]
-help = "Run short-time commands. Good for smoke tests"
+[contexts.documentation]
+help = "Commands regarding code documentation."
+aliases = [ "docs",]
 
 [commands.black]
 help = "Code formatter for python."
+version = "22.1.0"
 args = [ "--check",]
 allowed_contexts = [ "fast", "test",]
-version = "22.1.0"
 
 [commands.flake8]
 help = "Code style checker for python."
+version = "4.0.1"
 args = [ "--max-line-length=88", "--ignore=E203,W503,DAR",]
 allowed_contexts = [ "fast", "test",]
-version = "4.0.1"
 
 [commands.autoflake]
 help = "Remove unused imports and variables"
+version = "1.4"
 args = [ "--in-place", "--recursive", "--expand-star-imports", "--remove-all-unused-imports",]
 required_contexts = [ "format",]
 allowed_contexts = [ "fast", "format", "test",]
-version = "1.4"
 
 [commands.isort]
 help = "Tool for sorting and cleaning python imports."
+version = "5.10.1"
 args = [ "--profile=black", "--check-only",]
 allowed_contexts = [ "fast", "test",]
-version = "5.10.1"
 
 [commands.mypy]
 help = "Validate types using mypy."
+version = "0.942"
 args = [ "--ignore-missing-imports",]
 allowed_contexts = [ "test",]
-version = "0.941"
 
 [commands.pylint]
 help = "Python code linter"
+version = "2.13.0"
 args = [ "--ignore-imports=y", "--disable=bad-continuation", "--enable=useless-suppression", "--fail-on=useless-suppression",]
 allowed_contexts = [ "documentation",]
-version = "2.12.2"
 
 [commands.bandit]
 help = "Python security checks tool."
-args = [ "-r", "--skip=B603",]
 version = "1.7.4"
+args = [ "-r", "--skip=B603",]
 
 [commands.pydocstyle]
 help = "Tool for python docstring style enforcing"
+version = "6.1.1"
 args = [ "--ignore=D203,D212,D400,D401",]
 allowed_contexts = [ "documentation",]
-version = "6.1.1"
 
 [commands.darglint]
 help = "Tool for documentation coverage."
+version = "1.8.1"
 args = [ "--docstring-style=sphinx", "--ignore-regex=.*_cli", "--ignore-properties",]
 allowed_contexts = [ "documentation",]
-version = "1.8.1"
 
 [sources."setup.py"]
 contexts = [ "fast",]
