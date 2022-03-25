@@ -8,6 +8,21 @@ from statue.cli.common_flags import config_path_option
 from statue.cli.config.config_cli import config_cli
 from statue.cli.styled_strings import bullet_style, name_style, source_style
 from statue.config.configuration_builder import ConfigurationBuilder
+from statue.constants import ENCODING
+
+
+@config_cli.command("show")
+@config_path_option
+def show_config_cli(config: Optional[Union[str, Path]]):
+    """Show configuration file context."""
+    config = (
+        Path(config)
+        if config is not None
+        else ConfigurationBuilder.configuration_path()
+    )
+    with open(config, mode="r", encoding=ENCODING) as config_file:
+        lines = config_file.readlines()
+    click.echo_via_pager(lines)
 
 
 @config_cli.command("show-tree")
