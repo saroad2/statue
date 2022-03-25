@@ -23,12 +23,12 @@ def mock_time(mocker):
 
 @pytest.fixture
 def mock_toml_load(mocker):
-    return mocker.patch("toml.load")
+    return mocker.patch("tomli.load")
 
 
 @pytest.fixture
 def mock_toml_dump(mocker):
-    return mocker.patch("toml.dump")
+    return mocker.patch("tomli_w.dump")
 
 
 @pytest.fixture

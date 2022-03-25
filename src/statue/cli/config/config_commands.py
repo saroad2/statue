@@ -3,12 +3,11 @@ from pathlib import Path
 from typing import Optional, Union
 
 import click
-import toml
+import tomli_w
 
 from statue.cli.common_flags import config_path_option, verbose_option
 from statue.cli.config.config_cli import config_cli
 from statue.config.configuration_builder import ConfigurationBuilder
-from statue.constants import ENCODING
 
 
 @config_cli.command("fix-versions")
@@ -50,5 +49,5 @@ def fixate_commands_versions_cli(
         if not command_builder.installed():
             continue
         command_builder.set_version_as_installed()
-    with open(config, mode="w", encoding=ENCODING) as config_file:
-        toml.dump(configuration.as_dict(), config_file)
+    with open(config, mode="wb") as config_file:
+        tomli_w.dump(configuration.as_dict(), config_file)
