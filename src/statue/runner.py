@@ -38,7 +38,6 @@ class EvaluationRunner:  # pylint: disable=too-few-public-methods
         :return: Total evaluation after running all commands.
         :rtype: Evaluation
         """
-        ...
 
 
 class SynchronousEvaluationRunner(  # pylint: disable=too-few-public-methods
