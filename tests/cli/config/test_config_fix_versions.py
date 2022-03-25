@@ -22,7 +22,7 @@ def test_config_fix_version_with_no_installed_packages(
     )
 
     mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
+    with mock.patch("statue.cli.config.config_commands.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "fix-versions"])
         mock_toml_dump.assert_called_once_with(
             mock_configuration_as_dict.return_value, mock_open.return_value
@@ -51,7 +51,7 @@ def test_config_fix_version_with_one_installed_package(
     )
 
     mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
+    with mock.patch("statue.cli.config.config_commands.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "fix-versions"])
 
         mock_toml_dump.assert_called_once_with(
@@ -81,7 +81,7 @@ def test_config_fix_version_with_two_installed_packages(
     )
 
     mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
+    with mock.patch("statue.cli.config.config_commands.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "fix-versions"])
 
         mock_toml_dump.assert_called_once_with(
@@ -127,7 +127,7 @@ def test_config_fix_version_latest(
     )
 
     mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
+    with mock.patch("statue.cli.config.config_commands.open", mock_open):
         result = cli_runner.invoke(statue_cli, ["config", "fix-versions", "--latest"])
 
         mock_toml_dump.assert_called_once_with(
@@ -161,7 +161,7 @@ def test_config_fix_version_with_configuration_path(
     )
 
     mock_open = mock.mock_open()
-    with mock.patch("statue.cli.config.open", mock_open):
+    with mock.patch("statue.cli.config.config_commands.open", mock_open):
         result = cli_runner.invoke(
             statue_cli, ["config", "fix-versions", "--config", str(config_path)]
         )
