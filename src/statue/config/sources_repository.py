@@ -1,4 +1,5 @@
 """Place for saving all available sources with default commands filter."""
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, List, MutableMapping
 
@@ -67,7 +68,7 @@ class SourcesRepository:
         """Reset sources repository."""
         self.sources_filters_map.clear()
 
-    def as_dict(self):
+    def as_dict(self) -> OrderedDict[str, Any]:
         """
         Encode sources repository as a dictionary.
 
@@ -77,9 +78,11 @@ class SourcesRepository:
         :return: Serialized representation dictionary
         :rtype: Dict[str, Any]
         """
-        return {
-            source.as_posix(): self[source].as_dict() for source in self.sources_list
-        }
+        sources_list = self.sources_list
+        sources_list.sort(key=lambda source: source.as_posix())
+        return OrderedDict(
+            [(source.as_posix(), self[source].as_dict()) for source in sources_list]
+        )
 
     def update_from_config(
         self, config: MutableMapping[str, Any], contexts_repository: ContextsRepository
