@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pytest
 
 from statue.config.commands_repository import CommandsRepository
@@ -147,15 +149,17 @@ def test_commands_repository_as_dict():
         command_builder_mock(name=COMMAND2),
         command_builder_mock(name=COMMAND3),
     )
-    commands_repository = CommandsRepository(
-        command_builder1, command_builder2, command_builder3
-    )
 
-    assert commands_repository.as_dict() == {
-        COMMAND1: command_builder1.as_dict.return_value,
-        COMMAND2: command_builder2.as_dict.return_value,
-        COMMAND3: command_builder3.as_dict.return_value,
-    }
+    commands_repository = CommandsRepository(
+        command_builder1, command_builder3, command_builder2
+    )
+    commands_repository_dict = commands_repository.as_dict()
+
+    assert isinstance(commands_repository_dict, OrderedDict)
+    assert list(commands_repository_dict.keys()) == [COMMAND1, COMMAND2, COMMAND3]
+    assert commands_repository_dict[COMMAND1] == command_builder1.as_dict.return_value
+    assert commands_repository_dict[COMMAND2] == command_builder2.as_dict.return_value
+    assert commands_repository_dict[COMMAND3] == command_builder3.as_dict.return_value
 
 
 def test_commands_repository_get_non_existing_command():
