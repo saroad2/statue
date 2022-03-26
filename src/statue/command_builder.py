@@ -3,6 +3,7 @@ import importlib
 import os
 import subprocess  # nosec
 import sys
+from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -453,7 +454,7 @@ class CommandBuilder:
             }
         )
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> OrderedDict[str, Any]:
         """
         Encode command builder as a dictionary.
 
@@ -461,23 +462,24 @@ class CommandBuilder:
         a configuration file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, Any]
         """
-        builder_as_dict: Dict[str, Any] = {HELP: self.help}
-        if self.version is not None:
-            builder_as_dict[VERSION] = self.version
+        builder_as_dict: OrderedDict[str, Any] = OrderedDict()
+        builder_as_dict[HELP] = self.help
         if len(self.default_args) != 0:
             builder_as_dict[ARGS] = self.default_args
         if len(self.required_contexts) != 0:
             builder_as_dict[REQUIRED_CONTEXTS] = self.required_contexts
         if len(self.allowed_contexts) != 0:
             builder_as_dict[ALLOWED_CONTEXTS] = self.allowed_contexts
-        builder_as_dict.update(
-            {
-                context_name: specification.as_dict()
-                for context_name, specification in self.contexts_specifications.items()
-            }
-        )
+        if self.version is not None:
+            builder_as_dict[VERSION] = self.version
+        context_names = list(self.contexts_specifications.keys())
+        context_names.sort()
+        for context_name in context_names:
+            builder_as_dict[context_name] = self.contexts_specifications[
+                context_name
+            ].as_dict()
         return builder_as_dict
 
     @classmethod
