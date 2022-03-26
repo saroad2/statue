@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.commands_filter import CommandsFilter
@@ -46,6 +48,48 @@ def case_commands_filter_with_denied_commands():
     return commands_filter, filter_dict
 
 
-@parametrize_with_cases(argnames=["commands_filter", "filter_dict"], cases=THIS_MODULE)
-def test_commands_filter_as_dict(commands_filter, filter_dict):
-    assert commands_filter.as_dict() == filter_dict
+def case_commands_filter_with_contexts_and_allowed_commands():
+    commands_filter = CommandsFilter(
+        contexts=[
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+            Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+            Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        ],
+        allowed_commands=[COMMAND1, COMMAND2, COMMAND3],
+    )
+    filter_dict = OrderedDict(
+        [
+            (CONTEXTS, [CONTEXT1, CONTEXT2, CONTEXT3]),
+            (ALLOW_LIST, [COMMAND1, COMMAND2, COMMAND3]),
+        ]
+    )
+    return commands_filter, filter_dict
+
+
+def case_commands_filter_with_contexts_and_denied_commands():
+    commands_filter = CommandsFilter(
+        contexts=[
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+            Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+            Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        ],
+        denied_commands=[COMMAND1, COMMAND2, COMMAND3],
+    )
+    filter_dict = OrderedDict(
+        [
+            (CONTEXTS, [CONTEXT1, CONTEXT2, CONTEXT3]),
+            (DENY_LIST, [COMMAND1, COMMAND2, COMMAND3]),
+        ]
+    )
+    return commands_filter, filter_dict
+
+
+@parametrize_with_cases(
+    argnames=["commands_filter", "expected_filter_dict"], cases=THIS_MODULE
+)
+def test_commands_filter_as_dict(commands_filter, expected_filter_dict):
+    filter_dict = commands_filter.as_dict()
+    assert isinstance(filter_dict, OrderedDict)
+    assert list(filter_dict.keys()) == list(expected_filter_dict.keys())
+    for key, value in expected_filter_dict.items():
+        assert filter_dict[key] == value
