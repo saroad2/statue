@@ -1,6 +1,7 @@
 """Filter commands using simple checks."""
 from collections import OrderedDict
 from typing import Any, Collection, FrozenSet, List, Optional
+from typing import OrderedDict as OrderedDictType
 
 from statue.command_builder import CommandBuilder
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
@@ -114,7 +115,7 @@ class CommandsFilter:
             return False
         return command_builder.match_contexts(*self.contexts)
 
-    def as_dict(self) -> OrderedDict[str, List[str]]:
+    def as_dict(self) -> OrderedDictType[str, List[str]]:
         """
         Encode commands filter as a dictionary.
 

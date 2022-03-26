@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, List, Optional
+from typing import OrderedDict as OrderedDictType
 
 from statue.cache import Cache
 from statue.command import Command
@@ -73,7 +74,7 @@ class Configuration:
             if commands_filter.pass_filter(command_builder)
         ]
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode configuration as a dictionary.
 

@@ -6,6 +6,7 @@ import sys
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
+from typing import OrderedDict as OrderedDictType
 
 import pkg_resources
 
@@ -49,7 +50,7 @@ class ContextSpecification:
             return []
         return args
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode context specification as a dictionary.
 
@@ -454,7 +455,7 @@ class CommandBuilder:
             }
         )
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode command builder as a dictionary.
 

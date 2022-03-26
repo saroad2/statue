@@ -1,6 +1,7 @@
 """Place for saving all available contexts."""
 from collections import OrderedDict
 from typing import Any, Iterator, MutableMapping
+from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, PARENT
 from statue.context import Context
@@ -136,7 +137,7 @@ class ContextsRepository:
                 )
         return Context(name=context_name, **context_config)
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode contexts repository as a dictionary.
 

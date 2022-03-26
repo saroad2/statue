@@ -1,6 +1,7 @@
 """Place for saving all available command builders."""
 from collections import OrderedDict
 from typing import Any, Dict, Iterator, List, MutableMapping
+from typing import OrderedDict as OrderedDictType
 
 from statue.command_builder import CommandBuilder
 from statue.exceptions import UnknownCommand
@@ -99,7 +100,7 @@ class CommandsRepository:
                     )
                 )
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode commands repository as a dictionary.
 

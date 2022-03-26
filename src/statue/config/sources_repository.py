@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Dict, List, MutableMapping
+from typing import OrderedDict as OrderedDictType
 
 from statue.commands_filter import CommandsFilter
 from statue.config.contexts_repository import ContextsRepository
@@ -68,7 +69,7 @@ class SourcesRepository:
         """Reset sources repository."""
         self.sources_filters_map.clear()
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode sources repository as a dictionary.
 

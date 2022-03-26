@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Any, List, MutableMapping, Optional
+from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 
@@ -80,7 +81,7 @@ class Context:
             return self.parent.search_context_instructions(setups)
         return None
 
-    def as_dict(self) -> OrderedDict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode context as a dictionary.
 
