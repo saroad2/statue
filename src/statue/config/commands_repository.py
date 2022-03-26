@@ -1,5 +1,7 @@
 """Place for saving all available command builders."""
+from collections import OrderedDict
 from typing import Any, Dict, Iterator, List, MutableMapping
+from typing import OrderedDict as OrderedDictType
 
 from statue.command_builder import CommandBuilder
 from statue.exceptions import UnknownCommand
@@ -98,7 +100,7 @@ class CommandsRepository:
                     )
                 )
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode commands repository as a dictionary.
 
@@ -106,8 +108,13 @@ class CommandsRepository:
         a configuration file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, Any]
         """
-        return {
-            command_builder.name: command_builder.as_dict() for command_builder in self
-        }
+        command_builders_list = list(self)
+        command_builders_list.sort(key=lambda commands_builder: commands_builder.name)
+        return OrderedDict(
+            [
+                (command_builder.name, command_builder.as_dict())
+                for command_builder in command_builders_list
+            ]
+        )

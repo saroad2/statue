@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 from typing import Any, MutableMapping, Optional, Union
 
-import toml
+import tomli
 
 from statue.config.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
@@ -47,8 +47,8 @@ class ConfigurationBuilder:
             and not statue_configuration_path.exists()
         ):
             raise MissingConfiguration()
-        with statue_configuration_path.open(mode="r") as configuration_file:
-            statue_config = toml.load(configuration_file)
+        with statue_configuration_path.open(mode="rb") as configuration_file:
+            statue_config = tomli.load(configuration_file)
         cache_dir = cls.cache_path(Path.cwd()) if cache_dir is None else cache_dir
         configuration = Configuration(cache_root_directory=cache_dir)
         cls.update_from_config(configuration=configuration, statue_config=statue_config)

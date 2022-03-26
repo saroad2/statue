@@ -1,5 +1,7 @@
 """Filter commands using simple checks."""
-from typing import Any, Collection, Dict, FrozenSet, Optional
+from collections import OrderedDict
+from typing import Any, Collection, FrozenSet, List, Optional
+from typing import OrderedDict as OrderedDictType
 
 from statue.command_builder import CommandBuilder
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
@@ -113,7 +115,7 @@ class CommandsFilter:
             return False
         return command_builder.match_contexts(*self.contexts)
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, List[str]]:
         """
         Encode commands filter as a dictionary.
 
@@ -121,9 +123,9 @@ class CommandsFilter:
         a configuration file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, List[str]]
         """
-        filter_as_dict = {}
+        filter_as_dict = OrderedDict()
         if len(self.contexts) != 0:
             context_names = [context.name for context in self.contexts]
             context_names.sort()

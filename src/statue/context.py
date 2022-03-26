@@ -1,6 +1,8 @@
 """Context class used for reading commands in various contexts."""
+from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, MutableMapping, Optional
+from typing import Any, List, MutableMapping, Optional
+from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 
@@ -79,20 +81,21 @@ class Context:
             return self.parent.search_context_instructions(setups)
         return None
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode context as a dictionary.
 
         This is used in order to serialize the context in a configuration file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, Any]
         """
-        context_dict: Dict[str, Any] = {HELP: self.help}
+        context_dict: OrderedDict[str, Any] = OrderedDict()
+        context_dict[HELP] = self.help
         if len(self.aliases) != 0:
             context_dict[ALIASES] = self.aliases
-        if self.allowed_by_default:
-            context_dict[ALLOWED_BY_DEFAULT] = True
         if self.parent is not None:
             context_dict[PARENT] = self.parent.name
+        if self.allowed_by_default:
+            context_dict[ALLOWED_BY_DEFAULT] = True
         return context_dict

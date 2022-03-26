@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import mock
 import pytest
 
@@ -153,12 +155,14 @@ def test_contexts_repository_as_dict():
     context1, context2, context3 = (mock.Mock(), mock.Mock(), mock.Mock())
     context1.name, context2.name, context3.name = CONTEXT1, CONTEXT2, CONTEXT3
 
-    contexts_repository = ContextsRepository(context1, context2, context3)
-    assert contexts_repository.as_dict() == {
-        CONTEXT1: context1.as_dict.return_value,
-        CONTEXT2: context2.as_dict.return_value,
-        CONTEXT3: context3.as_dict.return_value,
-    }
+    contexts_repository = ContextsRepository(context1, context3, context2)
+    contexts_repository_dict = contexts_repository.as_dict()
+
+    assert isinstance(contexts_repository_dict, OrderedDict)
+    assert list(contexts_repository_dict.keys()) == [CONTEXT1, CONTEXT2, CONTEXT3]
+    assert contexts_repository_dict[CONTEXT1] == context1.as_dict.return_value
+    assert contexts_repository_dict[CONTEXT2] == context2.as_dict.return_value
+    assert contexts_repository_dict[CONTEXT3] == context3.as_dict.return_value
 
 
 def test_contexts_repository_fail_getting_unknown_context():

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from pathlib import Path
 
 import mock
@@ -121,8 +122,19 @@ def test_sources_repository_as_dict(tmp_path):
     sources_repository[tmp_path / SOURCE2 / SOURCE3] = filter2
     sources_repository[tmp_path / SOURCE4] = filter3
 
-    assert sources_repository.as_dict() == {
-        f"{tmp_path.as_posix()}/{SOURCE1}": filter1.as_dict.return_value,
-        f"{tmp_path.as_posix()}/{SOURCE2}/{SOURCE3}": filter2.as_dict.return_value,
-        f"{tmp_path.as_posix()}/{SOURCE4}": filter3.as_dict.return_value,
-    }
+    sources_repository_dict = sources_repository.as_dict()
+
+    expected_posix1, expected_posix2, expected_posix3 = (
+        f"{tmp_path.as_posix()}/{SOURCE1}",
+        f"{tmp_path.as_posix()}/{SOURCE2}/{SOURCE3}",
+        f"{tmp_path.as_posix()}/{SOURCE4}",
+    )
+    assert isinstance(sources_repository_dict, OrderedDict)
+    assert list(sources_repository_dict.keys()) == [
+        expected_posix1,
+        expected_posix2,
+        expected_posix3,
+    ]
+    assert sources_repository_dict[expected_posix1] == filter1.as_dict.return_value
+    assert sources_repository_dict[expected_posix2] == filter2.as_dict.return_value
+    assert sources_repository_dict[expected_posix3] == filter3.as_dict.return_value

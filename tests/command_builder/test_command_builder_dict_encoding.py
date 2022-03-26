@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import pytest
 from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
@@ -35,7 +37,7 @@ from tests.util import dummy_version
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_simple_command_builder_from_dict():
-    command_builder_dict = {HELP: COMMAND_HELP_STRING1}
+    command_builder_dict = OrderedDict([(HELP, COMMAND_HELP_STRING1)])
     command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
 
     return command_builder_dict, command_builder
@@ -44,7 +46,9 @@ def case_simple_command_builder_from_dict():
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_version():
     version = dummy_version()
-    command_builder_dict = {HELP: COMMAND_HELP_STRING1, VERSION: version}
+    command_builder_dict = OrderedDict(
+        [(HELP, COMMAND_HELP_STRING1), (VERSION, version)]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
     )
@@ -54,7 +58,9 @@ def case_command_builder_from_dict_with_version():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_default_args():
-    command_builder_dict = {HELP: COMMAND_HELP_STRING1, ARGS: [ARG1, ARG2]}
+    command_builder_dict = OrderedDict(
+        [(HELP, COMMAND_HELP_STRING1), (ARGS, [ARG1, ARG2])]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
     )
@@ -64,10 +70,9 @@ def case_command_builder_from_dict_with_default_args():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_required_contexts():
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        REQUIRED_CONTEXTS: [CONTEXT1, CONTEXT2],
-    }
+    command_builder_dict = OrderedDict(
+        [(HELP, COMMAND_HELP_STRING1), (REQUIRED_CONTEXTS, [CONTEXT1, CONTEXT2])]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1, CONTEXT2]
     )
@@ -77,10 +82,9 @@ def case_command_builder_from_dict_with_required_contexts():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_allowed_contexts():
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        ALLOWED_CONTEXTS: [CONTEXT1, CONTEXT2],
-    }
+    command_builder_dict = OrderedDict(
+        [(HELP, COMMAND_HELP_STRING1), (ALLOWED_CONTEXTS, [CONTEXT1, CONTEXT2])]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[CONTEXT1, CONTEXT2]
     )
@@ -90,11 +94,13 @@ def case_command_builder_from_dict_with_allowed_contexts():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_args_override():
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        ARGS: [ARG1, ARG2],
-        CONTEXT1: {ARGS: [ARG3, ARG4]},
-    }
+    command_builder_dict = OrderedDict(
+        [
+            (HELP, COMMAND_HELP_STRING1),
+            (ARGS, [ARG1, ARG2]),
+            (CONTEXT1, {ARGS: [ARG3, ARG4]}),
+        ]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
@@ -107,11 +113,13 @@ def case_command_builder_from_dict_with_args_override():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_added_args():
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        ARGS: [ARG1, ARG2],
-        CONTEXT1: {ADD_ARGS: [ARG3, ARG4]},
-    }
+    command_builder_dict = OrderedDict(
+        [
+            (HELP, COMMAND_HELP_STRING1),
+            (ARGS, [ARG1, ARG2]),
+            (CONTEXT1, {ADD_ARGS: [ARG3, ARG4]}),
+        ]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
@@ -124,11 +132,13 @@ def case_command_builder_from_dict_with_added_args():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_clear_args():
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        ARGS: [ARG1, ARG2],
-        CONTEXT1: {CLEAR_ARGS: True},
-    }
+    command_builder_dict = OrderedDict(
+        [
+            (HELP, COMMAND_HELP_STRING1),
+            (ARGS, [ARG1, ARG2]),
+            (CONTEXT1, {CLEAR_ARGS: True}),
+        ]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
@@ -141,19 +151,21 @@ def case_command_builder_from_dict_with_clear_args():
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_two_contexts_specifications():
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        ARGS: [ARG1, ARG2],
-        CONTEXT1: {CLEAR_ARGS: True},
-        CONTEXT2: {ADD_ARGS: [ARG3, ARG4]},
-    }
+    command_builder_dict = OrderedDict(
+        [
+            (HELP, COMMAND_HELP_STRING1),
+            (ARGS, [ARG1, ARG2]),
+            (CONTEXT1, {CLEAR_ARGS: True}),
+            (CONTEXT2, {ADD_ARGS: [ARG3, ARG4]}),
+        ]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
         contexts_specifications={
-            CONTEXT1: ContextSpecification(clear_args=True),
             CONTEXT2: ContextSpecification(add_args=[ARG3, ARG4]),
+            CONTEXT1: ContextSpecification(clear_args=True),
         },
     )
 
@@ -161,17 +173,19 @@ def case_command_builder_from_dict_with_two_contexts_specifications():
 
 
 @case(tags=[SUCCESSFUL_TAG])
-def case_command_builder_from_dict_with_verything():
+def case_command_builder_from_dict_with_everything():
     version = dummy_version()
-    command_builder_dict = {
-        HELP: COMMAND_HELP_STRING1,
-        ARGS: [ARG1, ARG2],
-        VERSION: version,
-        ALLOWED_CONTEXTS: [CONTEXT1, CONTEXT2],
-        REQUIRED_CONTEXTS: [CONTEXT3, CONTEXT4],
-        CONTEXT5: {CLEAR_ARGS: True},
-        CONTEXT6: {ADD_ARGS: [ARG3, ARG4]},
-    }
+    command_builder_dict = OrderedDict(
+        [
+            (HELP, COMMAND_HELP_STRING1),
+            (ARGS, [ARG1, ARG2]),
+            (REQUIRED_CONTEXTS, [CONTEXT3, CONTEXT4]),
+            (ALLOWED_CONTEXTS, [CONTEXT1, CONTEXT2]),
+            (VERSION, version),
+            (CONTEXT5, {CLEAR_ARGS: True}),
+            (CONTEXT6, {ADD_ARGS: [ARG3, ARG4]}),
+        ]
+    )
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
@@ -206,7 +220,10 @@ def test_command_builder_from_dict_successful(command_builder_dict, command_buil
     has_tag=SUCCESSFUL_TAG,
 )
 def test_command_builder_as_dict_successful(command_builder_dict, command_builder):
-    assert command_builder.as_dict() == command_builder_dict
+    actual_command_builder_dict = command_builder.as_dict()
+    assert isinstance(actual_command_builder_dict, OrderedDict)
+    assert list(actual_command_builder_dict.keys()) == list(command_builder_dict.keys())
+    assert actual_command_builder_dict == command_builder_dict
 
 
 # Failed tests

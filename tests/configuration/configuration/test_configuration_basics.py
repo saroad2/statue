@@ -1,13 +1,9 @@
 from statue.config.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, HISTORY_SIZE, MODE, SOURCES
+from statue.constants import HISTORY_SIZE
 from statue.runner import RunnerMode
 
 
-def test_configuration_default_constructor(
-    mock_contexts_repository_as_dict,
-    mock_commands_repository_as_dict,
-    mock_sources_repository_as_dict,
-):
+def test_configuration_default_constructor():
     configuration = Configuration()
 
     assert configuration.cache.cache_root_directory is None
@@ -16,20 +12,9 @@ def test_configuration_default_constructor(
     assert len(configuration.contexts_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.default_mode == RunnerMode.SYNC
-    assert configuration.as_dict() == {
-        GENERAL: {MODE: "sync"},
-        CONTEXTS: mock_contexts_repository_as_dict.return_value,
-        COMMANDS: mock_commands_repository_as_dict.return_value,
-        SOURCES: mock_sources_repository_as_dict.return_value,
-    }
 
 
-def test_configuration_constructor_with_cache_dir(
-    mock_contexts_repository_as_dict,
-    mock_commands_repository_as_dict,
-    mock_sources_repository_as_dict,
-    tmp_path,
-):
+def test_configuration_constructor_with_cache_dir(tmp_path):
     cache_dir = tmp_path / "cache"
     configuration = Configuration(cache_root_directory=cache_dir)
 
@@ -39,19 +24,9 @@ def test_configuration_constructor_with_cache_dir(
     assert len(configuration.contexts_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.default_mode == RunnerMode.SYNC
-    assert configuration.as_dict() == {
-        GENERAL: {MODE: "sync"},
-        CONTEXTS: mock_contexts_repository_as_dict.return_value,
-        COMMANDS: mock_commands_repository_as_dict.return_value,
-        SOURCES: mock_sources_repository_as_dict.return_value,
-    }
 
 
-def test_configuration_with_sync_default_mode(
-    mock_contexts_repository_as_dict,
-    mock_commands_repository_as_dict,
-    mock_sources_repository_as_dict,
-):
+def test_configuration_with_sync_default_mode():
     configuration = Configuration(default_mode=RunnerMode.SYNC)
 
     assert configuration.cache.cache_root_directory is None
@@ -60,19 +35,9 @@ def test_configuration_with_sync_default_mode(
     assert len(configuration.contexts_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.default_mode == RunnerMode.SYNC
-    assert configuration.as_dict() == {
-        GENERAL: {MODE: "sync"},
-        CONTEXTS: mock_contexts_repository_as_dict.return_value,
-        COMMANDS: mock_commands_repository_as_dict.return_value,
-        SOURCES: mock_sources_repository_as_dict.return_value,
-    }
 
 
-def test_configuration_with_async_default_mode(
-    mock_contexts_repository_as_dict,
-    mock_commands_repository_as_dict,
-    mock_sources_repository_as_dict,
-):
+def test_configuration_with_async_default_mode():
     configuration = Configuration(default_mode=RunnerMode.ASYNC)
 
     assert configuration.cache.cache_root_directory is None
@@ -81,9 +46,3 @@ def test_configuration_with_async_default_mode(
     assert len(configuration.contexts_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.default_mode == RunnerMode.ASYNC
-    assert configuration.as_dict() == {
-        GENERAL: {MODE: "async"},
-        CONTEXTS: mock_contexts_repository_as_dict.return_value,
-        COMMANDS: mock_commands_repository_as_dict.return_value,
-        SOURCES: mock_sources_repository_as_dict.return_value,
-    }

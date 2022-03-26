@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 import click
 import git
-import toml
+import tomli_w
 
 from statue.cli.common_flags import config_path_option
 from statue.cli.config.config_cli import config_cli
@@ -13,7 +13,6 @@ from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
 from statue.cli.styled_strings import failure_style
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration_builder import ConfigurationBuilder
-from statue.constants import ENCODING
 from statue.exceptions import StatueConfigurationError, UnknownTemplate
 from statue.sources_finder import find_sources
 from statue.templates.templates_provider import TemplatesProvider
@@ -103,6 +102,6 @@ def init_config_cli(  # pylint: disable=too-many-arguments
                 command_builder.update()
             if fix_versions and command_builder.installed():
                 command_builder.set_version_as_installed()
-    with open(output_path, mode="w", encoding=ENCODING) as config_file:
-        toml.dump(configuration.as_dict(), config_file)
+    with open(output_path, mode="wb") as config_file:
+        tomli_w.dump(configuration.as_dict(), config_file)
     click.echo("Done!")

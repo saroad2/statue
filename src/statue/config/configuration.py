@@ -1,6 +1,8 @@
 """Get Statue global configuration."""
+from collections import OrderedDict
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional
+from typing import OrderedDict as OrderedDictType
 
 from statue.cache import Cache
 from statue.command import Command
@@ -72,7 +74,7 @@ class Configuration:
             if commands_filter.pass_filter(command_builder)
         ]
 
-    def as_dict(self):
+    def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode configuration as a dictionary.
 
@@ -80,11 +82,11 @@ class Configuration:
         in a file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, Any]
         """
-        return {
-            GENERAL: {MODE: self.default_mode.name.lower()},
-            CONTEXTS: self.contexts_repository.as_dict(),
-            COMMANDS: self.commands_repository.as_dict(),
-            SOURCES: self.sources_repository.as_dict(),
-        }
+        returned = OrderedDict()
+        returned[GENERAL] = {MODE: self.default_mode.name.lower()}
+        returned[CONTEXTS] = self.contexts_repository.as_dict()
+        returned[COMMANDS] = self.commands_repository.as_dict()
+        returned[SOURCES] = self.sources_repository.as_dict()
+        return returned
