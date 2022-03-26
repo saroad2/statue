@@ -49,7 +49,7 @@ class ContextSpecification:
             return []
         return args
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> OrderedDict[str, Any]:
         """
         Encode context specification as a dictionary.
 
@@ -57,9 +57,9 @@ class ContextSpecification:
         a configuration file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, Any]
         """
-        specification_as_dict: Dict[str, Any] = {}
+        specification_as_dict: OrderedDict[str, Any] = OrderedDict()
         if self.args is not None:
             specification_as_dict[ARGS] = self.args
         if self.add_args is not None:
