@@ -1,5 +1,6 @@
 """Place for saving all available contexts."""
-from typing import Any, Dict, Iterator, MutableMapping
+from collections import OrderedDict
+from typing import Any, Iterator, MutableMapping
 
 from statue.constants import ALIASES, PARENT
 from statue.context import Context
@@ -135,7 +136,7 @@ class ContextsRepository:
                 )
         return Context(name=context_name, **context_config)
 
-    def as_dict(self) -> Dict[str, Any]:
+    def as_dict(self) -> OrderedDict[str, Any]:
         """
         Encode contexts repository as a dictionary.
 
@@ -143,6 +144,10 @@ class ContextsRepository:
         a configuration file.
 
         :return: Serialized representation dictionary
-        :rtype: Dict[str, Any]
+        :rtype: OrderedDict[str, Any]
         """
-        return {context.name: context.as_dict() for context in self}
+        contexts_list = list(self)
+        contexts_list.sort(key=lambda context: context.name)
+        return OrderedDict(
+            [(context.name, context.as_dict()) for context in contexts_list]
+        )
