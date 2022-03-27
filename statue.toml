@@ -1,5 +1,5 @@
 [general]
-mode = "sync"
+mode = "async"
 
 [contexts.documentation]
 help = "Commands regarding code documentation."
@@ -140,7 +140,7 @@ args = [
 allowed_contexts = [
     "documentation",
 ]
-version = "2.13.0"
+version = "2.13.1"
 
 [commands.pylint.test]
 add_args = [

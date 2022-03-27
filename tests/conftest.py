@@ -27,11 +27,6 @@ def mock_toml_load(mocker):
 
 
 @pytest.fixture
-def mock_toml_dump(mocker):
-    return mocker.patch("tomli_w.dump")
-
-
-@pytest.fixture
 def mock_tqdm(mocker):
     return mocker.patch("tqdm.tqdm")
 
@@ -73,6 +68,7 @@ def mock_build_configuration_from_file(mocker):
     builder_mock.return_value.cache = mock.Mock()
     builder_mock.return_value.build_commands = mock.Mock()
     builder_mock.return_value.build_commands_map = mock.Mock()
+    builder_mock.return_value.to_toml = mock.Mock()
     return builder_mock
 
 
