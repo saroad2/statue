@@ -6,7 +6,7 @@ import subprocess  # nosec
 import time
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
 from statue.constants import ENCODING
 from statue.exceptions import CommandExecutionError
@@ -71,18 +71,18 @@ class Command:
     name: str
     args: List[str] = field(default_factory=list)
 
-    def program_execution_args(self, source: Union[Path, str]) -> List[str]:
+    def program_execution_args(self, source: Path) -> List[str]:
         """
         Get the program command to be run as a subprocess.
 
         :param source: The source to run the command on.
-        :type source: Union[Path, str]
+        :type source: Path
         :return: Program arguments list
         :rtype: List[str]
         """
         return [self.name, str(source), *self.args]
 
-    def execute(self, source: str) -> CommandEvaluation:
+    def execute(self, source: Path) -> CommandEvaluation:
         """
         Execute the command.
 

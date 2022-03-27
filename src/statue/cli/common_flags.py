@@ -1,4 +1,6 @@
 """Common flags used by multiple CLIs."""
+from pathlib import Path
+
 import click
 
 from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES
@@ -6,7 +8,7 @@ from statue.verbosity import DEFAULT_VERBOSITY, SILENT, VERBOSE, VERBOSITIES
 config_path_option = click.option(
     "--config",
     envvar="STATUE_CONFIG",
-    type=click.Path(exists=True, dir_okay=False),
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
     help="Statue configuration file.",
 )
 contexts_option = click.option(

@@ -175,7 +175,7 @@ def test_run_and_save_to_file(
     configuration.cache.save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
-    mock_evaluation_save_as_json.assert_called_once_with(str(output_path))
+    mock_evaluation_save_as_json.assert_called_once_with(output_path)
 
 
 def test_run_over_recent_commands(
@@ -461,18 +461,20 @@ def test_run_on_given_source(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
+    tmp_path,
 ):
     configuration = mock_build_configuration_from_file.return_value
     configuration.build_commands_map.return_value = build_commands_map()
-
-    result = cli_runner.invoke(statue_cli, ["run", SOURCE1])
+    source = tmp_path / SOURCE1
+    source.touch()
+    result = cli_runner.invoke(statue_cli, ["run", str(source)])
 
     assert (
         result.exit_code == 0
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
     configuration.build_commands_map.assert_called_once_with(
-        sources=[Path(SOURCE1)], commands_filter=CommandsFilter()
+        sources=[source], commands_filter=CommandsFilter()
     )
     configuration.cache.save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)

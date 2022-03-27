@@ -2,7 +2,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union, ValuesView
+from typing import Any, Dict, ItemsView, Iterator, KeysView, List, ValuesView
 
 from statue.command import CommandEvaluation
 from statue.commands_map import CommandsMap
@@ -198,18 +198,18 @@ class Evaluation:
         :return: Self as dictionary
         :rtype: Dict[str, List[Dict[str, Any]]]
         """
-        sources_evaluations = {key: value.as_dict() for key, value in self.items()}
+        sources_evaluations = {str(key): value.as_dict() for key, value in self.items()}
         return dict(
             sources_evaluations=sources_evaluations,
             total_execution_duration=self.total_execution_duration,
         )
 
-    def save_as_json(self, output: Union[Path, str]) -> None:
+    def save_as_json(self, output: Path) -> None:
         """
         Save evaluation as json.
 
         :param output: Path to save self in
-        :type output: Path or str
+        :type output: Path
         """
         with open(output, mode="w", encoding=ENCODING) as output_file:
             json.dump(self.as_dict(), output_file, indent=2)

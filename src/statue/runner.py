@@ -72,7 +72,7 @@ class SynchronousEvaluationRunner(  # pylint: disable=too-few-public-methods
                     bar_format=BAR_FORMAT,
                     colour=SECONDARY_BAR_COLOR,
                     leave=False,
-                    desc=source,
+                    desc=str(source),
                 ):
                     evaluation[source].append(command.execute(source))
                     main_bar.update(1)

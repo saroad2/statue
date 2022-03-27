@@ -57,8 +57,8 @@ def test_get_commands_map_source_from_config(mock_build_commands):
         sources=[Path(SOURCE1)], commands_filter=CommandsFilter()
     )
     assert_commands_count(commands_map, 1)
-    assert_sources(commands_map, [SOURCE1])
-    assert_commands(commands_map, SOURCE1, [command])
+    assert_sources(commands_map, [Path(SOURCE1)])
+    assert_commands(commands_map, Path(SOURCE1), [command])
     assert_calls(
         mock_build_commands,
         [
@@ -85,8 +85,8 @@ def test_get_commands_map_source_not_from_config(mock_build_commands):
         sources=[Path(SOURCE2)], commands_filter=CommandsFilter()
     )
     assert_commands_count(commands_map, 1)
-    assert_sources(commands_map, [SOURCE2])
-    assert_commands(commands_map, SOURCE2, [command])
+    assert_sources(commands_map, [Path(SOURCE2)])
+    assert_commands(commands_map, Path(SOURCE2), [command])
     assert_calls(
         mock_build_commands,
         [call(CommandsFilter())],
@@ -118,9 +118,9 @@ def test_get_commands_map_with_commands_without_directives(mock_build_commands):
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
     assert_commands_count(commands_map, 3)
-    assert_sources(commands_map, [SOURCE1, SOURCE2])
-    assert_commands(commands_map, SOURCE1, [command1])
-    assert_commands(commands_map, SOURCE2, [command2, command3])
+    assert_sources(commands_map, [Path(SOURCE1), Path(SOURCE2)])
+    assert_commands(commands_map, Path(SOURCE1), [command1])
+    assert_commands(commands_map, Path(SOURCE2), [command2, command3])
     assert_calls(
         mock_build_commands,
         [call(CommandsFilter()), call(CommandsFilter())],
@@ -140,9 +140,9 @@ def test_get_commands_map_with_commands_and_directives(mock_build_commands):
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=commands_filter
     )
     assert_commands_count(commands_map, 3)
-    assert_sources(commands_map, [SOURCE1, SOURCE2])
-    assert_commands(commands_map, SOURCE1, [command1])
-    assert_commands(commands_map, SOURCE2, [command2, command3])
+    assert_sources(commands_map, [Path(SOURCE1), Path(SOURCE2)])
+    assert_commands(commands_map, Path(SOURCE1), [command1])
+    assert_commands(commands_map, Path(SOURCE2), [command2, command3])
     assert_calls(mock_build_commands, [call(commands_filter), call(commands_filter)])
 
 
@@ -163,9 +163,9 @@ def test_get_commands_map_with_source_context(mock_build_commands):
         commands_filter=CommandsFilter(denied_commands=[COMMAND3], contexts=[context2]),
     )
     assert_commands_count(commands_map, 3)
-    assert_sources(commands_map, [SOURCE1, SOURCE2])
-    assert_commands(commands_map, SOURCE1, [command1, command2])
-    assert_commands(commands_map, SOURCE2, [command3])
+    assert_sources(commands_map, [Path(SOURCE1), Path(SOURCE2)])
+    assert_commands(commands_map, Path(SOURCE1), [command1, command2])
+    assert_commands(commands_map, Path(SOURCE2), [command3])
     assert_calls(
         mock_build_commands,
         [
@@ -203,9 +203,9 @@ def test_get_commands_map_with_source_allow_list(mock_build_commands):
         ),
     )
     assert_commands_count(commands_map, 2)
-    assert_sources(commands_map, [SOURCE1, SOURCE2])
-    assert_commands(commands_map, SOURCE1, [command1])
-    assert_commands(commands_map, SOURCE2, [command2])
+    assert_sources(commands_map, [Path(SOURCE1), Path(SOURCE2)])
+    assert_commands(commands_map, Path(SOURCE1), [command1])
+    assert_commands(commands_map, Path(SOURCE2), [command2])
     assert_calls(
         mock_build_commands,
         [
@@ -239,9 +239,9 @@ def test_get_commands_map_with_source_deny_list(mock_build_commands):
         commands_filter=CommandsFilter(denied_commands=[COMMAND3], contexts=[context]),
     )
     assert_commands_count(commands_map, 4)
-    assert_sources(commands_map, [SOURCE1, SOURCE2])
-    assert_commands(commands_map, SOURCE1, [command1, command2])
-    assert_commands(commands_map, SOURCE2, [command3, command4])
+    assert_sources(commands_map, [Path(SOURCE1), Path(SOURCE2)])
+    assert_commands(commands_map, Path(SOURCE1), [command1, command2])
+    assert_commands(commands_map, Path(SOURCE2), [command3, command4])
     assert_calls(
         mock_build_commands,
         [
@@ -268,14 +268,13 @@ def test_get_commands_map_from_relative_path(mock_build_commands):
     )
     mock_build_commands.side_effect = [[command1, command2]]
     relative_source = Path(SOURCE2) / "i" / "am" / "relative"
-    relative_source_string = str(relative_source)
 
     commands_map = configuration.build_commands_map(
         sources=[relative_source], commands_filter=CommandsFilter()
     )
 
-    assert_sources(commands_map, [relative_source_string])
-    assert_commands(commands_map, relative_source_string, [command1, command2])
+    assert_sources(commands_map, [relative_source])
+    assert_commands(commands_map, relative_source, [command1, command2])
     assert_commands_count(commands_map, 2)
     assert_calls(
         mock_build_commands,
