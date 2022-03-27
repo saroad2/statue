@@ -3,7 +3,7 @@
 STATUE = "STATUE"
 ENCODING = "utf-8"
 
-HISTORY_SIZE = 30
+DEFAULT_HISTORY_SIZE = 30
 
 GENERAL = "general"
 COMMANDS = "commands"

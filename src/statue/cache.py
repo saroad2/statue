@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
-from statue.constants import HISTORY_SIZE
+from statue.constants import DEFAULT_HISTORY_SIZE
 from statue.evaluation import Evaluation
 from statue.exceptions import CacheError
 
@@ -12,7 +12,9 @@ class Cache:
     """Cache files repository."""
 
     def __init__(
-        self, cache_root_directory: Optional[Path] = None, size: int = HISTORY_SIZE
+        self,
+        cache_root_directory: Optional[Path] = None,
+        size: int = DEFAULT_HISTORY_SIZE,
     ):
         """
         Initialize cache.

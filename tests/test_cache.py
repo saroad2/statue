@@ -5,7 +5,7 @@ import pytest
 from pytest_cases import parametrize
 
 from statue.cache import Cache
-from statue.constants import HISTORY_SIZE
+from statue.constants import DEFAULT_HISTORY_SIZE
 from statue.exceptions import CacheError
 
 
@@ -106,7 +106,7 @@ def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
     evaluations_dir = cache_dir / "evaluations"
     evaluations_dir.mkdir(parents=True)
 
-    time_stamps = list(random.choices(range(1_000_000), k=HISTORY_SIZE + 1))
+    time_stamps = list(random.choices(range(1_000_000), k=DEFAULT_HISTORY_SIZE + 1))
     time_stamps.sort(reverse=True)
     old_time_stamps, recent_time_stamp = time_stamps[1:], time_stamps[0]
     old_evaluations = [
