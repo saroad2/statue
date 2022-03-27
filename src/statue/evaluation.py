@@ -130,41 +130,41 @@ class SourceEvaluation:
 class Evaluation:
     """Full evaluation class."""
 
-    sources_evaluations: Dict[str, SourceEvaluation] = field(default_factory=dict)
+    sources_evaluations: Dict[Path, SourceEvaluation] = field(default_factory=dict)
     total_execution_duration: float = field(default=0)
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Path]:
         """
         Iterate over evaluation.
 
         :return: self iterator
-        :rtype: Iterator[str]
+        :rtype: Iterator[Path]
         """
         return iter(self.sources_evaluations)
 
-    def __getitem__(self, item: str) -> SourceEvaluation:
+    def __getitem__(self, item: Path) -> SourceEvaluation:
         """
         Get source evaluation.
 
         :param item: Source name
-        :type item: str
+        :type item: Path
         :return: Source's evaluation
         :rtype: SourceEvaluation
         """
         return self.sources_evaluations[item]
 
-    def __setitem__(self, key: str, value: SourceEvaluation) -> None:
+    def __setitem__(self, key: Path, value: SourceEvaluation) -> None:
         """
         Set source evaluation.
 
         :param key: Source name
-        :type key: str
+        :type key: Path
         :param value: Source's evaluation
         :type value: SourceEvaluation
         """
         self.sources_evaluations[key] = value
 
-    def keys(self) -> KeysView[str]:
+    def keys(self) -> KeysView[Path]:
         """
         Get sources as generator.
 
@@ -182,7 +182,7 @@ class Evaluation:
         """
         return self.sources_evaluations.values()
 
-    def items(self) -> ItemsView[str, SourceEvaluation]:
+    def items(self) -> ItemsView[Path, SourceEvaluation]:
         """
         Get sources evaluations.
 
@@ -335,7 +335,7 @@ class Evaluation:
         """
         return Evaluation(
             sources_evaluations={
-                input_path: SourceEvaluation.from_dict(source_evaluation)
+                Path(input_path): SourceEvaluation.from_dict(source_evaluation)
                 for input_path, source_evaluation in evaluation[
                     "sources_evaluations"
                 ].items()

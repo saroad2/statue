@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import mock
 import pytest
 
@@ -51,7 +53,7 @@ async def test_asynchronous_runner_evaluate_source(mock_time, mock_tqdm_range):
     ) as evaluate_command_mock:
         await runner.evaluate_source(
             commands=[command1, command2],
-            source=SOURCE1,
+            source=Path(SOURCE1),
             evaluation=evaluation,
             main_bar=main_bar,
             source_bar_pos=pos,
@@ -61,14 +63,14 @@ async def test_asynchronous_runner_evaluate_source(mock_time, mock_tqdm_range):
         assert evaluate_command_mock.await_args_list == [
             mock.call(
                 command=command1,
-                source=SOURCE1,
+                source=Path(SOURCE1),
                 evaluation=evaluation,
                 source_bar=mock_tqdm_range.return_value.__enter__.return_value,
                 main_bar=main_bar,
             ),
             mock.call(
                 command=command2,
-                source=SOURCE1,
+                source=Path(SOURCE1),
                 evaluation=evaluation,
                 source_bar=mock_tqdm_range.return_value.__enter__.return_value,
                 main_bar=main_bar,
@@ -82,7 +84,7 @@ async def test_asynchronous_runner_evaluate_source(mock_time, mock_tqdm_range):
         leave=False,
         position=pos,
     )
-    evaluation.__getitem__.assert_called_once_with(SOURCE1)
+    evaluation.__getitem__.assert_called_once_with(Path(SOURCE1))
     execution_duration = evaluation.__getitem__.return_value.source_execution_duration
     assert execution_duration == pytest.approx(expected_execution_duration, rel=EPSILON)
 
@@ -91,7 +93,9 @@ async def test_asynchronous_runner_evaluate_source(mock_time, mock_tqdm_range):
 async def test_asynchronous_runner_evaluate_commands_map(mock_time, mock_tqdm_range):
     expected_execution_duration = set_execution_duration(mock_time)
     command1, command2, command3 = mock.Mock(), mock.Mock(), mock.Mock()
-    commands_map = CommandsMap({SOURCE1: [command1], SOURCE2: [command2, command3]})
+    commands_map = CommandsMap(
+        {Path(SOURCE1): [command1], Path(SOURCE2): [command2, command3]}
+    )
     runner = AsynchronousEvaluationRunner()
 
     with mock.patch.object(
@@ -102,7 +106,7 @@ async def test_asynchronous_runner_evaluate_commands_map(mock_time, mock_tqdm_ra
         assert evaluate_source_mock.await_args_list == [
             mock.call(
                 commands=[command1],
-                source=SOURCE1,
+                source=Path(SOURCE1),
                 evaluation=evaluation,
                 main_bar=mock_tqdm_range.return_value.__enter__.return_value,
                 max_source_name_length=7,
@@ -110,7 +114,7 @@ async def test_asynchronous_runner_evaluate_commands_map(mock_time, mock_tqdm_ra
             ),
             mock.call(
                 commands=[command2, command3],
-                source=SOURCE2,
+                source=Path(SOURCE2),
                 evaluation=evaluation,
                 main_bar=mock_tqdm_range.return_value.__enter__.return_value,
                 max_source_name_length=7,

@@ -3,6 +3,7 @@ import abc
 import asyncio
 import time
 from enum import Enum, auto
+from pathlib import Path
 from typing import List
 
 import tqdm
@@ -119,7 +120,9 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         """
         evaluation = Evaluation()
         start_time = time.time()
-        max_source_name_length = max([len(source) for source in commands_map.keys()])
+        max_source_name_length = max(
+            [len(source.as_posix()) for source in commands_map.keys()]
+        )
         with tqdm.trange(
             commands_map.total_commands_count,
             bar_format=BAR_FORMAT,
@@ -143,7 +146,7 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
 
     async def evaluate_source(  # pylint: disable=too-many-arguments
         self,
-        source: str,
+        source: Path,
         commands: List[Command],
         evaluation: Evaluation,
         main_bar: tqdm.tqdm,
@@ -156,7 +159,7 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         :param source_bar_pos: Position of the source bar to print
         :type source_bar_pos: int
         :param source: Path of the desired source.
-        :type source: str
+        :type source: Path
         :param commands: List of commands to run on the source.
         :type commands: List[Command]
         :param evaluation: Evaluation instance to be updated after commands are running.
@@ -174,7 +177,7 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
             position=source_bar_pos,
             leave=False,
             colour=SECONDARY_BAR_COLOR,
-            desc=f"{source:{max_source_name_length}}",
+            desc=f"{source.as_posix():{max_source_name_length}}",
         ) as source_bar:
             coros = [
                 self.evaluate_command(
@@ -195,7 +198,7 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
     async def evaluate_command(  # pylint: disable=too-many-arguments
         self,
         command: Command,
-        source: str,
+        source: Path,
         evaluation: Evaluation,
         source_bar: tqdm.tqdm,
         main_bar: tqdm.tqdm,
@@ -204,7 +207,7 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         Evaluate command on source and return command evaluation report.
 
         :param source: Path of the desired source.
-        :type source: str
+        :type source: Path
         :param command: Command to run on the source.
         :type command: Command
         :param evaluation: Evaluation instance to be updated after commands are running.
