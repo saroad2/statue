@@ -84,9 +84,11 @@ class Configuration:
         :return: Serialized representation dictionary
         :rtype: OrderedDict[str, Any]
         """
-        returned = OrderedDict()
-        returned[GENERAL] = {MODE: self.default_mode.name.lower()}
-        returned[CONTEXTS] = self.contexts_repository.as_dict()
-        returned[COMMANDS] = self.commands_repository.as_dict()
-        returned[SOURCES] = self.sources_repository.as_dict()
-        return returned
+        return OrderedDict(
+            [
+                (GENERAL, {MODE: self.default_mode.name.lower()}),
+                (CONTEXTS, self.contexts_repository.as_dict()),
+                (COMMANDS, self.commands_repository.as_dict()),
+                (SOURCES, self.sources_repository.as_dict()),
+            ]
+        )
