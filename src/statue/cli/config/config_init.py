@@ -5,7 +5,6 @@ from typing import Optional
 
 import click
 import git
-import tomli_w
 
 from statue.cli.common_flags import config_path_option
 from statue.cli.config.config_cli import config_cli
@@ -100,6 +99,5 @@ def init_config_cli(  # pylint: disable=too-many-arguments
                 command_builder.update()
             if fix_versions and command_builder.installed():
                 command_builder.set_version_as_installed()
-    with open(output_path, mode="wb") as config_file:
-        tomli_w.dump(configuration.as_dict(), config_file)
+    configuration.to_toml(output_path)
     click.echo("Done!")

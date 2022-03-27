@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Any, List, Optional
 from typing import OrderedDict as OrderedDictType
 
+import tomli_w
+
 from statue.cache import Cache
 from statue.command import Command
 from statue.commands_filter import CommandsFilter
@@ -92,3 +94,13 @@ class Configuration:
                 (SOURCES, self.sources_repository.as_dict()),
             ]
         )
+
+    def to_toml(self, path: Path):
+        """
+        Save configuration to toml file.
+
+        :param path: Path to save configuration in
+        :type path: Path
+        """
+        with path.open(mode="wb") as configuration_file:
+            tomli_w.dump(self.as_dict(), configuration_file)

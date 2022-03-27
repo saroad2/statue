@@ -1,4 +1,3 @@
-# pylint: disable=too-many-locals
 import git
 import mock
 import pytest
@@ -45,6 +44,7 @@ def dummy_configuration():
         command_builder_mock(name=CONTEXT2, installed_version=dummy_version()),
         command_builder_mock(name=CONTEXT3, installed_version=dummy_version()),
     )
+    configuration.to_toml = mock.Mock()
     return configuration
 
 
@@ -56,7 +56,6 @@ def test_config_init_all_yes(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -90,9 +89,7 @@ def test_config_init_all_yes(
         assert command_builder.version is None
 
     mock_update_sources_repository.assert_not_called()
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
 
 def test_config_init_interactive(
@@ -103,7 +100,6 @@ def test_config_init_interactive(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -136,9 +132,7 @@ def test_config_init_interactive(
         ],
         repo=mock_git_repo.return_value,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -154,7 +148,6 @@ def test_config_init_all_yes_without_git(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -189,9 +182,7 @@ def test_config_init_all_yes_without_git(
         assert command_builder.version is None
 
     mock_update_sources_repository.assert_not_called()
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
 
 def test_config_init_interactive_without_git(
@@ -202,7 +193,6 @@ def test_config_init_interactive_without_git(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -235,9 +225,7 @@ def test_config_init_interactive_without_git(
         ],
         repo=None,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -253,7 +241,6 @@ def test_config_init_all_yes_with_git_raises_exception(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -289,9 +276,7 @@ def test_config_init_all_yes_with_git_raises_exception(
         assert command_builder.version is None
 
     mock_update_sources_repository.assert_not_called()
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
 
 def test_config_init_interactive_with_git_raises_exception(
@@ -302,7 +287,6 @@ def test_config_init_interactive_with_git_raises_exception(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -336,9 +320,7 @@ def test_config_init_interactive_with_git_raises_exception(
         ],
         repo=None,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -354,7 +336,6 @@ def test_config_init_interactive_with_template_name(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -388,9 +369,7 @@ def test_config_init_interactive_with_template_name(
         ],
         repo=mock_git_repo.return_value,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -408,7 +387,6 @@ def test_config_init_with_install(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -441,9 +419,7 @@ def test_config_init_with_install(
         ],
         repo=mock_git_repo.return_value,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -459,7 +435,6 @@ def test_config_init_with_fix_versions(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -492,9 +467,7 @@ def test_config_init_with_fix_versions(
         ],
         repo=mock_git_repo.return_value,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -513,7 +486,6 @@ def test_config_init_with_install_and_fix_versions(
     mock_git_repo,
     mock_cwd,
     mock_update_sources_repository,
-    mock_toml_dump,
     mock_configuration_as_dict,
 ):
     source_path1, source_path2, source_path3 = (
@@ -548,9 +520,7 @@ def test_config_init_with_install_and_fix_versions(
         ],
         repo=mock_git_repo.return_value,
     )
-    mock_toml_dump.assert_called_once_with(
-        mock_configuration_as_dict.return_value, mock.ANY
-    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
@@ -566,7 +536,6 @@ def test_config_init_with_unknown_template(
     mock_templates_provider_get_template_path,
     mock_git_repo,
     mock_cwd,
-    mock_toml_dump,
 ):
     source_path1, source_path2, source_path3 = (
         mock_cwd / f"{SOURCE1}.py",
@@ -583,7 +552,6 @@ def test_config_init_with_unknown_template(
     result = cli_runner.invoke(statue_cli, ["config", "init", "-t", template_name])
 
     assert result.exit_code == 3
-    mock_toml_dump.assert_not_called()
 
 
 def test_config_init_with_configuration_error(
@@ -593,7 +561,6 @@ def test_config_init_with_configuration_error(
     mock_templates_provider_get_template_path,
     mock_git_repo,
     mock_cwd,
-    mock_toml_dump,
 ):
     source_path1, source_path2, source_path3 = (
         mock_cwd / f"{SOURCE1}.py",
@@ -607,4 +574,3 @@ def test_config_init_with_configuration_error(
     result = cli_runner.invoke(statue_cli, ["config", "init"])
 
     assert result.exit_code == 3
-    mock_toml_dump.assert_not_called()
