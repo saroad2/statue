@@ -1,6 +1,6 @@
 """Commands configuration CLI."""
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import click
 import tomli_w
@@ -24,7 +24,7 @@ from statue.config.configuration_builder import ConfigurationBuilder
 )
 @verbose_option
 def fixate_commands_versions_cli(
-    config: Optional[Union[str, Path]],
+    config: Optional[Path],
     latest: bool,
     verbosity: str,
 ):
@@ -34,11 +34,8 @@ def fixate_commands_versions_cli(
     This helps you make sure that you use the same checkers in all commands
     across time.
     """
-    config = (
-        Path(config)
-        if config is not None
-        else ConfigurationBuilder.configuration_path()
-    )
+    if config is None:
+        config = ConfigurationBuilder.configuration_path()
     configuration = ConfigurationBuilder.build_configuration_from_file(config)
     if len(configuration.commands_repository) == 0:
         click.echo("No commands to fixate.")

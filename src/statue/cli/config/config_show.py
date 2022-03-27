@@ -1,6 +1,6 @@
 """Show configuration CLI."""
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import click
 
@@ -13,13 +13,10 @@ from statue.constants import ENCODING
 
 @config_cli.command("show")
 @config_path_option
-def show_config_cli(config: Optional[Union[str, Path]]):
+def show_config_cli(config: Optional[Path]):
     """Show configuration file context."""
-    config = (
-        Path(config)
-        if config is not None
-        else ConfigurationBuilder.configuration_path()
-    )
+    if config is None:
+        config = ConfigurationBuilder.configuration_path()
     with open(config, mode="r", encoding=ENCODING) as config_file:
         lines = config_file.readlines()
     click.echo_via_pager(lines)
@@ -27,14 +24,13 @@ def show_config_cli(config: Optional[Union[str, Path]]):
 
 @config_cli.command("show-tree")
 @config_path_option
-def show_config_tree_cli(config: Optional[Union[str, Path]]):
+def show_config_tree_cli(config: Optional[Path]):
     """
     Show sources configuration as a tree.
 
     This method prints the sources' configuration as a tree, including:
     contexts, allow and deny lists and matching commands.
     """
-    config = Path(config) if config is not None else None
     configuration = ConfigurationBuilder.build_configuration_from_file(config)
     sources_list = configuration.sources_repository.sources_list
     if len(sources_list) == 0:

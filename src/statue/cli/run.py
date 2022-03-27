@@ -1,7 +1,7 @@
 # pylint: disable=too-many-locals
 """Run CLI."""
 from pathlib import Path
-from typing import List, Optional, Sequence, Union
+from typing import List, Optional, Sequence
 
 import click
 
@@ -25,7 +25,7 @@ from statue.verbosity import is_silent, is_verbose
 
 
 @statue_cli.command("run")
-@click.argument("sources", nargs=-1)
+@click.argument("sources", type=click.Path(exists=True, path_type=Path), nargs=-1)
 @contexts_option
 @allow_option
 @deny_option
@@ -75,7 +75,7 @@ from statue.verbosity import is_silent, is_verbose
 @click.option(
     "-o",
     "--output",
-    type=click.Path(dir_okay=False),
+    type=click.Path(dir_okay=False, path_type=Path),
     help="Output path to save evaluation result",
 )
 @click.pass_context
@@ -83,7 +83,7 @@ from statue.verbosity import is_silent, is_verbose
 def run_cli(  # pylint: disable=too-many-arguments
     configuration: Configuration,
     ctx: click.Context,
-    sources: Sequence[Union[Path, str]],
+    sources: Sequence[Path],
     context: Optional[List[str]],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
@@ -93,7 +93,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     cache: bool,
     verbosity: str,
     mode: Optional[str],
-    output: Optional[str],
+    output: Optional[Path],
 ) -> None:
     """
     Run static code analysis commands on sources.
@@ -163,10 +163,10 @@ def run_cli(  # pylint: disable=too-many-arguments
     ctx.exit(__print_evaluation_and_return_exit_code(evaluation))
 
 
-def __get_sources(sources, configuration):
+def __get_sources(sources: Sequence[Path], configuration: Configuration) -> List[Path]:
     if len(sources) == 0:
         return configuration.sources_repository.sources_list
-    return [Path(source) for source in sources]
+    return list(sources)
 
 
 def __print_evaluation_and_return_exit_code(evaluation: Evaluation):

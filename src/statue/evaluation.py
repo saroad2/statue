@@ -2,7 +2,7 @@
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, ItemsView, Iterator, KeysView, List, Union, ValuesView
+from typing import Any, Dict, ItemsView, Iterator, KeysView, List, ValuesView
 
 from statue.command import CommandEvaluation
 from statue.commands_map import CommandsMap
@@ -130,41 +130,41 @@ class SourceEvaluation:
 class Evaluation:
     """Full evaluation class."""
 
-    sources_evaluations: Dict[str, SourceEvaluation] = field(default_factory=dict)
+    sources_evaluations: Dict[Path, SourceEvaluation] = field(default_factory=dict)
     total_execution_duration: float = field(default=0)
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Path]:
         """
         Iterate over evaluation.
 
         :return: self iterator
-        :rtype: Iterator[str]
+        :rtype: Iterator[Path]
         """
         return iter(self.sources_evaluations)
 
-    def __getitem__(self, item: str) -> SourceEvaluation:
+    def __getitem__(self, item: Path) -> SourceEvaluation:
         """
         Get source evaluation.
 
         :param item: Source name
-        :type item: str
+        :type item: Path
         :return: Source's evaluation
         :rtype: SourceEvaluation
         """
         return self.sources_evaluations[item]
 
-    def __setitem__(self, key: str, value: SourceEvaluation) -> None:
+    def __setitem__(self, key: Path, value: SourceEvaluation) -> None:
         """
         Set source evaluation.
 
         :param key: Source name
-        :type key: str
+        :type key: Path
         :param value: Source's evaluation
         :type value: SourceEvaluation
         """
         self.sources_evaluations[key] = value
 
-    def keys(self) -> KeysView[str]:
+    def keys(self) -> KeysView[Path]:
         """
         Get sources as generator.
 
@@ -182,7 +182,7 @@ class Evaluation:
         """
         return self.sources_evaluations.values()
 
-    def items(self) -> ItemsView[str, SourceEvaluation]:
+    def items(self) -> ItemsView[Path, SourceEvaluation]:
         """
         Get sources evaluations.
 
@@ -198,18 +198,18 @@ class Evaluation:
         :return: Self as dictionary
         :rtype: Dict[str, List[Dict[str, Any]]]
         """
-        sources_evaluations = {key: value.as_dict() for key, value in self.items()}
+        sources_evaluations = {str(key): value.as_dict() for key, value in self.items()}
         return dict(
             sources_evaluations=sources_evaluations,
             total_execution_duration=self.total_execution_duration,
         )
 
-    def save_as_json(self, output: Union[Path, str]) -> None:
+    def save_as_json(self, output: Path) -> None:
         """
         Save evaluation as json.
 
         :param output: Path to save self in
-        :type output: Path or str
+        :type output: Path
         """
         with open(output, mode="w", encoding=ENCODING) as output_file:
             json.dump(self.as_dict(), output_file, indent=2)
@@ -335,7 +335,7 @@ class Evaluation:
         """
         return Evaluation(
             sources_evaluations={
-                input_path: SourceEvaluation.from_dict(source_evaluation)
+                Path(input_path): SourceEvaluation.from_dict(source_evaluation)
                 for input_path, source_evaluation in evaluation[
                     "sources_evaluations"
                 ].items()

@@ -56,7 +56,7 @@ class Configuration:
                 CommandsFilter.merge(commands_filter, self.sources_repository[source])
             )
             if len(commands) != 0:
-                commands_map[str(source)] = commands
+                commands_map[source] = commands
         return commands_map
 
     def build_commands(self, commands_filter: CommandsFilter) -> List[Command]:

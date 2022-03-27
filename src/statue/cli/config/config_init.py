@@ -1,7 +1,7 @@
 """Initialize configuration CLI."""
 import sys
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import click
 import git
@@ -49,7 +49,7 @@ from statue.templates.templates_provider import TemplatesProvider
     help="Install latest version for all commands in configuration",
 )
 def init_config_cli(  # pylint: disable=too-many-arguments
-    config: Optional[Union[str, Path]],
+    config: Optional[Path],
     template: str,
     interactive: bool,
     use_git: bool,
@@ -73,9 +73,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
         click.echo(failure_style(str(error)))
         sys.exit(3)
     output_path = (
-        Path(config)
-        if config is not None
-        else ConfigurationBuilder.configuration_path()
+        config if config is not None else ConfigurationBuilder.configuration_path()
     )
     directory = Path.cwd()
     repo = None

@@ -32,7 +32,7 @@ def case_one_source_no_commands():
         total_execution_duration=0,
     )
     evaluation = Evaluation()
-    evaluation[SOURCE1] = SourceEvaluation()
+    evaluation[Path(SOURCE1)] = SourceEvaluation()
     return evaluation_json, evaluation
 
 
@@ -59,7 +59,7 @@ def case_one_source_one_commands():
         },
     )
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
-    evaluation[SOURCE1] = SourceEvaluation(
+    evaluation[Path(SOURCE1)] = SourceEvaluation(
         commands_evaluations=[
             CommandEvaluation(
                 command=Command(COMMAND1),
@@ -103,7 +103,7 @@ def case_one_source_two_commands():
         },
     )
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
-    evaluation[SOURCE1] = SourceEvaluation(
+    evaluation[Path(SOURCE1)] = SourceEvaluation(
         source_execution_duration=source_execution_duration,
         commands_evaluations=[
             CommandEvaluation(
@@ -165,7 +165,7 @@ def case_two_sources_two_commands():
         },
     )
     evaluation = Evaluation(total_execution_duration=total_execution_duration)
-    evaluation[SOURCE1] = SourceEvaluation(
+    evaluation[Path(SOURCE1)] = SourceEvaluation(
         source_execution_duration=source_execution_duration1,
         commands_evaluations=[
             CommandEvaluation(
@@ -176,7 +176,7 @@ def case_two_sources_two_commands():
             ),
         ],
     )
-    evaluation[SOURCE2] = SourceEvaluation(
+    evaluation[Path(SOURCE2)] = SourceEvaluation(
         source_execution_duration=source_execution_duration2,
         commands_evaluations=[
             CommandEvaluation(
@@ -227,5 +227,5 @@ def test_evaluation_save_as_json(evaluation_json, evaluation):
 def test_iterate_evaluation(evaluation_json, evaluation):
     for source in evaluation:
         assert evaluation[source] == SourceEvaluation.from_dict(
-            evaluation_json["sources_evaluations"][source]
+            evaluation_json["sources_evaluations"][source.as_posix()]
         )
