@@ -1,5 +1,6 @@
 [general]
 mode = "async"
+history_size = 30
 
 [contexts.documentation]
 help = "Commands regarding code documentation."
