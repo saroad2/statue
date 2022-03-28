@@ -1,3 +1,4 @@
+import random
 from unittest import mock
 
 import pytest
@@ -13,6 +14,7 @@ from statue.constants import (
     CONTEXTS,
     DEFAULT_HISTORY_SIZE,
     GENERAL,
+    HISTORY_SIZE,
     MODE,
     SOURCES,
 )
@@ -63,6 +65,21 @@ def test_configuration_builder_from_dict_mode_lower_case(mode, tmp_path):
     assert configuration.cache.cache_root_directory == cache_dir
     assert configuration.cache.history_size == DEFAULT_HISTORY_SIZE
     assert configuration.default_mode == mode
+
+
+def test_configuration_builder_from_dict_history_size(tmp_path):
+    cache_dir = tmp_path / ".statue"
+    size = random.randint(1, 100)
+    configuration = ConfigurationBuilder.from_dict(
+        cache_dir=cache_dir, statue_config_dict={GENERAL: {HISTORY_SIZE: size}}
+    )
+
+    assert len(configuration.contexts_repository) == 0
+    assert len(configuration.commands_repository) == 0
+    assert len(configuration.sources_repository) == 0
+    assert configuration.cache.cache_root_directory == cache_dir
+    assert configuration.cache.history_size == size
+    assert configuration.default_mode == RunnerMode.SYNC
 
 
 def test_configuration_builder_from_dict_update_contexts(tmp_path):

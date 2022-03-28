@@ -1,54 +1,59 @@
+import random
+
 from statue.cache import Cache
-from statue.constants import DEFAULT_HISTORY_SIZE
 
 
 def test_cache_constructor_with_none_root_directory(tmp_path):
-    cache = Cache()
+    size = random.randint(1, 100)
+    cache = Cache(size=size)
     assert cache.cache_root_directory is None
     assert cache.evaluations_dir is None
     assert not cache.all_evaluation_paths
-    assert cache.history_size == DEFAULT_HISTORY_SIZE
+    assert cache.history_size == size
 
 
 def test_cache_constructor_with_non_existing_directory(tmp_path):
     cache_dir = tmp_path / "cache"
     assert not cache_dir.exists()
 
-    cache = Cache(cache_dir)
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
     assert cache.cache_root_directory == cache_dir
     assert cache_dir.exists()
     assert cache.evaluations_dir == cache_dir / "evaluations"
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
-    assert cache.history_size == DEFAULT_HISTORY_SIZE
+    assert cache.history_size == size
 
 
 def test_cache_constructor_with_existing_directory(tmp_path):
     cache_dir = tmp_path / "cache"
     cache_dir.mkdir()
 
-    cache = Cache(cache_dir)
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
 
     assert cache.cache_root_directory == cache_dir
     assert cache_dir.exists()
     assert cache.evaluations_dir == cache_dir / "evaluations"
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
-    assert cache.history_size == DEFAULT_HISTORY_SIZE
+    assert cache.history_size == size
 
 
 def test_cache_constructor_with_evaluations_directory_already_existing(tmp_path):
     cache_dir = tmp_path / "cache"
     (cache_dir / "evaluations").mkdir(parents=True)
 
-    cache = Cache(cache_dir)
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
 
     assert cache.cache_root_directory == cache_dir
     assert cache_dir.exists()
     assert cache.evaluations_dir == cache_dir / "evaluations"
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
-    assert cache.history_size == DEFAULT_HISTORY_SIZE
+    assert cache.history_size == size
 
 
 def test_cache_constructor_with_existing_evaluations(tmp_path):
@@ -67,7 +72,8 @@ def test_cache_constructor_with_existing_evaluations(tmp_path):
     for evaluation_file in evaluation_paths:
         evaluation_file.touch()
 
-    cache = Cache(cache_dir)
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
 
     assert cache.cache_root_directory == cache_dir
     assert cache_dir.exists()
@@ -77,7 +83,7 @@ def test_cache_constructor_with_existing_evaluations(tmp_path):
     assert cache.recent_evaluation_path == evaluation_paths[0]
     for i, evaluation_path in enumerate(evaluation_paths):
         assert cache.evaluation_path(i) == evaluation_path
-    assert cache.history_size == DEFAULT_HISTORY_SIZE
+    assert cache.history_size == size
 
 
 def test_cache_constructor_with_history_size(tmp_path):

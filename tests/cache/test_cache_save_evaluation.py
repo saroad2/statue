@@ -5,7 +5,6 @@ import pytest
 from pytest_cases import parametrize
 
 from statue.cache import Cache
-from statue.constants import DEFAULT_HISTORY_SIZE
 from statue.exceptions import CacheError
 
 
@@ -20,7 +19,8 @@ def test_save_evaluation(tmp_path, mock_time):
     evaluation = mock.Mock()
     evaluation.save_as_json.side_effect = lambda path: path.touch()
 
-    cache = Cache(cache_dir)
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
 
     assert not evaluation_file.exists()
     cache.save_evaluation(evaluation)
@@ -29,11 +29,12 @@ def test_save_evaluation(tmp_path, mock_time):
 
 
 def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
+    size = random.randint(1, 100)
     cache_dir = tmp_path / "cache"
     evaluations_dir = cache_dir / "evaluations"
     evaluations_dir.mkdir(parents=True)
 
-    time_stamps = list(random.choices(range(1_000_000), k=DEFAULT_HISTORY_SIZE + 1))
+    time_stamps = list(random.choices(range(1_000_000), k=size + 1))
     time_stamps.sort(reverse=True)
     old_time_stamps, recent_time_stamp = time_stamps[1:], time_stamps[0]
     old_evaluations = [
@@ -50,7 +51,7 @@ def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
 
     assert not recent_evaluation_file.exists()
 
-    cache = Cache(cache_dir)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
     cache.save_evaluation(evaluation)
     evaluation.save_as_json.assert_called_with(recent_evaluation_file)
 
@@ -61,7 +62,8 @@ def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
 
 
 def test_cache_save_evaluation_fails_when_no_root_dir_was_set():
-    cache = Cache()
+    size = random.randint(1, 100)
+    cache = Cache(size=size)
     evaluation = mock.Mock()
 
     with pytest.raises(CacheError, match="^Cache directory was not specified$"):
@@ -85,7 +87,8 @@ def test_cache_get_evaluation_with_invalid_index(tmp_path, invalid_evaluation_in
     for evaluation_file in evaluation_paths:
         evaluation_file.touch()
 
-    cache = Cache(cache_dir)
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
 
     with pytest.raises(
         IndexError, match="^Could not get the desired evaluation due to invalid index$"

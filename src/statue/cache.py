@@ -3,7 +3,6 @@ import time
 from pathlib import Path
 from typing import List, Optional
 
-from statue.constants import DEFAULT_HISTORY_SIZE
 from statue.evaluation import Evaluation
 from statue.exceptions import CacheError
 
@@ -13,8 +12,8 @@ class Cache:
 
     def __init__(
         self,
+        size: int,
         cache_root_directory: Optional[Path] = None,
-        size: int = DEFAULT_HISTORY_SIZE,
     ):
         """
         Initialize cache.

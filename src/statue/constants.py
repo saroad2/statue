@@ -23,6 +23,7 @@ PARENT = "parent"
 ALLOWED_BY_DEFAULT = "allowed_by_default"
 VERSION = "version"
 MODE = "mode"
+HISTORY_SIZE = "history_size"
 
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"
 BAR_FORMAT = "{l_bar}{bar}| {n_fmt}/{total_fmt}"

@@ -7,7 +7,15 @@ import tomli
 
 from statue.cache import Cache
 from statue.config.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
+from statue.constants import (
+    COMMANDS,
+    CONTEXTS,
+    DEFAULT_HISTORY_SIZE,
+    GENERAL,
+    HISTORY_SIZE,
+    MODE,
+    SOURCES,
+)
 from statue.exceptions import InvalidConfiguration, MissingConfiguration
 from statue.runner import RunnerMode
 
@@ -69,9 +77,10 @@ class ConfigurationBuilder:
         :raises InvalidConfiguration: Raised when some fields are invalid
             in configuration
         """
-        cache = Cache(cache_root_directory=cache_dir)
-        configuration = Configuration(cache=cache)
         general_configuration = statue_config_dict.get(GENERAL, {})
+        history_size = general_configuration.get(HISTORY_SIZE, DEFAULT_HISTORY_SIZE)
+        cache = Cache(cache_root_directory=cache_dir, size=history_size)
+        configuration = Configuration(cache=cache)
         if MODE in general_configuration:
             mode = general_configuration[MODE].upper()
             try:
