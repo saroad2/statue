@@ -1,9 +1,11 @@
 import os
+import random
 from pathlib import Path
 
 import mock
 import pytest
 
+from statue.cache import Cache
 from statue.config.commands_repository import CommandsRepository
 from statue.config.configuration import Configuration
 from statue.config.configuration_builder import ConfigurationBuilder
@@ -56,10 +58,11 @@ def mock_cache_path(mocker, tmp_path):
 
 @pytest.fixture
 def mock_build_configuration_from_file(mocker):
+    history_size = random.randint(1, 100)
     builder_mock = mocker.patch.object(
         ConfigurationBuilder, "build_configuration_from_file"
     )
-    builder_mock.return_value = Configuration()
+    builder_mock.return_value = Configuration(cache=Cache(size=history_size))
     builder_mock.return_value.cache = mock.Mock()
     builder_mock.return_value.build_commands = mock.Mock()
     builder_mock.return_value.build_commands_map = mock.Mock()

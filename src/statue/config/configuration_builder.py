@@ -5,6 +5,7 @@ from typing import Any, MutableMapping, Optional, Union
 
 import tomli
 
+from statue.cache import Cache
 from statue.config.configuration import Configuration
 from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
 from statue.exceptions import InvalidConfiguration, MissingConfiguration
@@ -68,7 +69,8 @@ class ConfigurationBuilder:
         :raises InvalidConfiguration: Raised when some fields are invalid
             in configuration
         """
-        configuration = Configuration(cache_root_directory=cache_dir)
+        cache = Cache(cache_root_directory=cache_dir)
+        configuration = Configuration(cache=cache)
         general_configuration = statue_config_dict.get(GENERAL, {})
         if MODE in general_configuration:
             mode = general_configuration[MODE].upper()

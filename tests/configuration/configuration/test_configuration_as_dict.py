@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+import mock
 import pytest
 
 from statue.config.configuration import Configuration
@@ -12,7 +13,7 @@ def test_configuration_as_dict_default(
     mock_commands_repository_as_dict,
     mock_sources_repository_as_dict,
 ):
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration_dict = configuration.as_dict()
 
     assert isinstance(configuration_dict, OrderedDict)
@@ -30,7 +31,7 @@ def test_configuration_as_dict_with_runner_mode(
     mock_commands_repository_as_dict,
     mock_sources_repository_as_dict,
 ):
-    configuration = Configuration(default_mode=mode)
+    configuration = Configuration(cache=mock.Mock(), default_mode=mode)
     configuration_dict = configuration.as_dict()
 
     assert isinstance(configuration_dict, OrderedDict)
