@@ -1,4 +1,5 @@
 [run]
+branch = True
 source = src/statue
 omit =
     src/**/__main__.py
