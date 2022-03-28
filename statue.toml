@@ -1,5 +1,6 @@
 [general]
 mode = "async"
+history_size = 30
 
 [contexts.documentation]
 help = "Commands regarding code documentation."
@@ -140,7 +141,7 @@ args = [
 allowed_contexts = [
     "documentation",
 ]
-version = "2.13.1"
+version = "2.13.2"
 
 [commands.pylint.test]
 add_args = [

@@ -4,7 +4,7 @@ from statue.config.configuration import Configuration
 
 
 def test_configuration_to_toml():
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.as_dict = mock.Mock()
     path = mock.MagicMock()
     path_fd = path.open.return_value.__enter__.return_value

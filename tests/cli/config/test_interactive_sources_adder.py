@@ -1,3 +1,4 @@
+import mock
 import pytest
 
 from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
@@ -37,7 +38,7 @@ expend_parametrization = pytest.mark.parametrize(
 
 
 def dummy_configuration():
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
@@ -71,7 +72,7 @@ def test_interactive_sources_adder_one_source_simple_addition(
 def test_interactive_sources_adder_no_addition(no_word, cli_runner, tmp_path):
     source_path = tmp_path / SOURCE1
     source_path.touch()
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     with cli_runner.isolation(input=f"{no_word}\n"):
         InteractiveSourcesAdder.update_sources_repository(
             configuration=configuration, sources=[source_path]

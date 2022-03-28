@@ -1,3 +1,5 @@
+import mock
+
 from statue.cli import statue_cli
 from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.config.configuration import Configuration
@@ -166,7 +168,7 @@ def test_command_install_with_default_verbosity(
         command_builder_mock(name=COMMAND2, installed=False),
         command_builder_mock(name=COMMAND3, installed=False),
     ]
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.commands_repository.add_command_builders(*command_builders)
     mock_build_configuration_from_file.return_value = configuration
     result = cli_runner.invoke(statue_cli, ["command", "install"])
@@ -181,7 +183,7 @@ def test_command_install_with_verbose(cli_runner, mock_build_configuration_from_
         command_builder_mock(name=COMMAND2, installed=False),
         command_builder_mock(name=COMMAND3, installed=False),
     ]
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.commands_repository.add_command_builders(*command_builders)
     mock_build_configuration_from_file.return_value = configuration
     result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
@@ -200,7 +202,7 @@ def test_command_install_only_uninstalled(
             name=COMMAND3, installed=True, version="0.2.8", installed_version="0.2.7"
         ),
     )
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.commands_repository.add_command_builders(
         command_builder1, command_builder2, command_builder3
     )

@@ -1,6 +1,7 @@
 from pathlib import Path
 from unittest.mock import Mock, call
 
+import mock
 import pytest
 
 from statue.commands_filter import CommandsFilter
@@ -47,7 +48,7 @@ def mock_build_commands(mocker):
 def test_get_commands_map_source_from_config(mock_build_commands):
     command = Mock()
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         allowed_commands=[COMMAND1], contexts=[context]
@@ -75,7 +76,7 @@ def test_get_commands_map_source_from_config(mock_build_commands):
 def test_get_commands_map_source_not_from_config(mock_build_commands):
     command = Mock()
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         denied_commands=[COMMAND3], contexts=[context]
@@ -95,7 +96,7 @@ def test_get_commands_map_source_not_from_config(mock_build_commands):
 
 def test_get_commands_map_with_no_commands(mock_build_commands):
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
     configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
@@ -110,7 +111,7 @@ def test_get_commands_map_with_no_commands(mock_build_commands):
 
 def test_get_commands_map_with_commands_without_directives(mock_build_commands):
     command1, command2, command3 = Mock(), Mock(), Mock()
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
     configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
     mock_build_commands.side_effect = [[command1], [command2, command3]]
@@ -130,7 +131,7 @@ def test_get_commands_map_with_commands_without_directives(mock_build_commands):
 def test_get_commands_map_with_commands_and_directives(mock_build_commands):
     command1, command2, command3 = Mock(), Mock(), Mock()
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
     configuration.sources_repository[Path(SOURCE2)] = CommandsFilter()
@@ -151,7 +152,7 @@ def test_get_commands_map_with_source_context(mock_build_commands):
     context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
         name=CONTEXT2, help=CONTEXT_HELP_STRING2
     )
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context1, context2)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         contexts=[context1]
@@ -188,7 +189,7 @@ def test_get_commands_map_with_source_context(mock_build_commands):
 def test_get_commands_map_with_source_allow_list(mock_build_commands):
     command1, command2 = Mock(), Mock()
     mock_build_commands.side_effect = [[command1], [command2]]
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     )
@@ -228,7 +229,7 @@ def test_get_commands_map_with_source_deny_list(mock_build_commands):
     )
     mock_build_commands.side_effect = [[command1, command2], [command3, command4]]
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter()
     configuration.sources_repository[Path(SOURCE2)] = CommandsFilter(
@@ -258,7 +259,7 @@ def test_get_commands_map_from_relative_path(mock_build_commands):
     context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
         name=CONTEXT2, help=CONTEXT_HELP_STRING2
     )
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(context1, context2)
     configuration.sources_repository[Path(SOURCE1)] = CommandsFilter(
         contexts=[context1]

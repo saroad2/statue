@@ -5,8 +5,17 @@ from typing import Any, MutableMapping, Optional, Union
 
 import tomli
 
+from statue.cache import Cache
 from statue.config.configuration import Configuration
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
+from statue.constants import (
+    COMMANDS,
+    CONTEXTS,
+    DEFAULT_HISTORY_SIZE,
+    GENERAL,
+    HISTORY_SIZE,
+    MODE,
+    SOURCES,
+)
 from statue.exceptions import InvalidConfiguration, MissingConfiguration
 from statue.runner import RunnerMode
 
@@ -50,25 +59,28 @@ class ConfigurationBuilder:
         with statue_configuration_path.open(mode="rb") as configuration_file:
             statue_config = tomli.load(configuration_file)
         cache_dir = cls.cache_path(Path.cwd()) if cache_dir is None else cache_dir
-        configuration = Configuration(cache_root_directory=cache_dir)
-        cls.update_from_config(configuration=configuration, statue_config=statue_config)
-        return configuration
+        return cls.from_dict(cache_dir=cache_dir, statue_config_dict=statue_config)
 
     @classmethod
-    def update_from_config(
-        cls, configuration: Configuration, statue_config: MutableMapping[str, Any]
-    ):
+    def from_dict(
+        cls, cache_dir: Path, statue_config_dict: MutableMapping[str, Any]
+    ) -> Configuration:
         """
-        Update configuration from a loaded config map.
+        Build configuration from a loaded config map.
 
-        :param configuration: Configuration instance to be updated
-        :type configuration: Configuration
-        :param statue_config: Configuration map as loaded from config file
-        :type statue_config: MutableMapping[str, Any]
+        :param cache_dir: Directory for keeping cache.
+        :type cache_dir: Path
+        :param statue_config_dict: Configuration map as loaded from config file
+        :type statue_config_dict: MutableMapping[str, Any]
+        :return: Built configuration instance
+        :type: Configuration
         :raises InvalidConfiguration: Raised when some fields are invalid
             in configuration
         """
-        general_configuration = statue_config.get(GENERAL, {})
+        general_configuration = statue_config_dict.get(GENERAL, {})
+        history_size = general_configuration.get(HISTORY_SIZE, DEFAULT_HISTORY_SIZE)
+        cache = Cache(cache_root_directory=cache_dir, size=history_size)
+        configuration = Configuration(cache=cache)
         if MODE in general_configuration:
             mode = general_configuration[MODE].upper()
             try:
@@ -77,19 +89,20 @@ class ConfigurationBuilder:
                 raise InvalidConfiguration(
                     f"Got unexpected runner mode in configuration: {mode}"
                 ) from error
-        if CONTEXTS in statue_config:
+        if CONTEXTS in statue_config_dict:
             configuration.contexts_repository.update_from_config(
-                statue_config[CONTEXTS]
+                statue_config_dict[CONTEXTS]
             )
-        if SOURCES in statue_config:
+        if SOURCES in statue_config_dict:
             configuration.sources_repository.update_from_config(
-                config=statue_config[SOURCES],
+                config=statue_config_dict[SOURCES],
                 contexts_repository=configuration.contexts_repository,
             )
-        if COMMANDS in statue_config:
+        if COMMANDS in statue_config_dict:
             configuration.commands_repository.update_from_config(
-                statue_config[COMMANDS]
+                statue_config_dict[COMMANDS]
             )
+        return configuration
 
     @classmethod
     def configuration_path(cls, directory: Optional[Path] = None) -> Path:

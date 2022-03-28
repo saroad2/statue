@@ -33,7 +33,7 @@ def mock_update_sources_repository(mocker):
 
 
 def dummy_configuration():
-    configuration = Configuration()
+    configuration = Configuration(cache=mock.Mock())
     configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),

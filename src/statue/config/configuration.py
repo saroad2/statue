@@ -1,7 +1,7 @@
 """Get Statue global configuration."""
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, List, Optional
+from typing import Any, List
 from typing import OrderedDict as OrderedDictType
 
 import tomli_w
@@ -13,7 +13,7 @@ from statue.commands_map import CommandsMap
 from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
+from statue.constants import COMMANDS, CONTEXTS, GENERAL, HISTORY_SIZE, MODE, SOURCES
 from statue.runner import RunnerMode
 
 
@@ -22,22 +22,22 @@ class Configuration:
 
     def __init__(
         self,
+        cache: Cache,
         default_mode: RunnerMode = RunnerMode.SYNC,
-        cache_root_directory: Optional[Path] = None,
     ):
         """
         Initialize configuration.
 
         :param default_mode: Default mode for evaluation runner
         :type default_mode: RunnerMode
-        :param cache_root_directory: Root directory for caching
-        :type cache_root_directory: Optional[Path]
+        :param cache: Cache instance for saving evaluations
+        :type cache: Cache
         """
-        self.default_mode = default_mode
-        self.cache = Cache(cache_root_directory)
+        self.cache = cache
         self.contexts_repository = ContextsRepository()
         self.sources_repository = SourcesRepository()
         self.commands_repository = CommandsRepository()
+        self.default_mode = default_mode
 
     def build_commands_map(
         self, sources: List[Path], commands_filter: CommandsFilter
@@ -86,9 +86,15 @@ class Configuration:
         :return: Serialized representation dictionary
         :rtype: OrderedDict[str, Any]
         """
+        general_dict = OrderedDict(
+            [
+                (MODE, self.default_mode.name.lower()),
+                (HISTORY_SIZE, self.cache.history_size),
+            ]
+        )
         return OrderedDict(
             [
-                (GENERAL, {MODE: self.default_mode.name.lower()}),
+                (GENERAL, general_dict),
                 (CONTEXTS, self.contexts_repository.as_dict()),
                 (COMMANDS, self.commands_repository.as_dict()),
                 (SOURCES, self.sources_repository.as_dict()),
