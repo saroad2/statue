@@ -53,6 +53,21 @@ class ContextsRepository:
                 return context
         raise UnknownContext(context_name=item)
 
+    def __contains__(self, item: str) -> bool:
+        """
+        Does context available in repository.
+
+        :param item: Context name to be searched
+        :type item: str
+        :return: does context exist in repository
+        :rtype: bool
+        """
+        try:
+            self[item]
+        except UnknownContext:
+            return False
+        return True
+
     def add_contexts(self, *contexts: Context):
         """
         Add contexts to repository.
@@ -61,21 +76,6 @@ class ContextsRepository:
         :type contexts: Context
         """
         self.contexts_list.extend(contexts)
-
-    def has_context(self, context_name: str) -> bool:
-        """
-        Does context available in repository.
-
-        :param context_name: Context name to be searched
-        :type context_name: str
-        :return: does context exist in repository
-        :rtype: bool
-        """
-        try:
-            self[context_name]
-        except UnknownContext:
-            return False
-        return True
 
     def reset(self):
         """Clear repository from all contexts."""
@@ -93,7 +93,7 @@ class ContextsRepository:
         context_names = set(config.keys())
         while len(context_names) != 0:
             context_name = context_names.pop()
-            if self.has_context(context_name):
+            if context_name in self:
                 raise InconsistentConfiguration(
                     f'"{context_name}" is a already defined context and '
                     "cannot defined twice"
@@ -129,7 +129,7 @@ class ContextsRepository:
             )
         if ALIASES in context_config:
             for alias in context_config[ALIASES]:
-                if not self.has_context(alias):
+                if alias not in self:
                     continue
                 raise InconsistentConfiguration(
                     f'"{alias}" cannot be defined as an alias for "{context_name}" '
