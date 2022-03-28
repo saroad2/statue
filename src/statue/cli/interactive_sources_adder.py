@@ -182,7 +182,7 @@ class InteractiveSourcesAdder:
             unknown_commands = [
                 command_name
                 for command_name in command_names
-                if not configuration.commands_repository.has_command(command_name)
+                if command_name not in configuration.commands_repository
             ]
             if len(unknown_commands) != 0:
                 click.echo(

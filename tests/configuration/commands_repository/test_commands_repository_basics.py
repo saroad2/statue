@@ -15,7 +15,7 @@ def test_commands_repository_empty_constructor():
     assert not commands_repository.command_names_list
     assert not list(commands_repository)
 
-    assert not commands_repository.has_command(COMMAND1)
+    assert COMMAND1 not in commands_repository
 
 
 def test_commands_repository_construct_with_one_command_builder():
@@ -26,8 +26,8 @@ def test_commands_repository_construct_with_one_command_builder():
     assert commands_repository.command_names_list == [COMMAND1]
     assert list(commands_repository) == [command_builder]
     assert commands_repository[COMMAND1] == command_builder
-    assert commands_repository.has_command(COMMAND1)
-    assert not commands_repository.has_command(COMMAND2)
+    assert COMMAND1 in commands_repository
+    assert COMMAND2 not in commands_repository
 
 
 def test_commands_repository_construct_with_two_command_builders():
@@ -45,9 +45,9 @@ def test_commands_repository_construct_with_two_command_builders():
     ]
     assert commands_repository[COMMAND1] == command_builder1
     assert commands_repository[COMMAND2] == command_builder2
-    assert commands_repository.has_command(COMMAND1)
-    assert commands_repository.has_command(COMMAND2)
-    assert not commands_repository.has_command(COMMAND3)
+    assert COMMAND1 in commands_repository
+    assert COMMAND2 in commands_repository
+    assert COMMAND3 not in commands_repository
 
 
 def test_commands_repository_construct_add_one_command_builder():
@@ -69,10 +69,10 @@ def test_commands_repository_construct_add_one_command_builder():
     assert commands_repository[COMMAND1] == command_builder1
     assert commands_repository[COMMAND2] == command_builder2
     assert commands_repository[COMMAND3] == command_builder3
-    assert commands_repository.has_command(COMMAND1)
-    assert commands_repository.has_command(COMMAND2)
-    assert commands_repository.has_command(COMMAND3)
-    assert not commands_repository.has_command(COMMAND4)
+    assert COMMAND1 in commands_repository
+    assert COMMAND2 in commands_repository
+    assert COMMAND3 in commands_repository
+    assert COMMAND4 not in commands_repository
 
 
 def test_commands_repository_construct_add_two_command_builders():
@@ -102,11 +102,11 @@ def test_commands_repository_construct_add_two_command_builders():
     assert commands_repository[COMMAND2] == command_builder2
     assert commands_repository[COMMAND3] == command_builder3
     assert commands_repository[COMMAND4] == command_builder4
-    assert commands_repository.has_command(COMMAND1)
-    assert commands_repository.has_command(COMMAND2)
-    assert commands_repository.has_command(COMMAND3)
-    assert commands_repository.has_command(COMMAND4)
-    assert not commands_repository.has_command(COMMAND5)
+    assert COMMAND1 in commands_repository
+    assert COMMAND2 in commands_repository
+    assert COMMAND3 in commands_repository
+    assert COMMAND4 in commands_repository
+    assert COMMAND5 not in commands_repository
 
 
 def test_commands_repository_add_command_overrides_existing():
@@ -122,8 +122,8 @@ def test_commands_repository_add_command_overrides_existing():
     commands_repository.add_command_builders(command_builder2)
     assert commands_repository[COMMAND1] != command_builder1
     assert commands_repository[COMMAND1] == command_builder2
-    assert commands_repository.has_command(COMMAND1)
-    assert not commands_repository.has_command(COMMAND2)
+    assert COMMAND1 in commands_repository
+    assert COMMAND2 not in commands_repository
 
 
 def test_commands_repository_reset():
@@ -139,8 +139,8 @@ def test_commands_repository_reset():
     assert len(commands_repository) == 0
     assert not commands_repository.command_names_list
     assert not list(commands_repository)
-    assert not commands_repository.has_command(COMMAND1)
-    assert not commands_repository.has_command(COMMAND2)
+    assert COMMAND1 not in commands_repository
+    assert COMMAND2 not in commands_repository
 
 
 def test_commands_repository_as_dict():
