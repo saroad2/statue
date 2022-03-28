@@ -8,7 +8,9 @@ import git
 
 from statue.cli.common_flags import config_path_option
 from statue.cli.config.config_cli import config_cli
-from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
+from statue.cli.config.interactive_adders.interactive_sources_adder import (
+    InteractiveSourcesAdder,
+)
 from statue.cli.styled_strings import failure_style
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration_builder import ConfigurationBuilder

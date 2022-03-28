@@ -3,7 +3,9 @@ import mock
 import pytest
 
 from statue.cli import statue_cli
-from statue.cli.interactive_sources_adder import InteractiveSourcesAdder
+from statue.cli.config.interactive_adders.interactive_sources_adder import (
+    InteractiveSourcesAdder,
+)
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.context import Context
