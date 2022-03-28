@@ -32,8 +32,8 @@ def test_contexts_repository_with_one_simple_context():
 
     assert len(contexts_repository) == 1
     assert contexts_repository[CONTEXT1] == context
-    assert contexts_repository.has_context(CONTEXT1)
-    assert not contexts_repository.has_context(CONTEXT2)
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 not in contexts_repository
 
 
 def test_contexts_repository_with_three_simple_context():
@@ -46,10 +46,10 @@ def test_contexts_repository_with_three_simple_context():
     assert contexts_repository[CONTEXT1] == context1
     assert contexts_repository[CONTEXT2] == context2
     assert contexts_repository[CONTEXT3] == context3
-    assert contexts_repository.has_context(CONTEXT1)
-    assert contexts_repository.has_context(CONTEXT2)
-    assert contexts_repository.has_context(CONTEXT3)
-    assert not contexts_repository.has_context(CONTEXT4)
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 in contexts_repository
+    assert CONTEXT3 in contexts_repository
+    assert CONTEXT4 not in contexts_repository
 
 
 def test_contexts_repository_with_one_context_with_aliases():
@@ -62,10 +62,10 @@ def test_contexts_repository_with_one_context_with_aliases():
     assert contexts_repository[CONTEXT1] == context
     assert contexts_repository[CONTEXT2] == context
     assert contexts_repository[CONTEXT3] == context
-    assert contexts_repository.has_context(CONTEXT1)
-    assert contexts_repository.has_context(CONTEXT2)
-    assert contexts_repository.has_context(CONTEXT3)
-    assert not contexts_repository.has_context(CONTEXT4)
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 in contexts_repository
+    assert CONTEXT3 in contexts_repository
+    assert CONTEXT4 not in contexts_repository
 
 
 def test_contexts_repository_with_one_context_with_parent():
@@ -77,9 +77,9 @@ def test_contexts_repository_with_one_context_with_parent():
     assert contexts_repository[CONTEXT1] == parent
     assert contexts_repository[CONTEXT2] == context
 
-    assert contexts_repository.has_context(CONTEXT1)
-    assert contexts_repository.has_context(CONTEXT2)
-    assert not contexts_repository.has_context(CONTEXT3)
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 in contexts_repository
+    assert CONTEXT3 not in contexts_repository
 
 
 def test_contexts_repository_with_multiple_contexts():
@@ -98,11 +98,11 @@ def test_contexts_repository_with_multiple_contexts():
     assert contexts_repository[CONTEXT3] == parent2
     assert contexts_repository[CONTEXT4] == context2
     assert contexts_repository[CONTEXT5] == context3
-    assert contexts_repository.has_context(CONTEXT1)
-    assert contexts_repository.has_context(CONTEXT2)
-    assert contexts_repository.has_context(CONTEXT3)
-    assert contexts_repository.has_context(CONTEXT4)
-    assert contexts_repository.has_context(CONTEXT5)
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 in contexts_repository
+    assert CONTEXT3 in contexts_repository
+    assert CONTEXT4 in contexts_repository
+    assert CONTEXT5 in contexts_repository
 
 
 def test_contexts_repository_reset():
@@ -118,7 +118,7 @@ def test_contexts_repository_reset():
     contexts_repository.reset()
 
     assert len(contexts_repository) == 0
-    assert not contexts_repository.has_context(CONTEXT1)
+    assert CONTEXT1 not in contexts_repository
 
 
 def test_contexts_repository_add_contexts():
@@ -136,10 +136,10 @@ def test_contexts_repository_add_contexts():
     assert contexts_repository[CONTEXT2] == context2
     assert contexts_repository[CONTEXT3] == context3
     assert contexts_repository[CONTEXT4] == context4
-    assert contexts_repository.has_context(CONTEXT1)
-    assert contexts_repository.has_context(CONTEXT2)
-    assert contexts_repository.has_context(CONTEXT3)
-    assert contexts_repository.has_context(CONTEXT4)
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 in contexts_repository
+    assert CONTEXT3 in contexts_repository
+    assert CONTEXT4 in contexts_repository
 
 
 def test_contexts_repository_iterate():

@@ -48,9 +48,20 @@ class CommandsRepository:
         :rtype: CommandBuilder
         :raises UnknownCommand: Raised when command is not found
         """
-        if self.has_command(item):
+        if item in self:
             return self.command_builders_map[item]
         raise UnknownCommand(command_name=item)
+
+    def __contains__(self, item) -> bool:
+        """
+        Does command builder available in repository.
+
+        :param item: Command name to be searched
+        :type item: str
+        :return: does the command exist in repository
+        :rtype: bool
+        """
+        return item in self.command_builders_map
 
     @property
     def command_names_list(self) -> List[str]:
@@ -68,17 +79,6 @@ class CommandsRepository:
         for command_builder in command_builders:
             self.command_builders_map[command_builder.name] = command_builder
 
-    def has_command(self, command_name: str) -> bool:
-        """
-        Does command builder available in repository.
-
-        :param command_name: Command name to be searched
-        :type command_name: str
-        :return: does the command exist in repository
-        :rtype: bool
-        """
-        return command_name in self.command_builders_map
-
     def reset(self):
         """Clear repository from all command builders."""
         self.command_builders_map.clear()
@@ -91,7 +91,7 @@ class CommandsRepository:
         :type config: MutableMapping[str, Any]
         """
         for command_name, builder_setups in config.items():
-            if self.has_command(command_name):
+            if command_name in self:
                 self[command_name].update_from_config(builder_setups)
             else:
                 self.add_command_builders(
