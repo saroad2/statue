@@ -40,11 +40,6 @@ def mock_tqdm_range(mocker):
 
 
 @pytest.fixture
-def mock_update_from_config(mocker):
-    return mocker.patch.object(ConfigurationBuilder, "update_from_config")
-
-
-@pytest.fixture
 def mock_configuration_path(mocker, tmp_path):
     dummy_path = tmp_path / "bla.toml"
     configuration_path_mock = mocker.patch.object(
