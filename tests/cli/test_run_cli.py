@@ -2,6 +2,7 @@ import random
 from pathlib import Path
 
 import mock
+import pytest
 from pytest_cases import fixture, parametrize
 
 from statue.cli.cli import statue_cli
@@ -513,7 +514,11 @@ def test_run_with_mode(
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
+@pytest.mark.parametrize(
+    argnames="verbose_flag", argvalues=["--verbose", "--verbosity=verbose"]
+)
 def test_run_verbosely(
+    verbose_flag,
     cli_runner,
     mock_build_configuration_from_file,
     mock_cwd,
@@ -524,7 +529,7 @@ def test_run_verbosely(
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
     configuration.build_commands_map.return_value = build_commands_map()
 
-    result = cli_runner.invoke(statue_cli, ["run", "--verbose"])
+    result = cli_runner.invoke(statue_cli, ["run", verbose_flag])
 
     assert (
         result.exit_code == 0
@@ -536,3 +541,31 @@ def test_run_verbosely(
     )
     configuration.cache.save_evaluation.assert_called_once()
     assert_evaluation_was_printed(result, mock_evaluation_string)
+
+
+@pytest.mark.parametrize(
+    argnames="silent_flag", argvalues=["--silent", "--verbosity=silent"]
+)
+def test_run_silently(
+    silent_flag,
+    cli_runner,
+    mock_build_configuration_from_file,
+    mock_cwd,
+    mock_evaluation_string,
+):
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
+    configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
+    configuration.build_commands_map.return_value = build_commands_map()
+
+    result = cli_runner.invoke(statue_cli, ["run", silent_flag])
+
+    assert (
+        result.exit_code == 0
+    ), f"Command failed with the following exception: {result.exception}"
+    assert "Statue finished successfully" in result.output
+    configuration.build_commands_map.assert_called_once_with(
+        sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
+    )
+    configuration.cache.save_evaluation.assert_called_once()
+    mock_evaluation_string.assert_not_called()
