@@ -13,7 +13,7 @@ from statue.commands_map import CommandsMap
 from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, MODE, SOURCES
+from statue.constants import COMMANDS, CONTEXTS, GENERAL, HISTORY_SIZE, MODE, SOURCES
 from statue.runner import RunnerMode
 
 
@@ -86,9 +86,15 @@ class Configuration:
         :return: Serialized representation dictionary
         :rtype: OrderedDict[str, Any]
         """
+        general_dict = OrderedDict(
+            [
+                (MODE, self.default_mode.name.lower()),
+                (HISTORY_SIZE, self.cache.history_size),
+            ]
+        )
         return OrderedDict(
             [
-                (GENERAL, {MODE: self.default_mode.name.lower()}),
+                (GENERAL, general_dict),
                 (CONTEXTS, self.contexts_repository.as_dict()),
                 (COMMANDS, self.commands_repository.as_dict()),
                 (SOURCES, self.sources_repository.as_dict()),
