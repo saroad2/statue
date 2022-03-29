@@ -65,7 +65,7 @@ class CommandExecutionError(StatueException):
         )
 
 
-# Other exceptions
+# Context related exceptions
 
 
 class UnknownContext(StatueException):
@@ -81,6 +81,26 @@ class UnknownContext(StatueException):
         super().__init__(f'Could not find context named "{context_name}"')
 
 
+class ContextCircularParentingError(StatueException):
+    """Parent cannot be a child of its child."""
+
+    def __init__(self, context1: str, context2: str):
+        """
+        Exception constructor.
+
+        :param context1: Name of first context
+        :type context1: str
+        :param context2: Name of second context
+        :type context2: str
+        """
+        super().__init__(
+            "Cannot set circular parenting between " f'"{context1}" and "{context2}"'
+        )
+
+
+# Template related exceptions
+
+
 class UnknownTemplate(StatueException):
     """Template isn't recognized."""
 
@@ -92,6 +112,9 @@ class UnknownTemplate(StatueException):
         :type template_name: str
         """
         super().__init__(f'Could not find template named "{template_name}"')
+
+
+# Cache related exceptions
 
 
 class CacheError(StatueException):
