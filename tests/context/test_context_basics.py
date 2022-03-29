@@ -53,3 +53,17 @@ def test_context_constructor_allowed_by_default():
     assert context.help == CONTEXT_HELP_STRING1
     assert context.parent is None
     assert context.allowed_by_default
+
+
+def test_context_clear_aliases():
+    context = Context(
+        name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2, CONTEXT3]
+    )
+    context.clear_aliases()
+
+    assert context.name == CONTEXT1
+    assert context.aliases == []
+    assert context.all_names == [CONTEXT1]
+    assert context.help == CONTEXT_HELP_STRING1
+    assert context.parent is None
+    assert not context.allowed_by_default
