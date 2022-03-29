@@ -1,13 +1,11 @@
 """Context class used for reading commands in various contexts."""
 from collections import OrderedDict
-from dataclasses import dataclass, field
-from typing import Any, List, MutableMapping, Optional
+from typing import Any, Iterable, List, MutableMapping, Optional
 from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 
 
-@dataclass
 class Context:
     """
     Class representing a command context.
@@ -16,11 +14,68 @@ class Context:
     command arguments according to the context you are using. For ex
     """
 
-    name: str
-    help: str
-    aliases: List[str] = field(default_factory=list)
-    parent: Optional["Context"] = field(default=None)
-    allowed_by_default: bool = field(default=False)
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        name: str,
+        help: str,  # pylint: disable=redefined-builtin
+        aliases: Optional[Iterable[str]] = None,
+        parent: Optional["Context"] = None,
+        allowed_by_default: bool = False,
+    ):
+        """
+        Context constructor.
+
+        :param name: Name of the context
+        :type name: str
+        :param help: Short help string to describe context
+        :type help: str
+        :param aliases: List of possible aliases of the context
+        :type aliases: Optional[Iterable[str]]
+        :param parent: Optional parent context for this context
+        :type parent: Optional[Context]
+        :param allowed_by_default: Allow this context for all commands by default
+        :type allowed_by_default: bool
+        """
+        self.name = name
+        self.help = help
+        self.aliases = list(aliases) if aliases is not None else []
+        self.parent = parent
+        self.allowed_by_default = allowed_by_default
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Check equality between two contexts.
+
+        :param other: other object to compare to
+        :type other: object
+        :return: are contexts equal
+        :rtype: bool
+        """
+        return (
+            isinstance(other, Context)
+            and self.name == other.name
+            and self.help == other.help
+            and self.aliases == other.aliases
+            and self.parent == other.parent
+            and self.allowed_by_default == other.allowed_by_default
+        )
+
+    def __repr__(self) -> str:
+        """
+        String representation of the context.
+
+        :return: context as string
+        :rtype: str
+        """
+        return (
+            "Context("
+            f"name='{self.name}', "
+            f"help='{self.help}', "
+            f"aliases={self.aliases}, "
+            f"parent={self.parent}, "
+            f"allowed_by_default={self.allowed_by_default}"
+            ")"
+        )
 
     def __hash__(self) -> int:
         """
