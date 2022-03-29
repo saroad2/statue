@@ -36,6 +36,10 @@ class Context:
         """List of all possible names."""
         return [self.name, *self.aliases]
 
+    def clear_aliases(self):
+        """Remove all aliases of context."""
+        self.aliases.clear()
+
     def is_matching(self, name: str) -> bool:
         """
         Check if a given name is identical to one of the contexts names.

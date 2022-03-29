@@ -1,9 +1,9 @@
 """Add sources to configuration interactively."""
-import re
 from pathlib import Path
 from typing import Callable, List, Optional
 
 import click
+import click_params as clickp
 import git
 
 from statue.cli.styled_strings import (
@@ -119,20 +119,21 @@ class InteractiveSourcesAdder:
         )
         while True:
             try:
-                contexts_string = click.prompt(
+                context_names = click.prompt(
                     f"Add {bullet_style('contexts')} to {source_style(source)} "
                     f"(options: [{contexts_options}])",
                     default="",
-                    type=str,
+                    type=clickp.StringListParamType(),
                     show_default=False,
                 )
-                contexts = (
-                    []
-                    if len(contexts_string) == 0
-                    else re.split(r"[ \t]*,[ \t]*", contexts_string)
-                )
+                context_names = [
+                    context_name.strip()
+                    for context_name in context_names
+                    if context_name.strip() != ""
+                ]
                 return [
-                    configuration.contexts_repository[context] for context in contexts
+                    configuration.contexts_repository[context]
+                    for context in context_names
                 ]
             except UnknownContext as error:
                 click.echo(failure_style(str(error)))
@@ -168,17 +169,21 @@ class InteractiveSourcesAdder:
             ]
         )
         while True:
-            commands_string = click.prompt(
+            command_names = click.prompt(
                 f"Add {style_func(prefix)} commands to {source_style(source)} "
                 f"(options: [{commands_options}], "
                 f"No specified {prefix} commands by default)",
                 default="",
-                type=str,
+                type=clickp.StringListParamType(),
                 show_default=False,
             )
-            if len(commands_string) == 0:
+            command_names = [
+                command_name.strip()
+                for command_name in command_names
+                if command_name.strip() != ""
+            ]
+            if len(command_names) == 0:
                 return None
-            command_names = re.split(r"[ \t]*,[ \t]*", commands_string)
             unknown_commands = [
                 command_name
                 for command_name in command_names
