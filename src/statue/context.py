@@ -4,6 +4,7 @@ from typing import Any, Iterable, List, MutableMapping, Optional
 from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
+from statue.exceptions import ContextCircularParentingError
 
 
 class Context:
@@ -41,6 +42,32 @@ class Context:
         self.aliases = list(aliases) if aliases is not None else []
         self.parent = parent
         self.allowed_by_default = allowed_by_default
+
+    @property
+    def parent(self) -> Optional["Context"]:
+        """Get parent of this context."""
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent: Optional["Context"]):
+        """
+        Set parent of this context.
+
+        :param parent: Desired parent
+        :type parent: Context
+        :raises ContextCircularParentingError: Raised when trying to set a parent
+            which is a child of this context.
+        """
+        if parent is not None and parent.is_child_of(self):
+            raise ContextCircularParentingError(self.name, parent.name)
+        self._parent = parent
+
+    @property
+    def parents(self) -> List["Context"]:
+        """Get all parents recursively for this context."""
+        if self.parent is None:
+            return []
+        return [self.parent, *self.parent.parents]
 
     def __eq__(self, other: object) -> bool:
         """
@@ -95,6 +122,21 @@ class Context:
         """Remove all aliases of context."""
         self.aliases.clear()
 
+    def is_child_of(self, parent: "Context") -> bool:
+        """
+        Checks if this context is a child of another context.
+
+        :param parent: Possible parent for this context.
+        :type parent: Context
+        :return: Is this context child of the given context
+        :rtype: bool
+        """
+        if self.parent == parent:
+            return True
+        if self.parent is None:
+            return False
+        return self.parent.is_child_of(parent)
+
     def is_matching(self, name: str) -> bool:
         """
         Check if a given name is identical to one of the contexts names.
@@ -117,8 +159,9 @@ class Context:
         """
         if self.is_matching(name):
             return True
-        if self.parent is not None:
-            return self.parent.is_matching_recursively(name)
+        for parent in self.parents:
+            if parent.is_matching(name):
+                return True
         return False
 
     def search_context_instructions(
@@ -136,8 +179,10 @@ class Context:
             name_setups = setups.get(name, None)
             if name_setups is not None:
                 return name_setups
-        if self.parent is not None:
-            return self.parent.search_context_instructions(setups)
+        for parent in self.parents:
+            instructions = parent.search_context_instructions(setups)
+            if instructions is not None:
+                return instructions
         return None
 
     def as_dict(self) -> OrderedDictType[str, Any]:
