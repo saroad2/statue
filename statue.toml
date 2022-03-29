@@ -59,7 +59,7 @@ allowed_contexts = [
     "fast",
     "test",
 ]
-version = "22.1.0"
+version = "22.3.0"
 
 [commands.black.format]
 clear_args = true
@@ -141,7 +141,7 @@ args = [
 allowed_contexts = [
     "documentation",
 ]
-version = "2.13.2"
+version = "2.13.3"
 
 [commands.pylint.test]
 add_args = [
