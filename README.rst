@@ -21,10 +21,6 @@ Statue
    :target: https://github.com/saroad2/statue/actions
    :alt: Build Status
 
-.. image:: https://codecov.io/gh/saroad2/statue/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/saroad2/statue
-  :alt: CodeCov
-
 
 *Statue* is an orchestration tool for static code analysis. It combines the overall
 power of several linters and formatters into one consistent tool that prevents
@@ -40,14 +36,16 @@ In order to install *Statue*, run:
 
     pip install statue
 
-Simple Usage
+Quick Start
 ------------
 
-In order to run *Statue* over a source folder ``src`` with standard context, run:
+In order to start working with statue, go to your project root directory and initialize a configuration file with the following command:
 
 ::
 
-    statue run src
+    statue config init
+
+and follow the instructions.
 
 Run In Context
 --------------
@@ -58,23 +56,6 @@ For example, run *Statue* over a unit tests folder with the "test" context:
 ::
 
     statue run unit_tests --context=test
-
-Use A Configuration File
-------------------------
-
-Add a configuration file in order let statue know how to evaluate your code.
-simply add a **statue.toml** file to your repository's root directory. Here's an example
-file:
-
-.. code:: toml
-
-    [sources.src]
-
-    [sources.tests]
-    contexts = ["test"]
-
-Now you can simply run ``statue run`` and *Statue* will evaluate you repository without
-contexts problems.
 
 Contributing
 ------------
