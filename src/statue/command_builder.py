@@ -159,7 +159,7 @@ class ContextSpecification:
 
 
 @dataclass
-class CommandBuilder:
+class CommandBuilder:  # pylint: disable=too-many-public-methods
     """Command builder as specified in configuration."""
 
     name: str
@@ -383,6 +383,29 @@ class CommandBuilder:
         except InvalidCommand:
             return False
         return True
+
+    def remove_context(self, context: Context):
+        """
+        Remove context reference from builder.
+
+        :param context: Context to be removed
+        :type context: Context
+        """
+        self.required_contexts = [
+            context_name
+            for context_name in self.required_contexts
+            if not context.is_matching(context_name)
+        ]
+        self.allowed_contexts = [
+            context_name
+            for context_name in self.allowed_contexts
+            if not context.is_matching(context_name)
+        ]
+        self.contexts_specifications = {
+            context_name: specification
+            for context_name, specification in self.contexts_specifications.items()
+            if not context.is_matching(context_name)
+        }
 
     def build_command(self, *contexts: Context) -> Command:
         """

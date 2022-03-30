@@ -151,6 +151,20 @@ def test_contexts_repository_iterate():
     assert list(contexts_repository) == [context1, context2, context3]
 
 
+def test_contexts_repository_remove_context():
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context2 = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
+    context3 = Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)
+    contexts_repository = ContextsRepository(context1, context2, context3)
+    contexts_repository.remove_context(context2)
+
+    assert contexts_repository[CONTEXT1] == context1
+    assert contexts_repository[CONTEXT3] == context3
+    assert CONTEXT1 in contexts_repository
+    assert CONTEXT2 not in contexts_repository
+    assert CONTEXT3 in contexts_repository
+
+
 def test_contexts_repository_as_dict():
     context1, context2, context3 = (mock.Mock(), mock.Mock(), mock.Mock())
     context1.name, context2.name, context3.name = CONTEXT1, CONTEXT2, CONTEXT3
