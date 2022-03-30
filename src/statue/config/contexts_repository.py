@@ -77,6 +77,15 @@ class ContextsRepository:
         """
         self.contexts_list.extend(contexts)
 
+    def remove_context(self, context: Context):
+        """
+        Remove a context from the repository.
+
+        :param context: Context to be removed from the repository
+        :type context: Context
+        """
+        self.contexts_list.remove(context)
+
     def reset(self):
         """Clear repository from all contexts."""
         self.contexts_list.clear()
