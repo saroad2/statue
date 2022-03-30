@@ -14,6 +14,7 @@ from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
 from statue.constants import COMMANDS, CONTEXTS, GENERAL, HISTORY_SIZE, MODE, SOURCES
+from statue.context import Context
 from statue.runner import RunnerMode
 
 
@@ -38,6 +39,28 @@ class Configuration:
         self.sources_repository = SourcesRepository()
         self.commands_repository = CommandsRepository()
         self.default_mode = default_mode
+
+    def remove_context(self, context: Context):
+        """
+        Remove all references of a context from the configuration.
+
+        :param context: Context object to be removed
+        :type context: Context
+        """
+        for source in self.sources_repository.sources_list:
+            original_filter = self.sources_repository[source]
+            self.sources_repository[source] = CommandsFilter(
+                contexts=[
+                    filter_context
+                    for filter_context in original_filter.contexts
+                    if filter_context != context
+                ],
+                allowed_commands=original_filter.allowed_commands,
+                denied_commands=original_filter.denied_commands,
+            )
+        for command_builder in self.commands_repository:
+            command_builder.remove_context(context)
+        self.contexts_repository.remove_context(context)
 
     def build_commands_map(
         self, sources: List[Path], commands_filter: CommandsFilter
