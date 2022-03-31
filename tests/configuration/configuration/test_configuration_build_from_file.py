@@ -1,15 +1,15 @@
 import pytest
 
-from statue.config.configuration_builder import ConfigurationBuilder
+from statue.config.configuration import Configuration
 from statue.exceptions import MissingConfiguration
 
 
 @pytest.fixture
 def mock_configuration_from_dict(mocker):
-    return mocker.patch.object(ConfigurationBuilder, "from_dict")
+    return mocker.patch.object(Configuration, "from_dict")
 
 
-def test_configuration_builder_build_with_existing_path(
+def test_configuration_build_from_file_with_existing_path(
     tmp_path,
     mock_configuration_from_dict,
     mock_cache_path,
@@ -23,9 +23,7 @@ def test_configuration_builder_build_with_existing_path(
     cache_path = tmp_path / "cache"
     mock_cache_path.return_value = cache_path
 
-    configuration = ConfigurationBuilder.build_configuration_from_file(
-        statue_configuration_path=statue_config_path
-    )
+    configuration = Configuration.from_file(config_path=statue_config_path)
 
     assert configuration == mock_configuration_from_dict.return_value
     mock_toml_load.assert_called_once()
@@ -35,7 +33,7 @@ def test_configuration_builder_build_with_existing_path(
     mock_cache_path.assert_called_once_with(mock_cwd)
 
 
-def test_configuration_builder_build_with_no_config_path(
+def test_configuration_build_from_file_with_no_config_path(
     tmp_path,
     mock_configuration_from_dict,
     mock_configuration_path,
@@ -49,7 +47,7 @@ def test_configuration_builder_build_with_no_config_path(
     cache_path = tmp_path / "cache"
     mock_cache_path.return_value = cache_path
 
-    configuration = ConfigurationBuilder.build_configuration_from_file()
+    configuration = Configuration.from_file()
 
     assert configuration == mock_configuration_from_dict.return_value
     mock_toml_load.assert_called_once()
@@ -60,7 +58,7 @@ def test_configuration_builder_build_with_no_config_path(
     mock_cache_path.assert_called_once_with(mock_cwd)
 
 
-def test_configuration_builder_build_with_specified_cache(
+def test_configuration_build_from_file_with_specified_cache(
     tmp_path,
     mock_configuration_from_dict,
     mock_cache_path,
@@ -72,8 +70,8 @@ def test_configuration_builder_build_with_specified_cache(
     mock_toml_load.return_value = statue_config
     cache_path = tmp_path / "cache"
 
-    configuration = ConfigurationBuilder.build_configuration_from_file(
-        statue_configuration_path=statue_config_path,
+    configuration = Configuration.from_file(
+        config_path=statue_config_path,
         cache_dir=cache_path,
     )
 
@@ -85,7 +83,7 @@ def test_configuration_builder_build_with_specified_cache(
     mock_cache_path.assert_not_called()
 
 
-def test_configuration_builder_build_with_non_existing_path(
+def test_configuration_build_from_file_with_non_existing_path(
     tmp_path,
     mock_configuration_from_dict,
     mock_cache_path,
@@ -97,9 +95,7 @@ def test_configuration_builder_build_with_non_existing_path(
     with pytest.raises(
         MissingConfiguration, match="^Statue was unable to load configuration$"
     ):
-        ConfigurationBuilder.build_configuration_from_file(
-            statue_configuration_path=statue_config_path
-        )
+        Configuration.from_file(config_path=statue_config_path)
 
     mock_toml_load.assert_not_called()
     mock_configuration_from_dict.assert_not_called()

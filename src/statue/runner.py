@@ -19,6 +19,7 @@ class RunnerMode(Enum):
 
     SYNC = auto()
     ASYNC = auto()
+    DEFAULT_MODE = SYNC
 
 
 class EvaluationRunner:  # pylint: disable=too-few-public-methods

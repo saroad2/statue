@@ -1,9 +1,13 @@
 """Get Statue global configuration."""
+import sys
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Dict, List, Optional
 from typing import OrderedDict as OrderedDictType
+from typing import Union
 
+import tomli
 import tomli_w
 
 from statue.cache import Cache
@@ -13,32 +17,34 @@ from statue.commands_map import CommandsMap
 from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
-from statue.constants import COMMANDS, CONTEXTS, GENERAL, HISTORY_SIZE, MODE, SOURCES
+from statue.constants import (
+    COMMANDS,
+    CONTEXTS,
+    DEFAULT_HISTORY_SIZE,
+    GENERAL,
+    HISTORY_SIZE,
+    MODE,
+    SOURCES,
+)
 from statue.context import Context
+from statue.exceptions import InvalidConfiguration, MissingConfiguration
 from statue.runner import RunnerMode
 
+if sys.version_info < (3, 9):  # pragma: no cover
+    from importlib_resources.abc import Traversable
+else:  # pragma: no cover
+    from importlib.abc import Traversable
 
+
+@dataclass
 class Configuration:
     """Configuration singleton for statue."""
 
-    def __init__(
-        self,
-        cache: Cache,
-        default_mode: RunnerMode = RunnerMode.SYNC,
-    ):
-        """
-        Initialize configuration.
-
-        :param default_mode: Default mode for evaluation runner
-        :type default_mode: RunnerMode
-        :param cache: Cache instance for saving evaluations
-        :type cache: Cache
-        """
-        self.cache = cache
-        self.contexts_repository = ContextsRepository()
-        self.sources_repository = SourcesRepository()
-        self.commands_repository = CommandsRepository()
-        self.default_mode = default_mode
+    cache: Cache
+    default_mode: RunnerMode = field(default=RunnerMode.DEFAULT_MODE)
+    contexts_repository: ContextsRepository = field(default_factory=ContextsRepository)
+    commands_repository: CommandsRepository = field(default_factory=CommandsRepository)
+    sources_repository: SourcesRepository = field(default_factory=SourcesRepository)
 
     def remove_context(self, context: Context):
         """
@@ -133,3 +139,104 @@ class Configuration:
         """
         with path.open(mode="wb") as configuration_file:
             tomli_w.dump(self.as_dict(), configuration_file)
+
+    @classmethod
+    def from_file(
+        cls,
+        config_path: Optional[Union[Path, Traversable]] = None,
+        cache_dir: Optional[Path] = None,
+    ) -> "Configuration":
+        """
+        Load statue configuration.
+
+        This method combines default configuration with user-defined configuration, read
+        from configuration file.
+
+        :param config_path: User-defined file path containing
+            repository-specific configurations
+        :type config_path: Optional[Path]
+        :param cache_dir: Optional Caching directory
+        :type cache_dir: Optional[Path]
+        :return: Configuration instance
+        :rtype: Configuration
+        :raises MissingConfiguration: Raised when could not load
+        """
+        if config_path is None:
+            config_path = cls.configuration_path()
+        if isinstance(config_path, Path) and not config_path.exists():
+            raise MissingConfiguration()
+        with config_path.open(mode="rb") as configuration_file:
+            statue_config = tomli.load(configuration_file)
+        cache_dir = cls.cache_path(Path.cwd()) if cache_dir is None else cache_dir
+        return cls.from_dict(cache_dir=cache_dir, statue_config_dict=statue_config)
+
+    @classmethod
+    def from_dict(
+        cls, cache_dir: Path, statue_config_dict: Dict[str, Any]
+    ) -> "Configuration":
+        """
+        Build configuration from a loaded config map.
+
+        :param cache_dir: Directory for keeping cache.
+        :type cache_dir: Path
+        :param statue_config_dict: Configuration map as loaded from config file
+        :type statue_config_dict: Dict[str, Any]
+        :return: Built configuration instance
+        :type: Configuration
+        :raises InvalidConfiguration: Raised when some fields are invalid
+            in configuration
+        """
+        general_configuration = statue_config_dict.get(GENERAL, {})
+        history_size = general_configuration.get(HISTORY_SIZE, DEFAULT_HISTORY_SIZE)
+        cache = Cache(cache_root_directory=cache_dir, size=history_size)
+        mode = RunnerMode.DEFAULT_MODE
+        if MODE in general_configuration:
+            mode_string = general_configuration[MODE].upper()
+            try:
+                mode = RunnerMode[mode_string]
+            except KeyError as error:
+                raise InvalidConfiguration(
+                    f"Got unexpected runner mode in configuration: {mode_string}"
+                ) from error
+        contexts_repository = ContextsRepository()
+        contexts_repository.update_from_config(statue_config_dict.get(CONTEXTS, {}))
+        commands_repository = CommandsRepository()
+        commands_repository.update_from_config(statue_config_dict.get(COMMANDS, {}))
+        sources_repository = SourcesRepository()
+        sources_repository.update_from_config(
+            config=statue_config_dict.get(SOURCES, {}),
+            contexts_repository=contexts_repository,
+        )
+        return Configuration(
+            cache=cache,
+            default_mode=mode,
+            contexts_repository=contexts_repository,
+            commands_repository=commands_repository,
+            sources_repository=sources_repository,
+        )
+
+    @classmethod
+    def configuration_path(cls, directory: Optional[Path] = None) -> Path:
+        """
+        Search for configuration file in directory.
+
+        :param directory: Directory in which the configuration path is supposed to be
+        :type directory: Path
+        :return: Configuration path location
+        :rtype: Path
+        """
+        if directory is None:
+            directory = Path.cwd()
+        return directory / "statue.toml"
+
+    @classmethod
+    def cache_path(cls, directory: Path) -> Path:
+        """
+        Default caching directory for statue history saving.
+
+        :param directory: Directory in which cache directory will be created
+        :type directory: Path
+        :return: Cache directory
+        :rtype: Path
+        """
+        return directory / ".statue"

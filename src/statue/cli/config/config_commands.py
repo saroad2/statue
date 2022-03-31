@@ -6,7 +6,7 @@ import click
 
 from statue.cli.common_flags import config_path_option, verbose_option
 from statue.cli.config.config_cli import config_cli
-from statue.config.configuration_builder import ConfigurationBuilder
+from statue.config.configuration import Configuration
 
 
 @config_cli.command("fix-versions")
@@ -34,8 +34,8 @@ def fixate_commands_versions_cli(
     across time.
     """
     if config is None:
-        config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+        config = Configuration.configuration_path()
+    configuration = Configuration.from_file(config)
     if len(configuration.commands_repository) == 0:
         click.echo("No commands to fixate.")
         return

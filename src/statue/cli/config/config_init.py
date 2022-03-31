@@ -13,7 +13,7 @@ from statue.cli.config.interactive_adders.interactive_sources_adder import (
 )
 from statue.cli.styled_strings import failure_style
 from statue.commands_filter import CommandsFilter
-from statue.config.configuration_builder import ConfigurationBuilder
+from statue.config.configuration import Configuration
 from statue.exceptions import StatueConfigurationError, UnknownTemplate
 from statue.sources_finder import find_sources
 from statue.templates.templates_provider import TemplatesProvider
@@ -67,15 +67,13 @@ def init_config_cli(  # pylint: disable=too-many-arguments
      source files to track and which contexts to assign to them.
     """
     try:
-        configuration = ConfigurationBuilder.build_configuration_from_file(
+        configuration = Configuration.from_file(
             TemplatesProvider.get_template_path(template)
         )
     except (UnknownTemplate, StatueConfigurationError) as error:
         click.echo(failure_style(str(error)))
         sys.exit(3)
-    output_path = (
-        config if config is not None else ConfigurationBuilder.configuration_path()
-    )
+    output_path = config if config is not None else Configuration.configuration_path()
     directory = Path.cwd()
     repo = None
     if use_git:

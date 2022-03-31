@@ -8,7 +8,6 @@ from statue import __version__
 from statue.cli.common_flags import config_path_option
 from statue.cli.styled_strings import failure_style
 from statue.config.configuration import Configuration
-from statue.config.configuration_builder import ConfigurationBuilder
 from statue.exceptions import StatueConfigurationError
 
 pass_configuration = click.make_pass_decorator(Configuration)
@@ -33,9 +32,7 @@ def statue_cli(
     if ctx.invoked_subcommand in ["config", "templates"]:
         return
     try:
-        ctx.obj = ConfigurationBuilder.build_configuration_from_file(
-            statue_configuration_path=config, cache_dir=cache_dir
-        )
+        ctx.obj = Configuration.from_file(config_path=config, cache_dir=cache_dir)
     except StatueConfigurationError as error:
         click.echo(failure_style(click.style(error)))
         ctx.exit(3)
