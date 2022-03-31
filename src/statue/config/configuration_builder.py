@@ -6,7 +6,10 @@ from typing import Any, MutableMapping, Optional, Union
 import tomli
 
 from statue.cache import Cache
+from statue.config.commands_repository import CommandsRepository
 from statue.config.configuration import Configuration
+from statue.config.contexts_repository import ContextsRepository
+from statue.config.sources_repository import SourcesRepository
 from statue.constants import (
     COMMANDS,
     CONTEXTS,
@@ -80,29 +83,31 @@ class ConfigurationBuilder:
         general_configuration = statue_config_dict.get(GENERAL, {})
         history_size = general_configuration.get(HISTORY_SIZE, DEFAULT_HISTORY_SIZE)
         cache = Cache(cache_root_directory=cache_dir, size=history_size)
-        configuration = Configuration(cache=cache)
+        mode = RunnerMode.DEFAULT_MODE
         if MODE in general_configuration:
-            mode = general_configuration[MODE].upper()
+            mode_string = general_configuration[MODE].upper()
             try:
-                configuration.default_mode = RunnerMode[mode]
+                mode = RunnerMode[mode_string]
             except KeyError as error:
                 raise InvalidConfiguration(
-                    f"Got unexpected runner mode in configuration: {mode}"
+                    f"Got unexpected runner mode in configuration: {mode_string}"
                 ) from error
-        if CONTEXTS in statue_config_dict:
-            configuration.contexts_repository.update_from_config(
-                statue_config_dict[CONTEXTS]
-            )
-        if SOURCES in statue_config_dict:
-            configuration.sources_repository.update_from_config(
-                config=statue_config_dict[SOURCES],
-                contexts_repository=configuration.contexts_repository,
-            )
-        if COMMANDS in statue_config_dict:
-            configuration.commands_repository.update_from_config(
-                statue_config_dict[COMMANDS]
-            )
-        return configuration
+        contexts_repository = ContextsRepository()
+        contexts_repository.update_from_config(statue_config_dict.get(CONTEXTS, {}))
+        commands_repository = CommandsRepository()
+        commands_repository.update_from_config(statue_config_dict.get(COMMANDS, {}))
+        sources_repository = SourcesRepository()
+        sources_repository.update_from_config(
+            config=statue_config_dict.get(SOURCES, {}),
+            contexts_repository=contexts_repository,
+        )
+        return Configuration(
+            cache=cache,
+            default_mode=mode,
+            contexts_repository=contexts_repository,
+            commands_repository=commands_repository,
+            sources_repository=sources_repository,
+        )
 
     @classmethod
     def configuration_path(cls, directory: Optional[Path] = None) -> Path:
