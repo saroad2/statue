@@ -7,7 +7,7 @@ import click
 from statue.cli.common_flags import config_path_option
 from statue.cli.config.config_cli import config_cli
 from statue.cli.styled_strings import bullet_style, name_style, source_style
-from statue.config.configuration_builder import ConfigurationBuilder
+from statue.config.configuration import Configuration
 from statue.constants import ENCODING
 
 
@@ -16,7 +16,7 @@ from statue.constants import ENCODING
 def show_config_cli(config: Optional[Path]):
     """Show configuration file context."""
     if config is None:
-        config = ConfigurationBuilder.configuration_path()
+        config = Configuration.configuration_path()
     with open(config, mode="r", encoding=ENCODING) as config_file:
         lines = config_file.readlines()
     click.echo_via_pager(lines)
@@ -31,7 +31,7 @@ def show_config_tree_cli(config: Optional[Path]):
     This method prints the sources' configuration as a tree, including:
     contexts, allow and deny lists and matching commands.
     """
-    configuration = ConfigurationBuilder.from_file(config)
+    configuration = Configuration.from_file(config)
     sources_list = configuration.sources_repository.sources_list
     if len(sources_list) == 0:
         click.echo("No sources configuration is specified.")

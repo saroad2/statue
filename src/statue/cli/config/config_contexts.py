@@ -9,7 +9,7 @@ from statue.cli.config.interactive_adders.interactive_context_adder import (
     InteractiveContextAdder,
 )
 from statue.cli.styled_strings import failure_style, name_style
-from statue.config.configuration_builder import ConfigurationBuilder
+from statue.config.configuration import Configuration
 from statue.exceptions import UnknownContext
 
 
@@ -18,8 +18,8 @@ from statue.exceptions import UnknownContext
 def add_context_cli(config):
     """Add new context to configuration."""
     if config is None:
-        config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.from_file(config)
+        config = Configuration.configuration_path()
+    configuration = Configuration.from_file(config)
     InteractiveContextAdder.add_context(configuration.contexts_repository)
     configuration.to_toml(config)
     click.echo("Context was successfully added!")
@@ -31,8 +31,8 @@ def add_context_cli(config):
 def edit_context_cli(config, context_name):
     """Edit context from configuration."""
     if config is None:
-        config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.from_file(config)
+        config = Configuration.configuration_path()
+    configuration = Configuration.from_file(config)
     InteractiveContextAdder.edit_context(
         name=context_name, contexts_repository=configuration.contexts_repository
     )
@@ -46,8 +46,8 @@ def edit_context_cli(config, context_name):
 def remove_context_cli(config, context_name):
     """Remove context from configuration."""
     if config is None:
-        config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.from_file(config)
+        config = Configuration.configuration_path()
+    configuration = Configuration.from_file(config)
     try:
         context = configuration.contexts_repository[context_name]
     except UnknownContext as error:

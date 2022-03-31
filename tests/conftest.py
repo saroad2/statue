@@ -8,7 +8,6 @@ import pytest
 from statue.cache import Cache
 from statue.config.commands_repository import CommandsRepository
 from statue.config.configuration import Configuration
-from statue.config.configuration_builder import ConfigurationBuilder
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
 from statue.evaluation import Evaluation
@@ -44,22 +43,20 @@ def mock_tqdm_range(mocker):
 @pytest.fixture
 def mock_configuration_path(mocker, tmp_path):
     dummy_path = tmp_path / "bla.toml"
-    configuration_path_mock = mocker.patch.object(
-        ConfigurationBuilder, "configuration_path"
-    )
+    configuration_path_mock = mocker.patch.object(Configuration, "configuration_path")
     configuration_path_mock.return_value = dummy_path
     return configuration_path_mock
 
 
 @pytest.fixture
 def mock_cache_path(mocker, tmp_path):
-    return mocker.patch.object(ConfigurationBuilder, "cache_path")
+    return mocker.patch.object(Configuration, "cache_path")
 
 
 @pytest.fixture
 def mock_build_configuration_from_file(mocker):
     history_size = random.randint(1, 100)
-    builder_mock = mocker.patch.object(ConfigurationBuilder, "from_file")
+    builder_mock = mocker.patch.object(Configuration, "from_file")
     builder_mock.return_value = Configuration(cache=Cache(size=history_size))
     builder_mock.return_value.cache = mock.Mock()
     builder_mock.return_value.build_commands = mock.Mock()
