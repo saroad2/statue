@@ -35,7 +35,7 @@ def fixate_commands_versions_cli(
     """
     if config is None:
         config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     if len(configuration.commands_repository) == 0:
         click.echo("No commands to fixate.")
         return

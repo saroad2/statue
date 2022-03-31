@@ -31,7 +31,7 @@ def show_config_tree_cli(config: Optional[Path]):
     This method prints the sources' configuration as a tree, including:
     contexts, allow and deny lists and matching commands.
     """
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     sources_list = configuration.sources_repository.sources_list
     if len(sources_list) == 0:
         click.echo("No sources configuration is specified.")

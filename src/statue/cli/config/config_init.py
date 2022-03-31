@@ -67,7 +67,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
      source files to track and which contexts to assign to them.
     """
     try:
-        configuration = ConfigurationBuilder.build_configuration_from_file(
+        configuration = ConfigurationBuilder.from_file(
             TemplatesProvider.get_template_path(template)
         )
     except (UnknownTemplate, StatueConfigurationError) as error:

@@ -18,7 +18,7 @@ def set_mode_cli(mode, config):
     """Choose which runner mode will be used by default."""
     if config is None:
         config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     configuration.default_mode = RunnerMode[mode]
     configuration.to_toml(config)
     click.echo("Mode was successfully set!")
@@ -31,7 +31,7 @@ def set_history_size_cli(size, config):
     """Choose which runner mode will be used by default."""
     if config is None:
         config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     configuration.cache.history_size = size
     configuration.to_toml(config)
     click.echo("History size was successfully set!")

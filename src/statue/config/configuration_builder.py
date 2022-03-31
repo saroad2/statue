@@ -32,9 +32,9 @@ class ConfigurationBuilder:
     """Build configuration instances from configuration file."""
 
     @classmethod
-    def build_configuration_from_file(
+    def from_file(
         cls,
-        statue_configuration_path: Optional[Union[Path, Traversable]] = None,
+        config_path: Optional[Union[Path, Traversable]] = None,
         cache_dir: Optional[Path] = None,
     ) -> Configuration:
         """
@@ -43,23 +43,20 @@ class ConfigurationBuilder:
         This method combines default configuration with user-defined configuration, read
         from configuration file.
 
-        :param statue_configuration_path: User-defined file path containing
+        :param config_path: User-defined file path containing
             repository-specific configurations
-        :type statue_configuration_path: Optional[Path]
+        :type config_path: Optional[Path]
         :param cache_dir: Optional Caching directory
         :type cache_dir: Optional[Path]
         :return: Configuration instance
         :rtype: Configuration
         :raises MissingConfiguration: Raised when could not load
         """
-        if statue_configuration_path is None:
-            statue_configuration_path = cls.configuration_path()
-        if (
-            isinstance(statue_configuration_path, Path)
-            and not statue_configuration_path.exists()
-        ):
+        if config_path is None:
+            config_path = cls.configuration_path()
+        if isinstance(config_path, Path) and not config_path.exists():
             raise MissingConfiguration()
-        with statue_configuration_path.open(mode="rb") as configuration_file:
+        with config_path.open(mode="rb") as configuration_file:
             statue_config = tomli.load(configuration_file)
         cache_dir = cls.cache_path(Path.cwd()) if cache_dir is None else cache_dir
         return cls.from_dict(cache_dir=cache_dir, statue_config_dict=statue_config)

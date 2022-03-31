@@ -33,8 +33,8 @@ def statue_cli(
     if ctx.invoked_subcommand in ["config", "templates"]:
         return
     try:
-        ctx.obj = ConfigurationBuilder.build_configuration_from_file(
-            statue_configuration_path=config, cache_dir=cache_dir
+        ctx.obj = ConfigurationBuilder.from_file(
+            config_path=config, cache_dir=cache_dir
         )
     except StatueConfigurationError as error:
         click.echo(failure_style(click.style(error)))

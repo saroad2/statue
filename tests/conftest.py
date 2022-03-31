@@ -59,9 +59,7 @@ def mock_cache_path(mocker, tmp_path):
 @pytest.fixture
 def mock_build_configuration_from_file(mocker):
     history_size = random.randint(1, 100)
-    builder_mock = mocker.patch.object(
-        ConfigurationBuilder, "build_configuration_from_file"
-    )
+    builder_mock = mocker.patch.object(ConfigurationBuilder, "from_file")
     builder_mock.return_value = Configuration(cache=Cache(size=history_size))
     builder_mock.return_value.cache = mock.Mock()
     builder_mock.return_value.build_commands = mock.Mock()

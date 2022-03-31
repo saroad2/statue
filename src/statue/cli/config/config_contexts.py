@@ -19,7 +19,7 @@ def add_context_cli(config):
     """Add new context to configuration."""
     if config is None:
         config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     InteractiveContextAdder.add_context(configuration.contexts_repository)
     configuration.to_toml(config)
     click.echo("Context was successfully added!")
@@ -32,7 +32,7 @@ def edit_context_cli(config, context_name):
     """Edit context from configuration."""
     if config is None:
         config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     InteractiveContextAdder.edit_context(
         name=context_name, contexts_repository=configuration.contexts_repository
     )
@@ -47,7 +47,7 @@ def remove_context_cli(config, context_name):
     """Remove context from configuration."""
     if config is None:
         config = ConfigurationBuilder.configuration_path()
-    configuration = ConfigurationBuilder.build_configuration_from_file(config)
+    configuration = ConfigurationBuilder.from_file(config)
     try:
         context = configuration.contexts_repository[context_name]
     except UnknownContext as error:
