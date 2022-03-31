@@ -198,8 +198,9 @@ class Configuration:
                 raise InvalidConfiguration(
                     f"Got unexpected runner mode in configuration: {mode_string}"
                 ) from error
-        contexts_repository = ContextsRepository()
-        contexts_repository.update_from_config(statue_config_dict.get(CONTEXTS, {}))
+        contexts_repository = ContextsRepository.from_dict(
+            statue_config_dict.get(CONTEXTS, {})
+        )
         commands_repository = CommandsRepository()
         commands_repository.update_from_config(statue_config_dict.get(COMMANDS, {}))
         sources_repository = SourcesRepository()
