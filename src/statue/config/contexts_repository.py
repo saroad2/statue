@@ -1,11 +1,15 @@
 """Place for saving all available contexts."""
 from collections import OrderedDict
-from typing import Any, Iterator, MutableMapping
+from typing import Any, Dict, Iterator
 from typing import OrderedDict as OrderedDictType
 
-from statue.constants import ALIASES, PARENT
+from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 from statue.context import Context
-from statue.exceptions import InconsistentConfiguration, UnknownContext
+from statue.exceptions import (
+    InconsistentConfiguration,
+    InvalidConfiguration,
+    UnknownContext,
+)
 
 
 class ContextsRepository:
@@ -90,62 +94,6 @@ class ContextsRepository:
         """Clear repository from all contexts."""
         self.contexts_list.clear()
 
-    def update_from_config(self, config: MutableMapping[str, Any]):
-        """
-        Update contexts repository from given configuration.
-
-        :param config: Configuration to update repository from
-        :type config: MutableMapping[str, Any]
-        :raises InconsistentConfiguration: Raised when inconsistency is found in
-            configuration.
-        """
-        context_names = set(config.keys())
-        while len(context_names) != 0:
-            context_name = context_names.pop()
-            if context_name in self:
-                raise InconsistentConfiguration(
-                    f'"{context_name}" is a already defined context and '
-                    "cannot defined twice"
-                )
-            self.contexts_list.append(
-                self.build_context_from_config(context_name, config)
-            )
-
-    def build_context_from_config(
-        self, context_name: str, config: MutableMapping[str, Any]
-    ) -> Context:
-        """
-        Build context from given configuration.
-
-        If context is not available in configuration, try get it
-        from the repository (if it exists).
-
-        :param context_name: Context to be built
-        :type context_name: str
-        :param config: Configuration to build context from
-        :type config: MutableMapping[str, Any]
-        :return: Built context.
-        :rtype: Context
-        :raises InconsistentConfiguration: Raised when inconsistency is found in
-            configuration.
-        """
-        if context_name not in config:
-            return self[context_name]
-        context_config = dict(config[context_name])
-        if PARENT in context_config:
-            context_config[PARENT] = self.build_context_from_config(
-                context_config[PARENT], config
-            )
-        if ALIASES in context_config:
-            for alias in context_config[ALIASES]:
-                if alias not in self:
-                    continue
-                raise InconsistentConfiguration(
-                    f'"{alias}" cannot be defined as an alias for "{context_name}" '
-                    "because a context is already defined with this name"
-                )
-        return Context(name=context_name, **context_config)
-
     def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode contexts repository as a dictionary.
@@ -161,3 +109,101 @@ class ContextsRepository:
         return OrderedDict(
             [(context.name, context.as_dict()) for context in contexts_list]
         )
+
+    @classmethod
+    def from_dict(cls, config: Dict[str, Any]) -> "ContextsRepository":
+        """
+        Create contexts repository from given configuration.
+
+        :param config: Configuration to update repository from
+        :type config: Dict[str, Any]
+        :return: Contexts repository object.
+        :rtype: ContextsRepository
+        :raises InconsistentConfiguration: Raised when inconsistency is found in
+            configuration.
+        """
+        contexts_repository = ContextsRepository()
+        context_names = set(config.keys())
+        while len(context_names) != 0:
+            available_contexts = [
+                context_name
+                for context_name in context_names
+                if cls._can_be_built(
+                    context_config=config[context_name],
+                    contexts_repository=contexts_repository,
+                )
+            ]
+            if len(available_contexts) == 0:
+                raise InconsistentConfiguration(
+                    "The following contexts cannot be built because they are missing "
+                    "or they cause circular parenting: "
+                    f"{', '.join(context_names)}"
+                )
+            for context_name in available_contexts:
+                context_names.remove(context_name)
+                cls._add_context_from_config(
+                    context_name=context_name,
+                    context_config=config[context_name],
+                    contexts_repository=contexts_repository,
+                )
+        return contexts_repository
+
+    @classmethod
+    def _add_context_from_config(
+        cls,
+        context_name: str,
+        context_config: Dict[str, Any],
+        contexts_repository: "ContextsRepository",
+    ):
+        """
+        Add context from given configuration to contexts repository.
+
+        If context is not available in configuration, try get it
+        from the repository (if it exists).
+
+        :param context_name: Context to be built
+        :type context_name: str
+        :param context_config: Configuration to build context from
+        :type context_config: MutableMapping[str, Any]
+        :param contexts_repository: Contexts repository to add new context to
+        :type contexts_repository: ContextsRepository
+        :raises InconsistentConfiguration: Raised when inconsistency is found in
+            configuration.
+        :raises InvalidConfiguration: Raised when the configuration is invalid.
+        """
+        parent = (
+            contexts_repository[context_config[PARENT]]
+            if PARENT in context_config
+            else None
+        )
+        aliases = context_config.get(ALIASES, [])
+        names = aliases + [context_name]
+        existing_aliases = [alias for alias in names if alias in contexts_repository]
+        if len(existing_aliases) != 0:
+            raise InconsistentConfiguration(
+                f"The following aliases of {context_name} are already defined "
+                f"in other contexts: {', '.join(existing_aliases)}"
+            )
+        if HELP not in context_config:
+            raise InvalidConfiguration(
+                f"Context {context_name} doesn't have help string"
+            )
+        contexts_repository.contexts_list.append(
+            Context(
+                name=context_name,
+                help=context_config[HELP],
+                aliases=aliases,
+                parent=parent,
+                allowed_by_default=context_config.get(ALLOWED_BY_DEFAULT, False),
+            )
+        )
+
+    @classmethod
+    def _can_be_built(
+        cls, context_config: Dict[str, Any], contexts_repository: "ContextsRepository"
+    ) -> bool:
+        if PARENT not in context_config:
+            return True
+        if context_config[PARENT] in contexts_repository:
+            return True
+        return False
