@@ -1,5 +1,6 @@
 """Get Statue global configuration."""
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, List
 from typing import OrderedDict as OrderedDictType
@@ -18,27 +19,15 @@ from statue.context import Context
 from statue.runner import RunnerMode
 
 
+@dataclass
 class Configuration:
     """Configuration singleton for statue."""
 
-    def __init__(
-        self,
-        cache: Cache,
-        default_mode: RunnerMode = RunnerMode.DEFAULT_MODE,
-    ):
-        """
-        Initialize configuration.
-
-        :param default_mode: Default mode for evaluation runner
-        :type default_mode: RunnerMode
-        :param cache: Cache instance for saving evaluations
-        :type cache: Cache
-        """
-        self.cache = cache
-        self.contexts_repository = ContextsRepository()
-        self.sources_repository = SourcesRepository()
-        self.commands_repository = CommandsRepository()
-        self.default_mode = default_mode
+    cache: Cache
+    default_mode: RunnerMode = field(default=RunnerMode.DEFAULT_MODE)
+    contexts_repository: ContextsRepository = field(default_factory=ContextsRepository)
+    commands_repository: CommandsRepository = field(default_factory=CommandsRepository)
+    sources_repository: SourcesRepository = field(default_factory=SourcesRepository)
 
     def remove_context(self, context: Context):
         """
