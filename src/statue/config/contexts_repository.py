@@ -84,7 +84,28 @@ class ContextsRepository:
 
         :param contexts: Contexts to be added to the repository
         :type contexts: Context
+        :raises InconsistentConfiguration: Raised when trying to add contexts with the
+            same name or an existing name.
         """
+        for i, context in enumerate(contexts):
+            existing_aliases = [alias for alias in context.all_names if alias in self]
+            if len(existing_aliases) != 0:
+                raise InconsistentConfiguration(
+                    f"The following aliases of {context.name} are already defined "
+                    f"in other contexts: {', '.join(existing_aliases)}"
+                )
+            for j in range(i):
+                other_context = contexts[j]
+                overlapping_aliases = [
+                    context_alias
+                    for context_alias in context.all_names
+                    if context_alias in other_context.all_names
+                ]
+                if len(overlapping_aliases) != 0:
+                    raise InconsistentConfiguration(
+                        "Trying to add two or more contexts with the following "
+                        f"aliases: {', '.join(overlapping_aliases)}"
+                    )
         self.contexts_list.extend(contexts)
 
     def remove_context(self, context: Context):
@@ -173,8 +194,6 @@ class ContextsRepository:
         :type context_config: MutableMapping[str, Any]
         :param contexts_repository: Contexts repository to add new context to
         :type contexts_repository: ContextsRepository
-        :raises InconsistentConfiguration: Raised when inconsistency is found in
-            configuration.
         :raises InvalidConfiguration: Raised when the configuration is invalid.
         """
         parent = (
@@ -183,18 +202,11 @@ class ContextsRepository:
             else None
         )
         aliases = context_config.get(ALIASES, [])
-        names = aliases + [context_name]
-        existing_aliases = [alias for alias in names if alias in contexts_repository]
-        if len(existing_aliases) != 0:
-            raise InconsistentConfiguration(
-                f"The following aliases of {context_name} are already defined "
-                f"in other contexts: {', '.join(existing_aliases)}"
-            )
         if HELP not in context_config:
             raise InvalidConfiguration(
                 f"Context {context_name} doesn't have help string"
             )
-        contexts_repository.contexts_list.append(
+        contexts_repository.add_contexts(
             Context(
                 name=context_name,
                 help=context_config[HELP],
