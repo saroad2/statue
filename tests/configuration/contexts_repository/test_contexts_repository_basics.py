@@ -24,6 +24,7 @@ def test_contexts_repository_simple_constructor():
     contexts_repository = ContextsRepository()
 
     assert len(contexts_repository) == 0
+    assert not contexts_repository.occupied_names
 
 
 def test_contexts_repository_with_one_simple_context():
@@ -34,6 +35,7 @@ def test_contexts_repository_with_one_simple_context():
     assert contexts_repository[CONTEXT1] == context
     assert CONTEXT1 in contexts_repository
     assert CONTEXT2 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1]
 
 
 def test_contexts_repository_with_three_simple_context():
@@ -50,6 +52,7 @@ def test_contexts_repository_with_three_simple_context():
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT2, CONTEXT3]
 
 
 def test_contexts_repository_with_one_context_with_aliases():
@@ -66,6 +69,7 @@ def test_contexts_repository_with_one_context_with_aliases():
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT2, CONTEXT3]
 
 
 def test_contexts_repository_with_one_context_with_parent():
@@ -80,6 +84,7 @@ def test_contexts_repository_with_one_context_with_parent():
     assert CONTEXT1 in contexts_repository
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT2]
 
 
 def test_contexts_repository_with_multiple_contexts():
@@ -103,6 +108,13 @@ def test_contexts_repository_with_multiple_contexts():
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 in contexts_repository
     assert CONTEXT5 in contexts_repository
+    assert contexts_repository.occupied_names == [
+        CONTEXT1,
+        CONTEXT2,
+        CONTEXT3,
+        CONTEXT4,
+        CONTEXT5,
+    ]
 
 
 def test_contexts_repository_reset():
@@ -119,6 +131,7 @@ def test_contexts_repository_reset():
 
     assert len(contexts_repository) == 0
     assert CONTEXT1 not in contexts_repository
+    assert not contexts_repository.occupied_names
 
 
 def test_contexts_repository_add_contexts():
@@ -140,6 +153,12 @@ def test_contexts_repository_add_contexts():
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 in contexts_repository
+    assert contexts_repository.occupied_names == [
+        CONTEXT1,
+        CONTEXT2,
+        CONTEXT3,
+        CONTEXT4,
+    ]
 
 
 def test_contexts_repository_iterate():
@@ -163,6 +182,7 @@ def test_contexts_repository_remove_context():
     assert CONTEXT1 in contexts_repository
     assert CONTEXT2 not in contexts_repository
     assert CONTEXT3 in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT3]
 
 
 def test_contexts_repository_as_dict():

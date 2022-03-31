@@ -1,6 +1,7 @@
 """Place for saving all available contexts."""
+import itertools
 from collections import OrderedDict
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, List
 from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
@@ -66,11 +67,16 @@ class ContextsRepository:
         :return: does context exist in repository
         :rtype: bool
         """
-        try:
-            self[item]
-        except UnknownContext:
-            return False
-        return True
+        return item in self.occupied_names
+
+    @property
+    def occupied_names(self) -> List[str]:
+        """List of all occupied names in contexts repository."""
+        occupied_names = list(
+            itertools.chain.from_iterable([context.all_names for context in self])
+        )
+        occupied_names.sort()
+        return occupied_names
 
     def add_contexts(self, *contexts: Context):
         """
