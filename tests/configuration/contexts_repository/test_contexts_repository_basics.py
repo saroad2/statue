@@ -5,7 +5,7 @@ import pytest
 
 from statue.config.contexts_repository import ContextsRepository
 from statue.context import Context
-from statue.exceptions import UnknownContext
+from statue.exceptions import InconsistentConfiguration, UnknownContext
 from tests.constants import (
     CONTEXT1,
     CONTEXT2,
@@ -24,6 +24,7 @@ def test_contexts_repository_simple_constructor():
     contexts_repository = ContextsRepository()
 
     assert len(contexts_repository) == 0
+    assert not contexts_repository.occupied_names
 
 
 def test_contexts_repository_with_one_simple_context():
@@ -34,6 +35,7 @@ def test_contexts_repository_with_one_simple_context():
     assert contexts_repository[CONTEXT1] == context
     assert CONTEXT1 in contexts_repository
     assert CONTEXT2 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1]
 
 
 def test_contexts_repository_with_three_simple_context():
@@ -50,6 +52,7 @@ def test_contexts_repository_with_three_simple_context():
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT2, CONTEXT3]
 
 
 def test_contexts_repository_with_one_context_with_aliases():
@@ -66,6 +69,7 @@ def test_contexts_repository_with_one_context_with_aliases():
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT2, CONTEXT3]
 
 
 def test_contexts_repository_with_one_context_with_parent():
@@ -80,6 +84,7 @@ def test_contexts_repository_with_one_context_with_parent():
     assert CONTEXT1 in contexts_repository
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 not in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT2]
 
 
 def test_contexts_repository_with_multiple_contexts():
@@ -103,6 +108,13 @@ def test_contexts_repository_with_multiple_contexts():
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 in contexts_repository
     assert CONTEXT5 in contexts_repository
+    assert contexts_repository.occupied_names == [
+        CONTEXT1,
+        CONTEXT2,
+        CONTEXT3,
+        CONTEXT4,
+        CONTEXT5,
+    ]
 
 
 def test_contexts_repository_reset():
@@ -119,6 +131,7 @@ def test_contexts_repository_reset():
 
     assert len(contexts_repository) == 0
     assert CONTEXT1 not in contexts_repository
+    assert not contexts_repository.occupied_names
 
 
 def test_contexts_repository_add_contexts():
@@ -140,6 +153,12 @@ def test_contexts_repository_add_contexts():
     assert CONTEXT2 in contexts_repository
     assert CONTEXT3 in contexts_repository
     assert CONTEXT4 in contexts_repository
+    assert contexts_repository.occupied_names == [
+        CONTEXT1,
+        CONTEXT2,
+        CONTEXT3,
+        CONTEXT4,
+    ]
 
 
 def test_contexts_repository_iterate():
@@ -163,6 +182,7 @@ def test_contexts_repository_remove_context():
     assert CONTEXT1 in contexts_repository
     assert CONTEXT2 not in contexts_repository
     assert CONTEXT3 in contexts_repository
+    assert contexts_repository.occupied_names == [CONTEXT1, CONTEXT3]
 
 
 def test_contexts_repository_as_dict():
@@ -189,3 +209,57 @@ def test_contexts_repository_fail_getting_unknown_context():
         UnknownContext, match=f'^Could not find context named "{CONTEXT3}"$'
     ):
         contexts_repository[CONTEXT3]  # pylint: disable=W0104
+
+
+def test_contexts_repository_fail_on_adding_context_with_existing_name():
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
+
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            f"^The following aliases of {CONTEXT1} are already defined in "
+            f"other contexts: {CONTEXT1}$"
+        ),
+    ):
+        contexts_repository.add_contexts(
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING2)
+        )
+
+
+def test_contexts_repository_fail_on_adding_context_with_existing_alias():
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    )
+
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            f"^The following aliases of {CONTEXT2} are already defined in "
+            f"other contexts: {CONTEXT1}$"
+        ),
+    ):
+        contexts_repository.add_contexts(
+            Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, aliases=[CONTEXT1])
+        )
+
+
+def test_contexts_repository_fail_on_adding_two_contexts_with_the_same_name():
+    context = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
+    contexts_repository = ContextsRepository(context)
+
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^Trying to add two or more contexts with the following "
+            f"aliases: {CONTEXT1}$"
+        ),
+    ):
+        contexts_repository.add_contexts(
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING3),
+        )
+
+    assert len(contexts_repository) == 1
+    assert contexts_repository[CONTEXT2] == context
