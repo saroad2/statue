@@ -24,7 +24,7 @@ class Configuration:
     def __init__(
         self,
         cache: Cache,
-        default_mode: RunnerMode = RunnerMode.SYNC,
+        default_mode: RunnerMode = RunnerMode.DEFAULT_MODE,
     ):
         """
         Initialize configuration.
