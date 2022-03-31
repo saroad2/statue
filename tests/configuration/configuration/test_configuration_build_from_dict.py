@@ -83,15 +83,13 @@ def test_configuration_from_dict_update_contexts(tmp_path):
     contexts_config = mock.Mock()
     cache_dir = tmp_path / ".statue"
 
-    with mock.patch.object(
-        ContextsRepository, "update_from_config"
-    ) as contexts_update_mock:
+    with mock.patch.object(ContextsRepository, "from_dict") as contexts_from_dict:
         configuration = Configuration.from_dict(
             cache_dir=cache_dir, statue_config_dict={CONTEXTS: contexts_config}
         )
-        contexts_update_mock.assert_called_once_with(contexts_config)
+        contexts_from_dict.assert_called_once_with(contexts_config)
 
-    assert len(configuration.contexts_repository) == 0
+        assert configuration.contexts_repository == contexts_from_dict.return_value
     assert len(configuration.commands_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.cache.cache_root_directory == cache_dir
