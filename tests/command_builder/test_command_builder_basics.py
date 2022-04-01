@@ -29,6 +29,17 @@ def test_command_builder_empty_constructor():
     assert not command_builder.specified_contexts
     assert not command_builder.available_contexts
     assert command_builder.contexts_specifications == {}
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        "default_args=[], "
+        "version=None, "
+        "required_contexts=[], "
+        "allowed_contexts=[], "
+        "contexts_specifications={}"
+        ")"
+    )
 
 
 def test_command_builder_with_version():
@@ -47,6 +58,17 @@ def test_command_builder_with_version():
     assert not command_builder.specified_contexts
     assert not command_builder.available_contexts
     assert command_builder.contexts_specifications == {}
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        "default_args=[], "
+        f"version='{version}', "
+        "required_contexts=[], "
+        "allowed_contexts=[], "
+        "contexts_specifications={}"
+        ")"
+    )
 
 
 def test_command_builder_with_default_args():
@@ -64,6 +86,17 @@ def test_command_builder_with_default_args():
     assert not command_builder.specified_contexts
     assert not command_builder.available_contexts
     assert command_builder.contexts_specifications == {}
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        f"default_args=['{ARG1}', '{ARG2}'], "
+        "version=None, "
+        "required_contexts=[], "
+        "allowed_contexts=[], "
+        "contexts_specifications={}"
+        ")"
+    )
 
 
 def test_command_builder_with_required_contexts():
@@ -81,6 +114,17 @@ def test_command_builder_with_required_contexts():
     assert not command_builder.specified_contexts
     assert command_builder.available_contexts == [CONTEXT1, CONTEXT2]
     assert command_builder.contexts_specifications == {}
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        "default_args=[], "
+        "version=None, "
+        f"required_contexts=['{CONTEXT1}', '{CONTEXT2}'], "
+        "allowed_contexts=[], "
+        "contexts_specifications={}"
+        ")"
+    )
 
 
 def test_command_builder_with_allowed_contexts():
@@ -98,6 +142,17 @@ def test_command_builder_with_allowed_contexts():
     assert not command_builder.specified_contexts
     assert command_builder.available_contexts == [CONTEXT1, CONTEXT2]
     assert command_builder.contexts_specifications == {}
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        "default_args=[], "
+        "version=None, "
+        "required_contexts=[], "
+        f"allowed_contexts=['{CONTEXT1}', '{CONTEXT2}'], "
+        "contexts_specifications={}"
+        ")"
+    )
 
 
 def test_command_builder_with_specified_contexts():
@@ -127,6 +182,20 @@ def test_command_builder_with_specified_contexts():
         CONTEXT1: context_specification1,
         CONTEXT2: context_specification2,
     }
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        "default_args=[], "
+        "version=None, "
+        "required_contexts=[], "
+        "allowed_contexts=[], "
+        "contexts_specifications={"
+        f"'{CONTEXT1}': {str(context_specification1)}, "
+        f"'{CONTEXT2}': {str(context_specification2)}"
+        "}"
+        ")"
+    )
 
 
 def test_command_builder_with_all_fields():
@@ -168,3 +237,17 @@ def test_command_builder_with_all_fields():
         CONTEXT5: context_specification1,
         CONTEXT6: context_specification2,
     }
+    assert str(command_builder) == (
+        "CommandBuilder("
+        f"name='{COMMAND1}', "
+        f"help='{COMMAND_HELP_STRING1}', "
+        f"default_args=['{ARG1}', '{ARG2}'], "
+        f"version='{version}', "
+        f"required_contexts=['{CONTEXT1}', '{CONTEXT2}'], "
+        f"allowed_contexts=['{CONTEXT3}', '{CONTEXT4}'], "
+        "contexts_specifications={"
+        f"'{CONTEXT5}': {str(context_specification1)}, "
+        f"'{CONTEXT6}': {str(context_specification2)}"
+        "}"
+        ")"
+    )
