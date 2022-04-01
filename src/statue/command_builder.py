@@ -150,19 +150,90 @@ class ContextSpecification:
         return ContextSpecification(args=args, add_args=add_args, clear_args=clear_args)
 
 
-@dataclass
-class CommandBuilder:  # pylint: disable=too-many-public-methods
+class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-arguments
     """Command builder as specified in configuration."""
 
-    name: str
-    help: str
-    default_args: List[str] = field(default_factory=list)
-    version: Optional[str] = field(default=None)
-    required_contexts: List[Context] = field(default_factory=list)
-    allowed_contexts: List[Context] = field(default_factory=list)
-    contexts_specifications: Dict[Context, ContextSpecification] = field(
-        default_factory=dict
-    )
+    def __init__(
+        self,
+        name: str,
+        help: str,  # pylint: disable=redefined-builtin
+        default_args: Optional[List[str]] = None,
+        version: Optional[str] = None,
+        required_contexts: Optional[List[Context]] = None,
+        allowed_contexts: Optional[List[Context]] = None,
+        contexts_specifications: Optional[Dict[Context, ContextSpecification]] = None,
+    ):
+        """
+        Constructor.
+
+        :param name: Name of the command to be built by the builder
+        :type name str
+        :param help: Help string to describe the command
+        :type help: str
+        :param default_args: Optional default arguments to be added to the command
+        :type default_args: Optional[List[str]]
+        :param version: Optional version specification for the command builder
+        :type version: Optional[str]
+        :param required_contexts: Optional list of contexts required by
+            the command builder
+        :type required_contexts: Optional[List[Context]]
+        :param allowed_contexts: Optional list of contexts allowed for
+            the command builder
+        :type allowed_contexts: Optional[List[Context]]
+        :param contexts_specifications: Optional dictionary of contexts specification
+            for the command builder
+        :type contexts_specifications: Optional[Dict[Context, ContextSpecification]]
+        """
+        self.name = name
+        self.help = help
+        self.default_args = default_args if default_args is not None else []
+        self.version = version
+        self.required_contexts = (
+            required_contexts if required_contexts is not None else []
+        )
+        self.allowed_contexts = allowed_contexts if allowed_contexts is not None else []
+        self.contexts_specifications = (
+            contexts_specifications if contexts_specifications is not None else {}
+        )
+
+    def __repr__(self) -> str:
+        """
+        Represent context as string.
+
+        :return: String representation of command builder
+        :rtype: str
+        """
+        return (
+            "CommandBuilder("
+            f"name={self.name}, "
+            f"help={self.help}, "
+            f"default_args={self.default_args}, "
+            f"version={self.version}, "
+            f"required_contexts={self.required_contexts}, "
+            f"allowed_contexts={self.allowed_contexts}, "
+            f"contexts_specifications={self.contexts_specifications}"
+            ")"
+        )
+
+    def __eq__(self, other: object) -> bool:
+        """
+        Check equality of this command builder with other object.
+
+        :param other: Object to compare to
+        :type other: object
+        :return: is equal to self
+        :rtype: bool
+        """
+        return (
+            isinstance(other, CommandBuilder)
+            and self.name == other.name
+            and self.help == other.help
+            and self.default_args == other.default_args
+            and self.version == other.version
+            and self.allowed_contexts == other.allowed_contexts
+            and self.required_contexts == other.required_contexts
+            and self.contexts_specifications == other.contexts_specifications
+        )
 
     @property
     def install_name(self) -> str:

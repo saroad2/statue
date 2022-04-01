@@ -31,8 +31,8 @@ def test_command_builder_empty_constructor():
     assert command_builder.contexts_specifications == {}
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         "default_args=[], "
         "version=None, "
         "required_contexts=[], "
@@ -60,10 +60,10 @@ def test_command_builder_with_version():
     assert command_builder.contexts_specifications == {}
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         "default_args=[], "
-        f"version='{version}', "
+        f"version={version}, "
         "required_contexts=[], "
         "allowed_contexts=[], "
         "contexts_specifications={}"
@@ -88,8 +88,8 @@ def test_command_builder_with_default_args():
     assert command_builder.contexts_specifications == {}
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         f"default_args=['{ARG1}', '{ARG2}'], "
         "version=None, "
         "required_contexts=[], "
@@ -116,8 +116,8 @@ def test_command_builder_with_required_contexts():
     assert command_builder.contexts_specifications == {}
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         "default_args=[], "
         "version=None, "
         f"required_contexts=['{CONTEXT1}', '{CONTEXT2}'], "
@@ -144,8 +144,8 @@ def test_command_builder_with_allowed_contexts():
     assert command_builder.contexts_specifications == {}
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         "default_args=[], "
         "version=None, "
         "required_contexts=[], "
@@ -184,8 +184,8 @@ def test_command_builder_with_specified_contexts():
     }
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         "default_args=[], "
         "version=None, "
         "required_contexts=[], "
@@ -239,10 +239,10 @@ def test_command_builder_with_all_fields():
     }
     assert str(command_builder) == (
         "CommandBuilder("
-        f"name='{COMMAND1}', "
-        f"help='{COMMAND_HELP_STRING1}', "
+        f"name={COMMAND1}, "
+        f"help={COMMAND_HELP_STRING1}, "
         f"default_args=['{ARG1}', '{ARG2}'], "
-        f"version='{version}', "
+        f"version={version}, "
         f"required_contexts=['{CONTEXT1}', '{CONTEXT2}'], "
         f"allowed_contexts=['{CONTEXT3}', '{CONTEXT4}'], "
         "contexts_specifications={"
