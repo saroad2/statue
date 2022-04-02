@@ -3,6 +3,7 @@ import mock
 from statue.cli import statue_cli
 from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.config.configuration import Configuration
+from statue.context import Context
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG1,
@@ -23,6 +24,12 @@ from tests.constants import (
     CONTEXT4,
     CONTEXT5,
     CONTEXT6,
+    CONTEXT_HELP_STRING1,
+    CONTEXT_HELP_STRING2,
+    CONTEXT_HELP_STRING3,
+    CONTEXT_HELP_STRING4,
+    CONTEXT_HELP_STRING5,
+    CONTEXT_HELP_STRING6,
     NOT_EXISTING_COMMAND,
 )
 from tests.util import command_builder_mock
@@ -66,9 +73,13 @@ def test_commands_show_command_with_required_contexts(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
-            COMMAND2, help=COMMAND_HELP_STRING2, required_contexts=[CONTEXT1, CONTEXT2]
+            COMMAND2, help=COMMAND_HELP_STRING2, required_contexts=[context1, context2]
         )
     )
     result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
@@ -84,9 +95,13 @@ def test_commands_show_command_with_allowed_contexts(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
-            COMMAND2, help=COMMAND_HELP_STRING2, allowed_contexts=[CONTEXT1, CONTEXT2]
+            COMMAND2, help=COMMAND_HELP_STRING2, allowed_contexts=[context1, context2]
         )
     )
     result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
@@ -102,13 +117,17 @@ def test_commands_show_command_with_specified_contexts(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
             COMMAND2,
             help=COMMAND_HELP_STRING2,
             contexts_specifications={
-                CONTEXT1: ContextSpecification(args=[ARG1]),
-                CONTEXT2: ContextSpecification(add_args=[ARG2]),
+                context1: ContextSpecification(args=[ARG1]),
+                context2: ContextSpecification(add_args=[ARG2]),
             },
         )
     )
@@ -130,11 +149,21 @@ def test_commands_show_command_with_multiple_contexts(
             COMMAND2,
             help=COMMAND_HELP_STRING2,
             default_args=[ARG1, ARG2],
-            required_contexts=[CONTEXT1, CONTEXT2],
-            allowed_contexts=[CONTEXT3, CONTEXT4],
+            required_contexts=[
+                Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+                Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+            ],
+            allowed_contexts=[
+                Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+                Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
+            ],
             contexts_specifications={
-                CONTEXT5: ContextSpecification(args=[ARG3]),
-                CONTEXT6: ContextSpecification(add_args=[ARG4]),
+                Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5): ContextSpecification(
+                    args=[ARG3]
+                ),
+                Context(name=CONTEXT6, help=CONTEXT_HELP_STRING6): ContextSpecification(
+                    add_args=[ARG4]
+                ),
             },
         )
     )

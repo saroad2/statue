@@ -20,6 +20,8 @@ from tests.constants import (
     CONTEXT4,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
+    CONTEXT_HELP_STRING3,
+    CONTEXT_HELP_STRING4,
     FAILED_TAG,
     SUCCESSFUL_TAG,
 )
@@ -62,13 +64,13 @@ def case_command_builder_with_version():
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_allowed_context():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder = CommandBuilder(
-        name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[CONTEXT1]
+        name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[context]
     )
-    contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
     command = Command(name=COMMAND1)
 
-    return command_builder, contexts, command
+    return command_builder, [context], command
 
 
 @case(tags=SUCCESSFUL_TAG)
@@ -84,100 +86,96 @@ def case_command_builder_with_allowed_context_by_default():
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_required_context():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder = CommandBuilder(
-        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
+        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context]
     )
-    contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
     command = Command(name=COMMAND1)
 
-    return command_builder, contexts, command
+    return command_builder, [context], command
 
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_overriding_args():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
         contexts_specifications={
-            CONTEXT1: ContextSpecification(args=[ARG3, ARG4, ARG5])
+            context: ContextSpecification(args=[ARG3, ARG4, ARG5])
         },
     )
-    contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
     command = Command(name=COMMAND1, args=[ARG3, ARG4, ARG5])
 
-    return command_builder, contexts, command
+    return command_builder, [context], command
 
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_added_args():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
-        contexts_specifications={CONTEXT1: ContextSpecification(add_args=[ARG3, ARG4])},
+        contexts_specifications={context: ContextSpecification(add_args=[ARG3, ARG4])},
     )
-    contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
     command = Command(name=COMMAND1, args=[ARG1, ARG2, ARG3, ARG4])
 
-    return command_builder, contexts, command
+    return command_builder, [context], command
 
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_clear_args():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
-        contexts_specifications={CONTEXT1: ContextSpecification(clear_args=True)},
+        contexts_specifications={context: ContextSpecification(clear_args=True)},
     )
-    contexts = [Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)]
     command = Command(name=COMMAND1)
 
-    return command_builder, contexts, command
+    return command_builder, [context], command
 
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_two_added_args_contexts():
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context2 = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
         contexts_specifications={
-            CONTEXT1: ContextSpecification(add_args=[ARG3, ARG4]),
-            CONTEXT2: ContextSpecification(add_args=[ARG5, ARG6]),
+            context1: ContextSpecification(add_args=[ARG3, ARG4]),
+            context2: ContextSpecification(add_args=[ARG5, ARG6]),
         },
     )
-    contexts = [
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-    ]
     command = Command(
         name=COMMAND1,
         args=[ARG1, ARG2, ARG3, ARG4, ARG5, ARG6],
     )
 
-    return command_builder, contexts, command
+    return command_builder, [context1, context2], command
 
 
 @case(tags=SUCCESSFUL_TAG)
 def case_command_builder_with_add_and_clear_contexts():
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context2 = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
         contexts_specifications={
-            CONTEXT1: ContextSpecification(add_args=[ARG3, ARG4]),
-            CONTEXT2: ContextSpecification(clear_args=True),
+            context1: ContextSpecification(add_args=[ARG3, ARG4]),
+            context2: ContextSpecification(clear_args=True),
         },
     )
-    contexts = [
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-    ]
     command = Command(name=COMMAND1)
 
-    return command_builder, contexts, command
+    return command_builder, [context1, context2], command
 
 
 @parametrize_with_cases(
@@ -203,36 +201,37 @@ def test_command_builder_match_contexts(command_builder, contexts, command):
 
 @case(tags=FAILED_TAG)
 def case_command_builder_missing_required_context():
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context2 = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
     command_builder = CommandBuilder(
-        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
+        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context1]
     )
-    contexts = [Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)]
     error_message = (
         f"Command `{COMMAND1}`requires the following contexts, "
         f"which are missing: {CONTEXT1}"
     )
 
-    return command_builder, contexts, error_message
+    return command_builder, [context2], error_message
 
 
 @case(tags=FAILED_TAG)
 def case_command_builder_with_not_allowed_context():
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    context2 = Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2)
+    context3 = Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)
+    context4 = Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4)
     command_builder = CommandBuilder(
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
-        required_contexts=[CONTEXT2],
-        allowed_contexts=[CONTEXT3],
-        contexts_specifications={CONTEXT4: ContextSpecification(args=[ARG1, ARG2])},
+        required_contexts=[context2],
+        allowed_contexts=[context3],
+        contexts_specifications={context4: ContextSpecification(args=[ARG1, ARG2])},
     )
-    contexts = [
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-    ]
     error_message = (
         f"Command `{COMMAND1}`is not allowed due to the following contexts: {CONTEXT1}"
     )
 
-    return command_builder, contexts, error_message
+    return command_builder, [context1, context2], error_message
 
 
 @parametrize_with_cases(

@@ -130,14 +130,13 @@ def test_contexts_show_context_required_by_command(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
-            name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
+            name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context]
         )
     )
-    configuration.contexts_repository.add_contexts(
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    )
+    configuration.contexts_repository.add_contexts(context)
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
@@ -151,14 +150,13 @@ def test_contexts_show_context_allowed_for_command(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
-            name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[CONTEXT1]
+            name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[context]
         )
     )
-    configuration.contexts_repository.add_contexts(
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    )
+    configuration.contexts_repository.add_contexts(context)
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
@@ -172,16 +170,15 @@ def test_contexts_show_context_specified_for_command(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
             name=COMMAND1,
             help=COMMAND_HELP_STRING1,
-            contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            contexts_specifications={context: ContextSpecification(args=[ARG1])},
         )
     )
-    configuration.contexts_repository.add_contexts(
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    )
+    configuration.contexts_repository.add_contexts(context)
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
@@ -195,33 +192,32 @@ def test_contexts_show_context_with_multiple_available_commands(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
-            name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1]
+            name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context]
         ),
         CommandBuilder(
-            name=COMMAND2, help=COMMAND_HELP_STRING2, required_contexts=[CONTEXT1]
+            name=COMMAND2, help=COMMAND_HELP_STRING2, required_contexts=[context]
         ),
         CommandBuilder(
-            name=COMMAND3, help=COMMAND_HELP_STRING3, allowed_contexts=[CONTEXT1]
+            name=COMMAND3, help=COMMAND_HELP_STRING3, allowed_contexts=[context]
         ),
         CommandBuilder(
-            name=COMMAND4, help=COMMAND_HELP_STRING4, allowed_contexts=[CONTEXT1]
+            name=COMMAND4, help=COMMAND_HELP_STRING4, allowed_contexts=[context]
         ),
         CommandBuilder(
             name=COMMAND5,
             help=COMMAND_HELP_STRING5,
-            contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG1])},
+            contexts_specifications={context: ContextSpecification(args=[ARG1])},
         ),
         CommandBuilder(
             name=COMMAND6,
             help=COMMAND_HELP_STRING6,
-            contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG2])},
+            contexts_specifications={context: ContextSpecification(args=[ARG2])},
         ),
     )
-    configuration.contexts_repository.add_contexts(
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
-    )
+    configuration.contexts_repository.add_contexts(context)
     result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (

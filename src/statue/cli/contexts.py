@@ -34,22 +34,18 @@ def show_contexts_cli(
 ) -> None:
     """Print all available contexts."""
     try:
-        context_instance = configuration.contexts_repository[context_name]
-        click.echo(f"{bullet_style('Name')} - {name_style(context_instance.name)}")
-        click.echo(f"{bullet_style('Description')} - {context_instance.help}")
-        if len(context_instance.aliases) != 0:
-            click.echo(
-                f"{bullet_style('Aliases')} - {', '.join(context_instance.aliases)}"
-            )
-        if context_instance.parent is not None:
-            click.echo(
-                f"{bullet_style('Parent')} - {name_style(context_instance.parent.name)}"
-            )
+        context = configuration.contexts_repository[context_name]
+        click.echo(f"{bullet_style('Name')} - {name_style(context.name)}")
+        click.echo(f"{bullet_style('Description')} - {context.help}")
+        if len(context.aliases) != 0:
+            click.echo(f"{bullet_style('Aliases')} - {', '.join(context.aliases)}")
+        if context.parent is not None:
+            click.echo(f"{bullet_style('Parent')} - {name_style(context.parent.name)}")
         required_by = [
             name_style(command_builder.name)
             for command_builder in configuration.commands_repository
             if any(
-                context_instance.is_matching(required_context)
+                required_context == context
                 for required_context in command_builder.required_contexts
             )
         ]
@@ -59,7 +55,7 @@ def show_contexts_cli(
             name_style(command_builder.name)
             for command_builder in configuration.commands_repository
             if any(
-                context_instance.is_matching(allowed_context)
+                allowed_context == context
                 for allowed_context in command_builder.allowed_contexts
             )
         ]
@@ -69,7 +65,7 @@ def show_contexts_cli(
             name_style(command_builder.name)
             for command_builder in configuration.commands_repository
             if any(
-                context_instance.is_matching(specified_context)
+                specified_context == context
                 for specified_context in command_builder.specified_contexts
             )
         ]

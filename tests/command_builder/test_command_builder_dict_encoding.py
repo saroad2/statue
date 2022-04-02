@@ -4,6 +4,7 @@ import pytest
 from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
 from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.config.contexts_repository import ContextsRepository
 from statue.constants import (
     ADD_ARGS,
     ALLOWED_CONTEXTS,
@@ -13,6 +14,7 @@ from statue.constants import (
     REQUIRED_CONTEXTS,
     VERSION,
 )
+from statue.context import Context
 from statue.exceptions import InconsistentConfiguration
 from tests.constants import (
     ARG1,
@@ -27,6 +29,12 @@ from tests.constants import (
     CONTEXT4,
     CONTEXT5,
     CONTEXT6,
+    CONTEXT_HELP_STRING1,
+    CONTEXT_HELP_STRING2,
+    CONTEXT_HELP_STRING3,
+    CONTEXT_HELP_STRING4,
+    CONTEXT_HELP_STRING5,
+    CONTEXT_HELP_STRING6,
     FAILED_TAG,
     SUCCESSFUL_TAG,
 )
@@ -39,8 +47,9 @@ from tests.util import dummy_version
 def case_simple_command_builder_from_dict():
     command_builder_dict = OrderedDict([(HELP, COMMAND_HELP_STRING1)])
     command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    contexts_repository = ContextsRepository()
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
@@ -52,8 +61,9 @@ def case_command_builder_from_dict_with_version():
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
     )
+    contexts_repository = ContextsRepository()
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
@@ -64,36 +74,48 @@ def case_command_builder_from_dict_with_default_args():
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, default_args=[ARG1, ARG2]
     )
+    contexts_repository = ContextsRepository()
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_required_contexts():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     command_builder_dict = OrderedDict(
         [(HELP, COMMAND_HELP_STRING1), (REQUIRED_CONTEXTS, [CONTEXT1, CONTEXT2])]
     )
     command_builder = CommandBuilder(
-        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[CONTEXT1, CONTEXT2]
+        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context1, context2]
     )
+    contexts_repository = ContextsRepository(context1, context2)
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_allowed_contexts():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     command_builder_dict = OrderedDict(
         [(HELP, COMMAND_HELP_STRING1), (ALLOWED_CONTEXTS, [CONTEXT1, CONTEXT2])]
     )
     command_builder = CommandBuilder(
-        name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[CONTEXT1, CONTEXT2]
+        name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[context1, context2]
     )
+    contexts_repository = ContextsRepository(context1, context2)
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_args_override():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder_dict = OrderedDict(
         [
             (HELP, COMMAND_HELP_STRING1),
@@ -105,14 +127,16 @@ def case_command_builder_from_dict_with_args_override():
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
-        contexts_specifications={CONTEXT1: ContextSpecification(args=[ARG3, ARG4])},
+        contexts_specifications={context: ContextSpecification(args=[ARG3, ARG4])},
     )
+    contexts_repository = ContextsRepository(context)
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_added_args():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder_dict = OrderedDict(
         [
             (HELP, COMMAND_HELP_STRING1),
@@ -124,14 +148,16 @@ def case_command_builder_from_dict_with_added_args():
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
-        contexts_specifications={CONTEXT1: ContextSpecification(add_args=[ARG3, ARG4])},
+        contexts_specifications={context: ContextSpecification(add_args=[ARG3, ARG4])},
     )
+    contexts_repository = ContextsRepository(context)
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_clear_args():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     command_builder_dict = OrderedDict(
         [
             (HELP, COMMAND_HELP_STRING1),
@@ -143,14 +169,19 @@ def case_command_builder_from_dict_with_clear_args():
         name=COMMAND1,
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
-        contexts_specifications={CONTEXT1: ContextSpecification(clear_args=True)},
+        contexts_specifications={context: ContextSpecification(clear_args=True)},
     )
+    contexts_repository = ContextsRepository(context)
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_two_contexts_specifications():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
     command_builder_dict = OrderedDict(
         [
             (HELP, COMMAND_HELP_STRING1),
@@ -164,16 +195,25 @@ def case_command_builder_from_dict_with_two_contexts_specifications():
         help=COMMAND_HELP_STRING1,
         default_args=[ARG1, ARG2],
         contexts_specifications={
-            CONTEXT2: ContextSpecification(add_args=[ARG3, ARG4]),
-            CONTEXT1: ContextSpecification(clear_args=True),
+            context1: ContextSpecification(clear_args=True),
+            context2: ContextSpecification(add_args=[ARG3, ARG4]),
         },
     )
+    contexts_repository = ContextsRepository(context1, context2)
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @case(tags=[SUCCESSFUL_TAG])
 def case_command_builder_from_dict_with_everything():
+    context1, context2, context3, context4, context5, context6 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
+        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
+        Context(name=CONTEXT6, help=CONTEXT_HELP_STRING6),
+    )
     version = dummy_version()
     command_builder_dict = OrderedDict(
         [
@@ -191,25 +231,32 @@ def case_command_builder_from_dict_with_everything():
         help=COMMAND_HELP_STRING1,
         version=version,
         default_args=[ARG1, ARG2],
-        allowed_contexts=[CONTEXT1, CONTEXT2],
-        required_contexts=[CONTEXT3, CONTEXT4],
+        allowed_contexts=[context1, context2],
+        required_contexts=[context3, context4],
         contexts_specifications={
-            CONTEXT5: ContextSpecification(clear_args=True),
-            CONTEXT6: ContextSpecification(add_args=[ARG3, ARG4]),
+            context5: ContextSpecification(clear_args=True),
+            context6: ContextSpecification(add_args=[ARG3, ARG4]),
         },
     )
+    contexts_repository = ContextsRepository(
+        context1, context2, context3, context4, context5, context6
+    )
 
-    return command_builder_dict, command_builder
+    return command_builder_dict, command_builder, contexts_repository
 
 
 @parametrize_with_cases(
-    argnames=["command_builder_dict", "command_builder"],
+    argnames=["command_builder_dict", "command_builder", "contexts_repository"],
     cases=THIS_MODULE,
     has_tag=SUCCESSFUL_TAG,
 )
-def test_command_builder_from_dict_successful(command_builder_dict, command_builder):
+def test_command_builder_from_dict_successful(
+    command_builder_dict, command_builder, contexts_repository
+):
     actual_builder = CommandBuilder.from_dict(
-        command_name=COMMAND1, builder_setups=command_builder_dict
+        command_name=COMMAND1,
+        builder_setups=command_builder_dict,
+        contexts_repository=contexts_repository,
     )
     assert actual_builder == command_builder
 
@@ -235,12 +282,15 @@ def case_command_builder_from_dict_fail_on_both_clear_args_and_args():
         HELP: COMMAND_HELP_STRING1,
         CONTEXT1: {ARGS: [ARG1, ARG2], CLEAR_ARGS: True},
     }
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT1, help=COMMAND_HELP_STRING1)
+    )
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"clear_args and args cannot be both set at the same time"
     )
 
-    return command_builder_dict, error_message
+    return command_builder_dict, contexts_repository, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -249,12 +299,15 @@ def case_command_builder_from_dict_fail_on_both_clear_args_and_add_args():
         HELP: COMMAND_HELP_STRING1,
         CONTEXT1: {ADD_ARGS: [ARG1, ARG2], CLEAR_ARGS: True},
     }
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT1, help=COMMAND_HELP_STRING1)
+    )
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"clear_args and add_args cannot be both set at the same time"
     )
 
-    return command_builder_dict, error_message
+    return command_builder_dict, contexts_repository, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -263,21 +316,28 @@ def case_command_builder_from_dict_fail_on_both_args_and_add_args():
         HELP: COMMAND_HELP_STRING1,
         CONTEXT1: {ARGS: [ARG1, ARG2], ADD_ARGS: [ARG3, ARG4]},
     }
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT1, help=COMMAND_HELP_STRING1)
+    )
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"args and add_args cannot be both set at the same time"
     )
 
-    return command_builder_dict, error_message
+    return command_builder_dict, contexts_repository, error_message
 
 
 @parametrize_with_cases(
-    argnames=["command_builder_dict", "error_message"],
+    argnames=["command_builder_dict", "contexts_repository", "error_message"],
     cases=THIS_MODULE,
     has_tag=FAILED_TAG,
 )
-def test_command_builder_from_dict_failed(command_builder_dict, error_message):
+def test_command_builder_from_dict_failed(
+    command_builder_dict, contexts_repository, error_message
+):
     with pytest.raises(InconsistentConfiguration, match=f"^{error_message}$"):
         CommandBuilder.from_dict(
-            command_name=COMMAND1, builder_setups=command_builder_dict
+            command_name=COMMAND1,
+            builder_setups=command_builder_dict,
+            contexts_repository=contexts_repository,
         )

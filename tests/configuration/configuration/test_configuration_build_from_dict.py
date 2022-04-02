@@ -107,7 +107,10 @@ def test_configuration_from_dict_update_commands(tmp_path):
         configuration = Configuration.from_dict(
             cache_dir=cache_dir, statue_config_dict={COMMANDS: commands_config}
         )
-        commands_update_mock.assert_called_once_with(commands_config)
+        commands_update_mock.assert_called_once_with(
+            config=commands_config,
+            contexts_repository=configuration.contexts_repository,
+        )
 
     assert len(configuration.contexts_repository) == 0
     assert len(configuration.commands_repository) == 0
