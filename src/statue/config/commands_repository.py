@@ -90,15 +90,13 @@ class CommandsRepository:
         :param config: Configuration to update repository from
         :type config: MutableMapping[str, Any]
         """
-        for command_name, builder_setups in config.items():
-            if command_name in self:
-                self[command_name].update_from_config(builder_setups)
-            else:
-                self.add_command_builders(
-                    CommandBuilder.from_dict(
-                        command_name=command_name, builder_setups=builder_setups
-                    )
-                )
+        new_builders = [
+            CommandBuilder.from_dict(
+                command_name=command_name, builder_setups=builder_setups
+            )
+            for command_name, builder_setups in config.items()
+        ]
+        self.add_command_builders(*new_builders)
 
     def as_dict(self) -> OrderedDictType[str, Any]:
         """

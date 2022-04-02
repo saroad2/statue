@@ -76,7 +76,7 @@ class ContextSpecification:
         args: Optional[List[str]],
         add_args: Optional[List[str]],
         clear_args: bool,
-        context_name: Optional[str] = None,
+        context_name: str,
     ):
         """
         Validate that the context specification does contradict itself.
@@ -90,13 +90,14 @@ class ContextSpecification:
         :param clear_args: boolean stating if arguments are cleared
         :type clear_args: bool
         :param context_name: Name of the context for the context specification
-        :type context_name: Optional[str]
+        :type context_name: str
         :raises InconsistentConfiguration: raised when context
             specification is inconsistent.
         """
-        error_prefix = f"Inconsistency in {command_name}"
-        if context_name is not None:
-            error_prefix += f" context specification for {context_name}"
+        error_prefix = (
+            f"Inconsistency in {command_name} "
+            f"context specification for {context_name}"
+        )
         error_prefix += ":"
         error_suffix = "cannot be both set at the same time"
 
@@ -120,7 +121,7 @@ class ContextSpecification:
         cls,
         command_name: str,
         context_specification_setups: Dict[str, Any],
-        context_name: Optional[str] = None,
+        context_name: str,
     ) -> "ContextSpecification":
         """
         Read Context specification from json.
@@ -129,8 +130,8 @@ class ContextSpecification:
         :type command_name: str
         :param context_specification_setups: Context specification json
         :type context_specification_setups: Dict[str, Any]
-        :param context_name: Optional context name
-        :type context_name: Optional[str]
+        :param context_name: context name
+        :type context_name: str
         :return: Built context specification
         :rtype: ContextSpecification
         """
@@ -146,16 +147,6 @@ class ContextSpecification:
             context_name=context_name,
         )
         return ContextSpecification(args=args, add_args=add_args, clear_args=clear_args)
-
-    @classmethod
-    def configuration_keys(cls) -> List[str]:
-        """
-        All keys used for configuration.
-
-        :return: Configuration keys
-        :rtype: List[str]
-        """
-        return [ARGS, ADD_ARGS, CLEAR_ARGS]
 
 
 @dataclass
@@ -448,36 +439,6 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
                 return context_specification
         return ContextSpecification()
 
-    def update_from_config(self, builder_setups: Dict[str, Any]):
-        """
-        Update command builder according to a given configuration.
-
-        :param builder_setups: Command builder configuration
-        :type builder_setups: Dict[str, Any]
-        """
-        # Copy in order to avoid configuration contamination
-        builder_setups = dict(builder_setups)
-
-        self.default_args = ContextSpecification.from_dict(
-            command_name=self.name, context_specification_setups=builder_setups
-        ).update_args(self.default_args)
-
-        for key in ContextSpecification.configuration_keys():
-            builder_setups.pop(key, None)
-        self.version = builder_setups.pop(VERSION, self.version)
-        self.required_contexts.extend(builder_setups.pop(REQUIRED_CONTEXTS, []))
-        self.allowed_contexts.extend(builder_setups.pop(ALLOWED_CONTEXTS, []))
-        self.contexts_specifications.update(
-            {
-                context_name: ContextSpecification.from_dict(
-                    command_name=self.name,
-                    context_name=context_name,
-                    context_specification_setups=context_specification,
-                )
-                for context_name, context_specification in builder_setups.items()
-            }
-        )
-
     def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode command builder as a dictionary.
@@ -518,13 +479,39 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
         :return: Command builder as specified
         :rtype: CommandBuilder
         """
-        # Copy in order to avoid configuration contamination
-        builder_setups = dict(builder_setups)
-        command_builder = CommandBuilder(
-            name=command_name, help=builder_setups.pop(HELP)
+        return CommandBuilder(
+            name=command_name,
+            help=builder_setups[HELP],
+            default_args=builder_setups.get(ARGS, []),
+            version=builder_setups.get(VERSION),
+            required_contexts=builder_setups.get(REQUIRED_CONTEXTS, []),
+            allowed_contexts=builder_setups.get(ALLOWED_CONTEXTS, []),
+            contexts_specifications={
+                context_name: ContextSpecification.from_dict(
+                    command_name=command_name,
+                    context_name=context_name,
+                    context_specification_setups=context_specification,
+                )
+                for context_name, context_specification in builder_setups.items()
+                if context_name not in cls.setup_words()
+            },
         )
-        command_builder.update_from_config(builder_setups)
-        return command_builder
+
+    @classmethod
+    def setup_words(cls) -> List[str]:
+        """
+        Predefined setup words.
+
+        :return: List of predefined setup words
+        :rtype: List[str]
+        """
+        return [
+            HELP,
+            ARGS,
+            VERSION,
+            REQUIRED_CONTEXTS,
+            ALLOWED_CONTEXTS,
+        ]
 
     def _get_package(self):  # pragma: no cover
         """
