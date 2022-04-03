@@ -1,5 +1,8 @@
+import pytest
+
 from statue.command_builder import CommandBuilder, ContextSpecification
 from statue.context import Context
+from statue.exceptions import InconsistentConfiguration
 from tests.constants import (
     ARG1,
     ARG2,
@@ -282,3 +285,63 @@ def test_command_builder_with_all_fields():
         "}"
         ")"
     )
+
+
+def test_command_builder_constructor_fail_with_both_allowed_and_required():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^The following Contexts has been as set both allowed and required "
+            f"for {COMMAND1}: {CONTEXT1}$"
+        ),
+    ):
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            allowed_contexts=[context1, context2],
+            required_contexts=[context1],
+        )
+
+
+def test_command_builder_constructor_fail_with_both_allowed_and_specified():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^The following Contexts has been as set both allowed and specified "
+            f"for {COMMAND1}: {CONTEXT1}$"
+        ),
+    ):
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            allowed_contexts=[context1, context2],
+            contexts_specifications={context1: ContextSpecification(args=[ARG1])},
+        )
+
+
+def test_command_builder_constructor_fail_with_both_required_and_specified():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^The following Contexts has been as set both required and specified "
+            f"for {COMMAND1}: {CONTEXT1}$"
+        ),
+    ):
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            required_contexts=[context1, context2],
+            contexts_specifications={context1: ContextSpecification(args=[ARG1])},
+        )

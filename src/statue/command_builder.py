@@ -1,4 +1,6 @@
 """Build commands from configuration."""
+# pylint: disable=too-many-public-methods,too-many-arguments
+# pylint: disable=too-many-instance-attributes
 import importlib
 import os
 import subprocess  # nosec
@@ -151,7 +153,7 @@ class ContextSpecification:
         return ContextSpecification(args=args, add_args=add_args, clear_args=clear_args)
 
 
-class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-arguments
+class CommandBuilder:
     """Command builder as specified in configuration."""
 
     def __init__(
@@ -190,6 +192,7 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         self.default_args = default_args if default_args is not None else []
         self.version = version
 
+        self._initialize_contexts()
         self.required_contexts = (
             set(required_contexts) if required_contexts is not None else set()
         )
@@ -206,13 +209,20 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         return self._required_contexts
 
     @required_contexts.setter
-    def required_contexts(self, required_contexts: Set[Context]):
+    def required_contexts(self, required_contexts):
         """
         Set contexts required by command builder.
 
         :param required_contexts: Required contexts to be set.
         :type required_contexts: Set[Context]
         """
+        if len(required_contexts) != 0:
+            self._validate_consistency(
+                command_name=self.name,
+                allowed_contexts=self.allowed_contexts,
+                required_contexts=required_contexts,
+                specified_contexts=self.specified_contexts,
+            )
         self._required_contexts = set(required_contexts)
 
     @property
@@ -221,13 +231,20 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         return self._allowed_contexts
 
     @allowed_contexts.setter
-    def allowed_contexts(self, allowed_contexts: Set[Context]):
+    def allowed_contexts(self, allowed_contexts):
         """
         Set contexts allowed for command builder.
 
         :param allowed_contexts: Allowed contexts to be set
         :type allowed_contexts: Set[Context]
         """
+        if len(allowed_contexts) != 0:
+            self._validate_consistency(
+                command_name=self.name,
+                allowed_contexts=allowed_contexts,
+                required_contexts=self.required_contexts,
+                specified_contexts=self.specified_contexts,
+            )
         self._allowed_contexts = set(allowed_contexts)
 
     @property
@@ -236,15 +253,20 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         return self._contexts_specifications
 
     @contexts_specifications.setter
-    def contexts_specifications(
-        self, contexts_specifications: Dict[Context, ContextSpecification]
-    ):
+    def contexts_specifications(self, contexts_specifications):
         """
         Set contexts specification dictionary for command builder.
 
         :param contexts_specifications: Contexts specification dictionary to be set
         :type contexts_specifications: Dict[Context, ContextSpecification]
         """
+        if len(contexts_specifications) != 0:
+            self._validate_consistency(
+                command_name=self.name,
+                allowed_contexts=self.allowed_contexts,
+                required_contexts=self.required_contexts,
+                specified_contexts=set(contexts_specifications.keys()),
+            )
         self._contexts_specifications = contexts_specifications
 
     def __repr__(self) -> str:
@@ -653,6 +675,55 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
             REQUIRED_CONTEXTS,
             ALLOWED_CONTEXTS,
         ]
+
+    @classmethod
+    def _validate_consistency(
+        cls,
+        command_name: str,
+        allowed_contexts: Set[Context],
+        required_contexts: Set[Context],
+        specified_contexts: Set[Context],
+    ):
+        both_allowed_and_required = allowed_contexts.intersection(required_contexts)
+        if len(both_allowed_and_required) != 0:
+            cls._raise_inconsistency_error(
+                command_name=command_name,
+                type1="allowed",
+                type2="required",
+                contexts=both_allowed_and_required,
+            )
+        both_allowed_and_specified = allowed_contexts.intersection(specified_contexts)
+        if len(both_allowed_and_specified) != 0:
+            cls._raise_inconsistency_error(
+                command_name=command_name,
+                type1="allowed",
+                type2="specified",
+                contexts=both_allowed_and_specified,
+            )
+        both_required_and_specified = required_contexts.intersection(specified_contexts)
+        if len(both_required_and_specified) != 0:
+            cls._raise_inconsistency_error(
+                command_name=command_name,
+                type1="required",
+                type2="specified",
+                contexts=both_required_and_specified,
+            )
+
+    @classmethod
+    def _raise_inconsistency_error(
+        cls, command_name: str, type1: str, type2: str, contexts: Set[Context]
+    ):
+        context_names = [context.name for context in contexts]
+        context_names.sort()
+        raise InconsistentConfiguration(
+            f"The following Contexts has been as set both {type1} and {type2} "
+            f"for {command_name}: {', '.join(context_names)}"
+        )
+
+    def _initialize_contexts(self):
+        self.allowed_contexts = set()
+        self.required_contexts = set()
+        self.contexts_specifications = {}
 
     def _get_package(self):  # pragma: no cover
         """
