@@ -37,7 +37,6 @@ required_contexts = [
 ]
 allowed_contexts = [
     "fast",
-    "format",
     "test",
 ]
 version = "1.4"
@@ -137,9 +136,6 @@ args = [
     "--disable=bad-continuation",
     "--enable=useless-suppression,use-symbolic-message-instead",
     "--fail-on=useless-suppression,use-symbolic-message-instead",
-]
-allowed_contexts = [
-    "documentation",
 ]
 version = "2.13.3"
 
