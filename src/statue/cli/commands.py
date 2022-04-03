@@ -60,17 +60,24 @@ def show_command_cli(
             f"{' '.join(command_builder.default_args)}"
         )
     if len(command_builder.required_contexts) != 0:
+        required_contexts = [
+            context.name for context in command_builder.required_contexts
+        ]
         click.echo(
-            f"{bullet_style('Required contexts')} - "
-            f"{', '.join(command_builder.required_contexts)}"
+            f"{bullet_style('Required contexts')} - " f"{', '.join(required_contexts)}"
         )
     if len(command_builder.allowed_contexts) != 0:
+        allowed_contexts = [
+            context.name for context in command_builder.allowed_contexts
+        ]
         click.echo(
-            f"{bullet_style('Allowed contexts')} - "
-            f"{', '.join(command_builder.allowed_contexts)}"
+            f"{bullet_style('Allowed contexts')} - " f"{', '.join(allowed_contexts)}"
         )
     if len(command_builder.specified_contexts) != 0:
+        specified_contexts = [
+            context.name for context in command_builder.specified_contexts
+        ]
         click.echo(
             f"{bullet_style('Specified contexts')} - "
-            f"{', '.join(command_builder.specified_contexts)}"
+            f"{', '.join(specified_contexts)}"
         )

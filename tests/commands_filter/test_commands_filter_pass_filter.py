@@ -18,6 +18,7 @@ from tests.constants import (
     CONTEXT3,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
+    CONTEXT_HELP_STRING3,
 )
 
 
@@ -56,30 +57,31 @@ def case_denied_commands():
 
 
 def case_matching_contexts():
-    context1, context2 = (
+    context1, context2, context3 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
     )
     commands_filter = CommandsFilter(contexts={context1, context2})
     passing_commands = [
         CommandBuilder(
             name=COMMAND1,
             help=COMMAND_HELP_STRING1,
-            allowed_contexts=[CONTEXT1, CONTEXT2],
+            allowed_contexts=[context1, context2],
         ),
         CommandBuilder(
             name=COMMAND1,
             help=COMMAND_HELP_STRING1,
-            allowed_contexts=[CONTEXT1],
-            contexts_specifications={CONTEXT2: ContextSpecification(args=[ARG1])},
+            allowed_contexts=[context1],
+            contexts_specifications={context2: ContextSpecification(args=[ARG1])},
         ),
     ]
     non_passing_commands = [
         CommandBuilder(
-            name=COMMAND3, help=COMMAND_HELP_STRING3, required_contexts=[CONTEXT3]
+            name=COMMAND3, help=COMMAND_HELP_STRING3, required_contexts=[context3]
         ),
         CommandBuilder(
-            name=COMMAND3, help=COMMAND_HELP_STRING3, allowed_contexts=[CONTEXT1]
+            name=COMMAND3, help=COMMAND_HELP_STRING3, allowed_contexts=[context1]
         ),
     ]
 

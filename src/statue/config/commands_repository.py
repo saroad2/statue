@@ -4,6 +4,7 @@ from typing import Any, Dict, Iterator, List, MutableMapping
 from typing import OrderedDict as OrderedDictType
 
 from statue.command_builder import CommandBuilder
+from statue.config.contexts_repository import ContextsRepository
 from statue.exceptions import UnknownCommand
 
 
@@ -83,22 +84,26 @@ class CommandsRepository:
         """Clear repository from all command builders."""
         self.command_builders_map.clear()
 
-    def update_from_config(self, config: MutableMapping[str, Any]):
+    def update_from_config(
+        self, config: MutableMapping[str, Any], contexts_repository: ContextsRepository
+    ):
         """
         Update commands repository from given configuration.
 
         :param config: Configuration to update repository from
         :type config: MutableMapping[str, Any]
+        :param contexts_repository: Contexts repository to get contexts from
+        :type contexts_repository: ContextsRepository
         """
-        for command_name, builder_setups in config.items():
-            if command_name in self:
-                self[command_name].update_from_config(builder_setups)
-            else:
-                self.add_command_builders(
-                    CommandBuilder.from_dict(
-                        command_name=command_name, builder_setups=builder_setups
-                    )
-                )
+        new_builders = [
+            CommandBuilder.from_dict(
+                command_name=command_name,
+                builder_setups=builder_setups,
+                contexts_repository=contexts_repository,
+            )
+            for command_name, builder_setups in config.items()
+        ]
+        self.add_command_builders(*new_builders)
 
     def as_dict(self) -> OrderedDictType[str, Any]:
         """

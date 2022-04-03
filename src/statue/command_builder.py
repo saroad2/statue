@@ -11,6 +11,7 @@ from typing import OrderedDict as OrderedDictType
 import pkg_resources
 
 from statue.command import Command
+from statue.config.contexts_repository import ContextsRepository
 from statue.constants import (
     ADD_ARGS,
     ALLOWED_CONTEXTS,
@@ -76,7 +77,7 @@ class ContextSpecification:
         args: Optional[List[str]],
         add_args: Optional[List[str]],
         clear_args: bool,
-        context_name: Optional[str] = None,
+        context_name: str,
     ):
         """
         Validate that the context specification does contradict itself.
@@ -90,13 +91,14 @@ class ContextSpecification:
         :param clear_args: boolean stating if arguments are cleared
         :type clear_args: bool
         :param context_name: Name of the context for the context specification
-        :type context_name: Optional[str]
+        :type context_name: str
         :raises InconsistentConfiguration: raised when context
             specification is inconsistent.
         """
-        error_prefix = f"Inconsistency in {command_name}"
-        if context_name is not None:
-            error_prefix += f" context specification for {context_name}"
+        error_prefix = (
+            f"Inconsistency in {command_name} "
+            f"context specification for {context_name}"
+        )
         error_prefix += ":"
         error_suffix = "cannot be both set at the same time"
 
@@ -120,7 +122,7 @@ class ContextSpecification:
         cls,
         command_name: str,
         context_specification_setups: Dict[str, Any],
-        context_name: Optional[str] = None,
+        context_name: str,
     ) -> "ContextSpecification":
         """
         Read Context specification from json.
@@ -129,8 +131,8 @@ class ContextSpecification:
         :type command_name: str
         :param context_specification_setups: Context specification json
         :type context_specification_setups: Dict[str, Any]
-        :param context_name: Optional context name
-        :type context_name: Optional[str]
+        :param context_name: context name
+        :type context_name: str
         :return: Built context specification
         :rtype: ContextSpecification
         """
@@ -147,16 +149,6 @@ class ContextSpecification:
         )
         return ContextSpecification(args=args, add_args=add_args, clear_args=clear_args)
 
-    @classmethod
-    def configuration_keys(cls) -> List[str]:
-        """
-        All keys used for configuration.
-
-        :return: Configuration keys
-        :rtype: List[str]
-        """
-        return [ARGS, ADD_ARGS, CLEAR_ARGS]
-
 
 @dataclass
 class CommandBuilder:  # pylint: disable=too-many-public-methods
@@ -166,9 +158,9 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
     help: str
     default_args: List[str] = field(default_factory=list)
     version: Optional[str] = field(default=None)
-    required_contexts: List[str] = field(default_factory=list)
-    allowed_contexts: List[str] = field(default_factory=list)
-    contexts_specifications: Dict[str, ContextSpecification] = field(
+    required_contexts: List[Context] = field(default_factory=list)
+    allowed_contexts: List[Context] = field(default_factory=list)
+    contexts_specifications: Dict[Context, ContextSpecification] = field(
         default_factory=dict
     )
 
@@ -205,12 +197,12 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
         return package.version
 
     @property
-    def specified_contexts(self) -> List[str]:
+    def specified_contexts(self) -> List[Context]:
         """Contexts names list with arguments specifications."""
         return list(self.contexts_specifications.keys())
 
     @property
-    def available_contexts(self) -> List[str]:
+    def available_contexts(self) -> List[Context]:
         """Contexts which are available to use according to this command."""
         return [
             *self.required_contexts,
@@ -340,10 +332,11 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
             the command's requirements
         """
         missing_required_contexts = [
-            required_context
+            required_context.name
             for required_context in self.required_contexts
             if all(
-                not context.is_matching_recursively(required_context)
+                context != required_context
+                and not context.is_child_of(required_context)
                 for context in contexts
             )
         ]
@@ -358,7 +351,8 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
             for context in contexts
             if not context.allowed_by_default
             and all(
-                not context.is_matching_recursively(available_context)
+                context != available_context
+                and not context.is_child_of(available_context)
                 for available_context in self.available_contexts
             )
         ]
@@ -391,21 +385,12 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
         :param context: Context to be removed
         :type context: Context
         """
-        self.required_contexts = [
-            context_name
-            for context_name in self.required_contexts
-            if not context.is_matching(context_name)
-        ]
-        self.allowed_contexts = [
-            context_name
-            for context_name in self.allowed_contexts
-            if not context.is_matching(context_name)
-        ]
-        self.contexts_specifications = {
-            context_name: specification
-            for context_name, specification in self.contexts_specifications.items()
-            if not context.is_matching(context_name)
-        }
+        if context in self.required_contexts:
+            self.required_contexts.remove(context)
+        if context in self.allowed_contexts:
+            self.allowed_contexts.remove(context)
+        if context in self.contexts_specifications:
+            self.contexts_specifications.pop(context)
 
     def build_command(self, *contexts: Context) -> Command:
         """
@@ -443,40 +428,7 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
         :return: Context specification to build command according to
         :rtype: ContextSpecification
         """
-        for context_name, context_specification in self.contexts_specifications.items():
-            if context.is_matching_recursively(context_name):
-                return context_specification
-        return ContextSpecification()
-
-    def update_from_config(self, builder_setups: Dict[str, Any]):
-        """
-        Update command builder according to a given configuration.
-
-        :param builder_setups: Command builder configuration
-        :type builder_setups: Dict[str, Any]
-        """
-        # Copy in order to avoid configuration contamination
-        builder_setups = dict(builder_setups)
-
-        self.default_args = ContextSpecification.from_dict(
-            command_name=self.name, context_specification_setups=builder_setups
-        ).update_args(self.default_args)
-
-        for key in ContextSpecification.configuration_keys():
-            builder_setups.pop(key, None)
-        self.version = builder_setups.pop(VERSION, self.version)
-        self.required_contexts.extend(builder_setups.pop(REQUIRED_CONTEXTS, []))
-        self.allowed_contexts.extend(builder_setups.pop(ALLOWED_CONTEXTS, []))
-        self.contexts_specifications.update(
-            {
-                context_name: ContextSpecification.from_dict(
-                    command_name=self.name,
-                    context_name=context_name,
-                    context_specification_setups=context_specification,
-                )
-                for context_name, context_specification in builder_setups.items()
-            }
-        )
+        return self.contexts_specifications.get(context, ContextSpecification())
 
     def as_dict(self) -> OrderedDictType[str, Any]:
         """
@@ -493,21 +445,30 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
         if len(self.default_args) != 0:
             builder_as_dict[ARGS] = self.default_args
         if len(self.required_contexts) != 0:
-            builder_as_dict[REQUIRED_CONTEXTS] = self.required_contexts
+            builder_as_dict[REQUIRED_CONTEXTS] = [
+                context.name for context in self.required_contexts
+            ]
         if len(self.allowed_contexts) != 0:
-            builder_as_dict[ALLOWED_CONTEXTS] = self.allowed_contexts
+            builder_as_dict[ALLOWED_CONTEXTS] = [
+                context.name for context in self.allowed_contexts
+            ]
         if self.version is not None:
             builder_as_dict[VERSION] = self.version
-        context_names = list(self.contexts_specifications.keys())
-        context_names.sort()
-        for context_name in context_names:
-            builder_as_dict[context_name] = self.contexts_specifications[
-                context_name
+        specified_contexts = self.specified_contexts
+        specified_contexts.sort(key=lambda context: context.name)
+        for context in specified_contexts:
+            builder_as_dict[context.name] = self.contexts_specifications[
+                context
             ].as_dict()
         return builder_as_dict
 
     @classmethod
-    def from_dict(cls, command_name, builder_setups: Dict[str, Any]):
+    def from_dict(
+        cls,
+        command_name: str,
+        builder_setups: Dict[str, Any],
+        contexts_repository: ContextsRepository,
+    ):
         """
         Build command builder according to a given configuration.
 
@@ -515,16 +476,53 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods
         :type command_name: str
         :param builder_setups: Command builder configuration
         :type builder_setups: Dict[str, Any]
+        :param contexts_repository: contexts repository to get contexts from
+        :type contexts_repository: ContextsRepository
         :return: Command builder as specified
         :rtype: CommandBuilder
         """
-        # Copy in order to avoid configuration contamination
-        builder_setups = dict(builder_setups)
-        command_builder = CommandBuilder(
-            name=command_name, help=builder_setups.pop(HELP)
+        required_contexts = [
+            contexts_repository[context_name]
+            for context_name in builder_setups.get(REQUIRED_CONTEXTS, [])
+        ]
+        allowed_contexts = [
+            contexts_repository[context_name]
+            for context_name in builder_setups.get(ALLOWED_CONTEXTS, [])
+        ]
+        contexts_specifications = {
+            contexts_repository[context_name]: ContextSpecification.from_dict(
+                command_name=command_name,
+                context_name=context_name,
+                context_specification_setups=context_specification,
+            )
+            for context_name, context_specification in builder_setups.items()
+            if context_name not in cls.setup_words()
+        }
+        return CommandBuilder(
+            name=command_name,
+            help=builder_setups[HELP],
+            default_args=builder_setups.get(ARGS, []),
+            version=builder_setups.get(VERSION),
+            required_contexts=required_contexts,
+            allowed_contexts=allowed_contexts,
+            contexts_specifications=contexts_specifications,
         )
-        command_builder.update_from_config(builder_setups)
-        return command_builder
+
+    @classmethod
+    def setup_words(cls) -> List[str]:
+        """
+        Predefined setup words.
+
+        :return: List of predefined setup words
+        :rtype: List[str]
+        """
+        return [
+            HELP,
+            ARGS,
+            VERSION,
+            REQUIRED_CONTEXTS,
+            ALLOWED_CONTEXTS,
+        ]
 
     def _get_package(self):  # pragma: no cover
         """
