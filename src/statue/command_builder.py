@@ -5,8 +5,9 @@ import subprocess  # nosec
 import sys
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Iterable, List, Optional
 from typing import OrderedDict as OrderedDictType
+from typing import Set
 
 import pkg_resources
 
@@ -159,8 +160,8 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         help: str,  # pylint: disable=redefined-builtin
         default_args: Optional[List[str]] = None,
         version: Optional[str] = None,
-        required_contexts: Optional[List[Context]] = None,
-        allowed_contexts: Optional[List[Context]] = None,
+        required_contexts: Optional[Iterable[Context]] = None,
+        allowed_contexts: Optional[Iterable[Context]] = None,
         contexts_specifications: Optional[Dict[Context, ContextSpecification]] = None,
     ):
         """
@@ -188,13 +189,63 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         self.help = help
         self.default_args = default_args if default_args is not None else []
         self.version = version
+
         self.required_contexts = (
-            required_contexts if required_contexts is not None else []
+            set(required_contexts) if required_contexts is not None else set()
         )
-        self.allowed_contexts = allowed_contexts if allowed_contexts is not None else []
+        self.allowed_contexts = (
+            set(allowed_contexts) if allowed_contexts is not None else set()
+        )
         self.contexts_specifications = (
             contexts_specifications if contexts_specifications is not None else {}
         )
+
+    @property
+    def required_contexts(self) -> Set[Context]:
+        """Get contexts required by command builder."""
+        return self._required_contexts
+
+    @required_contexts.setter
+    def required_contexts(self, required_contexts: Set[Context]):
+        """
+        Set contexts required by command builder.
+
+        :param required_contexts: Required contexts to be set.
+        :type required_contexts: Set[Context]
+        """
+        self._required_contexts = set(required_contexts)
+
+    @property
+    def allowed_contexts(self) -> Set[Context]:
+        """Get contexts allowed for command builder."""
+        return self._allowed_contexts
+
+    @allowed_contexts.setter
+    def allowed_contexts(self, allowed_contexts: Set[Context]):
+        """
+        Set contexts allowed for command builder.
+
+        :param allowed_contexts: Allowed contexts to be set
+        :type allowed_contexts: Set[Context]
+        """
+        self._allowed_contexts = set(allowed_contexts)
+
+    @property
+    def contexts_specifications(self) -> Dict[Context, ContextSpecification]:
+        """Get contexts specification dictionary for command builder."""
+        return self._contexts_specifications
+
+    @contexts_specifications.setter
+    def contexts_specifications(
+        self, contexts_specifications: Dict[Context, ContextSpecification]
+    ):
+        """
+        Set contexts specification dictionary for command builder.
+
+        :param contexts_specifications: Contexts specification dictionary to be set
+        :type contexts_specifications: Dict[Context, ContextSpecification]
+        """
+        self._contexts_specifications = contexts_specifications
 
     def __repr__(self) -> str:
         """
@@ -203,15 +254,23 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         :return: String representation of command builder
         :rtype: str
         """
+        required_contexts = [context.name for context in self.required_contexts]
+        required_contexts.sort()
+        allowed_contexts = [context.name for context in self.allowed_contexts]
+        allowed_contexts.sort()
+        contexts_specification = {
+            context.name: specification
+            for context, specification in self.contexts_specifications.items()
+        }
         return (
             "CommandBuilder("
             f"name={self.name}, "
             f"help={self.help}, "
             f"default_args={self.default_args}, "
             f"version={self.version}, "
-            f"required_contexts={self.required_contexts}, "
-            f"allowed_contexts={self.allowed_contexts}, "
-            f"contexts_specifications={self.contexts_specifications}"
+            f"required_contexts={required_contexts}, "
+            f"allowed_contexts={allowed_contexts}, "
+            f"contexts_specifications={contexts_specification}"
             ")"
         )
 
@@ -268,18 +327,18 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         return package.version
 
     @property
-    def specified_contexts(self) -> List[Context]:
+    def specified_contexts(self) -> Set[Context]:
         """Contexts names list with arguments specifications."""
-        return list(self.contexts_specifications.keys())
+        return set(self.contexts_specifications.keys())
 
     @property
-    def available_contexts(self) -> List[Context]:
+    def available_contexts(self) -> Set[Context]:
         """Contexts which are available to use according to this command."""
-        return [
+        return {
             *self.required_contexts,
             *self.allowed_contexts,
             *self.specified_contexts,
-        ]
+        }
 
     def installed(self) -> bool:
         """
@@ -393,7 +452,7 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         self.uninstall(verbosity=verbosity)
         self.install(verbosity=verbosity)
 
-    def validate_contexts(self, *contexts: Context):
+    def validate_contexts_match(self, *contexts: Context):
         """
         Validate that given contexts are matching command builder.
 
@@ -444,7 +503,7 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         :rtype: bool
         """
         try:
-            self.validate_contexts(*contexts)
+            self.validate_contexts_match(*contexts)
         except InvalidCommand:
             return False
         return True
@@ -472,7 +531,7 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         :return: Built command.
         :rtype: Command
         """
-        self.validate_contexts(*contexts)
+        self.validate_contexts_match(*contexts)
         return Command(name=self.name, args=self.build_args(*contexts))
 
     def build_args(self, *contexts: Context) -> List[str]:
@@ -516,16 +575,16 @@ class CommandBuilder:  # pylint: disable=too-many-public-methods,too-many-argume
         if len(self.default_args) != 0:
             builder_as_dict[ARGS] = self.default_args
         if len(self.required_contexts) != 0:
-            builder_as_dict[REQUIRED_CONTEXTS] = [
-                context.name for context in self.required_contexts
-            ]
+            required_contexts = [context.name for context in self.required_contexts]
+            required_contexts.sort()
+            builder_as_dict[REQUIRED_CONTEXTS] = required_contexts
         if len(self.allowed_contexts) != 0:
-            builder_as_dict[ALLOWED_CONTEXTS] = [
-                context.name for context in self.allowed_contexts
-            ]
+            allowed_contexts = [context.name for context in self.allowed_contexts]
+            allowed_contexts.sort()
+            builder_as_dict[ALLOWED_CONTEXTS] = allowed_contexts
         if self.version is not None:
             builder_as_dict[VERSION] = self.version
-        specified_contexts = self.specified_contexts
+        specified_contexts = list(self.specified_contexts)
         specified_contexts.sort(key=lambda context: context.name)
         for context in specified_contexts:
             builder_as_dict[context.name] = self.contexts_specifications[
