@@ -1,4 +1,5 @@
 """History CLI."""
+import sys
 import time
 from pathlib import Path
 from typing import Union
@@ -7,6 +8,7 @@ import click
 
 from statue.cache import Cache
 from statue.cli.cli import pass_configuration, statue_cli
+from statue.cli.common_flags import verbose_option
 from statue.cli.styled_strings import (
     bullet_style,
     failure_style,
@@ -18,6 +20,7 @@ from statue.command import CommandEvaluation
 from statue.config.configuration import Configuration
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import Evaluation
+from statue.verbosity import is_verbose
 
 
 def evaluation_status(evaluation: Union[Evaluation, CommandEvaluation]) -> str:
@@ -103,18 +106,21 @@ def list_evaluations_cli(configuration: Configuration, head: int):
 @click.option(
     "-n", "number", type=int, default=1, help="Show nth recent evaluation. 1 by default"
 )
-@click.pass_context
 @pass_configuration
-def show_evaluation_cli(configuration: Configuration, ctx: click.Context, number: int):
+@verbose_option
+def show_evaluation_cli(
+    configuration: Configuration,
+    number: int,
+    verbosity: str,
+):
     """Show past evaluation."""
-    evaluation_path = None
     try:
         evaluation_path = configuration.cache.evaluation_path(number - 1)
     except IndexError:
         click.echo(
             failure_style(f"Could not find evaluation with given index {number}")
         )
-        ctx.exit(1)
+        sys.exit(1)
     evaluation = Evaluation.load_from_file(evaluation_path)
     click.echo(total_evaluation_string(evaluation_path, evaluation))
     for source, source_evaluation in evaluation.items():
@@ -128,6 +134,10 @@ def show_evaluation_cli(configuration: Configuration, ctx: click.Context, number
                 f"{evaluation_status(command_evaluation)} "
                 f"({command_evaluation.execution_duration:.2f} seconds)"
             )
+            if is_verbose(verbosity):
+                click.echo(
+                    f"\t\tArguments: {' '.join(command_evaluation.command.args)}"
+                )
 
 
 @history_cli.command("clear")

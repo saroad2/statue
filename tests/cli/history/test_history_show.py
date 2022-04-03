@@ -6,7 +6,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 from statue.cli import statue_cli
 from statue.command import CommandEvaluation
 from statue.evaluation import Evaluation, SourceEvaluation
-from tests.constants import COMMAND1, COMMAND2, SOURCE1, SOURCE2
+from tests.constants import ARG1, ARG2, ARG3, ARG4, COMMAND1, COMMAND2, SOURCE1, SOURCE2
 from tests.util import command_mock
 
 
@@ -84,6 +84,44 @@ def case_one_source_two_commands_success():
             f"{SOURCE1} (1.20 seconds):\n"
             f"\t{COMMAND1} - Success (0.67 seconds)\n"
             f"\t{COMMAND2} - Success (1.63 seconds)\n"
+        ),
+    )
+
+
+def case_one_source_two_commands_success_verbosely():
+    return dict(
+        additional_flags=["--verbose"],
+        evaluation_number=0,
+        evaluation=Evaluation(
+            total_execution_duration=18.1,
+            sources_evaluations={
+                SOURCE1: SourceEvaluation(
+                    commands_evaluations=[
+                        CommandEvaluation(
+                            command=command_mock(COMMAND1, args=[ARG1, ARG2]),
+                            success=True,
+                            execution_duration=0.67,
+                        ),
+                        CommandEvaluation(
+                            command=command_mock(COMMAND2, args=[ARG3, ARG4]),
+                            success=True,
+                            execution_duration=1.632,
+                        ),
+                    ],
+                    source_execution_duration=1.199,
+                )
+            },
+        ),
+        datetime=datetime.datetime(
+            year=2020, month=4, day=15, hour=12, minute=7, second=42
+        ),
+        output=(
+            "04/15/2020, 12:07:42 - Success (2/2 successful, 18.10 seconds)\n"
+            f"{SOURCE1} (1.20 seconds):\n"
+            f"\t{COMMAND1} - Success (0.67 seconds)\n"
+            f"\t\tArguments: {ARG1} {ARG2}\n"
+            f"\t{COMMAND2} - Success (1.63 seconds)\n"
+            f"\t\tArguments: {ARG3} {ARG4}\n"
         ),
     )
 
