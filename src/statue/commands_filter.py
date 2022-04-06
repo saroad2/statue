@@ -13,7 +13,7 @@ class CommandsFilter:
 
     def __init__(
         self,
-        contexts: Optional[Collection[Context]] = None,
+        contexts: Optional[List[Context]] = None,
         allowed_commands: Optional[Collection[str]] = None,
         denied_commands: Optional[Collection[str]] = None,
     ):
@@ -24,11 +24,11 @@ class CommandsFilter:
         :type contexts: Optional[Collection[Context]]
         :param allowed_commands: Allowed commands that pass filter
         :type allowed_commands: Optional[Collection[str]]
-        :param denied_commands: Denied commands that does not pass filter
+        :param denied_commands: Denied commands that do not pass filter
         :type denied_commands: Optional[Collection[str]]
         :raises ValueError: Raised if both allowed and denied commands are set.
         """
-        self._contexts = frozenset() if contexts is None else frozenset(contexts)
+        self._contexts = [] if contexts is None else list(contexts)
         self._allowed_commands = (
             None if allowed_commands is None else frozenset(allowed_commands)
         )
@@ -41,17 +41,17 @@ class CommandsFilter:
             )
 
     @property
-    def contexts(self):
+    def contexts(self) -> List[Context]:
         """Filter contexts."""
-        return self._contexts
+        return list(self._contexts)
 
     @property
-    def allowed_commands(self):
+    def allowed_commands(self) -> Optional[FrozenSet[str]]:
         """Filter allowed commands."""
         return self._allowed_commands
 
     @property
-    def denied_commands(self):
+    def denied_commands(self) -> Optional[FrozenSet[str]]:
         """Filter denied commands."""
         return self._denied_commands
 
@@ -147,6 +147,9 @@ class CommandsFilter:
         """
         Merge two command filters into one filter.
 
+        PAY ATTENTION: the order of merge is important! evaluating contexts will be done
+        in their order
+
         :param filter1: First filter to be merged
         :type filter1: CommandsFilter
         :param filter2: Second filter to be merged
@@ -156,7 +159,7 @@ class CommandsFilter:
         :raises ValueError: Raised when a command is allowed in one filter
             and denied in another
         """
-        contexts = filter1.contexts.union(filter2.contexts)
+        contexts = filter1.contexts + filter2.contexts
         allowed_commands = cls._intersect_optional_sets(
             filter1.allowed_commands, filter2.allowed_commands
         )
@@ -173,7 +176,7 @@ class CommandsFilter:
                 )
             denied_commands = None
         return CommandsFilter(
-            contexts=frozenset(contexts),
+            contexts=contexts,
             allowed_commands=allowed_commands,
             denied_commands=denied_commands,
         )

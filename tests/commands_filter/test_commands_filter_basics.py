@@ -18,16 +18,16 @@ from tests.constants import (
 def test_commands_filter_simple_constructor():
     commands_filter = CommandsFilter()
 
-    assert commands_filter.contexts == frozenset()
+    assert not commands_filter.contexts
     assert commands_filter.allowed_commands is None
     assert commands_filter.denied_commands is None
 
 
 def test_commands_filter_with_contexts():
-    contexts = {
+    contexts = [
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-    }
+    ]
     commands_filter = CommandsFilter(contexts=contexts)
 
     assert commands_filter.contexts == contexts
@@ -39,7 +39,7 @@ def test_commands_filter_with_allowed_commands():
     allowed_commands = {COMMAND1, COMMAND2, COMMAND3}
     commands_filter = CommandsFilter(allowed_commands=allowed_commands)
 
-    assert commands_filter.contexts == frozenset()
+    assert not commands_filter.contexts
     assert commands_filter.allowed_commands == allowed_commands
     assert commands_filter.denied_commands is None
 
@@ -48,7 +48,7 @@ def test_commands_filter_with_denied_commands():
     denied_commands = {COMMAND1, COMMAND2, COMMAND3}
     commands_filter = CommandsFilter(denied_commands=denied_commands)
 
-    assert commands_filter.contexts == frozenset()
+    assert not commands_filter.contexts
     assert commands_filter.allowed_commands is None
     assert commands_filter.denied_commands == denied_commands
 
@@ -57,7 +57,7 @@ def test_commands_filter_repr_string():
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     assert str(CommandsFilter(contexts=[context], allowed_commands=[COMMAND1])) == (
         "CommandsFilter("
-        f"contexts=frozenset({{{str(context)}}}), "
+        f"contexts=[{str(context)}], "
         f"allowed_commands=frozenset({{'{COMMAND1}'}}), "
         "denied_commands=None)"
     )
@@ -65,14 +65,14 @@ def test_commands_filter_repr_string():
 
 def test_commands_filter_contexts_cannot_be_overridden():
     commands_filter = CommandsFilter(
-        contexts={
+        contexts=[
             Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-        }
+        ]
     )
 
     with pytest.raises(AttributeError, match="^can't set attribute"):
-        commands_filter.contexts = {Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)}
+        commands_filter.contexts = [Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)]
 
 
 def test_commands_filter_allowed_commands_cannot_be_overridden():
