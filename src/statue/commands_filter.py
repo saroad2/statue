@@ -24,7 +24,7 @@ class CommandsFilter:
         :type contexts: Optional[Collection[Context]]
         :param allowed_commands: Allowed commands that pass filter
         :type allowed_commands: Optional[Collection[str]]
-        :param denied_commands: Denied commands that does not pass filter
+        :param denied_commands: Denied commands that do not pass filter
         :type denied_commands: Optional[Collection[str]]
         :raises ValueError: Raised if both allowed and denied commands are set.
         """
