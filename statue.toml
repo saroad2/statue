@@ -143,6 +143,13 @@ allowed_contexts = [
 ]
 version = "2.13.3"
 
+[commands.pylint.documentation]
+args = [
+    "--ignore-imports=y",
+    "--disable=all",
+    "--enable=C0115,C0304,C0116,C0114",
+]
+
 [commands.pylint.test]
 add_args = [
     "--disable=C0103,C0114,C0115,C0116,C0203,C0204,C0330,C0411",
