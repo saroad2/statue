@@ -34,7 +34,7 @@ def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
     evaluations_dir = cache_dir / "evaluations"
     evaluations_dir.mkdir(parents=True)
 
-    time_stamps = list(random.choices(range(1_000_000), k=size + 1))
+    time_stamps = list(random.sample(range(1_000_000), k=size + 1))
     time_stamps.sort(reverse=True)
     old_time_stamps, recent_time_stamp = time_stamps[1:], time_stamps[0]
     old_evaluations = [
