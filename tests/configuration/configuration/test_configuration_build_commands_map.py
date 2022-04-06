@@ -173,7 +173,7 @@ def test_get_commands_map_with_source_context(mock_build_commands):
             call(
                 CommandsFilter(
                     denied_commands=[COMMAND3],
-                    contexts=[context1, context2],
+                    contexts=[context2, context1],
                 )
             ),
             call(

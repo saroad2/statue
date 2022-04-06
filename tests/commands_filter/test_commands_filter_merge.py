@@ -23,10 +23,10 @@ def case_empty_filters():
 
 def case_merge_contexts_with_nothing():
     filter1 = CommandsFilter(
-        contexts={
+        contexts=[
             Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-        },
+        ],
         allowed_commands={COMMAND1, COMMAND2},
     )
     return filter1, CommandsFilter(), filter1
@@ -34,20 +34,38 @@ def case_merge_contexts_with_nothing():
 
 def case_merge_contexts_lists():
     filter1 = CommandsFilter(
-        contexts={
+        contexts=[
             Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-        },
+        ],
     )
     filter2 = CommandsFilter(
-        contexts={Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)},
+        contexts=[Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3)],
     )
     result = CommandsFilter(
-        contexts={
+        contexts=[
             Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
             Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
-        },
+        ],
+    )
+    return filter1, filter2, result
+
+
+def case_merge_contexts_lists_with_duplication():
+    context1, context2, context3 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
+    filter1 = CommandsFilter(
+        contexts=[context1, context2],
+    )
+    filter2 = CommandsFilter(
+        contexts=[context3, context1],
+    )
+    result = CommandsFilter(
+        contexts=[context1, context2, context3, context1],
     )
     return filter1, filter2, result
 
@@ -87,8 +105,7 @@ def case_merge_allowed_and_denied_lists():
 def test_commands_filter_merge(
     filter1: CommandsFilter, filter2: CommandsFilter, result: CommandsFilter
 ):
-    assert result == CommandsFilter.merge(filter1, filter2)
-    assert result == CommandsFilter.merge(filter2, filter1)
+    assert CommandsFilter.merge(filter1, filter2) == result
 
 
 def test_command_filter_merge_fail_on_command_both_allowed_and_denied():
