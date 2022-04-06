@@ -41,17 +41,17 @@ class CommandsFilter:
             )
 
     @property
-    def contexts(self):
+    def contexts(self) -> FrozenSet[Context]:
         """Filter contexts."""
         return self._contexts
 
     @property
-    def allowed_commands(self):
+    def allowed_commands(self) -> Optional[FrozenSet[str]]:
         """Filter allowed commands."""
         return self._allowed_commands
 
     @property
-    def denied_commands(self):
+    def denied_commands(self) -> Optional[FrozenSet[str]]:
         """Filter denied commands."""
         return self._denied_commands
 
