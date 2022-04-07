@@ -633,32 +633,115 @@ class CommandBuilder:
         :return: Command builder as specified
         :rtype: CommandBuilder
         """
-        required_contexts = [
-            contexts_repository[context_name]
-            for context_name in builder_setups.get(REQUIRED_CONTEXTS, [])
-        ]
-        allowed_contexts = [
-            contexts_repository[context_name]
-            for context_name in builder_setups.get(ALLOWED_CONTEXTS, [])
-        ]
-        contexts_specifications = {
-            contexts_repository[context_name]: ContextSpecification.from_dict(
-                command_name=command_name,
-                context_name=context_name,
-                context_specification_setups=context_specification,
-            )
-            for context_name, context_specification in builder_setups.items()
-            if context_name not in cls.setup_words()
-        }
         return CommandBuilder(
             name=command_name,
             help=builder_setups[HELP],
             default_args=builder_setups.get(ARGS, []),
             version=builder_setups.get(VERSION),
-            required_contexts=required_contexts,
-            allowed_contexts=allowed_contexts,
-            contexts_specifications=contexts_specifications,
+            required_contexts=cls.build_contexts_list(
+                command_name=command_name,
+                key_name=REQUIRED_CONTEXTS,
+                builder_setups=builder_setups,
+                contexts_repository=contexts_repository,
+            ),
+            allowed_contexts=cls.build_contexts_list(
+                command_name=command_name,
+                key_name=ALLOWED_CONTEXTS,
+                builder_setups=builder_setups,
+                contexts_repository=contexts_repository,
+            ),
+            contexts_specifications=cls.build_contexts_specifications(
+                command_name=command_name,
+                builder_setups=builder_setups,
+                contexts_repository=contexts_repository,
+            ),
         )
+
+    @classmethod
+    def build_contexts_list(
+        cls,
+        command_name: str,
+        key_name: str,
+        builder_setups: Dict[str, Any],
+        contexts_repository: ContextsRepository,
+    ) -> List[Context]:
+        """
+        Read contexts list from dictionary.
+
+        :param command_name: Name of the command to be built
+        :type command_name: str
+        :param key_name: Key of the desired contexts list
+        :type key_name: str
+        :param builder_setups: Command builder configuration
+        :type builder_setups: Dict[str, Any]
+        :param contexts_repository: contexts repository to get contexts from
+        :type contexts_repository: ContextsRepository
+        :return: Contexts list
+        :rtype: List[Context]
+        :raises InconsistentConfiguration: Raised when one of the contexts was not
+            set in the contexts repository
+        """
+        if key_name not in builder_setups:
+            return []
+        context_names = builder_setups[key_name]
+        unknown_contexts = [
+            context_name
+            for context_name in context_names
+            if context_name not in contexts_repository
+        ]
+        if len(unknown_contexts) > 0:
+            raise InconsistentConfiguration(
+                f"The following contexts defined in {key_name} for "
+                f"{command_name} command are not defined in configuration: "
+                f"{', '.join(unknown_contexts)}"
+            )
+        return [contexts_repository[context_name] for context_name in context_names]
+
+    @classmethod
+    def build_contexts_specifications(
+        cls,
+        command_name: str,
+        builder_setups: Dict[str, Any],
+        contexts_repository: ContextsRepository,
+    ) -> Dict[Context, ContextSpecification]:
+        """
+        Read command builder's contexts specifications dictionary from configuration.
+
+        :param command_name: Name of the command to be built
+        :type command_name: str
+        :param builder_setups: Command builder configuration
+        :type builder_setups: Dict[str, Any]
+        :param contexts_repository: contexts repository to get contexts from
+        :type contexts_repository: ContextsRepository
+        :return: Contexts specifications dictionary
+        :rtype: Dict[Context, ContextSpecification]
+        :raises InconsistentConfiguration: Raised when one of the contexts was not
+            set in the contexts repository
+        """
+        context_names = [
+            context_name
+            for context_name in builder_setups.keys()
+            if context_name not in cls.setup_words()
+        ]
+        unknown_contexts = [
+            context_name
+            for context_name in context_names
+            if context_name not in contexts_repository
+        ]
+        if len(unknown_contexts) > 0:
+            raise InconsistentConfiguration(
+                f"The following specified contexts defined in {command_name} "
+                "are not defined in configuration: "
+                f"{', '.join(unknown_contexts)}"
+            )
+        return {
+            contexts_repository[context_name]: ContextSpecification.from_dict(
+                command_name=command_name,
+                context_name=context_name,
+                context_specification_setups=builder_setups[context_name],
+            )
+            for context_name in context_names
+        }
 
     @classmethod
     def setup_words(cls) -> List[str]:

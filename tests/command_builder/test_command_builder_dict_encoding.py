@@ -23,6 +23,7 @@ from tests.constants import (
     ARG4,
     COMMAND1,
     COMMAND_HELP_STRING1,
+    COMMAND_HELP_STRING2,
     CONTEXT1,
     CONTEXT2,
     CONTEXT3,
@@ -322,6 +323,57 @@ def case_command_builder_from_dict_fail_on_both_args_and_add_args():
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"args and add_args cannot be both set at the same time"
+    )
+
+    return command_builder_dict, contexts_repository, error_message
+
+
+@case(tags=[FAILED_TAG])
+def case_command_builder_from_dict_fail_unknown_required_context():
+    command_builder_dict = {
+        HELP: COMMAND_HELP_STRING1,
+        REQUIRED_CONTEXTS: [CONTEXT1],
+    }
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT2, help=COMMAND_HELP_STRING2)
+    )
+    error_message = (
+        f"The following contexts defined in {REQUIRED_CONTEXTS} "
+        f"for {COMMAND1} command are not defined in configuration: {CONTEXT1}"
+    )
+
+    return command_builder_dict, contexts_repository, error_message
+
+
+@case(tags=[FAILED_TAG])
+def case_command_builder_from_dict_fail_unknown_allowed_context():
+    command_builder_dict = {
+        HELP: COMMAND_HELP_STRING1,
+        ALLOWED_CONTEXTS: [CONTEXT1],
+    }
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT2, help=COMMAND_HELP_STRING2)
+    )
+    error_message = (
+        f"The following contexts defined in {ALLOWED_CONTEXTS} "
+        f"for {COMMAND1} command are not defined in configuration: {CONTEXT1}"
+    )
+
+    return command_builder_dict, contexts_repository, error_message
+
+
+@case(tags=[FAILED_TAG])
+def case_command_builder_from_dict_fail_unknown_specified_context():
+    command_builder_dict = {
+        HELP: COMMAND_HELP_STRING1,
+        CONTEXT1: {ARGS: [ARG1, ARG2]},
+    }
+    contexts_repository = ContextsRepository(
+        Context(name=CONTEXT2, help=COMMAND_HELP_STRING2)
+    )
+    error_message = (
+        f"The following specified contexts defined in {COMMAND1} "
+        f"are not defined in configuration: {CONTEXT1}"
     )
 
     return command_builder_dict, contexts_repository, error_message
