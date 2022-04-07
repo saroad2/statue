@@ -124,8 +124,8 @@ help = "Python code linter"
 args = [
     "--ignore-imports=y",
     "--disable=bad-continuation",
-    "--enable=useless-suppression",
-    "--fail-on=useless-suppression",
+    "--enable=useless-suppression,use-symbolic-message-instead",
+    "--fail-on=useless-suppression,use-symbolic-message-instead",
 ]
 allowed_contexts = [
     "documentation",
