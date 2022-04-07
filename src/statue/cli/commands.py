@@ -63,6 +63,7 @@ def show_command_cli(
         required_contexts = [
             context.name for context in command_builder.required_contexts
         ]
+        required_contexts.sort()
         click.echo(
             f"{bullet_style('Required contexts')} - " f"{', '.join(required_contexts)}"
         )
@@ -70,6 +71,7 @@ def show_command_cli(
         allowed_contexts = [
             context.name for context in command_builder.allowed_contexts
         ]
+        allowed_contexts.sort()
         click.echo(
             f"{bullet_style('Allowed contexts')} - " f"{', '.join(allowed_contexts)}"
         )
@@ -77,6 +79,7 @@ def show_command_cli(
         specified_contexts = [
             context.name for context in command_builder.specified_contexts
         ]
+        specified_contexts.sort()
         click.echo(
             f"{bullet_style('Specified contexts')} - "
             f"{', '.join(specified_contexts)}"

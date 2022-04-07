@@ -43,9 +43,9 @@ def test_command_builder_remove_required_context_by_name():
 
     command_builder.remove_context(context2)
 
-    assert command_builder.required_contexts == [context1]
-    assert command_builder.allowed_contexts == [context3, context4]
-    assert command_builder.specified_contexts == [context5, context6]
+    assert command_builder.required_contexts == {context1}
+    assert command_builder.allowed_contexts == {context3, context4}
+    assert command_builder.specified_contexts == {context5, context6}
 
 
 def test_command_builder_remove_allowed_context_by_name():
@@ -70,9 +70,9 @@ def test_command_builder_remove_allowed_context_by_name():
 
     command_builder.remove_context(context4)
 
-    assert command_builder.required_contexts == [context1, context2]
-    assert command_builder.allowed_contexts == [context3]
-    assert command_builder.specified_contexts == [context5, context6]
+    assert command_builder.required_contexts == {context1, context2}
+    assert command_builder.allowed_contexts == {context3}
+    assert command_builder.specified_contexts == {context5, context6}
 
 
 def test_command_builder_remove_specified_context_by_name():
@@ -97,6 +97,6 @@ def test_command_builder_remove_specified_context_by_name():
 
     command_builder.remove_context(context6)
 
-    assert command_builder.required_contexts == [context1, context2]
-    assert command_builder.allowed_contexts == [context3, context4]
-    assert command_builder.specified_contexts == [context5]
+    assert command_builder.required_contexts == {context1, context2}
+    assert command_builder.allowed_contexts == {context3, context4}
+    assert command_builder.specified_contexts == {context5}

@@ -36,7 +36,6 @@ required_contexts = [
 ]
 allowed_contexts = [
     "fast",
-    "format",
     "test",
 ]
 
@@ -126,9 +125,6 @@ args = [
     "--disable=bad-continuation",
     "--enable=useless-suppression,use-symbolic-message-instead",
     "--fail-on=useless-suppression,use-symbolic-message-instead",
-]
-allowed_contexts = [
-    "documentation",
 ]
 
 [commands.pylint.documentation]
