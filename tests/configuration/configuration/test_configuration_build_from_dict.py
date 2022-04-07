@@ -101,19 +101,18 @@ def test_configuration_from_dict_update_commands(tmp_path):
     commands_config = mock.Mock()
     cache_dir = tmp_path / ".statue"
 
-    with mock.patch.object(
-        CommandsRepository, "update_from_config"
-    ) as commands_update_mock:
+    with mock.patch.object(CommandsRepository, "from_dict") as commands_from_dict_mock:
         configuration = Configuration.from_dict(
             cache_dir=cache_dir, statue_config_dict={COMMANDS: commands_config}
         )
-        commands_update_mock.assert_called_once_with(
+        commands_from_dict_mock.assert_called_once_with(
             config=commands_config,
             contexts_repository=configuration.contexts_repository,
         )
 
+        assert configuration.commands_repository == commands_from_dict_mock.return_value
+
     assert len(configuration.contexts_repository) == 0
-    assert len(configuration.commands_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.cache.cache_root_directory == cache_dir
     assert configuration.cache.history_size == DEFAULT_HISTORY_SIZE

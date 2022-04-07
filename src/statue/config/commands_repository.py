@@ -1,6 +1,6 @@
 """Place for saving all available command builders."""
 from collections import OrderedDict
-from typing import Any, Dict, Iterator, List, MutableMapping
+from typing import Any, Dict, Iterator, List
 from typing import OrderedDict as OrderedDictType
 
 from statue.command_builder import CommandBuilder
@@ -84,27 +84,6 @@ class CommandsRepository:
         """Clear repository from all command builders."""
         self.command_builders_map.clear()
 
-    def update_from_config(
-        self, config: MutableMapping[str, Any], contexts_repository: ContextsRepository
-    ):
-        """
-        Update commands repository from given configuration.
-
-        :param config: Configuration to update repository from
-        :type config: MutableMapping[str, Any]
-        :param contexts_repository: Contexts repository to get contexts from
-        :type contexts_repository: ContextsRepository
-        """
-        new_builders = [
-            CommandBuilder.from_dict(
-                command_name=command_name,
-                builder_setups=builder_setups,
-                contexts_repository=contexts_repository,
-            )
-            for command_name, builder_setups in config.items()
-        ]
-        self.add_command_builders(*new_builders)
-
     def as_dict(self) -> OrderedDictType[str, Any]:
         """
         Encode commands repository as a dictionary.
@@ -123,3 +102,27 @@ class CommandsRepository:
                 for command_builder in command_builders_list
             ]
         )
+
+    @classmethod
+    def from_dict(
+        cls, config: Dict[str, Any], contexts_repository: ContextsRepository
+    ) -> "CommandsRepository":
+        """
+        Create commands repository from given configuration.
+
+        :param config: Configuration to update repository from
+        :type config: Dict[str, Any]
+        :param contexts_repository: Contexts repository to get contexts from
+        :type contexts_repository: ContextsRepository
+        :return: Commands repository as described in configuration
+        :rtype: CommandsRepository
+        """
+        builders = [
+            CommandBuilder.from_dict(
+                command_name=command_name,
+                builder_setups=builder_setups,
+                contexts_repository=contexts_repository,
+            )
+            for command_name, builder_setups in config.items()
+        ]
+        return CommandsRepository(*builders)
