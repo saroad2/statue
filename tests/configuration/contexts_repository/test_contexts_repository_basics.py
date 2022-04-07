@@ -208,7 +208,7 @@ def test_contexts_repository_fail_getting_unknown_context():
     with pytest.raises(
         UnknownContext, match=f'^Could not find context named "{CONTEXT3}"$'
     ):
-        contexts_repository[CONTEXT3]  # pylint: disable=W0104
+        contexts_repository[CONTEXT3]  # pylint: disable=pointless-statement
 
 
 def test_contexts_repository_fail_on_adding_context_with_existing_name():
