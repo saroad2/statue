@@ -173,4 +173,4 @@ def test_commands_repository_get_non_existing_command():
     with pytest.raises(
         UnknownCommand, match=f'^Could not find command named "{COMMAND3}"$'
     ):
-        commands_repository[COMMAND3]  # pylint: disable=W0104
+        commands_repository[COMMAND3]  # pylint: disable=pointless-statement
