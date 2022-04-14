@@ -1,7 +1,7 @@
 # pylint: disable=too-many-locals
 """Run CLI."""
 from pathlib import Path
-from typing import List, Optional, Sequence
+from typing import Any, List, Optional, Sequence
 
 import click
 
@@ -20,9 +20,9 @@ from statue.cli.string_util import (
     evaluation_summary_string,
 )
 from statue.cli.styled_strings import failure_style
-from statue.commands_filter import CommandsFilter
+from statue.commands_map_builder import CommandsMapBuilder
 from statue.config.configuration import Configuration
-from statue.exceptions import CacheError, UnknownContext
+from statue.exceptions import CommandsMapBuilderError, UnknownContext
 from statue.runner import RunnerMode, build_runner
 from statue.verbosity import is_silent, is_verbose
 
@@ -34,15 +34,6 @@ from statue.verbosity import is_silent, is_verbose
 @deny_option
 @click.option(
     "-i", "--install", is_flag=True, help="Install commands before running if missing"
-)
-@click.option(
-    "-f",
-    "--failed",
-    is_flag=True,
-    help=(
-        "Run failed commands of an earlier evaluation. "
-        "Run over the most recent evaluation by default"
-    ),
 )
 @click.option(
     "-p",
@@ -62,7 +53,18 @@ from statue.verbosity import is_silent, is_verbose
     type=int,
     help='Run commands of the most recent evaluation. Same as "--previous 1".',
 )
-@click.option("-f", "--failed", is_flag=True, help="Run failed commands")
+@click.option(
+    "-f", "--failed", is_flag=True, help="Run commands from the most recent failed run"
+)
+@click.option(
+    "-fo",
+    "--failed-only",
+    is_flag=True,
+    help=(
+        'Same as "--failed", but will only run the commands '
+        "and not those who ended successfully"
+    ),
+)
 @click.option(
     "--cache/--no-cache", default=True, help="Save evaluation to cache or not"
 )
@@ -87,11 +89,12 @@ def run_cli(  # pylint: disable=too-many-arguments
     configuration: Configuration,
     ctx: click.Context,
     sources: Sequence[Path],
-    context: Optional[List[str]],
+    context: Sequence[str],
     allow: Optional[List[str]],
     deny: Optional[List[str]],
     previous: Optional[int],
     failed: bool,
+    failed_only: bool,
     install: bool,
     cache: bool,
     verbosity: str,
@@ -106,40 +109,30 @@ def run_cli(  # pylint: disable=too-many-arguments
     which files to run
     """
     commands_map = None
-    sources = __get_sources(sources, configuration)
-    if len(sources) == 0:
-        click.echo(
-            '"Run" command cannot be run without a specified source '
-            "or a sources section in Statue's configuration."
-        )
-        click.echo(
-            'Please consider running "statue config init" in order to initialize '
-            "default configuration."
-        )
-        ctx.exit(1)
     try:
-        commands_map = __get_commands_map(
+        commands_map = CommandsMapBuilder(
             configuration=configuration,
-            sources=sources,
-            context=context,
-            allow=allow,
-            deny=deny,
-            failed=failed,
+            specified_sources=__list_or_none(sources),
+            allowed_commands=__list_or_none(allow),
+            denied_commands=__list_or_none(deny),
+            contexts=[
+                configuration.contexts_repository[context_name]
+                for context_name in context
+            ],
             previous=previous,
-        )
-    except CacheError:
-        pass
-    except UnknownContext as error:
-        click.echo(error)
+            failed=failed,
+            failed_only=failed_only,
+        ).build()
+    except (UnknownContext, CommandsMapBuilderError) as error:
+        click.echo(failure_style(str(error)))
         ctx.exit(1)
-    if commands_map is None or len(commands_map) == 0:
-        click.echo(ctx.get_help())
-        return
-    command_names = commands_map.command_names
+    if len(commands_map) == 0:
+        click.echo("No commands to run.")
+        ctx.exit(0)
     missing_commands = [
         command_builder
         for command_builder in configuration.commands_repository
-        if command_builder.name in command_names
+        if command_builder.name in commands_map.command_names
         and not command_builder.installed_correctly()
     ]
     __handle_missing_commands(
@@ -148,8 +141,7 @@ def run_cli(  # pylint: disable=too-many-arguments
         install=install,
         verbosity=verbosity,
     )
-    if mode is None:
-        mode = configuration.default_mode.name
+    mode = mode if mode is not None else configuration.default_mode.name
     if is_verbose(verbosity):
         click.echo(f"Running evaluation in {mode.lower()} mode")
     runner = build_runner(mode)
@@ -170,53 +162,28 @@ def run_cli(  # pylint: disable=too-many-arguments
     ctx.exit(exit_code)
 
 
-def __get_sources(sources: Sequence[Path], configuration: Configuration) -> List[Path]:
-    if len(sources) == 0:
-        return configuration.sources_repository.sources_list
-    return list(sources)
-
-
-def __get_commands_map(  # pylint: disable=too-many-arguments
-    configuration, sources, context, allow, deny, failed, previous
-):
-    if failed and previous is None:
-        previous = 1
-    if previous is None:
-        allow = frozenset(allow) if len(allow) != 0 else None
-        deny = frozenset(deny) if len(deny) != 0 else None
-        context = frozenset(
-            {
-                configuration.contexts_repository[context_name]
-                for context_name in context
-            }
-        )
-        return configuration.build_commands_map(
-            sources=sources,
-            commands_filter=CommandsFilter(
-                contexts=context, allowed_commands=allow, denied_commands=deny
-            ),
-        )
-    evaluation = configuration.cache.get_evaluation(previous - 1)
-    if failed:
-        return evaluation.failure_evaluation.commands_map
-    return evaluation.commands_map
+def __list_or_none(some_list: Optional[Sequence[Any]]):
+    if some_list is None or len(some_list) == 0:
+        return None
+    return list(some_list)
 
 
 def __handle_missing_commands(ctx, missing_commands, install, verbosity):
-    if len(missing_commands) != 0:
-        if install:
-            for command in missing_commands:
-                command.update_to_version(verbosity=verbosity)
-        else:
-            missing_commands_names = [command.name for command in missing_commands]
-            click.echo(
-                failure_style(
-                    "The following commands are not installed correctly: "
-                    f"{', '.join(missing_commands_names)}"
-                )
+    if len(missing_commands) == 0:
+        return
+    if install:
+        for command in missing_commands:
+            command.update_to_version(verbosity=verbosity)
+    else:
+        missing_commands_names = [command.name for command in missing_commands]
+        click.echo(
+            failure_style(
+                "The following commands are not installed correctly: "
+                f"{', '.join(missing_commands_names)}"
             )
-            click.echo(
-                "Consider using the '-i' flag in order to install missing "
-                "commands before running"
-            )
-            ctx.exit(1)
+        )
+        click.echo(
+            "Consider using the '-i' flag in order to install missing "
+            "commands before running"
+        )
+        ctx.exit(1)
