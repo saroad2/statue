@@ -50,6 +50,10 @@ class InvalidCommand(StatueException):
     """Command doesn't fit restrictions."""
 
 
+class CommandsMapBuilderError(StatueException):
+    """Could not build commands map."""
+
+
 class CommandExecutionError(StatueException):
     """Command cannot be executed."""
 
