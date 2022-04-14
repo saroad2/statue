@@ -36,8 +36,8 @@ In order to install *Statue*, run:
 
     pip install statue
 
-Quick Start
-------------
+Initialization
+--------------
 
 In order to start working with statue, go to your project root directory and initialize a configuration file with the following command:
 
@@ -46,6 +46,16 @@ In order to start working with statue, go to your project root directory and ini
     statue config init
 
 and follow the instructions.
+
+Quick Start
+-----------
+
+In order to run statue in your repository, run the following command after initialization:
+
+::
+
+    statue run
+
 
 Run In Context
 --------------
