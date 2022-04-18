@@ -292,14 +292,14 @@ def case_two_sources_with_failures():
     argnames=["evaluation", "failure_evaluation", "commands_map"], cases=THIS_MODULE
 )
 def test_get_commands_map(evaluation, failure_evaluation, commands_map):
-    assert evaluation.failure_evaluation == failure_evaluation
+    assert commands_map == evaluation.commands_map
 
 
 @parametrize_with_cases(
     argnames=["evaluation", "failure_evaluation", "commands_map"], cases=THIS_MODULE
 )
 def test_get_failure_evaluation(evaluation, failure_evaluation, commands_map):
-    assert commands_map == evaluation.commands_map
+    assert evaluation.failure_evaluation == failure_evaluation
 
 
 @parametrize_with_cases(
