@@ -27,7 +27,7 @@ def case_empty_evaluation():
 
 def case_one_source_one_command():
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -56,7 +56,7 @@ def case_one_source_one_command():
 
 def case_one_source_two_commands():
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -95,7 +95,7 @@ def case_one_source_two_commands():
 
 def case_two_sources_two_commands():
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -140,7 +140,7 @@ def case_two_sources_two_commands():
 def case_evaluation_string_verbose():
     execution_duration = 0.25
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(

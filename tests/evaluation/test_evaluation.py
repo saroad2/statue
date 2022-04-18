@@ -28,7 +28,7 @@ def case_empty():
 @case(tags=[SUCCESSFUL_TAG])
 def case_all_successful():
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -64,7 +64,7 @@ def case_all_successful():
             ),
         }
     )
-    failure_evaluation = Evaluation()
+    failure_evaluation = Evaluation(timestamp=evaluation.timestamp)
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2],
         SOURCE2: [COMMAND3, COMMAND4, COMMAND5],
@@ -76,7 +76,7 @@ def case_all_successful():
 def case_one_failure():
     failed_execution_duration = random.random()
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -113,7 +113,8 @@ def case_one_failure():
         }
     )
     failure_evaluation = Evaluation(
-        {
+        timestamp=evaluation.timestamp,
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -123,7 +124,7 @@ def case_one_failure():
                     )
                 ]
             )
-        }
+        },
     )
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2],
@@ -139,7 +140,7 @@ def case_one_source_with_two_failures():
         random.random(),
     )
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -181,7 +182,8 @@ def case_one_source_with_two_failures():
         }
     )
     failure_evaluation = Evaluation(
-        {
+        timestamp=evaluation.timestamp,
+        sources_evaluations={
             SOURCE2: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -196,7 +198,7 @@ def case_one_source_with_two_failures():
                     ),
                 ]
             )
-        }
+        },
     )
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2, COMMAND3],
@@ -213,7 +215,7 @@ def case_two_sources_with_failures():
         random.random(),
     )
     evaluation = Evaluation(
-        {
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -255,7 +257,8 @@ def case_two_sources_with_failures():
         }
     )
     failure_evaluation = Evaluation(
-        {
+        timestamp=evaluation.timestamp,
+        sources_evaluations={
             SOURCE1: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -279,7 +282,7 @@ def case_two_sources_with_failures():
                     )
                 ]
             ),
-        }
+        },
     )
     commands_map = {
         SOURCE1: [COMMAND1, COMMAND2, COMMAND3],

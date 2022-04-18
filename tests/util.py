@@ -27,7 +27,7 @@ def build_commands_builders_map(*commands_builders: CommandBuilder):
 
 def build_failure_evaluation(commands_map):
     return Evaluation(
-        {
+        sources_evaluations={
             source: SourceEvaluation(
                 [
                     CommandEvaluation(
