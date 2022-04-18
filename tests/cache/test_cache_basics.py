@@ -87,7 +87,6 @@ def test_cache_constructor_with_existing_evaluations(tmp_path):
     assert cache.evaluations_dir == cache_dir / "evaluations"
     assert cache.evaluations_dir.exists()
     assert cache.all_evaluation_paths == evaluation_paths
-    assert cache.recent_evaluation_path == evaluation_paths[0]
     assert cache.history_size == size
 
 

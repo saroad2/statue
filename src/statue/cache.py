@@ -69,16 +69,6 @@ class Cache:
         evaluations_files.sort(key=self.extract_time_stamp_from_path, reverse=True)
         return evaluations_files
 
-    @property
-    def recent_evaluation_path(self) -> Optional[Path]:
-        """
-        Get last evaluation result path.
-
-        :return: Most recent evaluation path
-        :rtype: Optional[Path]
-        """
-        return self.evaluation_path(0)
-
     def evaluation_path(self, n: int) -> Path:
         """
         Get the nth most recent evaluation result path.
