@@ -79,7 +79,7 @@ class Cache:
         """
         return self.evaluation_path(0)
 
-    def evaluation_path(self, n: int) -> Path:  # pylint: disable=invalid-name
+    def evaluation_path(self, n: int) -> Path:
         """
         Get the nth most recent evaluation result path.
 
