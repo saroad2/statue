@@ -110,6 +110,34 @@ def test_cache_get_evaluation_path(tmp_path, evaluation_index):
     assert cache.evaluation_path(evaluation_index) == evaluation_paths[evaluation_index]
 
 
+@pytest.mark.parametrize(
+    argnames="evaluation_index", argvalues=range(len(EVALUATION_PATH_NAMES))
+)
+def test_cache_get_evaluation(
+    tmp_path, evaluation_index, mock_evaluation_load_from_file
+):
+    cache_dir = tmp_path / "cache"
+    evaluations_dir = cache_dir / "evaluations"
+    evaluations_dir.mkdir(parents=True)
+    evaluation_paths = [
+        evaluations_dir / evaluation_path_name
+        for evaluation_path_name in EVALUATION_PATH_NAMES
+    ]
+    for evaluation_file in evaluation_paths:
+        evaluation_file.touch()
+
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
+
+    assert (
+        cache.get_evaluation(evaluation_index)
+        == mock_evaluation_load_from_file.return_value
+    )
+    mock_evaluation_load_from_file.assert_called_once_with(
+        evaluation_paths[evaluation_index]
+    )
+
+
 def test_cache_constructor_with_history_size(tmp_path):
     history_size = 8
     cache = Cache(size=history_size)

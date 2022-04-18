@@ -86,6 +86,17 @@ class Cache:
             )
         return evaluations_files[n]
 
+    def get_evaluation(self, n: int) -> Evaluation:
+        """
+        Get the nth most recent evaluation.
+
+        :param n: Evaluation index
+        :type n: int
+        :return: The nth evaluation
+        :rtype: Evaluation
+        """
+        return Evaluation.load_from_file(self.evaluation_path(n))
+
     def save_evaluation(self, evaluation: Evaluation):
         """
         Save evaluation to cache.
