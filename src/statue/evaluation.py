@@ -1,4 +1,5 @@
 """Evaluation of commands map."""
+import datetime
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -6,7 +7,7 @@ from typing import Any, Dict, ItemsView, Iterator, KeysView, List, ValuesView
 
 from statue.command import CommandEvaluation
 from statue.commands_map import CommandsMap
-from statue.constants import ENCODING
+from statue.constants import DATETIME_FORMAT, ENCODING
 
 
 @dataclass
@@ -130,6 +131,9 @@ class SourceEvaluation:
 class Evaluation:
     """Full evaluation class."""
 
+    timestamp: datetime.datetime = field(
+        default_factory=lambda: datetime.datetime.now().replace(microsecond=0)
+    )
     sources_evaluations: Dict[Path, SourceEvaluation] = field(default_factory=dict)
     total_execution_duration: float = field(default=0)
 
@@ -200,6 +204,7 @@ class Evaluation:
         """
         sources_evaluations = {str(key): value.as_dict() for key, value in self.items()}
         return dict(
+            timestamp=self.timestamp.strftime(DATETIME_FORMAT),
             sources_evaluations=sources_evaluations,
             total_execution_duration=self.total_execution_duration,
         )
@@ -321,7 +326,11 @@ class Evaluation:
             for source, source_evaluation in failure_dict.items()
             if len(source_evaluation) != 0
         }
-        return Evaluation(sources_evaluations=failure_dict)
+        return Evaluation(
+            timestamp=self.timestamp,
+            sources_evaluations=failure_dict,
+            total_execution_duration=self.total_execution_duration,
+        )
 
     @classmethod
     def from_dict(cls, evaluation: Dict[str, Any]) -> "Evaluation":
@@ -334,6 +343,9 @@ class Evaluation:
         :rtype: Evaluation
         """
         return Evaluation(
+            timestamp=datetime.datetime.strptime(
+                evaluation["timestamp"], DATETIME_FORMAT
+            ),
             sources_evaluations={
                 Path(input_path): SourceEvaluation.from_dict(source_evaluation)
                 for input_path, source_evaluation in evaluation[

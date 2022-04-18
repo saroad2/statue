@@ -1,3 +1,4 @@
+import datetime
 import random
 from pathlib import Path
 from unittest import mock
@@ -5,6 +6,7 @@ from unittest import mock
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.command import Command
+from statue.constants import DATETIME_FORMAT
 from statue.evaluation import CommandEvaluation, Evaluation, SourceEvaluation
 from tests.constants import (
     ARG1,
@@ -19,13 +21,32 @@ from tests.constants import (
 
 
 def case_empty():
-    evaluation_json = dict(sources_evaluations={}, total_execution_duration=0)
+    evaluation_json = dict(
+        timestamp=datetime.datetime.now().strftime(DATETIME_FORMAT),
+        sources_evaluations={},
+        total_execution_duration=0,
+    )
     evaluation = Evaluation()
+    return evaluation_json, evaluation
+
+
+def case_with_predefined_datetime():
+    evaluation_json = dict(
+        timestamp="05/15/1984, 15:18:20",
+        sources_evaluations={},
+        total_execution_duration=0,
+    )
+    evaluation = Evaluation(
+        timestamp=datetime.datetime(
+            year=1984, month=5, day=15, hour=15, minute=18, second=20
+        )
+    )
     return evaluation_json, evaluation
 
 
 def case_one_source_no_commands():
     evaluation_json = dict(
+        timestamp=datetime.datetime.now().strftime(DATETIME_FORMAT),
         sources_evaluations={
             SOURCE1: dict(commands_evaluations=[], source_execution_duration=0)
         },
@@ -43,6 +64,7 @@ def case_one_source_one_commands():
         random.random(),
     )
     evaluation_json = dict(
+        timestamp=datetime.datetime.now().strftime(DATETIME_FORMAT),
         total_execution_duration=total_execution_duration,
         sources_evaluations={
             SOURCE1: dict(
@@ -81,6 +103,7 @@ def case_one_source_two_commands():
         total_execution_duration,
     ) = (random.random(), random.random(), random.random(), random.random())
     evaluation_json = dict(
+        timestamp=datetime.datetime.now().strftime(DATETIME_FORMAT),
         total_execution_duration=total_execution_duration,
         sources_evaluations={
             SOURCE1: dict(
@@ -138,6 +161,7 @@ def case_two_sources_two_commands():
         random.random(),
     )
     evaluation_json = dict(
+        timestamp=datetime.datetime.now().strftime(DATETIME_FORMAT),
         total_execution_duration=total_execution_duration,
         sources_evaluations={
             SOURCE1: dict(

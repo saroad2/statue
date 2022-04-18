@@ -1,4 +1,6 @@
+import datetime
 import random
+from typing import Optional
 from unittest import mock
 
 import pytest
@@ -27,7 +29,7 @@ def build_commands_builders_map(*commands_builders: CommandBuilder):
 
 def build_failure_evaluation(commands_map):
     return Evaluation(
-        {
+        sources_evaluations={
             source: SourceEvaluation(
                 [
                     CommandEvaluation(
@@ -83,12 +85,20 @@ def command_builder_mock(
     return command_builder
 
 
-def evaluation_mock(successful_commands, total_commands, total_execution_duration):
+def evaluation_mock(
+    successful_commands: int,
+    total_commands: int,
+    total_execution_duration: float,
+    timestamp: Optional[datetime.datetime] = None,
+):
     evaluation = mock.Mock()
     evaluation.successful_commands_number = successful_commands
     evaluation.commands_number = total_commands
     evaluation.success = successful_commands == total_commands
     evaluation.total_execution_duration = total_execution_duration
+    evaluation.timestamp = (
+        timestamp if timestamp is not None else datetime.datetime.now()
+    )
     return evaluation
 
 

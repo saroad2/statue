@@ -11,22 +11,26 @@ from tests.util import command_mock
 
 
 def case_empty_evaluation():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=[],
         evaluation_number=0,
-        evaluation=Evaluation(),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
+        evaluation=Evaluation(timestamp=timestamp),
         output="04/15/2020, 12:07:42 - Success (0/0 successful, 0.00 seconds)\n",
     )
 
 
 def case_one_source_one_command():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=[],
         evaluation_number=0,
         evaluation=Evaluation(
+            timestamp=timestamp,
             total_execution_duration=18.1,
             sources_evaluations={
                 SOURCE1: SourceEvaluation(
@@ -41,9 +45,6 @@ def case_one_source_one_command():
                 )
             },
         ),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
         output=(
             "04/15/2020, 12:07:42 - Success (1/1 successful, 18.10 seconds)\n"
             f"{SOURCE1} (1.20 seconds):\n"
@@ -53,10 +54,14 @@ def case_one_source_one_command():
 
 
 def case_one_source_two_commands_success():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=[],
         evaluation_number=0,
         evaluation=Evaluation(
+            timestamp=timestamp,
             total_execution_duration=18.1,
             sources_evaluations={
                 SOURCE1: SourceEvaluation(
@@ -76,9 +81,6 @@ def case_one_source_two_commands_success():
                 )
             },
         ),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
         output=(
             "04/15/2020, 12:07:42 - Success (2/2 successful, 18.10 seconds)\n"
             f"{SOURCE1} (1.20 seconds):\n"
@@ -89,10 +91,14 @@ def case_one_source_two_commands_success():
 
 
 def case_one_source_two_commands_success_verbosely():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=["--verbose"],
         evaluation_number=0,
         evaluation=Evaluation(
+            timestamp=timestamp,
             total_execution_duration=18.1,
             sources_evaluations={
                 SOURCE1: SourceEvaluation(
@@ -112,9 +118,6 @@ def case_one_source_two_commands_success_verbosely():
                 )
             },
         ),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
         output=(
             "04/15/2020, 12:07:42 - Success (2/2 successful, 18.10 seconds)\n"
             f"{SOURCE1} (1.20 seconds):\n"
@@ -127,10 +130,14 @@ def case_one_source_two_commands_success_verbosely():
 
 
 def case_one_source_two_commands_failure():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=[],
         evaluation_number=0,
         evaluation=Evaluation(
+            timestamp=timestamp,
             total_execution_duration=18.1,
             sources_evaluations={
                 SOURCE1: SourceEvaluation(
@@ -150,9 +157,6 @@ def case_one_source_two_commands_failure():
                 )
             },
         ),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
         output=(
             "04/15/2020, 12:07:42 - Failure (1/2 successful, 18.10 seconds)\n"
             f"{SOURCE1} (1.20 seconds):\n"
@@ -163,10 +167,14 @@ def case_one_source_two_commands_failure():
 
 
 def case_two_sources_two_commands():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=[],
         evaluation_number=0,
         evaluation=Evaluation(
+            timestamp=timestamp,
             total_execution_duration=18.1,
             sources_evaluations={
                 SOURCE1: SourceEvaluation(
@@ -191,9 +199,6 @@ def case_two_sources_two_commands():
                 ),
             },
         ),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
         output=(
             "04/15/2020, 12:07:42 - Failure (1/2 successful, 18.10 seconds)\n"
             f"{SOURCE1} (1.20 seconds):\n"
@@ -205,13 +210,13 @@ def case_two_sources_two_commands():
 
 
 def case_number_flag():
+    timestamp = datetime.datetime(
+        year=2020, month=4, day=15, hour=12, minute=7, second=42
+    )
     return dict(
         additional_flags=["-n", "5"],
         evaluation_number=4,
-        evaluation=Evaluation(),
-        datetime=datetime.datetime(
-            year=2020, month=4, day=15, hour=12, minute=7, second=42
-        ),
+        evaluation=Evaluation(timestamp=timestamp),
         output="04/15/2020, 12:07:42 - Success (0/0 successful, 0.00 seconds)\n",
     )
 
@@ -221,7 +226,6 @@ def test_history_show(
     case,
     tmp_path,
     cli_runner,
-    mock_cache_extract_time_stamp_from_path,
     mock_evaluation_load_from_file,
     mock_build_configuration_from_file,
 ):
@@ -229,7 +233,6 @@ def test_history_show(
     configuration = mock_build_configuration_from_file.return_value
     configuration.cache.evaluation_path.return_value = evaluation_path
     mock_evaluation_load_from_file.return_value = case["evaluation"]
-    mock_cache_extract_time_stamp_from_path.return_value = case["datetime"].timestamp()
 
     result = cli_runner.invoke(
         statue_cli, ["history", "show", *case["additional_flags"]]
@@ -242,14 +245,12 @@ def test_history_show(
         case["evaluation_number"]
     )
     mock_evaluation_load_from_file.assert_called_once_with(evaluation_path)
-    mock_cache_extract_time_stamp_from_path.assert_called_once_with(evaluation_path)
     assert result.output == case["output"]
 
 
 def test_history_show_fail_on_invalid_index(
     cli_runner, mock_build_configuration_from_file
 ):
-
     configuration = mock_build_configuration_from_file.return_value
     configuration.cache.evaluation_path.side_effect = IndexError
     result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "-6"])
