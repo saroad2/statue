@@ -1,12 +1,10 @@
 """History CLI."""
 import sys
-import time
-from pathlib import Path
+from datetime import datetime
 from typing import Union
 
 import click
 
-from statue.cache import Cache
 from statue.cli.cli import pass_configuration, statue_cli
 from statue.cli.common_flags import verbose_option
 from statue.cli.styled_strings import (
@@ -37,20 +35,6 @@ def evaluation_status(evaluation: Union[Evaluation, CommandEvaluation]) -> str:
     return failure_style("Failure")
 
 
-def evaluation_datetime(evaluation_path: Path) -> str:
-    """
-    Get styled time string for evaluation path.
-
-    :param evaluation_path: The path where the evaluation is saved
-    :type evaluation_path: Path
-    :return: styles datetime string
-    :rtype: str
-    """
-    evaluation_time_stamp = Cache.extract_time_stamp_from_path(evaluation_path)
-    parsed_time = time.localtime(evaluation_time_stamp)
-    return bullet_style(time.strftime(DATETIME_FORMAT, parsed_time))
-
-
 def evaluation_success_ratio(evaluation: Evaluation) -> str:
     """
     Get evaluation ratio string.
@@ -63,19 +47,18 @@ def evaluation_success_ratio(evaluation: Evaluation) -> str:
     return f"{evaluation.successful_commands_number}/{evaluation.commands_number}"
 
 
-def total_evaluation_string(evaluation_path: Path, evaluation: Evaluation) -> str:
+def total_evaluation_string(evaluation: Evaluation) -> str:
     """
     Create a string representing an evaluation.
 
-    :param evaluation_path: Path of a given evaluation.
-    :type evaluation_path: Path
     :param evaluation: The actual evaluation instance.
     :type evaluation: Evaluation
     :return: Pretty string describing the evaluation
     :rtype: str
     """
     return (
-        f"{evaluation_datetime(evaluation_path)} - {evaluation_status(evaluation)} "
+        f"{bullet_style(datetime.strftime(evaluation.timestamp, DATETIME_FORMAT))} -"
+        f" {evaluation_status(evaluation)} "
         f"({evaluation_success_ratio(evaluation)} successful, "
         f"{evaluation.total_execution_duration:.2f} seconds)"
     )
@@ -99,7 +82,7 @@ def list_evaluations_cli(configuration: Configuration, head: int):
         evaluation_paths = evaluation_paths[:head]
     for i, evaluation_path in enumerate(evaluation_paths, start=1):
         evaluation = Evaluation.load_from_file(evaluation_path)
-        click.echo(f"{i}) {total_evaluation_string(evaluation_path, evaluation)}")
+        click.echo(f"{i}) {total_evaluation_string(evaluation)}")
 
 
 @history_cli.command("show")
@@ -122,7 +105,7 @@ def show_evaluation_cli(
         )
         sys.exit(1)
     evaluation = Evaluation.load_from_file(evaluation_path)
-    click.echo(total_evaluation_string(evaluation_path, evaluation))
+    click.echo(total_evaluation_string(evaluation))
     for source, source_evaluation in evaluation.items():
         click.echo(
             f"{source_style(source)} ("
