@@ -98,13 +98,12 @@ def show_evaluation_cli(
 ):
     """Show past evaluation."""
     try:
-        evaluation_path = configuration.cache.evaluation_path(number - 1)
+        evaluation = configuration.cache.get_evaluation(number - 1)
     except IndexError:
         click.echo(
             failure_style(f"Could not find evaluation with given index {number}")
         )
         sys.exit(1)
-    evaluation = Evaluation.load_from_file(evaluation_path)
     click.echo(total_evaluation_string(evaluation))
     for source, source_evaluation in evaluation.items():
         click.echo(

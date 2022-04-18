@@ -20,7 +20,12 @@ from tests.constants import (
     SOURCE1,
     SOURCE2,
 )
-from tests.util import build_failure_evaluation, command_builder_mock, command_mock
+from tests.util import (
+    build_failure_evaluation,
+    command_builder_mock,
+    command_mock,
+    successful_evaluation_mock,
+)
 
 EVALUATION_STRING = "This is an evaluation"
 
@@ -59,7 +64,6 @@ def assert_evaluation_was_printed(result, evaluation_string_mock):
 
 
 def assert_usage_was_shown(result):
-    assert result.exit_code == 0
     assert result.output.startswith("Usage: statue run [OPTIONS] [SOURCES]...")
 
 
@@ -68,11 +72,17 @@ def test_simple_run(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
+    evaluation = successful_evaluation_mock()
+    commands_map = build_commands_map()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.build_commands_map.return_value = build_commands_map()
+    configuration.build_commands_map.return_value = commands_map
 
     result = cli_runner.invoke(statue_cli, ["run"])
 
@@ -80,10 +90,12 @@ def test_simple_run(
         result.exit_code == 0
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
     configuration.build_commands_map.assert_called_once_with(
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
@@ -114,19 +126,15 @@ def test_run_and_install_uninstalled_commands(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
+    evaluation = successful_evaluation_mock()
     command_builder1, command_builder2, command_builder3 = (
         command_builder_mock(COMMAND1, installed=True),
         command_builder_mock(COMMAND2, installed=False),
         command_builder_mock(COMMAND3, installed=True),
     )
-    configuration = mock_build_configuration_from_file.return_value
-    configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
-    configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.commands_repository.add_command_builders(
-        command_builder1, command_builder2, command_builder3
-    )
-    configuration.build_commands_map.return_value = CommandsMap(
+    commands_map = CommandsMap(
         {
             SOURCE1: [
                 command_builder1.build_command.return_value,
@@ -136,6 +144,16 @@ def test_run_and_install_uninstalled_commands(
         }
     )
 
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
+    configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
+    configuration.commands_repository.add_command_builders(
+        command_builder1, command_builder2, command_builder3
+    )
+    configuration.build_commands_map.return_value = commands_map
+
     result = cli_runner.invoke(statue_cli, ["run", "-i"])
 
     assert (
@@ -143,7 +161,9 @@ def test_run_and_install_uninstalled_commands(
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
     configuration.build_commands_map.assert_called_once()
-    configuration.cache.save_evaluation.assert_called_once()
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
     command_builder1.update_to_version.assert_not_called()
@@ -158,12 +178,17 @@ def test_run_and_save_to_file(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
-    mock_evaluation_save_as_json,
+    mock_build_runner,
 ):
+    commands_map = build_commands_map()
+    evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.build_commands_map.return_value = build_commands_map()
+    configuration.build_commands_map.return_value = commands_map
     output_path = Path("path/to/output/dir")
 
     result = cli_runner.invoke(statue_cli, ["run", "-o", str(output_path)])
@@ -173,26 +198,32 @@ def test_run_and_save_to_file(
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
     configuration.build_commands_map.assert_called_once()
-    configuration.cache.save_evaluation.assert_called_once()
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
-    mock_evaluation_save_as_json.assert_called_once_with(output_path)
+    evaluation.save_as_json.assert_called_once_with(output_path)
 
 
 def test_run_over_recent_commands(
     cli_runner,
     mock_build_configuration_from_file,
-    mock_evaluation_load_from_file,
-    tmp_path_factory,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
-    recent_cache = tmp_path_factory.mktemp("cache.json")
+    commands_map = build_commands_map()
+    old_evaluation = mock.Mock()
+    old_evaluation.commands_map = commands_map
+    new_evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = new_evaluation
     configuration = mock_build_configuration_from_file.return_value
-    configuration.cache.evaluation_path.return_value = recent_cache
+    configuration.cache.get_evaluation.return_value = old_evaluation
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    mock_evaluation_load_from_file.return_value.commands_map = build_commands_map()
 
     result = cli_runner.invoke(statue_cli, ["run", "-r"])
 
@@ -200,28 +231,31 @@ def test_run_over_recent_commands(
         result.exit_code == 0
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
-    configuration.cache.evaluation_path.assert_called_once_with(0)
-    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.get_evaluation.assert_called_once_with(0)
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(new_evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_failed_commands(
     cli_runner,
     mock_build_configuration_from_file,
-    mock_evaluation_load_from_file,
-    tmp_path_factory,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
-    recent_cache = tmp_path_factory.mktemp("cache.json")
+    commands_map = build_commands_map()
+    old_evaluation = mock.Mock()
+    old_evaluation.failure_evaluation = build_failure_evaluation(commands_map)
+    new_evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = new_evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.cache.evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.failure_evaluation = (
-        build_failure_evaluation(build_commands_map())
-    )
+    configuration.cache.get_evaluation.return_value = old_evaluation
 
     result = cli_runner.invoke(statue_cli, ["run", "-f"])
 
@@ -229,27 +263,32 @@ def test_run_over_failed_commands(
         result.exit_code == 0
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
-    configuration.cache.evaluation_path.assert_called_once_with(0)
-    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.get_evaluation.assert_called_once_with(0)
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(new_evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_previous_commands(
     cli_runner,
     mock_build_configuration_from_file,
-    mock_evaluation_load_from_file,
-    tmp_path_factory,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
     n = 5
-    recent_cache = tmp_path_factory.mktemp("cache.json")
+    commands_map = build_commands_map()
+    old_evaluation = mock.Mock()
+    old_evaluation.commands_map = commands_map
+    new_evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = new_evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.cache.evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.commands_map = build_commands_map()
+    configuration.cache.get_evaluation.return_value = old_evaluation
 
     result = cli_runner.invoke(statue_cli, ["run", "-p", n])
 
@@ -257,29 +296,32 @@ def test_run_over_previous_commands(
         result.exit_code == 0
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
-    configuration.cache.evaluation_path.assert_called_once_with(n - 1)
-    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.get_evaluation.assert_called_once_with(n - 1)
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(new_evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
 def test_run_over_previous_failed_commands(
     cli_runner,
     mock_build_configuration_from_file,
-    mock_evaluation_load_from_file,
-    tmp_path_factory,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
     n = 5
-    recent_cache = tmp_path_factory.mktemp("cache.json")
+    commands_map = build_commands_map()
+    old_evaluation = mock.Mock()
+    old_evaluation.failure_evaluation = build_failure_evaluation(commands_map)
+    new_evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = new_evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.cache.evaluation_path.return_value = recent_cache
-    mock_evaluation_load_from_file.return_value.failure_evaluation = (
-        build_failure_evaluation(build_commands_map())
-    )
+    configuration.cache.get_evaluation.return_value = old_evaluation
 
     result = cli_runner.invoke(statue_cli, ["run", "-f", "-p", n])
 
@@ -287,9 +329,10 @@ def test_run_over_previous_failed_commands(
         result.exit_code == 0
     ), f"Command failed with the following exception: {result.exception}"
     assert "Statue finished successfully" in result.output
-    configuration.cache.evaluation_path.assert_called_once_with(n - 1)
-    mock_evaluation_load_from_file.assert_called_once_with(recent_cache)
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.get_evaluation.assert_called_once_with(n - 1)
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(new_evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
@@ -302,12 +345,13 @@ def test_run_over_recent_commands_with_empty_cache(
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.cache.evaluation_path.return_value = None
+    configuration.cache.get_evaluation.side_effect = IndexError
 
     result = cli_runner.invoke(statue_cli, ["run", "-r"])
 
+    assert result.exit_code == 0
     assert_usage_was_shown(result)
-    configuration.cache.evaluation_path.assert_called_once_with(0)
+    configuration.cache.get_evaluation.assert_called_once_with(0)
     mock_evaluation_string.assert_not_called()
 
 
@@ -316,26 +360,21 @@ def test_run_has_failed(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
-    commands_map = CommandsMap(
-        {
-            SOURCE1: [
-                command_mock(name=COMMAND1),
-                command_mock(name=COMMAND2, success=False),
-            ],
-            SOURCE2: [
-                command_mock(name=COMMAND1),
-                command_mock(name=COMMAND3, success=False),
-                command_mock(name=COMMAND4),
-            ],
-        }
-    )
-    failure_evaluation = build_failure_evaluation(
+    commands_map = build_commands_map()
+    evaluation = mock.Mock()
+    evaluation.success = False
+    evaluation.total_execution_duration = random.uniform(1, 100)
+    evaluation.failure_evaluation = build_failure_evaluation(
         {
             SOURCE1: [command_mock(name=COMMAND2, success=False)],
             SOURCE2: [command_mock(name=COMMAND3, success=False)],
         }
     )
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
@@ -345,10 +384,10 @@ def test_run_has_failed(
 
     assert result.exit_code == 1
     configuration.build_commands_map.assert_called_once()
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
-    for source, source_evaluation in failure_evaluation.items():
+    for source, source_evaluation in evaluation.failure_evaluation.items():
         failed_commands_string = ", ".join(
             [
                 command_evaluation.command.name
@@ -412,6 +451,8 @@ def test_run_with_none_commands_map(
     configuration.build_commands_map.return_value = None
 
     result = cli_runner.invoke(statue_cli, ["run"])
+
+    assert result.exit_code == 0
     assert_usage_was_shown(result)
     configuration.cache.save_evaluation.assert_not_called()
     mock_evaluation_string.assert_not_called()
@@ -463,9 +504,15 @@ def test_run_on_given_source(
     mock_cwd,
     mock_evaluation_string,
     tmp_path,
+    mock_build_runner,
 ):
+    commands_map = build_commands_map()
+    evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
     configuration = mock_build_configuration_from_file.return_value
-    configuration.build_commands_map.return_value = build_commands_map()
+    configuration.build_commands_map.return_value = commands_map
     source = tmp_path / SOURCE1
     source.touch()
     result = cli_runner.invoke(statue_cli, ["run", str(source)])
@@ -477,7 +524,9 @@ def test_run_on_given_source(
     configuration.build_commands_map.assert_called_once_with(
         sources=[source], commands_filter=CommandsFilter()
     )
-    configuration.cache.save_evaluation.assert_called_once()
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
@@ -510,7 +559,7 @@ def test_run_with_mode(
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
     mock_build_runner.assert_called_once_with(runner_mode.name)
-    configuration.cache.save_evaluation.assert_called_once()
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
@@ -523,11 +572,17 @@ def test_run_verbosely(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
+    commands_map = build_commands_map()
+    evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.build_commands_map.return_value = build_commands_map()
+    configuration.build_commands_map.return_value = commands_map
 
     result = cli_runner.invoke(statue_cli, ["run", verbose_flag])
 
@@ -539,7 +594,9 @@ def test_run_verbosely(
     configuration.build_commands_map.assert_called_once_with(
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
-    configuration.cache.save_evaluation.assert_called_once()
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     assert_evaluation_was_printed(result, mock_evaluation_string)
 
 
@@ -552,11 +609,17 @@ def test_run_silently(
     mock_build_configuration_from_file,
     mock_cwd,
     mock_evaluation_string,
+    mock_build_runner,
 ):
+    commands_map = build_commands_map()
+    evaluation = successful_evaluation_mock()
+
+    runner = mock_build_runner.return_value
+    runner.evaluate.return_value = evaluation
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.build_commands_map.return_value = build_commands_map()
+    configuration.build_commands_map.return_value = commands_map
 
     result = cli_runner.invoke(statue_cli, ["run", silent_flag])
 
@@ -567,5 +630,7 @@ def test_run_silently(
     configuration.build_commands_map.assert_called_once_with(
         sources=[Path(SOURCE1), Path(SOURCE2)], commands_filter=CommandsFilter()
     )
-    configuration.cache.save_evaluation.assert_called_once()
+    mock_build_runner.assert_called_once_with(RunnerMode.SYNC.name)
+    runner.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_called_once_with(evaluation)
     mock_evaluation_string.assert_not_called()

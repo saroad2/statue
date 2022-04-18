@@ -124,6 +124,8 @@ def run_cli(  # pylint: disable=too-many-arguments
             failed=failed,
             previous=previous,
         )
+    except IndexError:
+        pass
     except UnknownContext as error:
         click.echo(error)
         ctx.exit(1)
@@ -213,10 +215,7 @@ def __get_commands_map(  # pylint: disable=too-many-arguments
                 contexts=context, allowed_commands=allow, denied_commands=deny
             ),
         )
-    evaluation_path = configuration.cache.evaluation_path(previous - 1)
-    if evaluation_path is None or not evaluation_path.exists():
-        return None
-    evaluation = Evaluation.load_from_file(evaluation_path)
+    evaluation = configuration.cache.get_evaluation(previous - 1)
     if failed:
         return evaluation.failure_evaluation.commands_map
     return evaluation.commands_map
