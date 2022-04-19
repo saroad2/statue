@@ -1,3 +1,4 @@
+import datetime
 import random
 from unittest import mock
 
@@ -8,15 +9,15 @@ from statue.cache import Cache
 from statue.exceptions import CacheError
 
 
-def test_save_evaluation(tmp_path, mock_time):
-    time = 12300566
+def test_save_evaluation(tmp_path):
+    timestamp = 12300566
     cache_dir = tmp_path / "cache"
     evaluations_dir = cache_dir / "evaluations"
     evaluations_dir.mkdir(parents=True)
-    evaluation_file = evaluations_dir / f"evaluation-{time}.json"
-    mock_time.return_value = time
+    evaluation_file = evaluations_dir / f"evaluation-{timestamp}.json"
 
     evaluation = mock.Mock()
+    evaluation.timestamp = datetime.datetime.fromtimestamp(timestamp)
     evaluation.save_as_json.side_effect = lambda path: path.touch()
 
     size = random.randint(1, 100)
@@ -28,7 +29,7 @@ def test_save_evaluation(tmp_path, mock_time):
     assert evaluation_file.exists()
 
 
-def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
+def test_save_evaluation_deletes_old_evaluations(tmp_path):
     size = random.randint(1, 100)
     cache_dir = tmp_path / "cache"
     evaluations_dir = cache_dir / "evaluations"
@@ -45,8 +46,8 @@ def test_save_evaluation_deletes_old_evaluations(tmp_path, mock_time):
         evaluation_file.touch()
     recent_evaluation_file = evaluations_dir / f"evaluation-{recent_time_stamp}.json"
 
-    mock_time.return_value = time_stamps[0]
     evaluation = mock.Mock()
+    evaluation.timestamp = datetime.datetime.fromtimestamp(time_stamps[0])
     evaluation.save_as_json.side_effect = lambda path: path.touch()
 
     assert not recent_evaluation_file.exists()

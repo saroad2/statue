@@ -1,5 +1,4 @@
 """Module for cache related methods."""
-import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -118,13 +117,8 @@ class Cache:
 
         :param evaluation: Evaluation instance to be saved
         :type evaluation: Evaluation
-        :raises CacheError: raised when trying to save evaluation when no
-            root directory was set
         """
-        if self.evaluations_dir is None:
-            raise CacheError("Cache directory was not specified")
-        file_name = f"evaluation-{int(time.time())}.json"
-        evaluation.save_as_json(self.evaluations_dir / file_name)
+        evaluation.save_as_json(self.__get_evaluation_path(evaluation))
         self.__remove_old_evaluations()
 
     def clear(self, limit: Optional[int] = None):
@@ -152,6 +146,14 @@ class Cache:
         :rtype: int
         """
         return int(evaluation_path.stem.split("-")[-1])
+
+    def __get_evaluation_path(self, evaluation: Evaluation) -> Path:
+        if self.evaluations_dir is None:
+            raise CacheError("Cache directory was not specified")
+        return (
+            self.evaluations_dir
+            / f"evaluation-{int(evaluation.timestamp.timestamp())}.json"
+        )
 
     def __remove_old_evaluations(self):
         evaluation_files = self.all_evaluation_paths
