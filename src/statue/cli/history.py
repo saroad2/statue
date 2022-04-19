@@ -1,7 +1,7 @@
 """History CLI."""
 import sys
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 
 import click
 
@@ -131,27 +131,26 @@ def show_evaluation_cli(
     help="Limit the number of deleted records. Deletes earliest evaluations.",
 )
 @pass_configuration
-def clear_history_cli(configuration: Configuration, force: bool, limit: int):
+def clear_history_cli(configuration: Configuration, force: bool, limit: Optional[int]):
     """Clear records of previous statue runs."""
-    evaluation_files = configuration.cache.all_evaluation_paths
-    number_of_evaluation_files = len(evaluation_files)
-    if number_of_evaluation_files == 0:
+    number_of_evaluations = configuration.cache.number_of_evaluations
+    if number_of_evaluations == 0:
         click.echo("No previous evaluations.")
         return
-    if limit and limit < number_of_evaluation_files:
-        evaluation_files = evaluation_files[-limit:]
-        number_of_evaluation_files = limit
+    number_of_files_to_be_deleted = (
+        limit if limit is not None else number_of_evaluations
+    )
     if not force:
         confirmation = click.confirm(
-            f"{number_of_evaluation_files} evaluation files are about to be deleted. "
-            "Are you wish to delete those?",
+            f"{number_of_files_to_be_deleted} evaluation files are "
+            "about to be deleted. Are you sure you want to delete them?",
             default=False,
         )
         if not confirmation:
             click.echo("Aborted without clearing history.")
             return
-    for evaluation_file in evaluation_files:
-        evaluation_file.unlink()
+    configuration.cache.clear(limit=limit)
     click.echo(
-        f"{number_of_evaluation_files} evaluation files have been deleted successfully."
+        f"{number_of_files_to_be_deleted} evaluation files "
+        "have been deleted successfully."
     )
