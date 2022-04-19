@@ -1,5 +1,6 @@
 import random
 
+import mock
 import pytest
 
 from statue.cache import Cache
@@ -86,8 +87,47 @@ def test_cache_constructor_with_existing_evaluations(tmp_path):
     assert cache_dir.exists()
     assert cache.evaluations_dir == cache_dir / "evaluations"
     assert cache.evaluations_dir.exists()
-    assert cache.all_evaluation_paths == evaluation_paths
     assert cache.history_size == size
+
+
+def test_cache_all_evaluation_paths(tmp_path):
+    cache_dir = tmp_path / "cache"
+    evaluations_dir = cache_dir / "evaluations"
+    evaluations_dir.mkdir(parents=True)
+    evaluation_paths = [
+        evaluations_dir / evaluation_path_name
+        for evaluation_path_name in EVALUATION_PATH_NAMES
+    ]
+    for evaluation_file in evaluation_paths:
+        evaluation_file.touch()
+
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
+
+    assert cache.all_evaluation_paths == evaluation_paths
+
+
+def test_cache_all_evaluations(tmp_path, mock_evaluation_load_from_file):
+    cache_dir = tmp_path / "cache"
+    evaluations_dir = cache_dir / "evaluations"
+    evaluations_dir.mkdir(parents=True)
+    evaluation_paths = [
+        evaluations_dir / evaluation_path_name
+        for evaluation_path_name in EVALUATION_PATH_NAMES
+    ]
+    for evaluation_file in evaluation_paths:
+        evaluation_file.touch()
+    evaluations = [mock.Mock() for _ in range(len(evaluation_paths))]
+    mock_evaluation_load_from_file.side_effect = evaluations
+
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
+
+    assert cache.all_evaluations == evaluations
+    assert mock_evaluation_load_from_file.call_count == len(evaluation_paths)
+    assert mock_evaluation_load_from_file.call_args_list == [
+        mock.call(evaluation_path) for evaluation_path in evaluation_paths
+    ]
 
 
 @pytest.mark.parametrize(

@@ -69,6 +69,14 @@ class Cache:
         evaluations_files.sort(key=self.extract_time_stamp_from_path, reverse=True)
         return evaluations_files
 
+    @property
+    def all_evaluations(self) -> List[Evaluation]:
+        """All cached evaluations."""
+        return [
+            Evaluation.load_from_file(evaluation_path)
+            for evaluation_path in self.all_evaluation_paths
+        ]
+
     def evaluation_path(self, n: int) -> Path:
         """
         Get the nth most recent evaluation result path.
