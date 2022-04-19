@@ -94,6 +94,11 @@ class Cache:
             )
         return evaluations_files[n]
 
+    @property
+    def number_of_evaluations(self):
+        """Get number of cached evaluations."""
+        return len(self.all_evaluation_paths)
+
     def get_evaluation(self, n: int) -> Evaluation:
         """
         Get the nth most recent evaluation.

@@ -23,6 +23,7 @@ def test_cache_constructor_with_none_root_directory(tmp_path):
     assert cache.evaluations_dir is None
     assert not cache.all_evaluation_paths
     assert cache.history_size == size
+    assert cache.number_of_evaluations == 0
 
 
 def test_cache_constructor_with_non_existing_directory(tmp_path):
@@ -37,6 +38,7 @@ def test_cache_constructor_with_non_existing_directory(tmp_path):
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
     assert cache.history_size == size
+    assert cache.number_of_evaluations == 0
 
 
 def test_cache_constructor_with_existing_directory(tmp_path):
@@ -52,6 +54,7 @@ def test_cache_constructor_with_existing_directory(tmp_path):
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
     assert cache.history_size == size
+    assert cache.number_of_evaluations == 0
 
 
 def test_cache_constructor_with_evaluations_directory_already_existing(tmp_path):
@@ -67,6 +70,7 @@ def test_cache_constructor_with_evaluations_directory_already_existing(tmp_path)
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
     assert cache.history_size == size
+    assert cache.number_of_evaluations == 0
 
 
 def test_cache_constructor_with_existing_evaluations(tmp_path):
@@ -88,6 +92,7 @@ def test_cache_constructor_with_existing_evaluations(tmp_path):
     assert cache.evaluations_dir == cache_dir / "evaluations"
     assert cache.evaluations_dir.exists()
     assert cache.history_size == size
+    assert cache.number_of_evaluations == len(evaluation_paths)
 
 
 def test_cache_all_evaluation_paths(tmp_path):
@@ -199,6 +204,7 @@ def test_cache_clear(tmp_path):
     assert cache.evaluations_dir.exists()
     assert not cache.all_evaluation_paths
     assert cache.history_size == size
+    assert cache.number_of_evaluations == 0
 
     for evaluation_file in evaluation_paths:
         assert not evaluation_file.exists()
@@ -226,6 +232,7 @@ def test_cache_clear_with_limit(tmp_path):
     assert cache.evaluations_dir.exists()
     assert cache.all_evaluation_paths == evaluation_paths[:-limit]
     assert cache.history_size == size
+    assert cache.number_of_evaluations == len(evaluation_paths) - limit
 
     for evaluation_file in evaluation_paths[:-limit]:
         assert evaluation_file.exists()
