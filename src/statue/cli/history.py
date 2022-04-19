@@ -74,14 +74,13 @@ def history_cli() -> None:
 @pass_configuration
 def list_evaluations_cli(configuration: Configuration, head: int):
     """List all recent evaluations."""
-    evaluation_paths = configuration.cache.all_evaluation_paths
-    if len(evaluation_paths) == 0:
+    evaluations = configuration.cache.all_evaluations
+    if len(evaluations) == 0:
         click.echo("No previous evaluations.")
         return
     if head is not None:
-        evaluation_paths = evaluation_paths[:head]
-    for i, evaluation_path in enumerate(evaluation_paths, start=1):
-        evaluation = Evaluation.load_from_file(evaluation_path)
+        evaluations = evaluations[:head]
+    for i, evaluation in enumerate(evaluations, start=1):
         click.echo(f"{i}) {total_evaluation_string(evaluation)}")
 
 
