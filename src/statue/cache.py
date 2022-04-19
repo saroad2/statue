@@ -122,6 +122,20 @@ class Cache:
         evaluation.save_as_json(self.evaluations_dir / file_name)
         self.__remove_old_evaluations()
 
+    def clear(self, limit: Optional[int] = None):
+        """
+        Remove evaluations from cache.
+
+        :param limit: Optional. limit the number of evaluations to be deleted
+        :type limit: Optional[int]
+        """
+        evaluation_files_to_be_deleted = self.all_evaluation_paths
+        if limit is not None and limit < len(evaluation_files_to_be_deleted):
+            # pylint: disable=invalid-unary-operand-type
+            evaluation_files_to_be_deleted = evaluation_files_to_be_deleted[-limit:]
+        for evaluation_file in evaluation_files_to_be_deleted:
+            evaluation_file.unlink()
+
     @classmethod
     def extract_time_stamp_from_path(cls, evaluation_path: Path) -> int:
         """
