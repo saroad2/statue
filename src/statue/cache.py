@@ -150,17 +150,18 @@ class Cache:
     def __get_evaluation_path(self, evaluation: Evaluation) -> Path:
         if self.evaluations_dir is None:
             raise CacheError("Cache directory was not specified")
-        return (
-            self.evaluations_dir
-            / f"evaluation-{int(evaluation.timestamp.timestamp())}.json"
-        )
+        seconds_since_epoch = int(evaluation.timestamp.timestamp())
+        return self.evaluations_dir / f"evaluation-{seconds_since_epoch}.json"
 
     def __remove_old_evaluations(self):
-        evaluation_files = self.all_evaluation_paths
-        if len(evaluation_files) <= self.history_size:
+        evaluations = self.all_evaluations
+        if len(evaluations) <= self.history_size:
             return
-        for evaluation_file in evaluation_files[self.history_size :]:
-            evaluation_file.unlink()
+        for evaluation in evaluations[self.history_size :]:
+            self.__remove_evaluation(evaluation)
+
+    def __remove_evaluation(self, evaluation: Evaluation):
+        self.__get_evaluation_path(evaluation).unlink()
 
     @classmethod
     def __ensure_dir_exists(cls, dir_path: Path) -> Path:
