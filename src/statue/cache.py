@@ -80,13 +80,20 @@ class Cache:
         self.all_evaluations.clear()
         evaluations = list(evaluations)
         evaluations.sort(key=lambda evaluation: evaluation.timestamp)
-        for evaluation in evaluations:
-            self._all_evaluations.appendleft(evaluation)
+        self._all_evaluations.extendleft(evaluations)
 
     @property
-    def number_of_evaluations(self):
+    def number_of_evaluations(self) -> int:
         """Get number of cached evaluations."""
         return len(self.all_evaluations)
+
+    @property
+    def recent_failed_evaluation(self) -> Evaluation:
+        """Get the most recent failed evaluation."""
+        for evaluation in self.all_evaluations:
+            if not evaluation.success:
+                return evaluation
+        raise CacheError("Could not find failed evaluation")
 
     def get_evaluation(self, n: int) -> Evaluation:
         """
