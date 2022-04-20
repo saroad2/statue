@@ -1,6 +1,6 @@
 import datetime
 import random
-from typing import Optional
+from typing import List, Optional
 from unittest import mock
 
 import pytest
@@ -9,6 +9,18 @@ from statue.command import Command, CommandEvaluation
 from statue.command_builder import CommandBuilder
 from statue.evaluation import Evaluation, SourceEvaluation
 from tests.constants import EPSILON
+
+
+def dummy_time_stamps(
+    n, max_seconds_delta: int = 1_000_000, reverse: bool = False
+) -> List[datetime.datetime]:
+    now_timestmamp = datetime.datetime.now().replace(microsecond=0)
+    time_stamps = [
+        now_timestmamp + datetime.timedelta(seconds=delta)
+        for delta in random.sample(range(max_seconds_delta), k=n)
+    ]
+    time_stamps.sort(reverse=reverse)
+    return time_stamps
 
 
 def dummy_version():

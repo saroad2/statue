@@ -7,7 +7,7 @@ from pytest_cases import parametrize
 
 from statue.cache import Cache
 from statue.exceptions import CacheError
-from tests.util import successful_evaluation_mock
+from tests.util import dummy_time_stamps, successful_evaluation_mock
 
 
 def test_save_evaluation(tmp_path, mock_evaluation_load_from_file):
@@ -42,27 +42,21 @@ def test_save_evaluation_deletes_old_evaluations(  # pylint: disable=too-many-lo
     evaluations_dir = cache_dir / "evaluations"
     evaluations_dir.mkdir(parents=True)
 
-    now_timestmamp = int(datetime.datetime.now().replace(microsecond=0).timestamp())
-    time_stamps = [
-        now_timestmamp + delta
-        for delta in random.sample(range(1, 1_000_000), k=size + 1)
-    ]
-    time_stamps.sort(reverse=True)
+    time_stamps = dummy_time_stamps(size + 1, reverse=True)
     old_time_stamps, recent_time_stamp = time_stamps[1:], time_stamps[0]
     old_evaluation_paths = [
-        evaluations_dir / f"evaluation-{time_stamp}.json"
+        evaluations_dir / f"evaluation-{int(time_stamp.timestamp())}.json"
         for time_stamp in old_time_stamps
     ]
     for old_evaluation_file in old_evaluation_paths:
         old_evaluation_file.touch()
-    recent_evaluation_file = evaluations_dir / f"evaluation-{recent_time_stamp}.json"
-
-    recent_evaluation = successful_evaluation_mock(
-        timestamp=datetime.datetime.fromtimestamp(recent_time_stamp)
+    recent_evaluation_file = (
+        evaluations_dir / f"evaluation-{int(recent_time_stamp.timestamp())}.json"
     )
+
+    recent_evaluation = successful_evaluation_mock(timestamp=recent_time_stamp)
     old_evaluations = [
-        successful_evaluation_mock(timestamp=datetime.datetime.fromtimestamp(timestamp))
-        for timestamp in old_time_stamps
+        successful_evaluation_mock(timestamp=timestamp) for timestamp in old_time_stamps
     ]
     recent_evaluation.save_as_json.side_effect = lambda path: path.touch()
     mock_evaluation_load_from_file.side_effect = [recent_evaluation] + old_evaluations
