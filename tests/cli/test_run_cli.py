@@ -8,7 +8,7 @@ from pytest_cases import fixture, parametrize
 from statue.cli.cli import statue_cli
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
-from statue.exceptions import UnknownContext
+from statue.exceptions import CacheError, UnknownContext
 from statue.runner import RunnerMode
 from statue.verbosity import DEFAULT_VERBOSITY
 from tests.constants import (
@@ -345,7 +345,7 @@ def test_run_over_recent_commands_with_empty_cache(
     configuration = mock_build_configuration_from_file.return_value
     configuration.sources_repository[Path(SOURCE1)] = mock.Mock()
     configuration.sources_repository[Path(SOURCE2)] = mock.Mock()
-    configuration.cache.get_evaluation.side_effect = IndexError
+    configuration.cache.get_evaluation.side_effect = CacheError
 
     result = cli_runner.invoke(statue_cli, ["run", "-r"])
 

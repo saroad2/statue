@@ -96,10 +96,10 @@ class Cache:
         :type n: int
         :return: The nth evaluation
         :rtype: Evaluation
-        :raises IndexError: raised when receiving an invalid index for evaluation
+        :raises CacheError: raised when receiving an invalid index for evaluation
         """
         if n < 0 or n >= self.number_of_evaluations:
-            raise IndexError(
+            raise CacheError(
                 "Could not get the desired evaluation due to invalid index"
             )
         return self.all_evaluations[n]

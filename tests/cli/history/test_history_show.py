@@ -5,6 +5,7 @@ from pytest_cases import THIS_MODULE, parametrize_with_cases
 from statue.cli import statue_cli
 from statue.command import CommandEvaluation
 from statue.evaluation import Evaluation, SourceEvaluation
+from statue.exceptions import CacheError
 from tests.constants import ARG1, ARG2, ARG3, ARG4, COMMAND1, COMMAND2, SOURCE1, SOURCE2
 from tests.util import command_mock
 
@@ -248,7 +249,7 @@ def test_history_show_fail_on_invalid_index(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
-    configuration.cache.get_evaluation.side_effect = IndexError
+    configuration.cache.get_evaluation.side_effect = CacheError
     result = cli_runner.invoke(statue_cli, ["history", "show", "-n", "-6"])
 
     assert result.exit_code == 1

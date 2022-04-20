@@ -5,6 +5,7 @@ import pytest
 from pytest_cases import parametrize
 
 from statue.cache import Cache
+from statue.exceptions import CacheError
 from tests.util import dummy_time_stamps, successful_evaluation_mock
 
 
@@ -232,6 +233,6 @@ def test_cache_get_evaluation_with_invalid_index(
     cache = Cache(size=size, cache_root_directory=cache_dir)
 
     with pytest.raises(
-        IndexError, match="^Could not get the desired evaluation due to invalid index$"
+        CacheError, match="^Could not get the desired evaluation due to invalid index$"
     ):
         cache.get_evaluation(invalid_evaluation_index)

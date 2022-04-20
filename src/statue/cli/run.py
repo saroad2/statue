@@ -19,7 +19,7 @@ from statue.cli.styled_strings import failure_style, name_style, source_style
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.evaluation import Evaluation
-from statue.exceptions import UnknownContext
+from statue.exceptions import CacheError, UnknownContext
 from statue.runner import RunnerMode, build_runner
 from statue.verbosity import is_silent, is_verbose
 
@@ -124,7 +124,7 @@ def run_cli(  # pylint: disable=too-many-arguments
             failed=failed,
             previous=previous,
         )
-    except IndexError:
+    except CacheError:
         pass
     except UnknownContext as error:
         click.echo(error)
