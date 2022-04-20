@@ -1,5 +1,4 @@
 import datetime
-import uuid
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
@@ -190,14 +189,10 @@ def test_history_list(
     evaluations,
     output,
     cli_runner,
-    mock_evaluation_load_from_file,
     mock_build_configuration_from_file,
 ):
     configuration = mock_build_configuration_from_file.return_value
-    configuration.cache.all_evaluation_paths = [
-        f"evaluation_{uuid.uuid4()}.json" for _ in range(len(evaluations))
-    ]
-    mock_evaluation_load_from_file.side_effect = evaluations
+    configuration.cache.all_evaluations = evaluations
 
     result = cli_runner.invoke(statue_cli, ["history", "list", *additional_flags])
 

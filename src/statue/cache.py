@@ -1,7 +1,7 @@
 """Module for cache related methods."""
-import time
+from collections import deque
 from pathlib import Path
-from typing import List, Optional
+from typing import Deque, List, Optional, Sequence, Set
 
 from statue.evaluation import Evaluation
 from statue.exceptions import CacheError
@@ -23,6 +23,7 @@ class Cache:
         :param size: Number of evaluations to save
         :type size: int
         """
+        self._all_evaluations: Deque[Evaluation] = deque()
         self.cache_root_directory = cache_root_directory
         self.history_size = size
 
@@ -40,8 +41,10 @@ class Cache:
         :type cache_dir: Optional[Path]
         """
         self._cache_root_directory = cache_dir
-        if cache_dir is not None:
-            self.__ensure_dir_exists(cache_dir)
+        if cache_dir is None:
+            return
+        self.__ensure_dir_exists(cache_dir)
+        self.load_evaluations()
 
     @property
     def evaluations_dir(self) -> Optional[Path]:
@@ -56,45 +59,50 @@ class Cache:
         return self.__ensure_dir_exists(self.cache_root_directory / "evaluations")
 
     @property
-    def all_evaluation_paths(self) -> List[Path]:
+    def all_evaluation_paths(self) -> Set[Path]:
         """
         Get all evaluation paths, ordered from recent to last.
 
-        :return: List of all previous evaluations paths
-        :rtype: List[Path]
+        :return: Set of all previous evaluations paths
+        :rtype: Set[Path]
         """
         if self.evaluations_dir is None:
-            return []
-        evaluations_files = list(self.evaluations_dir.iterdir())
-        evaluations_files.sort(key=self.extract_time_stamp_from_path, reverse=True)
-        return evaluations_files
+            return set()
+        return set(self.evaluations_dir.iterdir())
 
     @property
-    def recent_evaluation_path(self) -> Optional[Path]:
-        """
-        Get last evaluation result path.
+    def all_evaluations(self) -> List[Evaluation]:
+        """All cached evaluations."""
+        return list(self._all_evaluations)
 
-        :return: Most recent evaluation path
-        :rtype: Optional[Path]
-        """
-        return self.evaluation_path(0)
+    @all_evaluations.setter
+    def all_evaluations(self, evaluations: Sequence[Evaluation]):
+        self.all_evaluations.clear()
+        evaluations = list(evaluations)
+        evaluations.sort(key=lambda evaluation: evaluation.timestamp)
+        for evaluation in evaluations:
+            self._all_evaluations.appendleft(evaluation)
 
-    def evaluation_path(self, n: int) -> Path:  # pylint: disable=invalid-name
+    @property
+    def number_of_evaluations(self):
+        """Get number of cached evaluations."""
+        return len(self.all_evaluations)
+
+    def get_evaluation(self, n: int) -> Evaluation:
         """
-        Get the nth most recent evaluation result path.
+        Get the nth most recent evaluation.
 
         :param n: Evaluation index
         :type n: int
-        :return: Evaluation path of the nth evaluation
-        :rtype: Path
-        :raises IndexError: Raised when given index does not match any evaluation
+        :return: The nth evaluation
+        :rtype: Evaluation
+        :raises IndexError: raised when receiving an invalid index for evaluation
         """
-        evaluations_files = self.all_evaluation_paths
-        if n < 0 or n >= len(evaluations_files):
+        if n < 0 or n >= self.number_of_evaluations:
             raise IndexError(
                 "Could not get the desired evaluation due to invalid index"
             )
-        return evaluations_files[n]
+        return self.all_evaluations[n]
 
     def save_evaluation(self, evaluation: Evaluation):
         """
@@ -104,33 +112,41 @@ class Cache:
 
         :param evaluation: Evaluation instance to be saved
         :type evaluation: Evaluation
-        :raises CacheError: raised when trying to save evaluation when no
-            root directory was set
         """
+        self._all_evaluations.appendleft(evaluation)
+        evaluation.save_as_json(self.__get_evaluation_path(evaluation))
+        while len(self.all_evaluations) > self.history_size:
+            self.__remove_oldest_evaluation()
+
+    def clear(self, limit: Optional[int] = None):
+        """
+        Remove evaluations from cache.
+
+        :param limit: Optional. limit the number of evaluations to be deleted
+        :type limit: Optional[int]
+        """
+        number_of_evaluations_to_be_deleted = (
+            limit if limit is not None else self.number_of_evaluations
+        )
+        for _ in range(number_of_evaluations_to_be_deleted):
+            self.__remove_oldest_evaluation()
+
+    def load_evaluations(self):
+        """Load all evaluations from evaluations directory."""
+        self.all_evaluations = [
+            Evaluation.load_from_file(evaluation_path)
+            for evaluation_path in self.all_evaluation_paths
+        ]
+
+    def __remove_oldest_evaluation(self):
+        evaluation = self._all_evaluations.pop()
+        self.__get_evaluation_path(evaluation).unlink()
+
+    def __get_evaluation_path(self, evaluation: Evaluation) -> Path:
         if self.evaluations_dir is None:
             raise CacheError("Cache directory was not specified")
-        file_name = f"evaluation-{int(time.time())}.json"
-        evaluation.save_as_json(self.evaluations_dir / file_name)
-        self.__remove_old_evaluations()
-
-    @classmethod
-    def extract_time_stamp_from_path(cls, evaluation_path: Path) -> int:
-        """
-        Extract time stamp from an evaluation path.
-
-        :param evaluation_path: Path of saved evaluation.
-        :type evaluation_path: Path
-        :return: time stamp of the given evaluation
-        :rtype: int
-        """
-        return int(evaluation_path.stem.split("-")[-1])
-
-    def __remove_old_evaluations(self):
-        evaluation_files = self.all_evaluation_paths
-        if len(evaluation_files) <= self.history_size:
-            return
-        for evaluation_file in evaluation_files[self.history_size :]:
-            evaluation_file.unlink()
+        seconds_since_epoch = int(evaluation.timestamp.timestamp())
+        return self.evaluations_dir / f"evaluation-{seconds_since_epoch}.json"
 
     @classmethod
     def __ensure_dir_exists(cls, dir_path: Path) -> Path:

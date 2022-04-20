@@ -1,7 +1,7 @@
 """History CLI."""
 import sys
 from datetime import datetime
-from typing import Union
+from typing import Optional, Union
 
 import click
 
@@ -74,14 +74,13 @@ def history_cli() -> None:
 @pass_configuration
 def list_evaluations_cli(configuration: Configuration, head: int):
     """List all recent evaluations."""
-    evaluation_paths = configuration.cache.all_evaluation_paths
-    if len(evaluation_paths) == 0:
+    evaluations = configuration.cache.all_evaluations
+    if len(evaluations) == 0:
         click.echo("No previous evaluations.")
         return
     if head is not None:
-        evaluation_paths = evaluation_paths[:head]
-    for i, evaluation_path in enumerate(evaluation_paths, start=1):
-        evaluation = Evaluation.load_from_file(evaluation_path)
+        evaluations = evaluations[:head]
+    for i, evaluation in enumerate(evaluations, start=1):
         click.echo(f"{i}) {total_evaluation_string(evaluation)}")
 
 
@@ -98,13 +97,12 @@ def show_evaluation_cli(
 ):
     """Show past evaluation."""
     try:
-        evaluation_path = configuration.cache.evaluation_path(number - 1)
+        evaluation = configuration.cache.get_evaluation(number - 1)
     except IndexError:
         click.echo(
             failure_style(f"Could not find evaluation with given index {number}")
         )
         sys.exit(1)
-    evaluation = Evaluation.load_from_file(evaluation_path)
     click.echo(total_evaluation_string(evaluation))
     for source, source_evaluation in evaluation.items():
         click.echo(
@@ -132,27 +130,26 @@ def show_evaluation_cli(
     help="Limit the number of deleted records. Deletes earliest evaluations.",
 )
 @pass_configuration
-def clear_history_cli(configuration: Configuration, force: bool, limit: int):
+def clear_history_cli(configuration: Configuration, force: bool, limit: Optional[int]):
     """Clear records of previous statue runs."""
-    evaluation_files = configuration.cache.all_evaluation_paths
-    number_of_evaluation_files = len(evaluation_files)
-    if number_of_evaluation_files == 0:
+    number_of_evaluations = configuration.cache.number_of_evaluations
+    if number_of_evaluations == 0:
         click.echo("No previous evaluations.")
         return
-    if limit and limit < number_of_evaluation_files:
-        evaluation_files = evaluation_files[-limit:]
-        number_of_evaluation_files = limit
+    number_of_files_to_be_deleted = (
+        limit if limit is not None else number_of_evaluations
+    )
     if not force:
         confirmation = click.confirm(
-            f"{number_of_evaluation_files} evaluation files are about to be deleted. "
-            "Are you wish to delete those?",
+            f"{number_of_files_to_be_deleted} evaluation files are "
+            "about to be deleted. Are you sure you want to delete them?",
             default=False,
         )
         if not confirmation:
             click.echo("Aborted without clearing history.")
             return
-    for evaluation_file in evaluation_files:
-        evaluation_file.unlink()
+    configuration.cache.clear(limit=limit)
     click.echo(
-        f"{number_of_evaluation_files} evaluation files have been deleted successfully."
+        f"{number_of_files_to_be_deleted} evaluation files "
+        "have been deleted successfully."
     )
