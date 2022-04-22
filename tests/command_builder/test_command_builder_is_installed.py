@@ -1,6 +1,6 @@
 from statue.command_builder import CommandBuilder
 from tests.constants import COMMAND1, COMMAND_HELP_STRING1
-from tests.util import dummy_version
+from tests.util import dummy_version, dummy_versions
 
 
 def test_command_builder_not_installed(mock_get_package):
@@ -41,7 +41,7 @@ def test_command_builder_is_installed_correctly(mock_get_package):
 
 
 def test_command_builder_is_installed_incorrectly(mock_get_package):
-    version, installed_version = dummy_version(), dummy_version()
+    version, installed_version = dummy_versions(2)
     mock_get_package.return_value.version = installed_version
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version
@@ -55,7 +55,7 @@ def test_command_builder_is_installed_incorrectly(mock_get_package):
 
 
 def test_command_builder_set_version_as_installed(mock_get_package):
-    version, installed_version = dummy_version(), dummy_version()
+    version, installed_version = dummy_versions(2)
     mock_get_package.return_value.version = installed_version
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version

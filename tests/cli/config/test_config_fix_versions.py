@@ -1,6 +1,6 @@
 from statue.cli.cli import statue_cli
 from tests.constants import COMMAND1, COMMAND2
-from tests.util import command_builder_mock, dummy_version
+from tests.util import command_builder_mock, dummy_version, dummy_versions
 
 
 def test_config_fix_version_with_no_installed_packages(
@@ -50,7 +50,7 @@ def test_config_fix_version_with_two_installed_packages(
     mock_build_configuration_from_file,
     mock_configuration_path,
 ):
-    version1, version2 = dummy_version(), dummy_version()
+    version1, version2 = dummy_versions(2)
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
         command_builder_mock(name=COMMAND2, installed=True, installed_version=version2),
@@ -89,7 +89,7 @@ def test_config_fix_version_latest(
     mock_build_configuration_from_file,
     mock_configuration_path,
 ):
-    version1, version2 = dummy_version(), dummy_version()
+    version1, version2 = dummy_versions(2)
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1, installed=True, installed_version=version1),
         command_builder_mock(name=COMMAND2, installed=True, installed_version=version2),

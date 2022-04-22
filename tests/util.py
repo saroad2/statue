@@ -32,6 +32,16 @@ def dummy_version():
     return f"{major}.{minor}.{patch}"
 
 
+def dummy_versions(n: int):
+    versions = []
+    for _ in range(n):
+        version = dummy_version()
+        while version in versions:
+            version = dummy_version()
+        versions.append(version)
+    return versions
+
+
 def build_commands_builders_map(*commands_builders: CommandBuilder):
     return {
         commands_builders.name: commands_builders
