@@ -81,3 +81,38 @@ def evaluation_string(
                 )
             returned += f"{command_evaluation.captured_output_string}\n"
     return returned
+
+
+def evaluation_summary_string(evaluation: Evaluation) -> str:
+    """
+    Create a summary string of an evaluation.
+
+    :param evaluation: Evaluation to be printed
+    :type evaluation: Evaluation
+    :return: summary string
+    :rtype: str
+    """
+    if evaluation.commands_number == 0:
+        return "Empty evaluation."
+    if evaluation.success:
+        return (
+            "Statue finished successfully after "
+            f"{evaluation.total_execution_duration:.2f} seconds!"
+        )
+    summary_string = (
+        f"Statue has failed after {evaluation.total_execution_duration:.2f} "
+        "seconds on the following commands:\n"
+    )
+    for source, source_evaluation in evaluation.failure_evaluation.items():
+        summary_string += f"{source_style(source)}:\n"
+        summary_string += (
+            "\t"
+            + ", ".join(
+                [
+                    name_style(command_evaluation.command.name)
+                    for command_evaluation in source_evaluation
+                ]
+            )
+            + "\n"
+        )
+    return summary_string

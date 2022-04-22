@@ -14,11 +14,14 @@ from statue.cli.common_flags import (
     verbose_option,
     verbosity_option,
 )
-from statue.cli.string_util import boxed_string, evaluation_string
-from statue.cli.styled_strings import failure_style, name_style, source_style
+from statue.cli.string_util import (
+    boxed_string,
+    evaluation_string,
+    evaluation_summary_string,
+)
+from statue.cli.styled_strings import failure_style
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
-from statue.evaluation import Evaluation
 from statue.exceptions import CacheError, UnknownContext
 from statue.runner import RunnerMode, build_runner
 from statue.verbosity import is_silent, is_verbose
@@ -162,37 +165,15 @@ def run_cli(  # pylint: disable=too-many-arguments
     if not is_silent(verbosity):
         click.echo(boxed_string("Summary"))
         click.echo()
-    ctx.exit(__print_evaluation_and_return_exit_code(evaluation))
+    click.echo(evaluation_summary_string(evaluation))
+    exit_code = 0 if evaluation.success else 1
+    ctx.exit(exit_code)
 
 
 def __get_sources(sources: Sequence[Path], configuration: Configuration) -> List[Path]:
     if len(sources) == 0:
         return configuration.sources_repository.sources_list
     return list(sources)
-
-
-def __print_evaluation_and_return_exit_code(evaluation: Evaluation):
-    if evaluation.success:
-        click.echo(
-            "Statue finished successfully after "
-            f"{evaluation.total_execution_duration:.2f} seconds!"
-        )
-        return 0
-    click.echo(
-        f"Statue has failed after {evaluation.total_execution_duration:.2f} "
-        "seconds on the following commands:"
-    )
-    click.echo()
-    for source, source_evaluation in evaluation.failure_evaluation.items():
-        click.echo(f"{source_style(source)}:")
-        failed_commands_string = ", ".join(
-            [
-                name_style(command_evaluation.command.name)
-                for command_evaluation in source_evaluation
-            ]
-        )
-        click.echo(f"\t{failed_commands_string}")
-    return 1
 
 
 def __get_commands_map(  # pylint: disable=too-many-arguments
