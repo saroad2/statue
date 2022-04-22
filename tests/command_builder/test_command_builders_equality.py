@@ -11,7 +11,7 @@ from tests.constants import (
     CONTEXT1,
     CONTEXT2,
 )
-from tests.util import dummy_version
+from tests.util import dummy_version, dummy_versions
 
 EQUAL_TAG = "equal"
 NOT_EQUAL_TAG = "not_equal"
@@ -106,7 +106,7 @@ def case_not_equal_different_help():
 
 @case(tags=[NOT_EQUAL_TAG])
 def case_not_equal_different_version():
-    version1, version2 = dummy_version(), dummy_version()
+    version1, version2 = dummy_versions(2)
     command_builder1 = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, version=version1
     )

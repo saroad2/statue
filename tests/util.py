@@ -17,7 +17,7 @@ def dummy_time_stamps(
     now_timestmamp = datetime.datetime.now().replace(microsecond=0)
     time_stamps = [
         now_timestmamp + datetime.timedelta(seconds=delta)
-        for delta in random.sample(range(max_seconds_delta), k=n)
+        for delta in random.sample(list(range(max_seconds_delta)), k=n)
     ]
     time_stamps.sort(reverse=reverse)
     return time_stamps
@@ -30,6 +30,16 @@ def dummy_version():
         random.randint(0, 10),
     )
     return f"{major}.{minor}.{patch}"
+
+
+def dummy_versions(n: int):
+    versions = []
+    for _ in range(n):
+        version = dummy_version()
+        while version in versions:
+            version = dummy_version()
+        versions.append(version)
+    return versions
 
 
 def build_commands_builders_map(*commands_builders: CommandBuilder):
