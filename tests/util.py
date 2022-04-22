@@ -17,7 +17,7 @@ def dummy_time_stamps(
     now_timestmamp = datetime.datetime.now().replace(microsecond=0)
     time_stamps = [
         now_timestmamp + datetime.timedelta(seconds=delta)
-        for delta in random.sample(range(max_seconds_delta), k=n)
+        for delta in random.sample(list(range(max_seconds_delta)), k=n)
     ]
     time_stamps.sort(reverse=reverse)
     return time_stamps
