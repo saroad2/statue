@@ -5,7 +5,12 @@ import pytest
 from pytest_cases import parametrize
 
 from statue.cache import Cache
-from tests.util import dummy_time_stamps, successful_evaluation_mock
+from statue.exceptions import CacheError
+from tests.util import (
+    dummy_time_stamps,
+    failed_evaluation_mock,
+    successful_evaluation_mock,
+)
 
 
 def test_cache_constructor_with_none_root_directory(tmp_path):
@@ -125,6 +130,82 @@ def test_cache_get_evaluation(
     assert cache.get_evaluation(evaluation_index) == evaluations[evaluation_index]
 
 
+def test_cache_recent_failed_evaluation_is_most_recent(
+    tmp_path, mock_evaluation_load_from_file
+):
+    timestamp1, timestamp2, timestamp3, timestamp4 = dummy_time_stamps(4, reverse=True)
+    cache_dir = tmp_path / "cache"
+    evaluations_dir = cache_dir / "evaluations"
+    evaluations_dir.mkdir(parents=True)
+    evaluation_paths = [evaluations_dir / f"evaluation_{i}.json" for i in range(4)]
+    for evaluation_file in evaluation_paths:
+        evaluation_file.touch()
+    evaluations = [
+        failed_evaluation_mock(timestamp=timestamp1),
+        successful_evaluation_mock(timestamp=timestamp2),
+        successful_evaluation_mock(timestamp=timestamp3),
+        failed_evaluation_mock(timestamp=timestamp4),
+    ]
+    mock_evaluation_load_from_file.side_effect = dict(
+        zip(evaluation_paths, evaluations)
+    ).get
+
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
+
+    assert cache.recent_failed_evaluation == evaluations[0]
+
+
+def test_cache_recent_failed_evaluation_is_second_most_recent(
+    tmp_path, mock_evaluation_load_from_file
+):
+    timestamp1, timestamp2, timestamp3, timestamp4 = dummy_time_stamps(4, reverse=True)
+    cache_dir = tmp_path / "cache"
+    evaluations_dir = cache_dir / "evaluations"
+    evaluations_dir.mkdir(parents=True)
+    evaluation_paths = [evaluations_dir / f"evaluation_{i}.json" for i in range(4)]
+    for evaluation_file in evaluation_paths:
+        evaluation_file.touch()
+    evaluations = [
+        successful_evaluation_mock(timestamp=timestamp1),
+        failed_evaluation_mock(timestamp=timestamp2),
+        successful_evaluation_mock(timestamp=timestamp3),
+        failed_evaluation_mock(timestamp=timestamp4),
+    ]
+    mock_evaluation_load_from_file.side_effect = dict(
+        zip(evaluation_paths, evaluations)
+    ).get
+
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
+
+    assert cache.recent_failed_evaluation == evaluations[1]
+
+
+def test_cache_recent_failed_evaluation_with_no_failed_evaluation(
+    tmp_path, mock_evaluation_load_from_file
+):
+    cache_dir = tmp_path / "cache"
+    evaluations_dir = cache_dir / "evaluations"
+    evaluations_dir.mkdir(parents=True)
+    evaluation_paths = [evaluations_dir / f"evaluation_{i}.json" for i in range(6)]
+    for evaluation_file in evaluation_paths:
+        evaluation_file.touch()
+    evaluations = [
+        successful_evaluation_mock(timestamp=time_stamp)
+        for time_stamp in dummy_time_stamps(len(evaluation_paths), reverse=True)
+    ]
+    mock_evaluation_load_from_file.side_effect = dict(
+        zip(evaluation_paths, evaluations)
+    ).get
+
+    size = random.randint(1, 100)
+    cache = Cache(size=size, cache_root_directory=cache_dir)
+
+    with pytest.raises(CacheError, match="^Could not find failed evaluation$"):
+        cache.recent_failed_evaluation  # pylint: disable=pointless-statement
+
+
 def test_cache_clear(tmp_path, mock_evaluation_load_from_file):
     time_stamps = dummy_time_stamps(5)
     cache_dir = tmp_path / "cache"
@@ -232,6 +313,6 @@ def test_cache_get_evaluation_with_invalid_index(
     cache = Cache(size=size, cache_root_directory=cache_dir)
 
     with pytest.raises(
-        IndexError, match="^Could not get the desired evaluation due to invalid index$"
+        CacheError, match="^Could not get the desired evaluation due to invalid index$"
     ):
         cache.get_evaluation(invalid_evaluation_index)

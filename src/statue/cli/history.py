@@ -18,6 +18,7 @@ from statue.command import CommandEvaluation
 from statue.config.configuration import Configuration
 from statue.constants import DATETIME_FORMAT
 from statue.evaluation import Evaluation
+from statue.exceptions import CacheError
 from statue.verbosity import is_verbose
 
 
@@ -98,7 +99,7 @@ def show_evaluation_cli(
     """Show past evaluation."""
     try:
         evaluation = configuration.cache.get_evaluation(number - 1)
-    except IndexError:
+    except CacheError:
         click.echo(
             failure_style(f"Could not find evaluation with given index {number}")
         )

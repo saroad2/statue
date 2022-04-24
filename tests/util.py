@@ -141,6 +141,26 @@ def successful_evaluation_mock(
     )
 
 
+def failed_evaluation_mock(
+    total_commands: Optional[int] = None,
+    total_execution_duration: Optional[float] = None,
+    timestamp: Optional[datetime.datetime] = None,
+):
+    if total_commands is None:
+        total_commands = random.randint(1, 10)
+    if total_execution_duration is None:
+        total_execution_duration = random.uniform(0, 100)
+    successful_commands = random.randint(
+        0, total_commands - 1
+    )  # less than total commands
+    return evaluation_mock(
+        successful_commands=successful_commands,
+        total_commands=total_commands,
+        total_execution_duration=total_execution_duration,
+        timestamp=timestamp,
+    )
+
+
 def assert_calls(mock_obj, calls):
     assert mock_obj.call_count == len(
         calls
