@@ -6,6 +6,7 @@ import click
 import click_params as clickp
 import git
 
+from statue.cli.config.interactive_adders.adders_utils import get_contexts
 from statue.cli.styled_strings import (
     bullet_style,
     failure_style,
@@ -15,8 +16,6 @@ from statue.cli.styled_strings import (
 )
 from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
-from statue.context import Context
-from statue.exceptions import UnknownContext
 from statue.sources_finder import expend
 
 YES = ["y", "yes"]
@@ -84,7 +83,11 @@ class InteractiveSourcesAdder:
         """
         while True:
             try:
-                contexts = cls.get_contexts(configuration, source)
+                contexts = get_contexts(
+                    contexts_repository=configuration.contexts_repository,
+                    name=str(source),
+                    name_style_method=source_style,
+                )
                 allowed_commands = cls.get_commands(
                     configuration, source, prefix="allowed", style_func=success_style
                 )
@@ -99,44 +102,6 @@ class InteractiveSourcesAdder:
             except ValueError as error:
                 click.echo(failure_style(str(error)))
                 click.echo("Try again...")
-
-    @classmethod
-    def get_contexts(cls, configuration: Configuration, source: Path) -> List[Context]:
-        """
-        Get contexts from user for specific source.
-
-        :param configuration: Configuration instance
-        :type configuration: Configuration
-        :param source: Source to get contexts for
-        :type source: Path
-        :return: Sources list for source
-        :rtype: List[Context]
-        """
-        if len(configuration.contexts_repository) == 0:
-            return []
-        contexts_options = ", ".join(
-            [name_style(context.name) for context in configuration.contexts_repository]
-        )
-        while True:
-            try:
-                context_names = click.prompt(
-                    f"Add {bullet_style('contexts')} to {source_style(str(source))} "
-                    f"(options: [{contexts_options}])",
-                    default="",
-                    type=clickp.StringListParamType(),
-                    show_default=False,
-                )
-                context_names = [
-                    context_name.strip()
-                    for context_name in context_names
-                    if context_name.strip() != ""
-                ]
-                return [
-                    configuration.contexts_repository[context]
-                    for context in context_names
-                ]
-            except UnknownContext as error:
-                click.echo(failure_style(str(error)))
 
     @classmethod
     def get_commands(
