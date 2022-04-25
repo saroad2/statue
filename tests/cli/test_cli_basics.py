@@ -14,9 +14,9 @@ from statue.exceptions import (
     argnames="config_error",
     argvalues=[
         MissingConfiguration,
-        InvalidConfiguration,
-        InconsistentConfiguration,
-        StatueConfigurationError,
+        InvalidConfiguration("This is an error message"),
+        InconsistentConfiguration("This is an error message"),
+        StatueConfigurationError("This is an error message"),
     ],
 )
 def test_cli_fails_on_missing_configuration(

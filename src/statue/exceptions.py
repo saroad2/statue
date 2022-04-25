@@ -1,4 +1,5 @@
 """Exceptions module."""
+from typing import List, Optional
 
 
 class StatueException(Exception):
@@ -10,6 +11,30 @@ class StatueException(Exception):
 
 class StatueConfigurationError(StatueException):
     """User-Defined Statue configuration is invalid."""
+
+    def __init__(self, message: str, location: Optional[List[str]] = None):
+        """
+        Constructor.
+
+        :param message: Message of the error
+        :type message: str
+        :param location: Optional. Where the exception was thrown in the configuration
+        :type location: Optional[List[str]]
+        """
+        super().__init__(message)
+        self.location = [] if location is None else location
+
+    def __str__(self) -> str:
+        """
+        String representation method.
+
+        :return: String representation of the exception
+        :rtype: str
+        """
+        message = super().__str__()
+        if len(self.location) == 0:
+            return message
+        return f"{message} ({' -> '.join(self.location)})"
 
 
 class MissingConfiguration(StatueConfigurationError):
