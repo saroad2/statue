@@ -142,7 +142,7 @@ def test_configuration_from_dict_update_sources(tmp_path):
 def test_configuration_from_dict_fail_update_mode(tmp_path):
     cache_dir = tmp_path / ".statue"
     with pytest.raises(
-        InvalidConfiguration, match="^Got unexpected runner mode in configuration: BLA$"
+        InvalidConfiguration, match=rf"^Got unexpected runner mode BLA \({GENERAL}\)$"
     ):
         Configuration.from_dict(
             cache_dir=cache_dir, statue_config_dict={GENERAL: {MODE: "bla"}}

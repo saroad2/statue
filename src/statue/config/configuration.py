@@ -196,7 +196,7 @@ class Configuration:
                 mode = RunnerMode[mode_string]
             except KeyError as error:
                 raise InvalidConfiguration(
-                    f"Got unexpected runner mode in configuration: {mode_string}"
+                    f"Got unexpected runner mode {mode_string}", location=[GENERAL]
                 ) from error
         contexts_repository = ContextsRepository.from_dict(
             statue_config_dict.get(CONTEXTS, {})
