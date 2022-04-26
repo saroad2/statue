@@ -123,13 +123,11 @@ def test_configuration_from_dict_update_sources(tmp_path):
     sources_config = mock.Mock()
     cache_dir = tmp_path / ".statue"
 
-    with mock.patch.object(
-        SourcesRepository, "update_from_config"
-    ) as sources_update_mock:
+    with mock.patch.object(SourcesRepository, "from_dict") as sources_from_dict_mock:
         configuration = Configuration.from_dict(
             cache_dir=cache_dir, statue_config_dict={SOURCES: sources_config}
         )
-        sources_update_mock.assert_called_once_with(
+        sources_from_dict_mock.assert_called_once_with(
             config=sources_config, contexts_repository=configuration.contexts_repository
         )
 

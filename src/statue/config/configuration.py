@@ -205,8 +205,7 @@ class Configuration:
             config=statue_config_dict.get(COMMANDS, {}),
             contexts_repository=contexts_repository,
         )
-        sources_repository = SourcesRepository()
-        sources_repository.update_from_config(
+        sources_repository = SourcesRepository.from_dict(
             config=statue_config_dict.get(SOURCES, {}),
             contexts_repository=contexts_repository,
         )
