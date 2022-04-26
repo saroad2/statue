@@ -1,7 +1,7 @@
 """Place for saving all available sources with default commands filter."""
 from collections import OrderedDict
 from pathlib import Path
-from typing import Any, Dict, List, MutableMapping
+from typing import Any, Dict, List, Optional
 from typing import OrderedDict as OrderedDictType
 
 from statue.commands_filter import CommandsFilter
@@ -16,9 +16,18 @@ class SourcesRepository:
     This is done in order to get specific commands filter from each source.
     """
 
-    def __init__(self):
-        """Initialize repository."""
-        self.sources_filters_map: Dict[Path, CommandsFilter] = {}
+    def __init__(
+        self, sources_filters_map: Optional[Dict[Path, CommandsFilter]] = None
+    ):
+        """
+        Initialize repository.
+
+        :param sources_filters_map: Map from a path to its commands filter
+        :type sources_filters_map: Optional[Dict[Path, CommandsFilter]]
+        """
+        self.sources_filters_map: Dict[Path, CommandsFilter] = (
+            {} if sources_filters_map is None else sources_filters_map
+        )
 
     def __len__(self) -> int:
         """
@@ -85,30 +94,32 @@ class SourcesRepository:
             [(source.as_posix(), self[source].as_dict()) for source in sources_list]
         )
 
-    def update_from_config(
-        self, config: MutableMapping[str, Any], contexts_repository: ContextsRepository
-    ):
+    @classmethod
+    def from_dict(cls, config: Dict[str, Any], contexts_repository: ContextsRepository):
         """
-        Update sources repository from configuration mapping.
+        Create sources repository from configuration mapping.
 
         This is done using an existing contexts repository to link contexts
         from config to existing context objects
 
 
-        :param config: Configuration to update repository from
-        :type config: MutableMapping[str, Any]
+        :param config: Configuration to create repository from
+        :type config: Dict[str, Any]
         :param contexts_repository: Contexts repository to get context objects
             from
         :type contexts_repository: ContextsRepository
-
+        :return: Built sources repository
+        :rtype: SourcesRepository
         """
+        sources_filters_map = {}
         for source, commands_filter_config in config.items():
             contexts = [
                 contexts_repository[context_name]
                 for context_name in commands_filter_config.get(CONTEXTS, [])
             ]
-            self.sources_filters_map[Path(source)] = CommandsFilter(
+            sources_filters_map[Path(source)] = CommandsFilter(
                 contexts=contexts,
                 allowed_commands=commands_filter_config.get(ALLOW_LIST, None),
                 denied_commands=commands_filter_config.get(DENY_LIST, None),
             )
+        return SourcesRepository(sources_filters_map)
