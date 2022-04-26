@@ -27,7 +27,11 @@ from statue.constants import (
     SOURCES,
 )
 from statue.context import Context
-from statue.exceptions import InvalidConfiguration, MissingConfiguration
+from statue.exceptions import (
+    InvalidConfiguration,
+    MissingConfiguration,
+    StatueConfigurationError,
+)
 from statue.runner import RunnerMode
 
 if sys.version_info < (3, 9):  # pragma: no cover
@@ -198,12 +202,9 @@ class Configuration:
                 raise InvalidConfiguration(
                     f"Got unexpected runner mode {mode_string}", location=[GENERAL]
                 ) from error
-        contexts_repository = ContextsRepository.from_dict(
-            statue_config_dict.get(CONTEXTS, {})
-        )
-        commands_repository = CommandsRepository.from_dict(
-            config=statue_config_dict.get(COMMANDS, {}),
-            contexts_repository=contexts_repository,
+        contexts_repository = cls.build_contexts_repository(statue_config_dict)
+        commands_repository = cls.build_commands_repository(
+            statue_config_dict, contexts_repository
         )
         sources_repository = SourcesRepository.from_dict(
             config=statue_config_dict.get(SOURCES, {}),
@@ -216,6 +217,49 @@ class Configuration:
             commands_repository=commands_repository,
             sources_repository=sources_repository,
         )
+
+    @classmethod
+    def build_contexts_repository(
+        cls, statue_config_dict: Dict[str, Any]
+    ) -> ContextsRepository:
+        """
+        Build contexts repository from configuration dictionary.
+
+        :param statue_config_dict: Configuration map as loaded from config file
+        :type statue_config_dict: Dict[str, Any]
+        :return: Built contexts repository
+        :rtype: ContextsRepository
+        :raises StatueConfigurationError: General configuration-related error.
+        """
+        try:
+            return ContextsRepository.from_dict(statue_config_dict.get(CONTEXTS, {}))
+        except StatueConfigurationError as error:
+            error.append_location_item(CONTEXTS)
+            raise error
+
+    @classmethod
+    def build_commands_repository(
+        cls, statue_config_dict: Dict[str, Any], contexts_repository: ContextsRepository
+    ) -> CommandsRepository:
+        """
+        Build contexts repository from configuration dictionary.
+
+        :param statue_config_dict: Configuration map as loaded from config file
+        :type statue_config_dict: Dict[str, Any]
+        :param contexts_repository: Contexts repository to get contexts from
+        :type contexts_repository: ContextsRepository
+        :return: Built contexts repository
+        :rtype: CommandsRepository
+        :raises StatueConfigurationError: General configuration-related error.
+        """
+        try:
+            return CommandsRepository.from_dict(
+                config=statue_config_dict.get(COMMANDS, {}),
+                contexts_repository=contexts_repository,
+            )
+        except StatueConfigurationError as error:
+            error.append_location_item(COMMANDS)
+            raise error
 
     @classmethod
     def configuration_path(cls, directory: Optional[Path] = None) -> Path:

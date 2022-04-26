@@ -17,8 +17,19 @@ from statue.constants import (
     MODE,
     SOURCES,
 )
-from statue.exceptions import InvalidConfiguration
+from statue.exceptions import InvalidConfiguration, StatueConfigurationError
 from statue.runner import RunnerMode
+from tests.constants import COMMAND1, CONTEXT1
+
+
+@pytest.fixture
+def mock_contexts_repository_from_dict(mocker):
+    return mocker.patch.object(ContextsRepository, "from_dict")
+
+
+@pytest.fixture
+def mock_commands_repository_from_dict(mocker):
+    return mocker.patch.object(CommandsRepository, "from_dict")
 
 
 def test_configuration_builder_from_empty_config(tmp_path):
@@ -79,17 +90,19 @@ def test_configuration_from_dict_history_size(tmp_path):
     assert configuration.default_mode == RunnerMode.SYNC
 
 
-def test_configuration_from_dict_update_contexts(tmp_path):
+def test_configuration_from_dict_update_contexts(
+    tmp_path, mock_contexts_repository_from_dict
+):
     contexts_config = mock.Mock()
     cache_dir = tmp_path / ".statue"
 
-    with mock.patch.object(ContextsRepository, "from_dict") as contexts_from_dict:
-        configuration = Configuration.from_dict(
-            cache_dir=cache_dir, statue_config_dict={CONTEXTS: contexts_config}
-        )
-        contexts_from_dict.assert_called_once_with(contexts_config)
+    configuration = Configuration.from_dict(
+        cache_dir=cache_dir, statue_config_dict={CONTEXTS: contexts_config}
+    )
+    mock_contexts_repository_from_dict.assert_called_once_with(contexts_config)
 
-        assert configuration.contexts_repository == contexts_from_dict.return_value
+    contexts_repository = mock_contexts_repository_from_dict.return_value
+    assert configuration.contexts_repository == contexts_repository
     assert len(configuration.commands_repository) == 0
     assert len(configuration.sources_repository) == 0
     assert configuration.cache.cache_root_directory == cache_dir
@@ -97,20 +110,22 @@ def test_configuration_from_dict_update_contexts(tmp_path):
     assert configuration.default_mode == RunnerMode.SYNC
 
 
-def test_configuration_from_dict_update_commands(tmp_path):
+def test_configuration_from_dict_update_commands(
+    tmp_path, mock_commands_repository_from_dict
+):
     commands_config = mock.Mock()
     cache_dir = tmp_path / ".statue"
 
-    with mock.patch.object(CommandsRepository, "from_dict") as commands_from_dict_mock:
-        configuration = Configuration.from_dict(
-            cache_dir=cache_dir, statue_config_dict={COMMANDS: commands_config}
-        )
-        commands_from_dict_mock.assert_called_once_with(
-            config=commands_config,
-            contexts_repository=configuration.contexts_repository,
-        )
+    configuration = Configuration.from_dict(
+        cache_dir=cache_dir, statue_config_dict={COMMANDS: commands_config}
+    )
+    mock_commands_repository_from_dict.assert_called_once_with(
+        config=commands_config,
+        contexts_repository=configuration.contexts_repository,
+    )
 
-        assert configuration.commands_repository == commands_from_dict_mock.return_value
+    commands_repository = mock_commands_repository_from_dict.return_value
+    assert configuration.commands_repository == commands_repository
 
     assert len(configuration.contexts_repository) == 0
     assert len(configuration.sources_repository) == 0
@@ -147,3 +162,50 @@ def test_configuration_from_dict_fail_update_mode(tmp_path):
         Configuration.from_dict(
             cache_dir=cache_dir, statue_config_dict={GENERAL: {MODE: "bla"}}
         )
+
+
+def test_configuration_from_dict_fail_building_contexts_repository(
+    tmp_path, mock_contexts_repository_from_dict
+):
+    error_message = "Contexts configuration is invalid"
+    cache_dir = tmp_path / ".statue"
+    contexts_config = mock.Mock()
+    mock_contexts_repository_from_dict.side_effect = StatueConfigurationError(
+        error_message, location=[CONTEXT1]
+    )
+
+    with pytest.raises(
+        StatueConfigurationError,
+        match=rf"^{error_message} \({CONTEXTS} -> {CONTEXT1}\)$",
+    ):
+        Configuration.from_dict(
+            cache_dir=cache_dir, statue_config_dict={CONTEXTS: contexts_config}
+        )
+
+    mock_contexts_repository_from_dict.assert_called_once_with(contexts_config)
+
+
+def test_configuration_from_dict_fail_building_commands_repository(
+    tmp_path, mock_contexts_repository_from_dict, mock_commands_repository_from_dict
+):
+    error_message = "Commands configuration is invalid"
+    cache_dir = tmp_path / ".statue"
+    contexts_config, commands_config = mock.Mock(), mock.Mock()
+    mock_commands_repository_from_dict.side_effect = StatueConfigurationError(
+        error_message, location=[COMMAND1]
+    )
+
+    with pytest.raises(
+        StatueConfigurationError,
+        match=rf"^{error_message} \({COMMANDS} -> {COMMAND1}\)$",
+    ):
+        Configuration.from_dict(
+            cache_dir=cache_dir,
+            statue_config_dict={CONTEXTS: contexts_config, COMMANDS: commands_config},
+        )
+
+    mock_contexts_repository_from_dict.assert_called_once_with(contexts_config)
+    mock_commands_repository_from_dict.assert_called_once_with(
+        config=commands_config,
+        contexts_repository=mock_contexts_repository_from_dict.return_value,
+    )

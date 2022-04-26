@@ -36,6 +36,15 @@ class StatueConfigurationError(StatueException):
             return message
         return f"{message} ({' -> '.join(self.location)})"
 
+    def append_location_item(self, location: str):
+        """
+        Add high-hierarchy location specifier.
+
+        :param location: Location specifier to be added
+        :type location: str
+        """
+        self.location.insert(0, location)
+
 
 class MissingConfiguration(StatueConfigurationError):
     """Part of the Statue configuration is missing."""
@@ -49,6 +58,21 @@ class MissingConfiguration(StatueConfigurationError):
 
 class InvalidConfiguration(StatueConfigurationError):
     """Some of statue's configurations are invalid."""
+
+
+class MissingHelpString(InvalidConfiguration):
+    """Help string is missing from configuration."""
+
+    message = "help string is missing"
+
+    def __init__(self, location: Optional[List[str]] = None):
+        """
+        Constructor.
+
+        :param location: Optional. Where the exception was thrown in the configuration
+        :type location: Optional[List[str]]
+        """
+        super().__init__(message=self.message, location=location)
 
 
 class InconsistentConfiguration(StatueConfigurationError):

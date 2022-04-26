@@ -28,7 +28,7 @@ from statue.context import Context
 from statue.exceptions import (
     InconsistentConfiguration,
     InvalidCommand,
-    InvalidConfiguration,
+    MissingHelpString,
 )
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
@@ -636,12 +636,10 @@ class CommandBuilder:
         :type contexts_repository: ContextsRepository
         :return: Command builder as specified
         :rtype: CommandBuilder
-        :raises InvalidConfiguration: Raised when help string is missing
+        :raises MissingHelpString: Raised when help string is missing
         """
         if HELP not in builder_setups:
-            raise InvalidConfiguration(
-                f"command {command_name} doesn't have help string"
-            )
+            raise MissingHelpString(location=[command_name])
         return CommandBuilder(
             name=command_name,
             help=builder_setups[HELP],

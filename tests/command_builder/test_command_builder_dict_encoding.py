@@ -15,7 +15,7 @@ from statue.constants import (
     VERSION,
 )
 from statue.context import Context
-from statue.exceptions import InconsistentConfiguration, InvalidConfiguration
+from statue.exceptions import InconsistentConfiguration, MissingHelpString
 from tests.constants import (
     ARG1,
     ARG2,
@@ -281,8 +281,8 @@ def test_command_builder_as_dict_successful(command_builder_dict, command_builde
 def case_command_builder_from_dict_fail_on_no_help_string():
     command_builder_dict = {CONTEXT1: {ARGS: [ARG1, ARG2], CLEAR_ARGS: True}}
     contexts_repository = ContextsRepository()
-    exception_class = InvalidConfiguration
-    error_message = f"command {COMMAND1} doesn't have help string"
+    exception_class = MissingHelpString
+    error_message = rf"help string is missing \({COMMAND1}\)"
 
     return command_builder_dict, contexts_repository, exception_class, error_message
 

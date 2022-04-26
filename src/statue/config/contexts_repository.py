@@ -8,7 +8,7 @@ from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 from statue.context import Context
 from statue.exceptions import (
     InconsistentConfiguration,
-    InvalidConfiguration,
+    MissingHelpString,
     UnknownContext,
 )
 
@@ -194,7 +194,7 @@ class ContextsRepository:
         :type context_config: Dict[str, Any]
         :param contexts_repository: Contexts repository to add new context to
         :type contexts_repository: ContextsRepository
-        :raises InvalidConfiguration: Raised when the configuration is invalid.
+        :raises MissingHelpString: Raised when help string is missing
         """
         parent = (
             contexts_repository[context_config[PARENT]]
@@ -203,9 +203,7 @@ class ContextsRepository:
         )
         aliases = context_config.get(ALIASES, [])
         if HELP not in context_config:
-            raise InvalidConfiguration(
-                f"Context {context_name} doesn't have help string"
-            )
+            raise MissingHelpString(location=[context_name])
         contexts_repository.add_contexts(
             Context(
                 name=context_name,
