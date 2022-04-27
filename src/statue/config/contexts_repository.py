@@ -191,7 +191,7 @@ class ContextsRepository:
         :param context_name: Context to be built
         :type context_name: str
         :param context_config: Configuration to build context from
-        :type context_config: MutableMapping[str, Any]
+        :type context_config: Dict[str, Any]
         :param contexts_repository: Contexts repository to add new context to
         :type contexts_repository: ContextsRepository
         :raises InvalidConfiguration: Raised when the configuration is invalid.

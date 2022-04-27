@@ -1,6 +1,6 @@
 """Context class used for reading commands in various contexts."""
 from collections import OrderedDict
-from typing import Any, Iterable, List, MutableMapping, Optional
+from typing import Any, Dict, Iterable, List, Optional
 from typing import OrderedDict as OrderedDictType
 
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
@@ -165,15 +165,15 @@ class Context:
         return False
 
     def search_context_instructions(
-        self, setups: MutableMapping[str, Any]
-    ) -> Optional[MutableMapping[str, Any]]:
+        self, setups: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
         Search for context in setup dictionary.
 
         :param setups: Setup to look for the context in
-        :type setups: MutableMapping[str, Any]
+        :type setups: Dict[str, Any]
         :return: Specific setups with context
-        :rtype: None or MutableMapping[str, Any]
+        :rtype: None or Dict[str, Any]
         """
         for name in self.all_names:
             name_setups = setups.get(name, None)
