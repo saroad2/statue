@@ -15,7 +15,7 @@ from statue.constants import (
     VERSION,
 )
 from statue.context import Context
-from statue.exceptions import InconsistentConfiguration
+from statue.exceptions import InconsistentConfiguration, InvalidConfiguration
 from tests.constants import (
     ARG1,
     ARG2,
@@ -278,6 +278,16 @@ def test_command_builder_as_dict_successful(command_builder_dict, command_builde
 
 
 @case(tags=[FAILED_TAG])
+def case_command_builder_from_dict_fail_on_no_help_string():
+    command_builder_dict = {CONTEXT1: {ARGS: [ARG1, ARG2], CLEAR_ARGS: True}}
+    contexts_repository = ContextsRepository()
+    exception_class = InvalidConfiguration
+    error_message = f"command {COMMAND1} doesn't have help string"
+
+    return command_builder_dict, contexts_repository, exception_class, error_message
+
+
+@case(tags=[FAILED_TAG])
 def case_command_builder_from_dict_fail_on_both_clear_args_and_args():
     command_builder_dict = {
         HELP: COMMAND_HELP_STRING1,
@@ -286,12 +296,13 @@ def case_command_builder_from_dict_fail_on_both_clear_args_and_args():
     contexts_repository = ContextsRepository(
         Context(name=CONTEXT1, help=COMMAND_HELP_STRING1)
     )
+    exception_class = InconsistentConfiguration
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"clear_args and args cannot be both set at the same time"
     )
 
-    return command_builder_dict, contexts_repository, error_message
+    return command_builder_dict, contexts_repository, exception_class, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -303,12 +314,13 @@ def case_command_builder_from_dict_fail_on_both_clear_args_and_add_args():
     contexts_repository = ContextsRepository(
         Context(name=CONTEXT1, help=COMMAND_HELP_STRING1)
     )
+    exception_class = InconsistentConfiguration
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"clear_args and add_args cannot be both set at the same time"
     )
 
-    return command_builder_dict, contexts_repository, error_message
+    return command_builder_dict, contexts_repository, exception_class, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -320,12 +332,13 @@ def case_command_builder_from_dict_fail_on_both_args_and_add_args():
     contexts_repository = ContextsRepository(
         Context(name=CONTEXT1, help=COMMAND_HELP_STRING1)
     )
+    exception_class = InconsistentConfiguration
     error_message = (
         f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
         f"args and add_args cannot be both set at the same time"
     )
 
-    return command_builder_dict, contexts_repository, error_message
+    return command_builder_dict, contexts_repository, exception_class, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -337,12 +350,13 @@ def case_command_builder_from_dict_fail_unknown_required_context():
     contexts_repository = ContextsRepository(
         Context(name=CONTEXT2, help=COMMAND_HELP_STRING2)
     )
+    exception_class = InconsistentConfiguration
     error_message = (
         f"The following contexts defined in {REQUIRED_CONTEXTS} "
         f"for {COMMAND1} command are not defined in configuration: {CONTEXT1}"
     )
 
-    return command_builder_dict, contexts_repository, error_message
+    return command_builder_dict, contexts_repository, exception_class, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -354,12 +368,13 @@ def case_command_builder_from_dict_fail_unknown_allowed_context():
     contexts_repository = ContextsRepository(
         Context(name=CONTEXT2, help=COMMAND_HELP_STRING2)
     )
+    exception_class = InconsistentConfiguration
     error_message = (
         f"The following contexts defined in {ALLOWED_CONTEXTS} "
         f"for {COMMAND1} command are not defined in configuration: {CONTEXT1}"
     )
 
-    return command_builder_dict, contexts_repository, error_message
+    return command_builder_dict, contexts_repository, exception_class, error_message
 
 
 @case(tags=[FAILED_TAG])
@@ -371,23 +386,29 @@ def case_command_builder_from_dict_fail_unknown_specified_context():
     contexts_repository = ContextsRepository(
         Context(name=CONTEXT2, help=COMMAND_HELP_STRING2)
     )
+    exception_class = InconsistentConfiguration
     error_message = (
         f"The following specified contexts defined in {COMMAND1} "
         f"are not defined in configuration: {CONTEXT1}"
     )
 
-    return command_builder_dict, contexts_repository, error_message
+    return command_builder_dict, contexts_repository, exception_class, error_message
 
 
 @parametrize_with_cases(
-    argnames=["command_builder_dict", "contexts_repository", "error_message"],
+    argnames=[
+        "command_builder_dict",
+        "contexts_repository",
+        "exception_class",
+        "error_message",
+    ],
     cases=THIS_MODULE,
     has_tag=FAILED_TAG,
 )
 def test_command_builder_from_dict_failed(
-    command_builder_dict, contexts_repository, error_message
+    command_builder_dict, contexts_repository, exception_class, error_message
 ):
-    with pytest.raises(InconsistentConfiguration, match=f"^{error_message}$"):
+    with pytest.raises(exception_class, match=f"^{error_message}$"):
         CommandBuilder.from_dict(
             command_name=COMMAND1,
             builder_setups=command_builder_dict,
