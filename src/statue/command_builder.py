@@ -808,7 +808,7 @@ class CommandBuilder:
         context_names = [context.name for context in contexts]
         context_names.sort()
         raise InconsistentConfiguration(
-            f"The following Contexts has been as set both {type1} and {type2} "
+            f"The following Contexts has been set as both {type1} and {type2} "
             f"for {command_name}: {', '.join(context_names)}"
         )
 

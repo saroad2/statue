@@ -295,7 +295,7 @@ def test_command_builder_constructor_fail_with_both_allowed_and_required():
     with pytest.raises(
         InconsistentConfiguration,
         match=(
-            "^The following Contexts has been as set both allowed and required "
+            "^The following Contexts has been set as both allowed and required "
             f"for {COMMAND1}: {CONTEXT1}$"
         ),
     ):
@@ -315,7 +315,7 @@ def test_command_builder_constructor_fail_with_both_allowed_and_specified():
     with pytest.raises(
         InconsistentConfiguration,
         match=(
-            "^The following Contexts has been as set both allowed and specified "
+            "^The following Contexts has been set as both allowed and specified "
             f"for {COMMAND1}: {CONTEXT1}$"
         ),
     ):
@@ -335,7 +335,7 @@ def test_command_builder_constructor_fail_with_both_required_and_specified():
     with pytest.raises(
         InconsistentConfiguration,
         match=(
-            "^The following Contexts has been as set both required and specified "
+            "^The following Contexts has been set as both required and specified "
             f"for {COMMAND1}: {CONTEXT1}$"
         ),
     ):
