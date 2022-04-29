@@ -132,6 +132,7 @@ class UnknownContext(StatueException):
         :type context_name: str
         """
         super().__init__(f'Could not find context named "{context_name}"')
+        self.context_name = context_name
 
 
 class ContextCircularParentingError(StatueException):

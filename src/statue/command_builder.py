@@ -28,7 +28,9 @@ from statue.context import Context
 from statue.exceptions import (
     InconsistentConfiguration,
     InvalidCommand,
+    InvalidConfiguration,
     MissingHelpString,
+    UnknownContext,
 )
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
@@ -682,24 +684,19 @@ class CommandBuilder:
         :type contexts_repository: ContextsRepository
         :return: Contexts list
         :rtype: List[Context]
-        :raises InconsistentConfiguration: Raised when one of the contexts was not
+        :raises InvalidConfiguration: Raised when one of the contexts was not
             set in the contexts repository
         """
         if key_name not in builder_setups:
             return []
         context_names = builder_setups[key_name]
-        unknown_contexts = [
-            context_name
-            for context_name in context_names
-            if context_name not in contexts_repository
-        ]
-        if len(unknown_contexts) > 0:
-            raise InconsistentConfiguration(
-                f"The following contexts defined in {key_name} for "
-                f"{command_name} command are not defined in configuration: "
-                f"{', '.join(unknown_contexts)}"
-            )
-        return [contexts_repository[context_name] for context_name in context_names]
+        try:
+            return [contexts_repository[context_name] for context_name in context_names]
+        except UnknownContext as error:
+            raise InvalidConfiguration(
+                message="Unknown context in configuration",
+                location=[command_name, key_name, error.context_name],
+            ) from error
 
     @classmethod
     def build_contexts_specifications(
@@ -719,7 +716,7 @@ class CommandBuilder:
         :type contexts_repository: ContextsRepository
         :return: Contexts specifications dictionary
         :rtype: Dict[Context, ContextSpecification]
-        :raises InconsistentConfiguration: Raised when one of the contexts was not
+        :raises InvalidConfiguration: Raised when one of the contexts was not
             set in the contexts repository
         """
         context_names = [
@@ -727,25 +724,20 @@ class CommandBuilder:
             for context_name in builder_setups.keys()
             if context_name not in cls.setup_words()
         ]
-        unknown_contexts = [
-            context_name
-            for context_name in context_names
-            if context_name not in contexts_repository
-        ]
-        if len(unknown_contexts) > 0:
-            raise InconsistentConfiguration(
-                f"The following specified contexts defined in {command_name} "
-                "are not defined in configuration: "
-                f"{', '.join(unknown_contexts)}"
-            )
-        return {
-            contexts_repository[context_name]: ContextSpecification.from_dict(
-                command_name=command_name,
-                context_name=context_name,
-                context_specification_setups=builder_setups[context_name],
-            )
-            for context_name in context_names
-        }
+        try:
+            return {
+                contexts_repository[context_name]: ContextSpecification.from_dict(
+                    command_name=command_name,
+                    context_name=context_name,
+                    context_specification_setups=builder_setups[context_name],
+                )
+                for context_name in context_names
+            }
+        except UnknownContext as error:
+            raise InvalidConfiguration(
+                message="Unknown context in configuration",
+                location=[command_name, error.context_name],
+            ) from error
 
     @classmethod
     def setup_words(cls) -> List[str]:
