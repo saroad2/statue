@@ -302,8 +302,8 @@ def case_command_builder_from_dict_fail_on_both_clear_args_and_args():
     )
     exception_class = InconsistentConfiguration
     error_message = (
-        f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
-        f"clear_args and args cannot be both set at the same time"
+        "args and clear_args cannot be both set at the same time "
+        rf"\({COMMAND1} -> {CONTEXT1} -> args/clear_args\)"
     )
 
     return command_builder_dict, contexts_repository, exception_class, error_message
@@ -320,8 +320,8 @@ def case_command_builder_from_dict_fail_on_both_clear_args_and_add_args():
     )
     exception_class = InconsistentConfiguration
     error_message = (
-        f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
-        f"clear_args and add_args cannot be both set at the same time"
+        "add_args and clear_args cannot be both set at the same time "
+        rf"\({COMMAND1} -> {CONTEXT1} -> add_args/clear_args\)"
     )
 
     return command_builder_dict, contexts_repository, exception_class, error_message
@@ -338,8 +338,8 @@ def case_command_builder_from_dict_fail_on_both_args_and_add_args():
     )
     exception_class = InconsistentConfiguration
     error_message = (
-        f"Inconsistency in {COMMAND1} context specification for {CONTEXT1}: "
-        f"args and add_args cannot be both set at the same time"
+        "args and add_args cannot be both set at the same time "
+        rf"\({COMMAND1} -> {CONTEXT1} -> args/add_args\)"
     )
 
     return command_builder_dict, contexts_repository, exception_class, error_message

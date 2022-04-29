@@ -104,26 +104,22 @@ class ContextSpecification:
         :raises InconsistentConfiguration: raised when context
             specification is inconsistent.
         """
-        error_prefix = (
-            f"Inconsistency in {command_name} "
-            f"context specification for {context_name}"
-        )
-        error_prefix += ":"
-        error_suffix = "cannot be both set at the same time"
-
         if clear_args and args is not None:
             raise InconsistentConfiguration(
-                f"{error_prefix} clear_args and args {error_suffix}"
+                "args and clear_args cannot be both set at the same time",
+                location=[command_name, context_name, "args/clear_args"],
             )
 
         if clear_args and add_args is not None:
             raise InconsistentConfiguration(
-                f"{error_prefix} clear_args and add_args {error_suffix}"
+                "add_args and clear_args cannot be both set at the same time",
+                location=[command_name, context_name, "add_args/clear_args"],
             )
 
         if args is not None and add_args is not None:
             raise InconsistentConfiguration(
-                f"{error_prefix} args and add_args {error_suffix}"
+                "args and add_args cannot be both set at the same time",
+                location=[command_name, context_name, "args/add_args"],
             )
 
     @classmethod
