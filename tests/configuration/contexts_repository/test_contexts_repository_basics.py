@@ -218,10 +218,7 @@ def test_contexts_repository_fail_on_adding_context_with_existing_name():
 
     with pytest.raises(
         InconsistentConfiguration,
-        match=(
-            f"^The following aliases of {CONTEXT1} are already defined in "
-            f"other contexts: {CONTEXT1}$"
-        ),
+        match=rf"^context name or alias has been defined twice \({CONTEXT1}\)$",
     ):
         contexts_repository.add_contexts(
             Context(name=CONTEXT1, help=CONTEXT_HELP_STRING2)
@@ -235,10 +232,7 @@ def test_contexts_repository_fail_on_adding_context_with_existing_alias():
 
     with pytest.raises(
         InconsistentConfiguration,
-        match=(
-            f"^The following aliases of {CONTEXT2} are already defined in "
-            f"other contexts: {CONTEXT1}$"
-        ),
+        match=rf"^context name or alias has been defined twice \({CONTEXT1}\)$",
     ):
         contexts_repository.add_contexts(
             Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, aliases=[CONTEXT1])
@@ -251,10 +245,7 @@ def test_contexts_repository_fail_on_adding_two_contexts_with_the_same_name():
 
     with pytest.raises(
         InconsistentConfiguration,
-        match=(
-            "^Trying to add two or more contexts with the following "
-            f"aliases: {CONTEXT1}$"
-        ),
+        match=rf"^context name or alias has been defined twice \({CONTEXT1}\)$",
     ):
         contexts_repository.add_contexts(
             Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),

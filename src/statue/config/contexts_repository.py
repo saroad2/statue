@@ -87,13 +87,11 @@ class ContextsRepository:
         :raises InconsistentConfiguration: Raised when trying to add contexts with the
             same name or an existing name.
         """
+        message = "context name or alias has been defined twice"
         for i, context in enumerate(contexts):
             existing_aliases = [alias for alias in context.all_names if alias in self]
             if len(existing_aliases) != 0:
-                raise InconsistentConfiguration(
-                    f"The following aliases of {context.name} are already defined "
-                    f"in other contexts: {', '.join(existing_aliases)}"
-                )
+                raise InconsistentConfiguration(message, location=[existing_aliases[0]])
             for j in range(i):
                 other_context = contexts[j]
                 overlapping_aliases = [
@@ -103,8 +101,7 @@ class ContextsRepository:
                 ]
                 if len(overlapping_aliases) != 0:
                     raise InconsistentConfiguration(
-                        "Trying to add two or more contexts with the following "
-                        f"aliases: {', '.join(overlapping_aliases)}"
+                        message, location=[overlapping_aliases[0]]
                     )
         self.contexts_list.extend(contexts)
 
