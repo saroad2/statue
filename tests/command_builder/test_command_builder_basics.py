@@ -287,7 +287,7 @@ def test_command_builder_with_all_fields():
     )
 
 
-def test_command_builder_constructor_fail_with_both_allowed_and_required():
+def test_command_builder_constructor_fail_on_one_context_both_allowed_and_required():
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
@@ -295,8 +295,8 @@ def test_command_builder_constructor_fail_with_both_allowed_and_required():
     with pytest.raises(
         InconsistentConfiguration,
         match=(
-            "^The following Contexts has been set as both allowed and required "
-            f"for {COMMAND1}: {CONTEXT1}$"
+            "^allowed and required contexts clash "
+            rf"\({COMMAND1} -> allowed/required -> {CONTEXT1}\)$"
         ),
     ):
         CommandBuilder(
@@ -307,7 +307,28 @@ def test_command_builder_constructor_fail_with_both_allowed_and_required():
         )
 
 
-def test_command_builder_constructor_fail_with_both_allowed_and_specified():
+def test_command_builder_constructor_fail_with_two_contexts_both_allowed_and_required():
+    context1, context2, context3 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^allowed and required contexts clash "
+            rf"\({COMMAND1} -> allowed/required\)$"
+        ),
+    ):
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            allowed_contexts=[context1, context2, context3],
+            required_contexts=[context1, context2],
+        )
+
+
+def test_command_builder_constructor_fail_on_one_context_both_allowed_and_specified():
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
@@ -315,8 +336,8 @@ def test_command_builder_constructor_fail_with_both_allowed_and_specified():
     with pytest.raises(
         InconsistentConfiguration,
         match=(
-            "^The following Contexts has been set as both allowed and specified "
-            f"for {COMMAND1}: {CONTEXT1}$"
+            "^allowed and specified contexts clash "
+            rf"\({COMMAND1} -> allowed/specified -> {CONTEXT1}\)$"
         ),
     ):
         CommandBuilder(
@@ -327,7 +348,31 @@ def test_command_builder_constructor_fail_with_both_allowed_and_specified():
         )
 
 
-def test_command_builder_constructor_fail_with_both_required_and_specified():
+def test_command_builder_constructor_fail_on_two_contexts_both_allowed_and_specified():
+    context1, context2, context3 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^allowed and specified contexts clash "
+            rf"\({COMMAND1} -> allowed/specified\)$"
+        ),
+    ):
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            allowed_contexts=[context1, context2, context3],
+            contexts_specifications={
+                context1: ContextSpecification(args=[ARG1]),
+                context2: ContextSpecification(args=[ARG2]),
+            },
+        )
+
+
+def test_command_builder_constructor_fail_on_one_context_both_required_and_specified():
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
         Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
@@ -335,8 +380,8 @@ def test_command_builder_constructor_fail_with_both_required_and_specified():
     with pytest.raises(
         InconsistentConfiguration,
         match=(
-            "^The following Contexts has been set as both required and specified "
-            f"for {COMMAND1}: {CONTEXT1}$"
+            "^required and specified contexts clash "
+            rf"\({COMMAND1} -> required/specified -> {CONTEXT1}\)$"
         ),
     ):
         CommandBuilder(
@@ -344,4 +389,28 @@ def test_command_builder_constructor_fail_with_both_required_and_specified():
             help=COMMAND_HELP_STRING1,
             required_contexts=[context1, context2],
             contexts_specifications={context1: ContextSpecification(args=[ARG1])},
+        )
+
+
+def test_command_builder_constructor_fail_on_two_contexts_both_required_and_specified():
+    context1, context2, context3 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^required and specified contexts clash "
+            rf"\({COMMAND1} -> required/specified\)$"
+        ),
+    ):
+        CommandBuilder(
+            name=COMMAND1,
+            help=COMMAND_HELP_STRING1,
+            required_contexts=[context1, context2, context3],
+            contexts_specifications={
+                context1: ContextSpecification(args=[ARG1]),
+                context2: ContextSpecification(args=[ARG2]),
+            },
         )

@@ -222,7 +222,6 @@ class CommandBuilder:
         """
         if len(required_contexts) != 0:
             self._validate_consistency(
-                command_name=self.name,
                 allowed_contexts=self.allowed_contexts,
                 required_contexts=required_contexts,
                 specified_contexts=self.specified_contexts,
@@ -244,7 +243,6 @@ class CommandBuilder:
         """
         if len(allowed_contexts) != 0:
             self._validate_consistency(
-                command_name=self.name,
                 allowed_contexts=allowed_contexts,
                 required_contexts=self.required_contexts,
                 specified_contexts=self.specified_contexts,
@@ -266,7 +264,6 @@ class CommandBuilder:
         """
         if len(contexts_specifications) != 0:
             self._validate_consistency(
-                command_name=self.name,
                 allowed_contexts=self.allowed_contexts,
                 required_contexts=self.required_contexts,
                 specified_contexts=set(contexts_specifications.keys()),
@@ -766,49 +763,44 @@ class CommandBuilder:
             ALLOWED_CONTEXTS,
         ]
 
-    @classmethod
     def _validate_consistency(
-        cls,
-        command_name: str,
+        self,
         allowed_contexts: Set[Context],
         required_contexts: Set[Context],
         specified_contexts: Set[Context],
     ):
         both_allowed_and_required = allowed_contexts.intersection(required_contexts)
         if len(both_allowed_and_required) != 0:
-            cls._raise_inconsistency_error(
-                command_name=command_name,
+            self._raise_inconsistency_error(
                 type1="allowed",
                 type2="required",
                 contexts=both_allowed_and_required,
             )
         both_allowed_and_specified = allowed_contexts.intersection(specified_contexts)
         if len(both_allowed_and_specified) != 0:
-            cls._raise_inconsistency_error(
-                command_name=command_name,
+            self._raise_inconsistency_error(
                 type1="allowed",
                 type2="specified",
                 contexts=both_allowed_and_specified,
             )
         both_required_and_specified = required_contexts.intersection(specified_contexts)
         if len(both_required_and_specified) != 0:
-            cls._raise_inconsistency_error(
-                command_name=command_name,
+            self._raise_inconsistency_error(
                 type1="required",
                 type2="specified",
                 contexts=both_required_and_specified,
             )
 
-    @classmethod
     def _raise_inconsistency_error(
-        cls, command_name: str, type1: str, type2: str, contexts: Set[Context]
+        self, type1: str, type2: str, contexts: Set[Context]
     ):
         context_names = [context.name for context in contexts]
         context_names.sort()
-        raise InconsistentConfiguration(
-            f"The following Contexts has been set as both {type1} and {type2} "
-            f"for {command_name}: {', '.join(context_names)}"
-        )
+        message = f"{type1} and {type2} contexts clash"
+        location = [self.name, f"{type1}/{type2}"]
+        if len(context_names) == 1:
+            location.append(context_names[0])
+        raise InconsistentConfiguration(message, location=location)
 
     def _initialize_contexts(self):
         self.allowed_contexts = set()
