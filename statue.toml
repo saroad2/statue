@@ -112,7 +112,7 @@ args = [
 allowed_contexts = [
     "test",
 ]
-version = "0.942"
+version = "0.950"
 
 [commands.mypy.strict]
 add_args = [
@@ -137,7 +137,7 @@ args = [
     "--enable=useless-suppression,use-symbolic-message-instead",
     "--fail-on=useless-suppression,use-symbolic-message-instead",
 ]
-version = "2.13.3"
+version = "2.13.7"
 
 [commands.pylint.documentation]
 args = [
