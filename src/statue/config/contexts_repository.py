@@ -8,7 +8,7 @@ from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 from statue.context import Context
 from statue.exceptions import (
     InconsistentConfiguration,
-    InvalidConfiguration,
+    MissingHelpString,
     UnknownContext,
 )
 
@@ -87,13 +87,11 @@ class ContextsRepository:
         :raises InconsistentConfiguration: Raised when trying to add contexts with the
             same name or an existing name.
         """
+        message = "context name or alias has been defined twice"
         for i, context in enumerate(contexts):
             existing_aliases = [alias for alias in context.all_names if alias in self]
             if len(existing_aliases) != 0:
-                raise InconsistentConfiguration(
-                    f"The following aliases of {context.name} are already defined "
-                    f"in other contexts: {', '.join(existing_aliases)}"
-                )
+                raise InconsistentConfiguration(message, location=[existing_aliases[0]])
             for j in range(i):
                 other_context = contexts[j]
                 overlapping_aliases = [
@@ -103,8 +101,7 @@ class ContextsRepository:
                 ]
                 if len(overlapping_aliases) != 0:
                     raise InconsistentConfiguration(
-                        "Trying to add two or more contexts with the following "
-                        f"aliases: {', '.join(overlapping_aliases)}"
+                        message, location=[overlapping_aliases[0]]
                     )
         self.contexts_list.extend(contexts)
 
@@ -191,10 +188,10 @@ class ContextsRepository:
         :param context_name: Context to be built
         :type context_name: str
         :param context_config: Configuration to build context from
-        :type context_config: MutableMapping[str, Any]
+        :type context_config: Dict[str, Any]
         :param contexts_repository: Contexts repository to add new context to
         :type contexts_repository: ContextsRepository
-        :raises InvalidConfiguration: Raised when the configuration is invalid.
+        :raises MissingHelpString: Raised when help string is missing
         """
         parent = (
             contexts_repository[context_config[PARENT]]
@@ -203,9 +200,7 @@ class ContextsRepository:
         )
         aliases = context_config.get(ALIASES, [])
         if HELP not in context_config:
-            raise InvalidConfiguration(
-                f"Context {context_name} doesn't have help string"
-            )
+            raise MissingHelpString(location=[context_name])
         contexts_repository.add_contexts(
             Context(
                 name=context_name,

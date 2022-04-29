@@ -29,6 +29,8 @@ from statue.exceptions import (
     InconsistentConfiguration,
     InvalidCommand,
     InvalidConfiguration,
+    MissingHelpString,
+    UnknownContext,
 )
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
 
@@ -102,26 +104,22 @@ class ContextSpecification:
         :raises InconsistentConfiguration: raised when context
             specification is inconsistent.
         """
-        error_prefix = (
-            f"Inconsistency in {command_name} "
-            f"context specification for {context_name}"
-        )
-        error_prefix += ":"
-        error_suffix = "cannot be both set at the same time"
-
         if clear_args and args is not None:
             raise InconsistentConfiguration(
-                f"{error_prefix} clear_args and args {error_suffix}"
+                "args and clear_args cannot be both set at the same time",
+                location=[command_name, context_name, "args/clear_args"],
             )
 
         if clear_args and add_args is not None:
             raise InconsistentConfiguration(
-                f"{error_prefix} clear_args and add_args {error_suffix}"
+                "add_args and clear_args cannot be both set at the same time",
+                location=[command_name, context_name, "add_args/clear_args"],
             )
 
         if args is not None and add_args is not None:
             raise InconsistentConfiguration(
-                f"{error_prefix} args and add_args {error_suffix}"
+                "args and add_args cannot be both set at the same time",
+                location=[command_name, context_name, "args/add_args"],
             )
 
     @classmethod
@@ -222,7 +220,6 @@ class CommandBuilder:
         """
         if len(required_contexts) != 0:
             self._validate_consistency(
-                command_name=self.name,
                 allowed_contexts=self.allowed_contexts,
                 required_contexts=required_contexts,
                 specified_contexts=self.specified_contexts,
@@ -244,7 +241,6 @@ class CommandBuilder:
         """
         if len(allowed_contexts) != 0:
             self._validate_consistency(
-                command_name=self.name,
                 allowed_contexts=allowed_contexts,
                 required_contexts=self.required_contexts,
                 specified_contexts=self.specified_contexts,
@@ -266,7 +262,6 @@ class CommandBuilder:
         """
         if len(contexts_specifications) != 0:
             self._validate_consistency(
-                command_name=self.name,
                 allowed_contexts=self.allowed_contexts,
                 required_contexts=self.required_contexts,
                 specified_contexts=set(contexts_specifications.keys()),
@@ -636,12 +631,10 @@ class CommandBuilder:
         :type contexts_repository: ContextsRepository
         :return: Command builder as specified
         :rtype: CommandBuilder
-        :raises InvalidConfiguration: Raised when help string is missing
+        :raises MissingHelpString: Raised when help string is missing
         """
         if HELP not in builder_setups:
-            raise InvalidConfiguration(
-                f"command {command_name} doesn't have help string"
-            )
+            raise MissingHelpString(location=[command_name])
         return CommandBuilder(
             name=command_name,
             help=builder_setups[HELP],
@@ -687,24 +680,19 @@ class CommandBuilder:
         :type contexts_repository: ContextsRepository
         :return: Contexts list
         :rtype: List[Context]
-        :raises InconsistentConfiguration: Raised when one of the contexts was not
+        :raises InvalidConfiguration: Raised when one of the contexts was not
             set in the contexts repository
         """
         if key_name not in builder_setups:
             return []
         context_names = builder_setups[key_name]
-        unknown_contexts = [
-            context_name
-            for context_name in context_names
-            if context_name not in contexts_repository
-        ]
-        if len(unknown_contexts) > 0:
-            raise InconsistentConfiguration(
-                f"The following contexts defined in {key_name} for "
-                f"{command_name} command are not defined in configuration: "
-                f"{', '.join(unknown_contexts)}"
-            )
-        return [contexts_repository[context_name] for context_name in context_names]
+        try:
+            return [contexts_repository[context_name] for context_name in context_names]
+        except UnknownContext as error:
+            raise InvalidConfiguration(
+                message="Unknown context in configuration",
+                location=[command_name, key_name, error.context_name],
+            ) from error
 
     @classmethod
     def build_contexts_specifications(
@@ -724,7 +712,7 @@ class CommandBuilder:
         :type contexts_repository: ContextsRepository
         :return: Contexts specifications dictionary
         :rtype: Dict[Context, ContextSpecification]
-        :raises InconsistentConfiguration: Raised when one of the contexts was not
+        :raises InvalidConfiguration: Raised when one of the contexts was not
             set in the contexts repository
         """
         context_names = [
@@ -732,25 +720,20 @@ class CommandBuilder:
             for context_name in builder_setups.keys()
             if context_name not in cls.setup_words()
         ]
-        unknown_contexts = [
-            context_name
-            for context_name in context_names
-            if context_name not in contexts_repository
-        ]
-        if len(unknown_contexts) > 0:
-            raise InconsistentConfiguration(
-                f"The following specified contexts defined in {command_name} "
-                "are not defined in configuration: "
-                f"{', '.join(unknown_contexts)}"
-            )
-        return {
-            contexts_repository[context_name]: ContextSpecification.from_dict(
-                command_name=command_name,
-                context_name=context_name,
-                context_specification_setups=builder_setups[context_name],
-            )
-            for context_name in context_names
-        }
+        try:
+            return {
+                contexts_repository[context_name]: ContextSpecification.from_dict(
+                    command_name=command_name,
+                    context_name=context_name,
+                    context_specification_setups=builder_setups[context_name],
+                )
+                for context_name in context_names
+            }
+        except UnknownContext as error:
+            raise InvalidConfiguration(
+                message="Unknown context in configuration",
+                location=[command_name, error.context_name],
+            ) from error
 
     @classmethod
     def setup_words(cls) -> List[str]:
@@ -768,49 +751,44 @@ class CommandBuilder:
             ALLOWED_CONTEXTS,
         ]
 
-    @classmethod
     def _validate_consistency(
-        cls,
-        command_name: str,
+        self,
         allowed_contexts: Set[Context],
         required_contexts: Set[Context],
         specified_contexts: Set[Context],
     ):
         both_allowed_and_required = allowed_contexts.intersection(required_contexts)
         if len(both_allowed_and_required) != 0:
-            cls._raise_inconsistency_error(
-                command_name=command_name,
+            self._raise_inconsistency_error(
                 type1="allowed",
                 type2="required",
                 contexts=both_allowed_and_required,
             )
         both_allowed_and_specified = allowed_contexts.intersection(specified_contexts)
         if len(both_allowed_and_specified) != 0:
-            cls._raise_inconsistency_error(
-                command_name=command_name,
+            self._raise_inconsistency_error(
                 type1="allowed",
                 type2="specified",
                 contexts=both_allowed_and_specified,
             )
         both_required_and_specified = required_contexts.intersection(specified_contexts)
         if len(both_required_and_specified) != 0:
-            cls._raise_inconsistency_error(
-                command_name=command_name,
+            self._raise_inconsistency_error(
                 type1="required",
                 type2="specified",
                 contexts=both_required_and_specified,
             )
 
-    @classmethod
     def _raise_inconsistency_error(
-        cls, command_name: str, type1: str, type2: str, contexts: Set[Context]
+        self, type1: str, type2: str, contexts: Set[Context]
     ):
         context_names = [context.name for context in contexts]
         context_names.sort()
-        raise InconsistentConfiguration(
-            f"The following Contexts has been as set both {type1} and {type2} "
-            f"for {command_name}: {', '.join(context_names)}"
-        )
+        message = f"{type1} and {type2} contexts clash"
+        location = [self.name, f"{type1}/{type2}"]
+        if len(context_names) == 1:
+            location.append(context_names[0])
+        raise InconsistentConfiguration(message, location=location)
 
     def _initialize_contexts(self):
         self.allowed_contexts = set()

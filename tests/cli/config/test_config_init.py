@@ -572,7 +572,9 @@ def test_config_init_with_configuration_error(
     source_path1.touch()
     source_path2.touch()
     source_path3.touch()
-    mock_build_configuration_from_file.side_effect = StatueConfigurationError
+    mock_build_configuration_from_file.side_effect = StatueConfigurationError(
+        "This is an error message"
+    )
     result = cli_runner.invoke(statue_cli, ["config", "init"])
 
     assert result.exit_code == 3

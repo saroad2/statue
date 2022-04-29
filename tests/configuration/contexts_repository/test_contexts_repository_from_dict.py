@@ -3,7 +3,7 @@ import pytest
 from statue.config.contexts_repository import ContextsRepository
 from statue.constants import ALIASES, ALLOWED_BY_DEFAULT, HELP, PARENT
 from statue.context import Context
-from statue.exceptions import InconsistentConfiguration, InvalidConfiguration
+from statue.exceptions import InconsistentConfiguration, MissingHelpString
 from tests.constants import (
     CONTEXT1,
     CONTEXT2,
@@ -187,6 +187,6 @@ def test_contexts_repository_from_dict_fail_on_circular_parenting_with_three_con
 
 def test_contexts_repository_from_dict_fail_on_context_without_help():
     with pytest.raises(
-        InvalidConfiguration, match=f"^Context {CONTEXT1} doesn't have help string$"
+        MissingHelpString, match=rf"^help string is missing \({CONTEXT1}\)$"
     ):
         ContextsRepository.from_dict({CONTEXT1: {}})

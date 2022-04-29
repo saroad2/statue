@@ -1,4 +1,5 @@
 """Exceptions module."""
+from typing import List, Optional
 
 
 class StatueException(Exception):
@@ -10,6 +11,39 @@ class StatueException(Exception):
 
 class StatueConfigurationError(StatueException):
     """User-Defined Statue configuration is invalid."""
+
+    def __init__(self, message: str, location: Optional[List[str]] = None):
+        """
+        Constructor.
+
+        :param message: Message of the error
+        :type message: str
+        :param location: Optional. Where the exception was thrown in the configuration
+        :type location: Optional[List[str]]
+        """
+        super().__init__(message)
+        self.location = [] if location is None else location
+
+    def __str__(self) -> str:
+        """
+        String representation method.
+
+        :return: String representation of the exception
+        :rtype: str
+        """
+        message = super().__str__()
+        if len(self.location) == 0:
+            return message
+        return f"{message} ({' -> '.join(self.location)})"
+
+    def append_location_item(self, location: str):
+        """
+        Add high-hierarchy location specifier.
+
+        :param location: Location specifier to be added
+        :type location: str
+        """
+        self.location.insert(0, location)
 
 
 class MissingConfiguration(StatueConfigurationError):
@@ -24,6 +58,21 @@ class MissingConfiguration(StatueConfigurationError):
 
 class InvalidConfiguration(StatueConfigurationError):
     """Some of statue's configurations are invalid."""
+
+
+class MissingHelpString(InvalidConfiguration):
+    """Help string is missing from configuration."""
+
+    message = "help string is missing"
+
+    def __init__(self, location: Optional[List[str]] = None):
+        """
+        Constructor.
+
+        :param location: Optional. Where the exception was thrown in the configuration
+        :type location: Optional[List[str]]
+        """
+        super().__init__(message=self.message, location=location)
 
 
 class InconsistentConfiguration(StatueConfigurationError):
@@ -83,6 +132,7 @@ class UnknownContext(StatueException):
         :type context_name: str
         """
         super().__init__(f'Could not find context named "{context_name}"')
+        self.context_name = context_name
 
 
 class ContextCircularParentingError(StatueException):
