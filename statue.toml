@@ -133,6 +133,7 @@ version = "6.1.1"
 help = "Python code linter"
 args = [
     "--ignore-imports=y",
+    "--load-plugins=pylint.extensions.docparams",
     "--disable=bad-continuation",
     "--enable=useless-suppression,use-symbolic-message-instead",
     "--fail-on=useless-suppression,use-symbolic-message-instead",
@@ -142,8 +143,11 @@ version = "2.13.7"
 [commands.pylint.documentation]
 args = [
     "--ignore-imports=y",
+    "--load-plugins=pylint.extensions.docparams",
     "--disable=all",
     "--enable=C0115,C0304,C0116,C0114",
+    "--enable=W9005,W9006,W9008,W9010,W9011,W9012,W9013",
+    "--enable=W9014,W9015,W9016,W9017,W9018,W9019,W9020,W9021",
 ]
 
 [commands.pylint.test]
