@@ -114,12 +114,12 @@ class Command:
             ),
         )
 
-    async def execute_async(self, source) -> CommandEvaluation:
+    async def execute_async(self, source: Path) -> CommandEvaluation:
         """
         Execute the command asynchronously.
 
         :param source: source files to check.
-        :type: str
+        :type source: Path
         :return: Command's evaluation including the command itself and is it successful
         :rtype: CommandEvaluation
         :raises CommandExecutionError: raised when command is not found.
