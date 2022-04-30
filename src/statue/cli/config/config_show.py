@@ -39,7 +39,7 @@ def show_config_tree_cli(config: Optional[Path]):
         source_commands_filter = configuration.sources_repository[source]
         context_names = [context.name for context in source_commands_filter.contexts]
         click.echo(
-            f"{source_style(source)} "
+            f"{source_style(str(source))} "
             f"({bullet_style('contexts')}: "
             f"{__join_names(context_names)}, "
             f"{bullet_style('allowed')}: "

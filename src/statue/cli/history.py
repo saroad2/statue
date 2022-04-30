@@ -107,7 +107,7 @@ def show_evaluation_cli(
     click.echo(total_evaluation_string(evaluation))
     for source, source_evaluation in evaluation.items():
         click.echo(
-            f"{source_style(source)} ("
+            f"{source_style(str(source))} ("
             f"{source_evaluation.source_execution_duration:.2f} seconds):"
         )
         for command_evaluation in source_evaluation.commands_evaluations:

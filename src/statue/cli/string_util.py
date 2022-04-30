@@ -64,7 +64,7 @@ def evaluation_string(
     """
     returned = ""
     for source, source_evaluation in evaluation.items():
-        source_title = title_string(source_style(source), transform=False)
+        source_title = title_string(source_style(str(source)), transform=False)
         returned += f"\n\n{source_title}\n\n"
         for command_evaluation in source_evaluation:
             styled_command_name = name_style(command_evaluation.command.name)
@@ -104,7 +104,7 @@ def evaluation_summary_string(evaluation: Evaluation) -> str:
         "seconds on the following commands:\n"
     )
     for source, source_evaluation in evaluation.failure_evaluation.items():
-        summary_string += f"{source_style(source)}:\n"
+        summary_string += f"{source_style(str(source))}:\n"
         summary_string += (
             "\t"
             + ", ".join(

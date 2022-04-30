@@ -51,8 +51,8 @@ class InteractiveSourcesAdder:
                 choices.extend(EXPEND)
                 choices_string += f", {bullet_style('[E]xpend')}"
             option = click.prompt(
-                f"Would you like to track {source_style(source)} ({choices_string}. "
-                f"default: {success_style('yes')})",
+                f"Would you like to track {source_style(str(source))} "
+                f"({choices_string}. default: {success_style('yes')})",
                 type=click.Choice(choices, case_sensitive=False),
                 show_choices=False,
                 show_default=False,
@@ -120,7 +120,7 @@ class InteractiveSourcesAdder:
         while True:
             try:
                 context_names = click.prompt(
-                    f"Add {bullet_style('contexts')} to {source_style(source)} "
+                    f"Add {bullet_style('contexts')} to {source_style(str(source))} "
                     f"(options: [{contexts_options}])",
                     default="",
                     type=clickp.StringListParamType(),
@@ -170,7 +170,7 @@ class InteractiveSourcesAdder:
         )
         while True:
             command_names = click.prompt(
-                f"Add {style_func(prefix)} commands to {source_style(source)} "
+                f"Add {style_func(prefix)} commands to {source_style(str(source))} "
                 f"(options: [{commands_options}], "
                 f"No specified {prefix} commands by default)",
                 default="",
