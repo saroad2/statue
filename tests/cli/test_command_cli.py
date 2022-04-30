@@ -1,9 +1,10 @@
 import mock
 
 from statue.cli import statue_cli
-from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.command_builder import CommandBuilder
 from statue.config.configuration import Configuration
 from statue.context import Context
+from statue.context_specification import ContextSpecification
 from statue.verbosity import DEFAULT_VERBOSITY, VERBOSE
 from tests.constants import (
     ARG1,

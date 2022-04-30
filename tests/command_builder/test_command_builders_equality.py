@@ -1,6 +1,7 @@
 from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
-from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.command_builder import CommandBuilder
+from statue.context_specification import ContextSpecification
 from tests.constants import (
     ARG1,
     ARG2,

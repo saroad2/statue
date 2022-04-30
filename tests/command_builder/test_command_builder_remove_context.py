@@ -1,5 +1,6 @@
-from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.command_builder import CommandBuilder
 from statue.context import Context
+from statue.context_specification import ContextSpecification
 from tests.constants import (
     ARG1,
     ARG2,

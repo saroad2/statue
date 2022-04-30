@@ -1,7 +1,8 @@
 import pytest
 
-from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.command_builder import CommandBuilder
 from statue.context import Context
+from statue.context_specification import ContextSpecification
 from statue.exceptions import InconsistentConfiguration
 from tests.constants import (
     ARG1,
