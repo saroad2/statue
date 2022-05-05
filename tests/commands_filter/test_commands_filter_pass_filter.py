@@ -2,9 +2,10 @@ from typing import List
 
 from pytest_cases import THIS_MODULE, parametrize_with_cases
 
-from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.command_builder import CommandBuilder
 from statue.commands_filter import CommandsFilter
 from statue.context import Context
+from statue.context_specification import ContextSpecification
 from tests.constants import (
     ARG1,
     COMMAND1,

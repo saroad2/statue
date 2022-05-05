@@ -3,7 +3,7 @@ from collections import OrderedDict
 import pytest
 from pytest_cases import THIS_MODULE, case, parametrize_with_cases
 
-from statue.command_builder import CommandBuilder, ContextSpecification
+from statue.command_builder import CommandBuilder
 from statue.config.contexts_repository import ContextsRepository
 from statue.constants import (
     ADD_ARGS,
@@ -15,6 +15,7 @@ from statue.constants import (
     VERSION,
 )
 from statue.context import Context
+from statue.context_specification import ContextSpecification
 from statue.exceptions import (
     InconsistentConfiguration,
     InvalidConfiguration,
