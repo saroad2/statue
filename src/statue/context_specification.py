@@ -16,6 +16,10 @@ class ContextSpecification:
     add_args: Optional[List[str]] = field(default=None)
     clear_args: bool = field(default=False)
 
+    def __post_init__(self):
+        """Validate after initializing."""
+        self._validate()
+
     def update_args(self, args: List[str]) -> List[str]:
         """
         Update command arguments according to instructions.
@@ -52,77 +56,46 @@ class ContextSpecification:
             specification_as_dict[CLEAR_ARGS] = True
         return specification_as_dict
 
-    @classmethod
-    def validate(  # pylint: disable=too-many-arguments
-        cls,
-        command_name: str,
-        args: Optional[List[str]],
-        add_args: Optional[List[str]],
-        clear_args: bool,
-        context_name: str,
-    ):
+    def _validate(self):
         """
         Validate that the context specification does contradict itself.
 
-        :param command_name: Name of the command of the builder
-        :type command_name: str
-        :param args: Optional arguments for the context specification
-        :type args: Optional[List[str]]
-        :param add_args: Optional added arguments for the context specification
-        :type add_args: Optional[List[str]]
-        :param clear_args: boolean stating if arguments are cleared
-        :type clear_args: bool
-        :param context_name: Name of the context for the context specification
-        :type context_name: str
         :raises InconsistentConfiguration: raised when context
             specification is inconsistent.
         """
-        if clear_args and args is not None:
+        if self.clear_args and self.args is not None:
             raise InconsistentConfiguration(
                 "args and clear_args cannot be both set at the same time",
-                location=[command_name, context_name, "args/clear_args"],
+                location=["args/clear_args"],
             )
 
-        if clear_args and add_args is not None:
+        if self.clear_args and self.add_args is not None:
             raise InconsistentConfiguration(
                 "add_args and clear_args cannot be both set at the same time",
-                location=[command_name, context_name, "add_args/clear_args"],
+                location=["add_args/clear_args"],
             )
 
-        if args is not None and add_args is not None:
+        if self.args is not None and self.add_args is not None:
             raise InconsistentConfiguration(
                 "args and add_args cannot be both set at the same time",
-                location=[command_name, context_name, "args/add_args"],
+                location=["args/add_args"],
             )
 
     @classmethod
     def from_dict(
-        cls,
-        command_name: str,
-        context_specification_setups: Dict[str, Any],
-        context_name: str,
+        cls, context_specification_setups: Dict[str, Any]
     ) -> "ContextSpecification":
         """
         Read Context specification from json.
 
-        :param command_name: Name of the command to be built
-        :type command_name: str
         :param context_specification_setups: Context specification json
         :type context_specification_setups: Dict[str, Any]
-        :param context_name: context name
-        :type context_name: str
         :return: Built context specification
         :rtype: ContextSpecification
         """
-        args = context_specification_setups.get(ARGS, None)
-        add_args = context_specification_setups.get(ADD_ARGS, None)
-        clear_args = context_specification_setups.get(CLEAR_ARGS, False)
 
-        cls.validate(
-            command_name=command_name,
-            args=args,
-            add_args=add_args,
-            clear_args=clear_args,
-            context_name=context_name,
+        return ContextSpecification(
+            args=context_specification_setups.get(ARGS, None),
+            add_args=context_specification_setups.get(ADD_ARGS, None),
+            clear_args=context_specification_setups.get(CLEAR_ARGS, False),
         )
-        return ContextSpecification(args=args, add_args=add_args, clear_args=clear_args)

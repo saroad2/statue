@@ -22,6 +22,7 @@ from statue.exceptions import (
     InvalidCommand,
     InvalidConfiguration,
     MissingHelpString,
+    StatueConfigurationError,
     UnknownContext,
 )
 from statue.verbosity import DEFAULT_VERBOSITY, is_silent
@@ -586,26 +587,32 @@ class CommandBuilder:
         :rtype: Dict[Context, ContextSpecification]
         :raises InvalidConfiguration: Raised when one of the contexts was not
             set in the contexts repository
+        :raises StatueConfigurationError: Raised when there is an inconsistency
+            in a context specification definition.
         """
         context_names = [
             context_name
             for context_name in builder_setups.keys()
             if context_name not in cls.setup_words()
         ]
-        try:
-            return {
-                contexts_repository[context_name]: ContextSpecification.from_dict(
-                    command_name=command_name,
-                    context_name=context_name,
-                    context_specification_setups=builder_setups[context_name],
+        contexts_specifications = {}
+        for context_name in context_names:
+            try:
+                contexts_specifications[
+                    contexts_repository[context_name]
+                ] = ContextSpecification.from_dict(
+                    context_specification_setups=builder_setups[context_name]
                 )
-                for context_name in context_names
-            }
-        except UnknownContext as error:
-            raise InvalidConfiguration(
-                message="Unknown context in configuration",
-                location=[command_name, error.context_name],
-            ) from error
+            except UnknownContext as error:
+                raise InvalidConfiguration(
+                    message="Unknown context in configuration",
+                    location=[command_name, error.context_name],
+                ) from error
+            except StatueConfigurationError as error:
+                error.append_location_item(context_name)
+                error.append_location_item(command_name)
+                raise error
+        return contexts_specifications
 
     @classmethod
     def setup_words(cls) -> List[str]:
