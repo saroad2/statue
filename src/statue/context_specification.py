@@ -93,7 +93,6 @@ class ContextSpecification:
         :return: Built context specification
         :rtype: ContextSpecification
         """
-
         return ContextSpecification(
             args=context_specification_setups.get(ARGS, None),
             add_args=context_specification_setups.get(ADD_ARGS, None),
