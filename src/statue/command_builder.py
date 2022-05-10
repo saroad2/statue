@@ -91,13 +91,14 @@ class CommandBuilder:
         :param required_contexts: Required contexts to be set.
         :type required_contexts: Set[Context]
         """
+        required_contexts = set(required_contexts)
         if len(required_contexts) != 0:
             self._validate_consistency(
                 allowed_contexts=self.allowed_contexts,
                 required_contexts=required_contexts,
                 specified_contexts=self.specified_contexts,
             )
-        self._required_contexts = set(required_contexts)
+        self._required_contexts = required_contexts
 
     @property
     def allowed_contexts(self) -> Set[Context]:
@@ -112,13 +113,14 @@ class CommandBuilder:
         :param allowed_contexts: Allowed contexts to be set
         :type allowed_contexts: Set[Context]
         """
+        allowed_contexts = set(allowed_contexts)
         if len(allowed_contexts) != 0:
             self._validate_consistency(
                 allowed_contexts=allowed_contexts,
                 required_contexts=self.required_contexts,
                 specified_contexts=self.specified_contexts,
             )
-        self._allowed_contexts = set(allowed_contexts)
+        self._allowed_contexts = allowed_contexts
 
     @property
     def contexts_specifications(self) -> Dict[Context, ContextSpecification]:
