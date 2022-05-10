@@ -288,6 +288,49 @@ def test_command_builder_with_all_fields():
     )
 
 
+def test_command_builder_set_required_contexts():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    assert not command_builder.required_contexts
+
+    command_builder.required_contexts = [context1, context2]
+
+    assert command_builder.required_contexts == {context1, context2}
+
+
+def test_command_builder_set_allowed_contexts():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    assert not command_builder.allowed_contexts
+
+    command_builder.allowed_contexts = [context1, context2]
+
+    assert command_builder.allowed_contexts == {context1, context2}
+
+
+def test_command_builder_set_contexts_specification():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    contexts_specifications = {
+        context1: ContextSpecification(add_args=[ARG1]),
+        context2: ContextSpecification(clear_args=True),
+    }
+    command_builder = CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    assert not command_builder.contexts_specifications
+
+    command_builder.contexts_specifications = contexts_specifications
+
+    assert command_builder.contexts_specifications == contexts_specifications
+
+
 def test_command_builder_constructor_fail_on_one_context_both_allowed_and_required():
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
@@ -415,3 +458,53 @@ def test_command_builder_constructor_fail_on_two_contexts_both_required_and_spec
                 context2: ContextSpecification(args=[ARG2]),
             },
         )
+
+
+def test_command_builder_fail_on_set_required_context_fail_on_preoccupied():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    command_builder = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[context]
+    )
+
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^allowed and required contexts clash "
+            rf"\({COMMAND1} -> allowed/required -> {CONTEXT1}\)$"
+        ),
+    ):
+        command_builder.required_contexts = [context]
+
+
+def test_command_builder_fail_on_set_allowed_context_fail_on_preoccupied():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    command_builder = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context]
+    )
+
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^allowed and required contexts clash "
+            rf"\({COMMAND1} -> allowed/required -> {CONTEXT1}\)$"
+        ),
+    ):
+        command_builder.allowed_contexts = [context]
+
+
+def test_command_builder_fail_on_set_specified_context_fail_on_preoccupied():
+    context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    command_builder = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context]
+    )
+
+    with pytest.raises(
+        InconsistentConfiguration,
+        match=(
+            "^required and specified contexts clash "
+            rf"\({COMMAND1} -> required/specified -> {CONTEXT1}\)$"
+        ),
+    ):
+        command_builder.contexts_specifications = {
+            context: ContextSpecification(clear_args=True)
+        }
