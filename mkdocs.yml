@@ -8,5 +8,6 @@ nav:
       - Quick Start: tutorials\quick_start.md
 plugins:
   - macros
+  - search
 extra:
   version: 0.0.18
