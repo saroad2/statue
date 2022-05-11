@@ -1,4 +1,10 @@
 # Welcome to *Statue*
+![Python Versions](https://img.shields.io/pypi/pyversions/statue)
+![PyPI Version](https://img.shields.io/pypi/v/statue)
+![Maturity](https://img.shields.io/pypi/status/statue)
+![License](https://img.shields.io/pypi/l/statue)
+![Build Status](https://github.com/saroad2/statue/workflows/CI/badge.svg?branch=main)
+
 Your pathway to a clean codebase.
 
 ## What's *Statue*?
