@@ -332,3 +332,51 @@ def test_interactive_sources_adder_one_source_with_no_commands(cli_runner, tmp_p
             Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
         ]
     )
+
+
+def test_interactive_sources_adder_skip_existing_source(cli_runner, tmp_path):
+    source_path1, source_path2, source_path3 = (
+        tmp_path / SOURCE1,
+        tmp_path / SOURCE2,
+        tmp_path / SOURCE3,
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    configuration = dummy_configuration()
+    commands_filter = CommandsFilter(allowed_commands=[COMMAND2])
+    configuration.sources_repository[source_path2] = commands_filter
+    with cli_runner.isolation(
+        input=(
+            "y\n"  # Add source1
+            f"{CONTEXT1}, {CONTEXT3}\n"  # Add contexts
+            "\n"  # No allowed commands
+            "\n"  # No denied commands
+            # Skip source2
+            "y\n"  # Add source3
+            f"{CONTEXT2}, {CONTEXT3}\n"  # Add contexts
+        )
+    ):
+        InteractiveSourcesAdder.update_sources_repository(
+            configuration=configuration,
+            sources=[source_path1, source_path2, source_path3],
+        )
+
+    assert set(configuration.sources_repository.sources_list) == {
+        source_path1,
+        source_path2,
+        source_path3,
+    }
+    assert configuration.sources_repository[source_path1] == CommandsFilter(
+        contexts=[
+            Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+            Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        ]
+    )
+    assert configuration.sources_repository[source_path2] == commands_filter
+    assert configuration.sources_repository[source_path3] == CommandsFilter(
+        contexts=[
+            Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+            Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        ]
+    )
