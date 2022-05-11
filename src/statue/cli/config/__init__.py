@@ -1,6 +1,11 @@
 """Configuration related CLIs."""
 from statue.cli.config.config_cli import config_cli
-from statue.cli.config.config_commands import fixate_commands_versions_cli
+from statue.cli.config.config_commands import (
+    add_command_cli,
+    edit_command_cli,
+    fixate_commands_versions_cli,
+    remove_command_cli,
+)
 from statue.cli.config.config_contexts import (
     add_context_cli,
     edit_context_cli,
@@ -17,6 +22,9 @@ __all__ = [
     "add_context_cli",
     "edit_context_cli",
     "remove_context_cli",
+    "add_command_cli",
+    "edit_command_cli",
+    "remove_command_cli",
     "fixate_commands_versions_cli",
     "init_config_cli",
     "show_config_cli",

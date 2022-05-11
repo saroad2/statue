@@ -331,6 +331,44 @@ def test_command_builder_set_contexts_specification():
     assert command_builder.contexts_specifications == contexts_specifications
 
 
+def test_command_builder_reset_all_available_contexts():
+    context1, context2, context3, context4, context5, context6 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
+        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
+        Context(name=CONTEXT6, help=CONTEXT_HELP_STRING6),
+    )
+    context_specification1, context_specification2 = (
+        ContextSpecification(args=[ARG3]),
+        ContextSpecification(add_args=[ARG4]),
+    )
+    command_builder = CommandBuilder(
+        name=COMMAND1,
+        help=COMMAND_HELP_STRING1,
+        required_contexts=[context1, context2],
+        allowed_contexts=[context3, context4],
+        contexts_specifications={
+            context5: context_specification1,
+            context6: context_specification2,
+        },
+    )
+
+    assert command_builder.available_contexts == {
+        context1,
+        context2,
+        context3,
+        context4,
+        context5,
+        context6,
+    }
+
+    command_builder.reset_all_available_contexts()
+
+    assert not command_builder.available_contexts
+
+
 def test_command_builder_constructor_fail_on_one_context_both_allowed_and_required():
     context1, context2 = (
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),

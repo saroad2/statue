@@ -4,6 +4,7 @@ from typing import List, Optional
 import click
 import click_params as clickp
 
+from statue.cli.config.interactive_adders.adders_utils import get_help_string
 from statue.cli.styled_strings import failure_style, name_style
 from statue.config.contexts_repository import ContextsRepository
 from statue.context import Context
@@ -17,11 +18,11 @@ class InteractiveContextAdder:
         """
         Add context interactively to context repository.
 
-        :param contexts_repository: contexts repository to add cotnext to
+        :param contexts_repository: contexts repository to add context to
         :type contexts_repository: ContextsRepository
         """
         name = cls.get_context_name(contexts_repository)
-        help_string = cls.get_help_string(name)
+        help_string = get_help_string(name)
         aliases = cls.get_aliases(name=name, contexts_repository=contexts_repository)
         parent = cls.get_parent(
             name=name, aliases=aliases, contexts_repository=contexts_repository
@@ -52,7 +53,7 @@ class InteractiveContextAdder:
         """
         context = contexts_repository[name]
         context.clear_aliases()
-        context.help = cls.get_help_string(name)
+        context.help = get_help_string(name)
         context.aliases = cls.get_aliases(
             name=name, contexts_repository=contexts_repository
         )
@@ -87,28 +88,6 @@ class InteractiveContextAdder:
                 click.echo(failure_style(f"{name} already exists in repository!"))
                 name = ""
         return name
-
-    @classmethod
-    def get_help_string(cls, context_name: str) -> str:
-        """
-        Get help string for context name.
-
-        :param context_name: Context name to get help for
-        :type context_name: str
-        :return: help string for the context
-        :rtype: str
-        """
-        help_string = ""
-        while help_string == "":
-            help_string = click.prompt(
-                f"Please add help string for {name_style(context_name)}",
-                default="",
-                show_default=False,
-            )
-            help_string = help_string.strip()
-            if help_string == "":
-                click.echo(failure_style("Help string cannot be empty!"))
-        return help_string
 
     @classmethod
     def get_aliases(

@@ -10,6 +10,7 @@ from statue.config.commands_repository import CommandsRepository
 from statue.config.configuration import Configuration
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
+from statue.constants import DEFAULT_HISTORY_SIZE
 from statue.evaluation import Evaluation
 from statue.templates.templates_provider import TemplatesProvider
 from tests.constants import ENVIRON
@@ -38,6 +39,13 @@ def mock_tqdm_range(mocker):
 
 
 # Configuration Mocks
+
+
+@pytest.fixture
+def empty_configuration(tmp_path):
+    cache_dir = tmp_path / "cache"
+    cache = Cache(size=DEFAULT_HISTORY_SIZE, cache_root_directory=cache_dir)
+    return Configuration(cache)
 
 
 @pytest.fixture
