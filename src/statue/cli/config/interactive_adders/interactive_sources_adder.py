@@ -44,11 +44,15 @@ class InteractiveSourcesAdder:
         :type repo: Optional[Repo]
         """
         for source in sources:
-            choices = YES + NO
-            choices_string = f"{success_style('[Y]es')}, {failure_style('[N]o')}"
-            if source.is_dir():
-                choices.extend(EXPEND)
-                choices_string += f", {bullet_style('[E]xpend')}"
+            choices = cls._get_choices(configuration=configuration, source=source)
+            if choices == NO:
+                click.echo(
+                    failure_style(
+                        f"{source} was already defined in configuration. Skipping..."
+                    )
+                )
+                continue
+            choices_string = cls._get_choices_string(choices)
             option = click.prompt(
                 f"Would you like to track {source_style(str(source))} "
                 f"({choices_string}. default: {success_style('yes')})",
@@ -163,3 +167,20 @@ class InteractiveSourcesAdder:
                 )
                 continue
             return command_names
+
+    @classmethod
+    def _get_choices(cls, configuration: Configuration, source: Path):
+        choices = []
+        if source not in configuration.sources_repository.sources_list:
+            choices.extend(YES)
+        choices.extend(NO)
+        if source.is_dir():
+            choices.extend(EXPEND)
+        return choices
+
+    @classmethod
+    def _get_choices_string(cls, choices):
+        choices_string = f"{success_style('[Y]es')}, {failure_style('[N]o')}"
+        if EXPEND[0] in choices:
+            choices_string += f", {bullet_style('[E]xpend')}"
+        return choices_string
