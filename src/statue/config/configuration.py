@@ -3,15 +3,16 @@ import sys
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, FrozenSet, List, Optional
 from typing import OrderedDict as OrderedDictType
-from typing import Union
+from typing import TypeVar, Union
 
 import tomli
 import tomli_w
 
 from statue.cache import Cache
 from statue.command import Command
+from statue.command_builder import CommandBuilder
 from statue.commands_filter import CommandsFilter
 from statue.commands_map import CommandsMap
 from statue.config.commands_repository import CommandsRepository
@@ -38,6 +39,9 @@ if sys.version_info < (3, 9):  # pragma: no cover
     from importlib_resources.abc import Traversable
 else:  # pragma: no cover
     from importlib.abc import Traversable
+
+
+T = TypeVar("T")
 
 
 @dataclass
@@ -71,6 +75,26 @@ class Configuration:
         for command_builder in self.commands_repository:
             command_builder.remove_context(context)
         self.contexts_repository.remove_context(context)
+
+    def remove_command(self, command_builder: CommandBuilder):
+        """
+        Remove all references of a command builder from the configuration.
+
+        :param command_builder: Command builder to be removed
+        :type command_builder: CommandBuilder
+        """
+        for source in self.sources_repository.sources_list:
+            original_filter = self.sources_repository[source]
+            self.sources_repository[source] = CommandsFilter(
+                contexts=original_filter.contexts,
+                allowed_commands=self._none_or_remove(
+                    original_filter.allowed_commands, command_builder.name
+                ),
+                denied_commands=self._none_or_remove(
+                    original_filter.denied_commands, command_builder.name
+                ),
+            )
+        self.commands_repository.remove_command_builder(command_builder)
 
     def build_commands_map(
         self, sources: List[Path], commands_filter: CommandsFilter
@@ -286,3 +310,11 @@ class Configuration:
         :rtype: Path
         """
         return directory / ".statue"
+
+    @classmethod
+    def _none_or_remove(
+        cls, optional_set: Optional[FrozenSet[T]], removed_item: T
+    ) -> Optional[FrozenSet[T]]:
+        if optional_set is None:
+            return None
+        return frozenset(item for item in optional_set if item != removed_item)
