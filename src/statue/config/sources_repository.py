@@ -74,6 +74,15 @@ class SourcesRepository:
         """Get list of all available sources."""
         return list(self.sources_filters_map.keys())
 
+    def remove_source(self, source: Path):
+        """
+        Remove source from repository.
+
+        :param source: Source to be removed
+        :type source Path
+        """
+        del self.sources_filters_map[source]
+
     def reset(self):
         """Reset sources repository."""
         self.sources_filters_map.clear()
