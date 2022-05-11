@@ -4,3 +4,9 @@ repo_url: https://github.com/saroad2/statue
 theme: material
 nav:
   - Home: index.md
+  - Tutorials:
+      - Quick Start: tutorials\quick_start.md
+plugins:
+  - macros
+extra:
+  version: 0.0.18
