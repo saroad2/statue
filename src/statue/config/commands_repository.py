@@ -80,6 +80,15 @@ class CommandsRepository:
         for command_builder in command_builders:
             self.command_builders_map[command_builder.name] = command_builder
 
+    def remove_command_builder(self, command_builder: CommandBuilder):
+        """
+        Remove a command builder from repository.
+
+        :param command_builder: Command builder to be removed.
+        :type command_builder: CommandBuilder
+        """
+        del self.command_builders_map[command_builder.name]
+
     def reset(self):
         """Clear repository from all command builders."""
         self.command_builders_map.clear()

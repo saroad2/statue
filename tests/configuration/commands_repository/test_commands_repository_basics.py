@@ -126,6 +126,41 @@ def test_commands_repository_add_command_overrides_existing():
     assert COMMAND2 not in commands_repository
 
 
+def test_iterate_commands_repository():
+    command_builder1, command_builder2, command_builder3 = (
+        command_builder_mock(name=COMMAND1),
+        command_builder_mock(name=COMMAND2),
+        command_builder_mock(name=COMMAND3),
+    )
+    commands_repository = CommandsRepository(
+        command_builder1, command_builder2, command_builder3
+    )
+
+    command_builders_list = list(commands_repository)
+    assert len(command_builders_list) == 3
+    assert command_builder1 in command_builders_list
+    assert command_builder2 in command_builders_list
+    assert command_builder3 in command_builders_list
+
+
+def test_commands_repository_remove_command():
+    command_builder1, command_builder2, command_builder3 = (
+        command_builder_mock(name=COMMAND1),
+        command_builder_mock(name=COMMAND2),
+        command_builder_mock(name=COMMAND3),
+    )
+    commands_repository = CommandsRepository(
+        command_builder1, command_builder2, command_builder3
+    )
+    commands_repository.remove_command_builder(command_builder2)
+
+    assert commands_repository[COMMAND1] == command_builder1
+    assert commands_repository[COMMAND3] == command_builder3
+    assert COMMAND1 in commands_repository
+    assert COMMAND2 not in commands_repository
+    assert COMMAND3 in commands_repository
+
+
 def test_commands_repository_reset():
     command_builder1, command_builder2 = (
         command_builder_mock(name=COMMAND1),
