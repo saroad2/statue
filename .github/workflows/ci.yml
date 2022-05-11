@@ -30,7 +30,7 @@ jobs:
           path: ./coverage.xml
 
   docs:
-    name: Documentation
+    name: Build Documentation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
