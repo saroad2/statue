@@ -11,7 +11,7 @@ You can validate statue has been installed successfully by running:
 
 Which will print:
 
-    statue, version {{ version  }}
+    statue, version {{ version()  }}
 
 ## Initialize *Statue*
 

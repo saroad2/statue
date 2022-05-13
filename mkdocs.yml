@@ -7,7 +7,6 @@ nav:
   - Tutorials:
       - Quick Start: quick_start.md
 plugins:
-  - macros
+  - macros:
+      module_name: docs/mkdocs_macros
   - search
-extra:
-  version: 0.0.18
