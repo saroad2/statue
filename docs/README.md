@@ -67,3 +67,4 @@ using *Statue*:
 
 - Go on to the [quick start](quick_start.md) tutorial in order to begin using *Statue* in a few 
 short steps
+- Learn [a few tips](run_efficiently.md) how to use `statue run` efficiently
