@@ -22,7 +22,7 @@ in a different linter.
 
 *Statue* solves this problem (and many other problems, as we'll describe later) by keeping all
 your linters and formatters configuration in one file, which is fully editable via command line. In that way,
-you won't need to edit huge configuration files in order to keep you formatters and linters in check.
+you won't need to edit huge configuration files in order to keep your formatters and linters in check.
 
 Moreover, With *Statue* you can define different arguments for your formatters and linters to use on each file
 and directory in your codebase. This allows you to customize different style conventions for different files and
@@ -61,3 +61,10 @@ using *Statue*:
 * If you use a lot of linters and formatters which cause your `git commit` to hang for long periods of time
 * If you want to run your linters and formatters with different arguments on different files and directories
 * If you need clear and concise reports of your linters evaluations
+
+
+## What's next?
+
+- Go on to the [quick start](quick_start.md) tutorial in order to begin using *Statue* in a few 
+short steps
+- Learn [a few tips](run_efficiently.md) how to use `statue run` efficiently

@@ -11,7 +11,7 @@ You can validate statue has been installed successfully by running:
 
 Which will print:
 
-    statue, version {{ version  }}
+    statue, version {{ version()  }}
 
 ## Initialize *Statue*
 
@@ -37,5 +37,5 @@ Now that your configuration file is ready, simply run:
 And all the formatters and linters defined in the configuration will run on your codebase.
 
 ## What's Next?
-- Learn how to use `statue run` in various ways to improve efficiency
-- Learn how to use contexts in order to run your formatters and linters with different arguments
+- Learn how to use `statue run` in various ways to [improve efficiency](run_efficiently.md)
+- Learn how to use contexts in order to specify the way you want your formatters and linters to run
