@@ -158,6 +158,11 @@ add_args = [
     "--disable=W0201,W0613,W0621",
 ]
 
+[sources."docs/mkdocs_macros.py"]
+contexts = [
+    "fast",
+]
+
 [sources."setup.py"]
 contexts = [
     "fast",
