@@ -101,12 +101,20 @@ def mock_cwd(mocker, tmpdir_factory):
     return cwd
 
 
+@pytest.fixture
+def mock_home(mocker, tmpdir_factory):
+    home = Path(tmpdir_factory.mktemp("bla"))
+    home_method_mock = mocker.patch.object(Path, "home")
+    home_method_mock.return_value = home
+    return home
+
+
 # Templates Provider Mocks
 
 
 @pytest.fixture()
 def mock_templates_provider_names(mocker):
-    return mocker.patch.object(TemplatesProvider, "template_names")
+    return mocker.patch.object(TemplatesProvider, "all_template_names")
 
 
 @pytest.fixture()

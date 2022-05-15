@@ -17,7 +17,7 @@ def templates_cli() -> None:
 @templates_cli.command("list")
 def list_templates_cli():
     """List all available templates."""
-    for template_file in TemplatesProvider.template_names():
+    for template_file in TemplatesProvider.all_template_names():
         click.echo(name_style(template_file))
 
 

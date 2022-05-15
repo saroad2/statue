@@ -21,12 +21,13 @@ def command_strings(name):
     return name, help_string, captured_output
 
 
-SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5 = (
+SOURCE1, SOURCE2, SOURCE3, SOURCE4, SOURCE5, SOURCE6 = (
     "source1",
     "source2",
     "source3",
     "source4",
     "source5",
+    "source6",
 )
 COMMAND1, COMMAND_HELP_STRING1, COMMAND_CAPTURED_OUTPUT1 = command_strings("command1")
 COMMAND2, COMMAND_HELP_STRING2, COMMAND_CAPTURED_OUTPUT2 = command_strings("command2")

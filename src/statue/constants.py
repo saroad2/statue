@@ -25,6 +25,7 @@ VERSION = "version"
 MODE = "mode"
 HISTORY_SIZE = "history_size"
 
+TEMPLATE_NAME_REGEX = r"^[A-Za-z]\w*$"
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"
 BAR_FORMAT = "{l_bar}{bar}| {n_fmt}/{total_fmt}"
 MAIN_BAR_COLOR = "blue"
