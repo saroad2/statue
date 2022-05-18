@@ -61,7 +61,7 @@ def show_command_cli(
         )
     if len(command_builder.required_contexts) != 0:
         required_contexts = [
-            context.name for context in command_builder.required_contexts
+            name_style(context.name) for context in command_builder.required_contexts
         ]
         required_contexts.sort()
         click.echo(
@@ -69,18 +69,29 @@ def show_command_cli(
         )
     if len(command_builder.allowed_contexts) != 0:
         allowed_contexts = [
-            context.name for context in command_builder.allowed_contexts
+            name_style(context.name) for context in command_builder.allowed_contexts
         ]
         allowed_contexts.sort()
         click.echo(
             f"{bullet_style('Allowed contexts')} - " f"{', '.join(allowed_contexts)}"
         )
-    if len(command_builder.specified_contexts) != 0:
-        specified_contexts = [
-            context.name for context in command_builder.specified_contexts
-        ]
-        specified_contexts.sort()
-        click.echo(
-            f"{bullet_style('Specified contexts')} - "
-            f"{', '.join(specified_contexts)}"
-        )
+    if len(command_builder.specified_contexts) == 0:
+        return
+    click.echo(f"{bullet_style('Specified contexts')}:")
+    for (
+        context,
+        context_specification,
+    ) in command_builder.contexts_specifications.items():
+        click.echo(f"\t{name_style(context.name)}")
+        if context_specification.args is not None:
+            click.echo(
+                f"\t\t{bullet_style('Override arguments')}: "
+                f"{' '.join(context_specification.args)}"
+            )
+        if context_specification.add_args is not None:
+            click.echo(
+                f"\t\t{bullet_style('Added arguments')}: "
+                f"{' '.join(context_specification.add_args)}"
+            )
+        if context_specification.clear_args:
+            click.echo(f"\t\t{bullet_style('Clears arguments')}")
