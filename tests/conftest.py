@@ -101,17 +101,45 @@ def mock_cwd(mocker, tmpdir_factory):
     return cwd
 
 
+@pytest.fixture
+def mock_home(mocker, tmpdir_factory):
+    home = Path(tmpdir_factory.mktemp("bla"))
+    home_method_mock = mocker.patch.object(Path, "home")
+    home_method_mock.return_value = home
+    return home
+
+
 # Templates Provider Mocks
 
 
 @pytest.fixture()
-def mock_templates_provider_names(mocker):
-    return mocker.patch.object(TemplatesProvider, "template_names")
+def mock_templates_provider_default_names(mocker):
+    return mocker.patch.object(TemplatesProvider, "default_templates_names")
+
+
+@pytest.fixture()
+def mock_templates_provider_user_names(mocker):
+    return mocker.patch.object(TemplatesProvider, "user_templates_names")
 
 
 @pytest.fixture()
 def mock_templates_provider_get_template_path(mocker):
     return mocker.patch.object(TemplatesProvider, "get_template_path")
+
+
+@pytest.fixture()
+def mock_templates_provider_save_template(mocker):
+    return mocker.patch.object(TemplatesProvider, "save_template")
+
+
+@pytest.fixture()
+def mock_templates_provider_remove_template(mocker):
+    return mocker.patch.object(TemplatesProvider, "remove_template")
+
+
+@pytest.fixture()
+def mock_templates_provider_clear_user_templates(mocker):
+    return mocker.patch.object(TemplatesProvider, "clear_user_templates")
 
 
 # Evaluation Mocks

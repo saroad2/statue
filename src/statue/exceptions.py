@@ -10,7 +10,7 @@ class StatueException(Exception):
 
 
 class StatueConfigurationError(StatueException):
-    """User-Defined Statue configuration is invalid."""
+    """Exception regarding Statue configuration."""
 
     def __init__(self, message: str, location: Optional[List[str]] = None):
         """
@@ -155,7 +155,11 @@ class ContextCircularParentingError(StatueException):
 # Template related exceptions
 
 
-class UnknownTemplate(StatueException):
+class StatueTemplateError(StatueException):
+    """Exception regarding Statue template."""
+
+
+class UnknownTemplate(StatueTemplateError):
     """Template isn't recognized."""
 
     def __init__(self, template_name: str) -> None:
