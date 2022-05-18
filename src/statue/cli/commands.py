@@ -61,7 +61,7 @@ def show_command_cli(
         )
     if len(command_builder.required_contexts) != 0:
         required_contexts = [
-            context.name for context in command_builder.required_contexts
+            name_style(context.name) for context in command_builder.required_contexts
         ]
         required_contexts.sort()
         click.echo(
@@ -69,7 +69,7 @@ def show_command_cli(
         )
     if len(command_builder.allowed_contexts) != 0:
         allowed_contexts = [
-            context.name for context in command_builder.allowed_contexts
+            name_style(context.name) for context in command_builder.allowed_contexts
         ]
         allowed_contexts.sort()
         click.echo(
@@ -77,7 +77,7 @@ def show_command_cli(
         )
     if len(command_builder.specified_contexts) != 0:
         specified_contexts = [
-            context.name for context in command_builder.specified_contexts
+            name_style(context.name) for context in command_builder.specified_contexts
         ]
         specified_contexts.sort()
         click.echo(
