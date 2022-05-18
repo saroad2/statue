@@ -114,21 +114,18 @@ def test_commands_show_command_with_allowed_contexts(
     ), "Show output is different than expected."
 
 
-def test_commands_show_command_with_specified_contexts(
+def test_commands_show_command_with_arguments_override_specified_context(
     cli_runner, mock_build_configuration_from_file
 ):
     configuration = mock_build_configuration_from_file.return_value
-    context1, context2 = (
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-    )
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
     configuration.commands_repository.add_command_builders(
         CommandBuilder(
             COMMAND2,
             help=COMMAND_HELP_STRING2,
+            default_args=[ARG1, ARG2],
             contexts_specifications={
-                context1: ContextSpecification(args=[ARG1]),
-                context2: ContextSpecification(add_args=[ARG2]),
+                context1: ContextSpecification(args=[ARG3, ARG4]),
             },
         )
     )
@@ -137,7 +134,64 @@ def test_commands_show_command_with_specified_contexts(
     assert result.output == (
         f"Name - {COMMAND2}\n"
         f"Description - {COMMAND_HELP_STRING2}\n"
-        f"Specified contexts - {CONTEXT1}, {CONTEXT2}\n"
+        f"Default arguments - {ARG1} {ARG2}\n"
+        "Specified contexts:\n"
+        f"\t{CONTEXT1}\n"
+        f"\t\tOverride arguments: {ARG3} {ARG4}\n"
+    ), "Show output is different than expected."
+
+
+def test_commands_show_command_with_arguments_added_specified_context(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            COMMAND2,
+            help=COMMAND_HELP_STRING2,
+            default_args=[ARG1, ARG2],
+            contexts_specifications={
+                context1: ContextSpecification(add_args=[ARG3, ARG4]),
+            },
+        )
+    )
+    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    assert result.output == (
+        f"Name - {COMMAND2}\n"
+        f"Description - {COMMAND_HELP_STRING2}\n"
+        f"Default arguments - {ARG1} {ARG2}\n"
+        "Specified contexts:\n"
+        f"\t{CONTEXT1}\n"
+        f"\t\tAdded arguments: {ARG3} {ARG4}\n"
+    ), "Show output is different than expected."
+
+
+def test_commands_show_command_with_clear_arguments_specified_context(
+    cli_runner, mock_build_configuration_from_file
+):
+    configuration = mock_build_configuration_from_file.return_value
+    context1 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1)
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            COMMAND2,
+            help=COMMAND_HELP_STRING2,
+            default_args=[ARG1, ARG2],
+            contexts_specifications={
+                context1: ContextSpecification(clear_args=True),
+            },
+        )
+    )
+    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    assert result.output == (
+        f"Name - {COMMAND2}\n"
+        f"Description - {COMMAND_HELP_STRING2}\n"
+        f"Default arguments - {ARG1} {ARG2}\n"
+        "Specified contexts:\n"
+        f"\t{CONTEXT1}\n"
+        "\t\tClears arguments\n"
     ), "Show output is different than expected."
 
 
@@ -176,7 +230,11 @@ def test_commands_show_command_with_multiple_contexts(
         f"Default arguments - {ARG1} {ARG2}\n"
         f"Required contexts - {CONTEXT1}, {CONTEXT2}\n"
         f"Allowed contexts - {CONTEXT3}, {CONTEXT4}\n"
-        f"Specified contexts - {CONTEXT5}, {CONTEXT6}\n"
+        "Specified contexts:\n"
+        f"\t{CONTEXT5}\n"
+        f"\t\tOverride arguments: {ARG3}\n"
+        f"\t{CONTEXT6}\n"
+        f"\t\tAdded arguments: {ARG4}\n"
     ), "Show output is different than expected."
 
 
