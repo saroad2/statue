@@ -2,7 +2,7 @@
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, Set, Union
 
 from statue.config.configuration import Configuration
 from statue.constants import TEMPLATE_NAME_REGEX
@@ -59,58 +59,58 @@ class TemplatesProvider:
         return {**cls.default_templates_map(), **cls.user_templates_map()}
 
     @classmethod
-    def default_templates(cls) -> List[Traversable]:
+    def default_templates(cls) -> Set[Traversable]:
         """
         Get all default templates available.
 
         :return: default templates
-        :rtype: List[Traversable]
+        :rtype: Set[Traversable]
         """
-        return [
+        return {
             path
             for path in resources.files("statue.templates.default_templates").iterdir()
             if path.name.split(".")[-1] == "toml"
-        ]
+        }
 
     @classmethod
-    def user_templates(cls) -> List[Path]:
+    def user_templates(cls) -> Set[Path]:
         """
         Get all user templates available.
 
         :return: User templates
-        :rtype: List[Path]
+        :rtype: Set[Path]
         """
-        return list(cls.user_templates_directory().iterdir())
+        return set(cls.user_templates_directory().iterdir())
 
     @classmethod
-    def default_templates_names(cls) -> List[str]:
+    def default_templates_names(cls) -> Set[str]:
         """
         Get all default template names.
 
         :return: all default template names
-        :rtype: List[str]
+        :rtype: Set[str]
         """
-        return [cls.get_template_name(path) for path in cls.default_templates()]
+        return {cls.get_template_name(path) for path in cls.default_templates()}
 
     @classmethod
-    def user_templates_names(cls) -> List[str]:
+    def user_templates_names(cls) -> Set[str]:
         """
         Get all user template names.
 
         :return: all user template names
-        :rtype: List[str]
+        :rtype: Set[str]
         """
-        return [cls.get_template_name(path) for path in cls.user_templates()]
+        return {cls.get_template_name(path) for path in cls.user_templates()}
 
     @classmethod
-    def all_template_names(cls) -> List[str]:
+    def all_template_names(cls) -> Set[str]:
         """
         Get all available template names.
 
         :return: all template names
-        :rtype: List[str]
+        :rtype: Set[str]
         """
-        return cls.default_templates_names() + cls.user_templates_names()
+        return {*cls.default_templates_names(), *cls.user_templates_names()}
 
     @classmethod
     def get_template_path(cls, template_name: str) -> Traversable:

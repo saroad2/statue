@@ -40,8 +40,8 @@ def test_templates_provider_with_only_default_templates(
         toml_path3,
         dummy_path2,
     ]
-    assert TemplatesProvider.default_templates() == [toml_path1, toml_path2, toml_path3]
-    assert TemplatesProvider.default_templates_names() == [SOURCE1, SOURCE2, SOURCE3]
+    assert TemplatesProvider.default_templates() == {toml_path1, toml_path2, toml_path3}
+    assert TemplatesProvider.default_templates_names() == {SOURCE1, SOURCE2, SOURCE3}
     assert TemplatesProvider.default_templates_map() == {
         SOURCE1: toml_path1,
         SOURCE2: toml_path2,
@@ -50,7 +50,7 @@ def test_templates_provider_with_only_default_templates(
     assert not TemplatesProvider.user_templates()
     assert not TemplatesProvider.user_templates_names()
     assert TemplatesProvider.user_templates_map() == {}
-    assert TemplatesProvider.all_template_names() == [SOURCE1, SOURCE2, SOURCE3]
+    assert TemplatesProvider.all_template_names() == {SOURCE1, SOURCE2, SOURCE3}
     assert TemplatesProvider.templates_map() == {
         SOURCE1: toml_path1,
         SOURCE2: toml_path2,
@@ -76,17 +76,17 @@ def test_templates_provider_with_only_user_templates(
     toml_path2.touch()
     toml_path3.touch()
 
-    assert TemplatesProvider.default_templates() == []
-    assert TemplatesProvider.default_templates_names() == []
+    assert TemplatesProvider.default_templates() == set()
+    assert TemplatesProvider.default_templates_names() == set()
     assert TemplatesProvider.default_templates_map() == {}
-    assert TemplatesProvider.user_templates() == [toml_path1, toml_path2, toml_path3]
-    assert TemplatesProvider.user_templates_names() == [SOURCE1, SOURCE2, SOURCE3]
+    assert TemplatesProvider.user_templates() == {toml_path1, toml_path2, toml_path3}
+    assert TemplatesProvider.user_templates_names() == {SOURCE1, SOURCE2, SOURCE3}
     assert TemplatesProvider.user_templates_map() == {
         SOURCE1: toml_path1,
         SOURCE2: toml_path2,
         SOURCE3: toml_path3,
     }
-    assert TemplatesProvider.all_template_names() == [SOURCE1, SOURCE2, SOURCE3]
+    assert TemplatesProvider.all_template_names() == {SOURCE1, SOURCE2, SOURCE3}
     assert TemplatesProvider.templates_map() == {
         SOURCE1: toml_path1,
         SOURCE2: toml_path2,
@@ -124,28 +124,28 @@ def test_templates_provider_with_both_default_and_user_templates(
     toml_path5.touch()
     toml_path6.touch()
 
-    assert TemplatesProvider.default_templates() == [toml_path1, toml_path2, toml_path3]
-    assert TemplatesProvider.default_templates_names() == [SOURCE1, SOURCE2, SOURCE3]
+    assert TemplatesProvider.default_templates() == {toml_path1, toml_path2, toml_path3}
+    assert TemplatesProvider.default_templates_names() == {SOURCE1, SOURCE2, SOURCE3}
     assert TemplatesProvider.default_templates_map() == {
         SOURCE1: toml_path1,
         SOURCE2: toml_path2,
         SOURCE3: toml_path3,
     }
-    assert TemplatesProvider.user_templates() == [toml_path4, toml_path5, toml_path6]
-    assert TemplatesProvider.user_templates_names() == [SOURCE4, SOURCE5, SOURCE6]
+    assert TemplatesProvider.user_templates() == {toml_path4, toml_path5, toml_path6}
+    assert TemplatesProvider.user_templates_names() == {SOURCE4, SOURCE5, SOURCE6}
     assert TemplatesProvider.user_templates_map() == {
         SOURCE4: toml_path4,
         SOURCE5: toml_path5,
         SOURCE6: toml_path6,
     }
-    assert TemplatesProvider.all_template_names() == [
+    assert TemplatesProvider.all_template_names() == {
         SOURCE1,
         SOURCE2,
         SOURCE3,
         SOURCE4,
         SOURCE5,
         SOURCE6,
-    ]
+    }
     assert TemplatesProvider.templates_map() == {
         SOURCE1: toml_path1,
         SOURCE2: toml_path2,
