@@ -38,4 +38,5 @@ And all the formatters and linters defined in the configuration will run on your
 
 ## What's Next?
 - Learn how to use `statue run` in various ways to [improve efficiency](run_efficiently.md)
-- Learn how to use contexts in order to specify the way you want your formatters and linters to run
+- Learn how to use [contexts](contexts.md) in order to specify the way you want your formatters
+and linters to run

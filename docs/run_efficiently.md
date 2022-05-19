@@ -95,4 +95,5 @@ Or:
 
 
 ## What's Next?
-- Learn how to use contexts in order to specify the way you want your formatters and linters to run
+- Learn how to use [contexts](contexts.md) in order to specify the way you want
+your formatters and linters to run
