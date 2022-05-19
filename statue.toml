@@ -138,7 +138,7 @@ args = [
     "--enable=useless-suppression,use-symbolic-message-instead",
     "--fail-on=useless-suppression,use-symbolic-message-instead",
 ]
-version = "2.13.7"
+version = "2.13.9"
 
 [commands.pylint.documentation]
 args = [
