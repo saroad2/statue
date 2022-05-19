@@ -80,7 +80,7 @@ If you want to only run the failed commands from the last failed evaluation, run
 
     statue run -fo
 
-If you want to re-run a specific evaluation from history, You can do so by using the `-p` flag
+If you want to re-run a specific evaluation from history, You can do so by using the `-p` flag.
 For example, if you want to re-run evaluation 6 from before, you can do so by running:
 
     statue run -p 6
@@ -95,4 +95,5 @@ Or:
 
 
 ## What's Next?
-- Learn how to use contexts in order to specify the way you want your formatters and linters to run
+- Learn how to use [contexts](contexts.md) in order to specify the way you want
+your formatters and linters to run

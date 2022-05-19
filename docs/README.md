@@ -34,10 +34,12 @@ when you have large codebase that you want to migrate to a given style one step 
 Statue helps you to improve your code using these powerful features:
 
 - Run several formatters and linters asynchronously for faster evaluations
-- Run formatters and linters with different arguments on each file and directory using contexts
+- Run formatters and linters with different arguments on each file and directory
+using [contexts](contexts.md)
 - Avoid editing tedious configuration files by using the `statue config` cli
 - Keeping results history in order to re-run failing and non-failing static code analysis tools with only few
 keystrokes
+- Saving your configuration as template in order for reuse in other project
 - Provide clear and concise exportable evaluation reports of all your formatters and linters
 
 ## Can't I just keep all my configurations in *setup.cfg* or *pyproject.toml*?

@@ -8,6 +8,7 @@ nav:
   - Tutorials:
       - Quick Start: quick_start.md
       - Run Efficiently: run_efficiently.md
+      - It's All A Matter of Context: contexts.md
 plugins:
   - macros:
       module_name: docs/mkdocs_macros
