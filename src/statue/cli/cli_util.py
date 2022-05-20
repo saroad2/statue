@@ -1,5 +1,5 @@
 """Utility methods for CLI."""
-from typing import Optional, Sequence, TypeVar, List
+from typing import List, Optional, Sequence, TypeVar
 
 T = TypeVar("T")
 
