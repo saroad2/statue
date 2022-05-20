@@ -1,12 +1,19 @@
 """Show configuration CLI."""
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional, Sequence
 
 import click
 
-from statue.cli.common_flags import config_path_option
+from statue.cli.cli_util import list_or_none
+from statue.cli.common_flags import (
+    allow_option,
+    config_path_option,
+    contexts_option,
+    deny_option,
+)
 from statue.cli.config.config_cli import config_cli
 from statue.cli.styled_strings import bullet_style, name_style, source_style
+from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.constants import ENCODING
 
@@ -24,7 +31,15 @@ def show_config_cli(config: Optional[Path]):
 
 @config_cli.command("show-tree")
 @config_path_option
-def show_config_tree_cli(config: Optional[Path]):
+@contexts_option
+@allow_option
+@deny_option
+def show_config_tree_cli(
+    config: Optional[Path],
+    context: Sequence[str],
+    allow: Optional[List[str]],
+    deny: Optional[List[str]],
+):
     """
     Show sources configuration as a tree.
 
@@ -33,10 +48,19 @@ def show_config_tree_cli(config: Optional[Path]):
     """
     configuration = Configuration.from_file(config)
     sources_list = configuration.sources_repository.sources_list
+    general_filter = CommandsFilter(
+        allowed_commands=list_or_none(allow),
+        denied_commands=list_or_none(deny),
+        contexts=[
+            configuration.contexts_repository[context_name] for context_name in context
+        ],
+    )
     if len(sources_list) == 0:
         click.echo("No sources configuration is specified.")
     for source in sources_list:
-        source_commands_filter = configuration.sources_repository[source]
+        source_commands_filter = CommandsFilter.merge(
+            general_filter, configuration.sources_repository[source]
+        )
         context_names = [context.name for context in source_commands_filter.contexts]
         click.echo(
             f"{source_style(str(source))} "

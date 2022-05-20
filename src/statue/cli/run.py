@@ -1,11 +1,12 @@
 # pylint: disable=too-many-locals
 """Run CLI."""
 from pathlib import Path
-from typing import Any, List, Optional, Sequence
+from typing import List, Optional, Sequence
 
 import click
 
 from statue.cli.cli import pass_configuration, statue_cli
+from statue.cli.cli_util import list_or_none
 from statue.cli.common_flags import (
     allow_option,
     contexts_option,
@@ -112,9 +113,9 @@ def run_cli(  # pylint: disable=too-many-arguments
     try:
         commands_map = CommandsMapBuilder(
             configuration=configuration,
-            specified_sources=__list_or_none(sources),
-            allowed_commands=__list_or_none(allow),
-            denied_commands=__list_or_none(deny),
+            specified_sources=list_or_none(sources),
+            allowed_commands=list_or_none(allow),
+            denied_commands=list_or_none(deny),
             contexts=[
                 configuration.contexts_repository[context_name]
                 for context_name in context
@@ -160,12 +161,6 @@ def run_cli(  # pylint: disable=too-many-arguments
     click.echo(evaluation_summary_string(evaluation))
     exit_code = 0 if evaluation.success else 1
     ctx.exit(exit_code)
-
-
-def __list_or_none(some_list: Optional[Sequence[Any]]):
-    if some_list is None or len(some_list) == 0:
-        return None
-    return list(some_list)
 
 
 def __handle_missing_commands(ctx, missing_commands, install, verbosity):
