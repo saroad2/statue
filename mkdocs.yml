@@ -9,6 +9,7 @@ nav:
       - Quick Start: quick_start.md
       - Run Efficiently: run_efficiently.md
       - It's All A Matter of Context: contexts.md
+      - Configurate It: configuration.md
 markdown_extensions:
   - admonition
 plugins:
