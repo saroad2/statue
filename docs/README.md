@@ -35,7 +35,7 @@ Statue helps you to improve your code using these powerful features:
 
 - Run several formatters and linters asynchronously for faster evaluations
 - Run commands with different arguments on each file and directory
-using [contexts](contexts.md)
+using [contexts](tutorials/contexts.md)
 - Avoid editing tedious configuration files by using the `statue config` command
 - Keeping results history in order to re-run failing and non-failing static code analysis tools with only few
 keystrokes
@@ -49,7 +49,7 @@ While this solution does help keep all your configuration in one place, it doesn
 configurations for different files and directories.
 
 While *Statue* does introduce an additional configuration file (*statue.toml*), this configuration file is totally
-[editable via command line](configuration.md) using the `statue config` methods.
+[editable via command line](tutorials/configuration.md) using the `statue config` methods.
 
 ## How does *Statue* differ from *pre-commit*?
 
@@ -67,6 +67,6 @@ using *Statue*:
 
 ## What's next?
 
-- Go on to the [quick start](quick_start.md) tutorial in order to begin using *Statue* in a few 
+- Go on to the [quick start](tutorials/quick_start.md) tutorial in order to begin using *Statue* in a few 
 short steps
-- Learn [a few tips](run_efficiently.md) how to use `statue run` efficiently
+- Learn [a few tips](tutorials/run_efficiently.md) how to use `statue run` efficiently
