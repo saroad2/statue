@@ -6,10 +6,10 @@ theme:
 nav:
   - Home: README.md
   - Tutorials:
-      - Quick Start: quick_start.md
-      - Run Efficiently: run_efficiently.md
-      - It's All A Matter of Context: contexts.md
-      - Configurate It: configuration.md
+      - Quick Start: tutorials/quick_start.md
+      - Run Efficiently: tutorials/run_efficiently.md
+      - It's All A Matter of Context: tutorials/contexts.md
+      - Configurate It: tutorials/configuration.md
 markdown_extensions:
   - admonition
 plugins:
