@@ -42,7 +42,7 @@ Now that your configuration file is ready, simply run:
 
     statue run
    
-And all the formatters and linters defined in the configuration will run on your codebase.
+And all the commands defined in the configuration will run on your codebase.
 
 !!! note
 

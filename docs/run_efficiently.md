@@ -5,7 +5,9 @@ The simplest way you can run *Statue* is to use the following command:
 
     statue run
 
-This will run all formatters and linters in your configuration on your codebase. This will result in two ways:
+This will run all available commands from your configuration on your codebase.
+
+Running this command will result in two ways:
 
 If the run finished successfully, the following will be printed:
 
@@ -96,4 +98,4 @@ Or:
 
 ## What's Next?
 - Learn how to use [contexts](contexts.md) in order to specify the way you want
-your formatters and linters to run
+your commands to run

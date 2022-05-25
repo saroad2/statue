@@ -16,15 +16,15 @@ unwanted conflicts. With *Statue* you can integrate tools such as *Mypy*, *Pylin
 
 ## What Do You Mean by "Orchestration"?
 
-When running multiple formatters and linters, sometimes they interfere with each other and cause clashes.
-On other occasions, in order to solve an issue with one linter you have to introduce another issue
+When running multiple formatters and linters (commands, in general), sometimes they interfere with each other and
+cause clashes. On other occasions, in order to solve an issue with one linter you have to introduce another issue
 in a different linter. 
 
 *Statue* solves this problem (and many other problems, as we'll describe later) by keeping all
 your linters and formatters configuration in one file, which is fully editable via command line. In that way,
-you won't need to edit huge configuration files in order to keep your formatters and linters in check.
+you won't need to edit huge configuration files in order to keep your commands in check.
 
-Moreover, With *Statue* you can define different arguments for your formatters and linters to use on each file
+Moreover, With *Statue* you can define different arguments for your commands to use on each file
 and directory in your codebase. This allows you to customize different style conventions for different files and
 directories, making your work with static code analysis tools more robust and user-friendly. This can be very handy
 when you have large codebase that you want to migrate to a given style one step at a time.  
@@ -34,7 +34,7 @@ when you have large codebase that you want to migrate to a given style one step 
 Statue helps you to improve your code using these powerful features:
 
 - Run several formatters and linters asynchronously for faster evaluations
-- Run formatters and linters with different arguments on each file and directory
+- Run commands with different arguments on each file and directory
 using [contexts](contexts.md)
 - Avoid editing tedious configuration files by using the `statue config` cli
 - Keeping results history in order to re-run failing and non-failing static code analysis tools with only few

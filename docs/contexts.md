@@ -10,9 +10,9 @@ linters to run or avoid running, and how to address each source in your codebase
 
 The use of contexts presents few major advantages:
 
-* Using the same context name for multiple formatters and linters allows you to change the arguments of huge number
+* Using the same context name for multiple commands allows you to change the arguments of huge number
 of commands with a single magic word
-* Assigning a context to a source helps you to direct the formatters and linters how to
+* Assigning a context to a source helps you to direct the commands how to
 run on that particular source.
 * Turning commands on and off when introducing a context which they don't comply with.
 * Joining few contexts together allows you to express complex specifications for a given command or source
