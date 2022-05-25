@@ -5,7 +5,7 @@ The simplest way you can run *Statue* is to use the following command:
 
     statue run
 
-This will run all available commands from your configuration on your codebase.
+This will run all available commands from your [configuration](configuration.md) on your codebase.
 
 Running this command will result in two ways:
 
@@ -99,3 +99,5 @@ Or:
 ## What's Next?
 - Learn how to use [contexts](contexts.md) in order to specify the way you want
 your commands to run
+- Learn how to add new commands and edit existing ones in your [configuration](configuration.md)
+using only the command line

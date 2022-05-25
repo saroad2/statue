@@ -123,5 +123,5 @@ By adding the "test" context to your unit tests' directory, *Statue* will remove
 are not required for unit tests. You can do it by editing the configuration file.
 
 ## What's next?
-- Learn how to edit the configuration file via the command line
+- Learn how to edit the [configuration](configuration.md) file via the command line
 - Learn about the default template and what contexts and commands are available in it

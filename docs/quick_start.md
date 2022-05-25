@@ -54,3 +54,4 @@ And all the commands defined in the configuration will run on your codebase.
 - Learn how to use `statue run` in various ways to [improve efficiency](run_efficiently.md)
 - Learn how to use [contexts](contexts.md) in order to specify the way you want your formatters
 and linters to run
+- Learn how to edit your [configuration](configuration.md) file via command line
