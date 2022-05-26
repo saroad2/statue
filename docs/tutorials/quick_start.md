@@ -16,7 +16,7 @@ Which will print:
 ## Initialize *Statue*
 
 In order for *Statue* to work correctly, you need to initialize *Statue*'s configuration file.
-This is simply done going to your project's root directory and using the command:
+This is simply done by going to your project's root directory and using the command:
 
     statue config init
 
