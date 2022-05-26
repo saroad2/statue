@@ -10,6 +10,7 @@ nav:
       - Run Efficiently: tutorials/run_efficiently.md
       - It's All A Matter of Context: tutorials/contexts.md
       - Configurate It: tutorials/configuration.md
+  - Templates: templates.md
 markdown_extensions:
   - admonition
 plugins:
