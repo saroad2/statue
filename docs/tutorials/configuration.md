@@ -63,3 +63,8 @@ configuration. Just follow the instruction and the new context will be added!
     Pay attention that using the `remove-context`, `remove-command` and `remove-source` commands will
     remove the specified context, command and source respectively, **including all of their
     references!**
+
+## What's next?
+- Learn about the [default template](../templates.md#Default Template) and which contexts and commands are
+available in it
+- Learn how to turn your project's configuration into a template
