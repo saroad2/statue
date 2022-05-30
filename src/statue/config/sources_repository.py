@@ -74,6 +74,16 @@ class SourcesRepository:
         """Get list of all available sources."""
         return list(self.sources_filters_map.keys())
 
+    def track_sources(self, *sources: Path):
+        """
+        Track sources with default commands filter.
+
+        :param sources: Sources to track
+        :type sources: Path
+        """
+        for source in sources:
+            self[source] = CommandsFilter()
+
     def remove_source(self, source: Path):
         """
         Remove source from repository.

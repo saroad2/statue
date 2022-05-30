@@ -67,6 +67,21 @@ def test_sources_repository_add_multiple_filters():
     assert sources_repository[Path(SOURCE3)] == commands_filter3
 
 
+def test_sources_repository_track_sources():
+    sources_repository = SourcesRepository()
+    sources_repository.track_sources(Path(SOURCE1), Path(SOURCE2), Path(SOURCE3))
+
+    assert len(sources_repository) == 3
+    assert sources_repository.sources_list == [
+        Path(SOURCE1),
+        Path(SOURCE2),
+        Path(SOURCE3),
+    ]
+    assert sources_repository[Path(SOURCE1)] == CommandsFilter()
+    assert sources_repository[Path(SOURCE2)] == CommandsFilter()
+    assert sources_repository[Path(SOURCE3)] == CommandsFilter()
+
+
 def test_sources_repository_child_source_gets_parent_filter():
     sources_repository = SourcesRepository()
     commands_filter1, commands_filter2 = (

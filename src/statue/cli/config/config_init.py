@@ -12,7 +12,6 @@ from statue.cli.config.interactive_adders.interactive_sources_adder import (
     InteractiveSourcesAdder,
 )
 from statue.cli.styled_strings import failure_style
-from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.exceptions import StatueConfigurationError, UnknownTemplate
 from statue.sources_finder import find_sources
@@ -91,8 +90,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
             repo=repo,
         )
     else:
-        for source in sources:
-            configuration.sources_repository[source] = CommandsFilter()
+        configuration.sources_repository.track_sources(*sources)
     if fix_versions or install:
         for command_builder in configuration.commands_repository:
             if install:
