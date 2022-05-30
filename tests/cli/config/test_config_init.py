@@ -531,6 +531,40 @@ def test_config_init_with_install_and_fix_versions(
         assert command_builder.version == command_builder.installed_version
 
 
+def test_config_init_without_sources(
+    cli_runner,
+    mock_configuration_path,
+    mock_build_configuration_from_file,
+    mock_templates_provider_get_template_path,
+    mock_git_repo,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_configuration_as_dict,
+):
+    mock_build_configuration_from_file.return_value = (
+        configuration
+    ) = dummy_configuration()
+    result = cli_runner.invoke(statue_cli, ["config", "init", "--no-sources"])
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_not_called()
+    mock_templates_provider_get_template_path.assert_called_once_with("defaults")
+    mock_build_configuration_from_file.assert_called_once_with(
+        mock_templates_provider_get_template_path.return_value
+    )
+
+    assert len(configuration.sources_repository) == 0
+
+    assert len(configuration.commands_repository) == 3
+    for command_builder in configuration.commands_repository:
+        command_builder.update.assert_not_called()
+        assert command_builder.version is None
+
+    mock_update_sources_repository.assert_not_called()
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
+
+
 def test_config_init_with_unknown_template(
     cli_runner,
     mock_configuration_path,
