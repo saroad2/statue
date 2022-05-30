@@ -7,6 +7,7 @@ from typing import OrderedDict as OrderedDictType
 from statue.commands_filter import CommandsFilter
 from statue.config.contexts_repository import ContextsRepository
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
+from statue.io_util import is_equal_or_child_of
 
 
 class SourcesRepository:
@@ -62,11 +63,8 @@ class SourcesRepository:
         :rtype: CommandsFilter
         """
         for specified_source, commands_filter in self.sources_filters_map.items():
-            try:
-                item.relative_to(specified_source)
+            if is_equal_or_child_of(item, specified_source):
                 return commands_filter
-            except ValueError:
-                continue
         return CommandsFilter()
 
     @property
