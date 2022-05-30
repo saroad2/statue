@@ -425,7 +425,7 @@ def test_config_init_with_install(
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
-        command_builder.update.assert_called_once_with()
+        command_builder.update_to_version.assert_called_once_with()
         assert command_builder.version is None
 
 
@@ -526,7 +526,7 @@ def test_config_init_with_install_and_fix_versions(
 
     assert len(configuration.commands_repository) == 3
     for command_builder in configuration.commands_repository:
-        command_builder.update.assert_called_once_with()
+        command_builder.update_to_version.assert_called_once_with()
         assert command_builder.installed_version is not None
         assert command_builder.version == command_builder.installed_version
 

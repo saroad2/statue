@@ -96,7 +96,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
     if fix_versions or install:
         for command_builder in configuration.commands_repository:
             if install:
-                command_builder.update()
+                command_builder.update_to_version()
             if fix_versions and command_builder.installed():
                 command_builder.set_version_as_installed()
     configuration.to_toml(output_path)
