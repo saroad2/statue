@@ -7,6 +7,7 @@ from typing import OrderedDict as OrderedDictType
 from statue.commands_filter import CommandsFilter
 from statue.config.contexts_repository import ContextsRepository
 from statue.constants import ALLOW_LIST, CONTEXTS, DENY_LIST
+from statue.io_util import is_equal_or_child_of
 
 
 class SourcesRepository:
@@ -62,17 +63,24 @@ class SourcesRepository:
         :rtype: CommandsFilter
         """
         for specified_source, commands_filter in self.sources_filters_map.items():
-            try:
-                item.relative_to(specified_source)
+            if is_equal_or_child_of(item, specified_source):
                 return commands_filter
-            except ValueError:
-                continue
         return CommandsFilter()
 
     @property
     def sources_list(self) -> List[Path]:
         """Get list of all available sources."""
         return list(self.sources_filters_map.keys())
+
+    def track_sources(self, *sources: Path):
+        """
+        Track sources with default commands filter.
+
+        :param sources: Sources to track
+        :type sources: Path
+        """
+        for source in sources:
+            self[source] = CommandsFilter()
 
     def remove_source(self, source: Path):
         """

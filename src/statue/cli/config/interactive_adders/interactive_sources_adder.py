@@ -32,6 +32,7 @@ class InteractiveSourcesAdder:
         configuration: Configuration,
         sources: List[Path],
         repo: Optional[git.Repo] = None,
+        exclude: Optional[List[Path]] = None,
     ):
         """
         Add sources to configuration instance.
@@ -42,6 +43,8 @@ class InteractiveSourcesAdder:
         :type sources: List[Path]
         :param repo: Optional repository instance for avoiding ignored files.
         :type repo: Optional[Repo]
+        :param exclude: Optional. Paths to be excluded from tracking
+        :type exclude: Optional[List[Path]]
         """
         for source in sources:
             choices = cls._get_choices(configuration=configuration, source=source)
@@ -64,8 +67,9 @@ class InteractiveSourcesAdder:
             if option in EXPEND:
                 cls.update_sources_repository(
                     configuration,
-                    expend(source, repo=repo),
+                    expend(source, repo=repo, exclude=exclude),
                     repo=repo,
+                    exclude=exclude,
                 )
             if option not in YES:
                 continue

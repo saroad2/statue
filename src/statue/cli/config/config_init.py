@@ -1,7 +1,7 @@
 """Initialize configuration CLI."""
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import click
 import git
@@ -12,7 +12,6 @@ from statue.cli.config.interactive_adders.interactive_sources_adder import (
     InteractiveSourcesAdder,
 )
 from statue.cli.styled_strings import failure_style
-from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 from statue.exceptions import StatueConfigurationError, UnknownTemplate
 from statue.sources_finder import find_sources
@@ -27,6 +26,19 @@ from statue.templates.templates_provider import TemplatesProvider
     type=str,
     default="defaults",
     help="Configuration template name",
+)
+@click.option(
+    "--with-sources/--no-sources",
+    is_flag=True,
+    default=True,
+    help="Track available sources and add to configuration",
+)
+@click.option(
+    "-e",
+    "--exclude",
+    type=click.Path(exists=True, path_type=Path),
+    multiple=True,
+    help="Sources paths that Statue will ignore tracking",
 )
 @click.option("-y", "interactive", flag_value=False, default=True)
 @click.option(
@@ -52,6 +64,8 @@ from statue.templates.templates_provider import TemplatesProvider
 def init_config_cli(  # pylint: disable=too-many-arguments
     config: Optional[Path],
     template: str,
+    with_sources: bool,
+    exclude: List[Path],
     interactive: bool,
     use_git: bool,
     fix_versions: bool,
@@ -74,6 +88,26 @@ def init_config_cli(  # pylint: disable=too-many-arguments
         click.echo(failure_style(str(error)))
         sys.exit(3)
     output_path = config if config is not None else Configuration.configuration_path()
+    if with_sources:
+        _update_sources(
+            configuration=configuration,
+            use_git=use_git,
+            interactive=interactive,
+            exclude=exclude,
+        )
+    if fix_versions or install:
+        for command_builder in configuration.commands_repository:
+            if install:
+                command_builder.update_to_version()
+            if fix_versions and command_builder.installed():
+                command_builder.set_version_as_installed()
+    configuration.to_toml(output_path)
+    click.echo("Done!")
+
+
+def _update_sources(
+    configuration: Configuration, exclude: List[Path], use_git: bool, interactive: bool
+):
     directory = Path.cwd()
     repo = None
     if use_git:
@@ -82,22 +116,12 @@ def init_config_cli(  # pylint: disable=too-many-arguments
         except git.InvalidGitRepositoryError:
             pass
     sources = [
-        source.relative_to(directory) for source in find_sources(directory, repo=repo)
+        source.relative_to(directory)
+        for source in find_sources(directory, repo=repo, exclude=exclude)
     ]
     if interactive:
         InteractiveSourcesAdder.update_sources_repository(
-            configuration=configuration,
-            sources=sources,
-            repo=repo,
+            configuration=configuration, sources=sources, repo=repo, exclude=exclude
         )
-    else:
-        for source in sources:
-            configuration.sources_repository[source] = CommandsFilter()
-    if fix_versions or install:
-        for command_builder in configuration.commands_repository:
-            if install:
-                command_builder.update()
-            if fix_versions and command_builder.installed():
-                command_builder.set_version_as_installed()
-    configuration.to_toml(output_path)
-    click.echo("Done!")
+        return
+    configuration.sources_repository.track_sources(*sources)

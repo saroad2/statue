@@ -380,3 +380,61 @@ def test_interactive_sources_adder_skip_existing_source(cli_runner, tmp_path):
             Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
         ]
     )
+
+
+@expend_parametrization
+def test_interactive_sources_adder_expend_and_exclude_child(
+    expend_word, cli_runner, tmp_path
+):
+    dir_path = tmp_path / "dir"
+    dir_path.mkdir()
+    source_path1, source_path2, source_path3 = (
+        dir_path / f"{SOURCE1}.py",
+        dir_path / f"{SOURCE2}.py",
+        dir_path / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    configuration = dummy_configuration()
+    with cli_runner.isolation(input=f"{expend_word}\n"):
+        InteractiveSourcesAdder.update_sources_repository(
+            configuration=configuration, sources=[dir_path], exclude=[source_path2]
+        )
+
+    assert configuration.sources_repository.sources_list == [source_path1, source_path3]
+    assert configuration.sources_repository[source_path1] == CommandsFilter()
+    assert configuration.sources_repository[source_path3] == CommandsFilter()
+
+
+@expend_parametrization
+def test_interactive_sources_adder_expend_and_exclude_grandchild(
+    expend_word, cli_runner, tmp_path
+):
+    dir_path = tmp_path / "dir"
+    subdir_path = dir_path / "subdir"
+    subdir_path.mkdir(parents=True)
+    init_path, source_path1, source_path2, source_path3 = (
+        subdir_path / "__init__.py",
+        subdir_path / f"{SOURCE1}.py",
+        subdir_path / f"{SOURCE2}.py",
+        subdir_path / f"{SOURCE3}.py",
+    )
+    init_path.touch()
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    configuration = dummy_configuration()
+    with cli_runner.isolation(input=f"{expend_word}\n{expend_word}\n"):
+        InteractiveSourcesAdder.update_sources_repository(
+            configuration=configuration, sources=[dir_path], exclude=[source_path2]
+        )
+
+    assert configuration.sources_repository.sources_list == [
+        init_path,
+        source_path1,
+        source_path3,
+    ]
+    assert configuration.sources_repository[init_path] == CommandsFilter()
+    assert configuration.sources_repository[source_path1] == CommandsFilter()
+    assert configuration.sources_repository[source_path3] == CommandsFilter()

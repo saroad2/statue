@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import List
 
 from git import Repo
-from pytest_cases import THIS_MODULE, fixture, parametrize_with_cases
+from pytest_cases import THIS_MODULE, parametrize_with_cases
 
 from statue.sources_finder import find_sources
 
@@ -30,63 +30,114 @@ def ignore_paths(repo: Repo, files: List[Path]):
             gitignore.write(str(ignored_file.relative_to(root_dir)))
 
 
-@fixture
-def path_tmpdir(tmpdir):
-    return Path(tmpdir)
+def case_non_python_file(tmp_path):
+    kwargs = {}
+    path = existing_file(tmp_path, "bla.txt")
+    sources = []
+    return kwargs, path, sources
 
 
-def case_non_python_file(path_tmpdir):
-    return None, existing_file(path_tmpdir, "bla.txt"), []
+def case_python_file(tmp_path):
+    kwargs = {}
+    path = existing_file(tmp_path, "bla.py")
+    sources = [path]
+    return kwargs, path, sources
 
 
-def case_python_file(path_tmpdir):
-    python_file = existing_file(path_tmpdir, "bla.py")
-    return None, python_file, [python_file]
+def case_empty_directory(tmp_path):
+    return {}, tmp_path, []
 
 
-def case_empty_directory(path_tmpdir):
-    return None, path_tmpdir, []
+def case_directory_with_one_python_file(tmp_path):
+    kwargs = {}
+    one = existing_file(tmp_path, "one.py")
+    existing_files(tmp_path, file_names=["two.txt", "three.txt", "four.txt"])
+    sources = [one]
+    return kwargs, tmp_path, sources
 
 
-def case_directory_with_one_python_file(path_tmpdir):
-    one = existing_file(path_tmpdir, "one.py")
-    existing_files(path_tmpdir, file_names=["two.txt", "three.txt", "four.txt"])
-    return None, path_tmpdir, [one]
+def case_directory_with_two_python_file(tmp_path):
+    kwargs = {}
+    existing_files(tmp_path, file_names=["three.txt", "four.txt"])
+    sources = existing_files(tmp_path, file_names=["one.py", "two.py"])
+    return kwargs, tmp_path, sources
 
 
-def case_directory_with_two_python_file(path_tmpdir):
-    python_files = existing_files(path_tmpdir, file_names=["one.py", "two.py"])
-    existing_files(path_tmpdir, file_names=["three.txt", "four.txt"])
-    return None, path_tmpdir, python_files
+def case_one_python_file_from_inner_directory(tmp_path):
+    kwargs = {}
+    one = existing_file(tmp_path, "inner", "one.py")
+    sources = [one]
+    return kwargs, tmp_path, sources
 
 
-def case_one_python_file_from_inner_directory(path_tmpdir):
-    one = existing_file(path_tmpdir, "inner", "one.py")
-    return None, path_tmpdir, [one]
+def case_two_python_files_from_inner_directory(tmp_path):
+    kwargs = {}
+    sources = existing_files(tmp_path, "inner", file_names=["one.py", "two.py"])
+    return kwargs, tmp_path, sources
 
 
-def case_two_python_files_from_inner_directory(path_tmpdir):
-    python_files = existing_files(path_tmpdir, "inner", file_names=["one.py", "two.py"])
-    return None, path_tmpdir, python_files
-
-
-def case_ignore_one_python_file(path_tmpdir):
-    one = existing_file(path_tmpdir, "one.py")
-    two = existing_file(path_tmpdir, "two.py")
-    existing_files(path_tmpdir, file_names=["three.txt", "four.txt"])
-    repo = Repo.init(path_tmpdir)
+def case_ignore_one_python_file(tmp_path):
+    one = existing_file(tmp_path, "one.py")
+    two = existing_file(tmp_path, "two.py")
+    existing_files(tmp_path, file_names=["three.txt", "four.txt"])
+    repo = Repo.init(tmp_path)
     ignore_paths(repo=repo, files=[two])
-    return repo, path_tmpdir, [one]
+
+    kwargs = dict(repo=repo)
+    sources = [one]
+    return kwargs, tmp_path, sources
 
 
-def case_ignore_inner_directory(path_tmpdir):
-    inner = path_tmpdir / "inner"
+def case_ignore_inner_directory(tmp_path):
+    inner = tmp_path / "inner"
     existing_files(inner, file_names=["one.py", "two.py"])
-    repo = Repo.init(path_tmpdir)
+    repo = Repo.init(tmp_path)
     ignore_paths(repo, files=[inner])
-    return repo, path_tmpdir, []
+    kwargs = dict(repo=repo)
+    sources = []
+    return kwargs, tmp_path, sources
 
 
-@parametrize_with_cases(argnames=["repo", "directory", "sources"], cases=THIS_MODULE)
-def test_sources_finder(repo, directory, sources):
-    assert find_sources(directory, repo=repo) == sources
+def case_path_is_excluded(tmp_path):
+    tmp_path.touch()
+    kwargs = dict(exclude=[tmp_path])
+    sources = []
+    return kwargs, tmp_path, sources
+
+
+def case_exclude_one_path(tmp_path):
+    path1, path2, path3 = existing_files(
+        tmp_path, file_names=["one.py", "two.py", "three.py"]
+    )
+    kwargs = dict(exclude=[path2])
+    sources = [path1, path3]
+    return kwargs, tmp_path, sources
+
+
+def case_exclude_two_paths(tmp_path):
+    path1, path2, path3 = existing_files(
+        tmp_path, file_names=["one.py", "two.py", "three.py"]
+    )
+    kwargs = dict(exclude=[path2, path3])
+    sources = [path1]
+    return kwargs, tmp_path, sources
+
+
+def case_exclude_directory(tmp_path):
+    subdir1, subdir2 = tmp_path / "a", tmp_path / "b"
+    existing_files(subdir1, file_names=["one.py", "two.py", "three.py"])
+    sources = existing_files(subdir2, file_names=["four.py", "five.py", "six.py"])
+    kwargs = dict(exclude=[subdir1])
+    return kwargs, tmp_path, sources
+
+
+def case_exclude_inner_path(tmp_path):
+    one, two = existing_files(tmp_path, "a", file_names=["one.py", "two.py"])
+    kwargs = dict(exclude=[one])
+    sources = [two]
+    return kwargs, tmp_path, sources
+
+
+@parametrize_with_cases(argnames=["kwargs", "path", "sources"], cases=THIS_MODULE)
+def test_sources_finder(kwargs, path, sources):
+    assert set(find_sources(path, **kwargs)) == set(sources)
