@@ -1,7 +1,7 @@
 """Initialize configuration CLI."""
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional
 
 import click
 import git
@@ -33,6 +33,13 @@ from statue.templates.templates_provider import TemplatesProvider
     default=True,
     help="Track available sources and add to configuration",
 )
+@click.option(
+    "-e",
+    "--exclude",
+    type=click.Path(exists=True, path_type=Path),
+    multiple=True,
+    help="Sources paths that Statue will ignore tracking",
+)
 @click.option("-y", "interactive", flag_value=False, default=True)
 @click.option(
     "--git/--no-git",
@@ -58,6 +65,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
     config: Optional[Path],
     template: str,
     with_sources: bool,
+    exclude: List[Path],
     interactive: bool,
     use_git: bool,
     fix_versions: bool,
@@ -82,7 +90,10 @@ def init_config_cli(  # pylint: disable=too-many-arguments
     output_path = config if config is not None else Configuration.configuration_path()
     if with_sources:
         _update_sources(
-            configuration=configuration, use_git=use_git, interactive=interactive
+            configuration=configuration,
+            use_git=use_git,
+            interactive=interactive,
+            exclude=exclude,
         )
     if fix_versions or install:
         for command_builder in configuration.commands_repository:
@@ -94,7 +105,9 @@ def init_config_cli(  # pylint: disable=too-many-arguments
     click.echo("Done!")
 
 
-def _update_sources(configuration: Configuration, use_git: bool, interactive: bool):
+def _update_sources(
+    configuration: Configuration, exclude: List[Path], use_git: bool, interactive: bool
+):
     directory = Path.cwd()
     repo = None
     if use_git:
@@ -103,13 +116,12 @@ def _update_sources(configuration: Configuration, use_git: bool, interactive: bo
         except git.InvalidGitRepositoryError:
             pass
     sources = [
-        source.relative_to(directory) for source in find_sources(directory, repo=repo)
+        source.relative_to(directory)
+        for source in find_sources(directory, repo=repo, exclude=exclude)
     ]
     if interactive:
         InteractiveSourcesAdder.update_sources_repository(
-            configuration=configuration,
-            sources=sources,
-            repo=repo,
+            configuration=configuration, sources=sources, repo=repo, exclude=exclude
         )
         return
     configuration.sources_repository.track_sources(*sources)

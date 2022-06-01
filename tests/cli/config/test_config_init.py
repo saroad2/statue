@@ -133,6 +133,7 @@ def test_config_init_interactive(
             source_path3.relative_to(mock_cwd),
         ],
         repo=mock_git_repo.return_value,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -226,6 +227,7 @@ def test_config_init_interactive_without_git(
             source_path3.relative_to(mock_cwd),
         ],
         repo=None,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -321,6 +323,7 @@ def test_config_init_interactive_with_git_raises_exception(
             source_path3.relative_to(mock_cwd),
         ],
         repo=None,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -370,6 +373,7 @@ def test_config_init_interactive_with_template_name(
             source_path3.relative_to(mock_cwd),
         ],
         repo=mock_git_repo.return_value,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -420,6 +424,7 @@ def test_config_init_with_install(
             source_path3.relative_to(mock_cwd),
         ],
         repo=mock_git_repo.return_value,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -468,6 +473,7 @@ def test_config_init_with_fix_versions(
             source_path3.relative_to(mock_cwd),
         ],
         repo=mock_git_repo.return_value,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -521,6 +527,7 @@ def test_config_init_with_install_and_fix_versions(
             source_path3.relative_to(mock_cwd),
         ],
         repo=mock_git_repo.return_value,
+        exclude=(),
     )
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
 
@@ -563,6 +570,56 @@ def test_config_init_without_sources(
 
     mock_update_sources_repository.assert_not_called()
     configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
+
+
+def test_config_init_exclude(
+    cli_runner,
+    mock_configuration_path,
+    mock_build_configuration_from_file,
+    mock_templates_provider_get_template_path,
+    mock_git_repo,
+    mock_cwd,
+    mock_update_sources_repository,
+    mock_configuration_as_dict,
+):
+    source_path1, source_path2, source_path3 = (
+        mock_cwd / f"{SOURCE1}.py",
+        mock_cwd / f"{SOURCE2}.py",
+        mock_cwd / f"{SOURCE3}.py",
+    )
+    source_path1.touch()
+    source_path2.touch()
+    source_path3.touch()
+    mock_build_configuration_from_file.return_value = (
+        configuration
+    ) = dummy_configuration()
+
+    result = cli_runner.invoke(
+        statue_cli, ["config", "init", "--exclude", str(source_path2)]
+    )
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_called_once_with(mock_cwd)
+    mock_templates_provider_get_template_path.assert_called_once_with("defaults")
+    mock_build_configuration_from_file.assert_called_once_with(
+        mock_templates_provider_get_template_path.return_value
+    )
+    mock_update_sources_repository.assert_called_once_with(
+        configuration=configuration,
+        sources=[
+            source_path1.relative_to(mock_cwd),
+            source_path3.relative_to(mock_cwd),
+        ],
+        repo=mock_git_repo.return_value,
+        exclude=(source_path2,),
+    )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
+
+    assert len(configuration.commands_repository) == 3
+    for command_builder in configuration.commands_repository:
+        command_builder.update.assert_not_called()
+        assert command_builder.version is None
 
 
 def test_config_init_with_unknown_template(
