@@ -61,6 +61,9 @@ from statue.templates.templates_provider import TemplatesProvider
     default=False,
     help="Install latest version for all commands in configuration",
 )
+@click.option(
+    "--blank", is_flag=True, default=False, help="Initialize blank configuration"
+)
 def init_config_cli(  # pylint: disable=too-many-arguments
     config: Optional[Path],
     template: str,
@@ -70,6 +73,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
     use_git: bool,
     fix_versions: bool,
     install: bool,
+    blank: bool,
 ):
     """
     Initialize configuration for Statue.
@@ -80,14 +84,40 @@ def init_config_cli(  # pylint: disable=too-many-arguments
     You can run this command with the "-i" flag in order to choose interactively which
      source files to track and which contexts to assign to them.
     """
+    output_path = config if config is not None else Configuration.configuration_path()
     try:
-        configuration = Configuration.from_file(
-            TemplatesProvider.get_template_path(template)
+        configuration = _load_configuration(
+            template=template,
+            exclude=exclude,
+            blank=blank,
+            with_sources=with_sources,
+            use_git=use_git,
+            interactive=interactive,
+            install=install,
+            fix_versions=fix_versions,
         )
     except (UnknownTemplate, StatueConfigurationError) as error:
         click.echo(failure_style(str(error)))
         sys.exit(3)
-    output_path = config if config is not None else Configuration.configuration_path()
+    configuration.to_toml(output_path)
+    click.echo("Done!")
+
+
+def _load_configuration(  # pylint: disable=too-many-arguments
+    template: str,
+    exclude: List[Path],
+    blank: bool,
+    with_sources: bool,
+    use_git: bool,
+    interactive: bool,
+    install: bool,
+    fix_versions: bool,
+):
+    if blank:
+        return Configuration.empty_configuration()
+    configuration = Configuration.from_file(
+        TemplatesProvider.get_template_path(template)
+    )
     if with_sources:
         _update_sources(
             configuration=configuration,
@@ -101,8 +131,7 @@ def init_config_cli(  # pylint: disable=too-many-arguments
                 command_builder.update_to_version()
             if fix_versions and command_builder.installed():
                 command_builder.set_version_as_installed()
-    configuration.to_toml(output_path)
-    click.echo("Done!")
+    return configuration
 
 
 def _update_sources(

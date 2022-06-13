@@ -50,6 +50,33 @@ def dummy_configuration():
     return configuration
 
 
+def test_config_init_blank(
+    cli_runner,
+    mock_configuration_path,
+    mock_build_configuration_from_file,
+    mock_templates_provider_get_template_path,
+    mock_git_repo,
+    mock_update_sources_repository,
+    mock_configuration_as_dict,
+):
+    with mock.patch.object(
+        Configuration, "empty_configuration"
+    ) as empty_configuration_mock:
+        result = cli_runner.invoke(statue_cli, ["config", "init", "--blank"])
+        empty_configuration_mock.assert_called_once_with()
+        empty_configuration_mock.return_value.to_toml.assert_called_once_with(
+            mock_configuration_path.return_value
+        )
+
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    mock_configuration_path.assert_called_once_with()
+    mock_git_repo.assert_not_called()
+    mock_templates_provider_get_template_path.assert_not_called()
+    mock_build_configuration_from_file.assert_not_called()
+
+    mock_update_sources_repository.assert_not_called()
+
+
 def test_config_init_all_yes(
     cli_runner,
     mock_configuration_path,
