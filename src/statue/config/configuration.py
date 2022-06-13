@@ -312,6 +312,17 @@ class Configuration:
         return directory / ".statue"
 
     @classmethod
+    def empty_configuration(cls) -> "Configuration":
+        """
+        Creates an empty configuration.
+
+        :return: Empty configuration
+        :rtype: Configuration
+        """
+        cache = Cache(size=DEFAULT_HISTORY_SIZE)
+        return Configuration(cache=cache)
+
+    @classmethod
     def _none_or_remove(
         cls, optional_set: Optional[FrozenSet[T]], removed_item: T
     ) -> Optional[FrozenSet[T]]:

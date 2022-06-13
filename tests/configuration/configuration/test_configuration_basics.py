@@ -1,7 +1,18 @@
 import mock
 
+from statue.cache import Cache
 from statue.config.configuration import Configuration
 from statue.runner import RunnerMode
+
+
+def test_empty_configuration():
+    configuration = Configuration.empty_configuration()
+    assert isinstance(configuration.cache, Cache)
+    assert configuration.cache.history_size == 30
+    assert len(configuration.commands_repository) == 0
+    assert len(configuration.contexts_repository) == 0
+    assert len(configuration.sources_repository) == 0
+    assert configuration.default_mode == RunnerMode.SYNC
 
 
 def test_configuration_constructor_without_mode(tmp_path):
