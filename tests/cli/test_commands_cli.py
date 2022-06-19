@@ -33,15 +33,16 @@ from tests.constants import (
     CONTEXT_HELP_STRING6,
     NOT_EXISTING_COMMAND,
 )
-from tests.util import command_builder_mock
+from tests.util import command_builder_mock, dummy_versions
 
 
 def test_commands_list(cli_runner, mock_build_configuration_from_file):
+    version1, version2 = dummy_versions(2)
     configuration = mock_build_configuration_from_file.return_value
     configuration.commands_repository.add_command_builders(
         CommandBuilder(COMMAND1, help=COMMAND_HELP_STRING1),
-        CommandBuilder(COMMAND2, help=COMMAND_HELP_STRING2),
-        CommandBuilder(COMMAND3, help=COMMAND_HELP_STRING3),
+        CommandBuilder(COMMAND2, help=COMMAND_HELP_STRING2, version=version1),
+        CommandBuilder(COMMAND3, help=COMMAND_HELP_STRING3, version=version2),
         CommandBuilder(COMMAND4, help=COMMAND_HELP_STRING4),
     )
     result = cli_runner.invoke(statue_cli, ["commands", "list"])
@@ -50,8 +51,8 @@ def test_commands_list(cli_runner, mock_build_configuration_from_file):
     ), f"Exited unsuccessfully with the following exception: {result.exception}"
     assert result.output == (
         f"{COMMAND1} - {COMMAND_HELP_STRING1}\n"
-        f"{COMMAND2} - {COMMAND_HELP_STRING2}\n"
-        f"{COMMAND3} - {COMMAND_HELP_STRING3}\n"
+        f"{COMMAND2} (version: {version1}) - {COMMAND_HELP_STRING2}\n"
+        f"{COMMAND3} (version: {version2}) - {COMMAND_HELP_STRING3}\n"
         f"{COMMAND4} - {COMMAND_HELP_STRING4}\n"
     ), "List output is different than expected."
 

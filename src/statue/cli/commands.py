@@ -18,7 +18,10 @@ def commands_cli() -> None:
 def list_commands_cli(configuration: Configuration) -> None:
     """List matching commands to contexts, allow list and deny list."""
     for command_builder in configuration.commands_repository:
-        click.echo(f"{name_style(command_builder.name)} - {command_builder.help}")
+        name = name_style(command_builder.name)
+        if command_builder.version is not None:
+            name += f" (version: {command_builder.version})"
+        click.echo(f"{name} - {command_builder.help}")
 
 
 @commands_cli.command("install")
