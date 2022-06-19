@@ -44,7 +44,7 @@ def test_commands_list(cli_runner, mock_build_configuration_from_file):
         CommandBuilder(COMMAND3, help=COMMAND_HELP_STRING3),
         CommandBuilder(COMMAND4, help=COMMAND_HELP_STRING4),
     )
-    result = cli_runner.invoke(statue_cli, ["command", "list"])
+    result = cli_runner.invoke(statue_cli, ["commands", "list"])
     assert (
         result.exit_code == 0
     ), f"Exited unsuccessfully with the following exception: {result.exception}"
@@ -61,7 +61,7 @@ def test_commands_show_simple_command(cli_runner, mock_build_configuration_from_
     configuration.commands_repository.add_command_builders(
         CommandBuilder(COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3])
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -83,7 +83,7 @@ def test_commands_show_command_with_required_contexts(
             COMMAND2, help=COMMAND_HELP_STRING2, required_contexts=[context1, context2]
         )
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -105,7 +105,7 @@ def test_commands_show_command_with_allowed_contexts(
             COMMAND2, help=COMMAND_HELP_STRING2, allowed_contexts=[context1, context2]
         )
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -129,7 +129,7 @@ def test_commands_show_command_with_arguments_override_specified_context(
             },
         )
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -156,7 +156,7 @@ def test_commands_show_command_with_arguments_added_specified_context(
             },
         )
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -183,7 +183,7 @@ def test_commands_show_command_with_clear_arguments_specified_context(
             },
         )
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -222,7 +222,7 @@ def test_commands_show_command_with_multiple_contexts(
             },
         )
     )
-    result = cli_runner.invoke(statue_cli, ["command", "show", COMMAND2])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
@@ -241,7 +241,7 @@ def test_commands_show_command_with_multiple_contexts(
 def test_commands_show_unknown_command_side_effect(
     cli_runner, mock_build_configuration_from_file
 ):
-    result = cli_runner.invoke(statue_cli, ["command", "show", NOT_EXISTING_COMMAND])
+    result = cli_runner.invoke(statue_cli, ["commands", "show", NOT_EXISTING_COMMAND])
     assert result.exit_code == 1, "show command should exit with failure."
     assert (
         result.output == f'Could not find command named "{NOT_EXISTING_COMMAND}"\n'
@@ -259,7 +259,7 @@ def test_command_install_with_default_verbosity(
     configuration = Configuration(cache=mock.Mock())
     configuration.commands_repository.add_command_builders(*command_builders)
     mock_build_configuration_from_file.return_value = configuration
-    result = cli_runner.invoke(statue_cli, ["command", "install"])
+    result = cli_runner.invoke(statue_cli, ["commands", "install"])
     for command_builder in command_builders:
         command_builder.install.assert_called_once_with(verbosity=DEFAULT_VERBOSITY)
     assert result.exit_code == 0, "Show command returned with no success code"
@@ -274,7 +274,7 @@ def test_command_install_with_verbose(cli_runner, mock_build_configuration_from_
     configuration = Configuration(cache=mock.Mock())
     configuration.commands_repository.add_command_builders(*command_builders)
     mock_build_configuration_from_file.return_value = configuration
-    result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
+    result = cli_runner.invoke(statue_cli, ["commands", "install", "--verbose"])
     for command_builder in command_builders:
         command_builder.install.assert_called_with(verbosity=VERBOSE)
     assert result.exit_code == 0, "Show command returned with no success code"
@@ -295,7 +295,7 @@ def test_command_install_only_uninstalled(
         command_builder1, command_builder2, command_builder3
     )
     mock_build_configuration_from_file.return_value = configuration
-    result = cli_runner.invoke(statue_cli, ["command", "install", "--verbose"])
+    result = cli_runner.invoke(statue_cli, ["commands", "install", "--verbose"])
     command_builder1.install.assert_not_called()
     command_builder2.install.assert_called_with(verbosity=VERBOSE)
     command_builder3.install.assert_called_with(verbosity=VERBOSE)

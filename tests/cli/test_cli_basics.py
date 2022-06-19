@@ -9,7 +9,7 @@ from statue.exceptions import (
 )
 
 
-@parametrize(argnames="cli_command", argvalues=[["command", "list"], ["run"]])
+@parametrize(argnames="cli_command", argvalues=[["commands", "list"], ["run"]])
 @parametrize(
     argnames="config_error",
     argvalues=[

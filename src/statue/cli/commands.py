@@ -8,7 +8,7 @@ from statue.config.configuration import Configuration
 from statue.exceptions import UnknownCommand
 
 
-@statue_cli.group("command")
+@statue_cli.group("commands")
 def commands_cli() -> None:
     """Commands related actions such as list, install, show, etc."""
 
