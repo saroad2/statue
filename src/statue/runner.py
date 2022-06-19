@@ -122,7 +122,7 @@ class AsynchronousEvaluationRunner(EvaluationRunner):
         evaluation = Evaluation()
         start_time = time.time()
         max_source_name_length = max(
-            [len(source.as_posix()) for source in commands_map.keys()]
+            len(source.as_posix()) for source in commands_map.keys()
         )
         with tqdm.trange(
             commands_map.total_commands_count,

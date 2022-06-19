@@ -241,10 +241,8 @@ class Evaluation:
         :rtype: int
         """
         return sum(
-            [
-                source_evaluation.commands_number
-                for source_evaluation in self.sources_evaluations.values()
-            ]
+            source_evaluation.commands_number
+            for source_evaluation in self.sources_evaluations.values()
         )
 
     @property
@@ -256,10 +254,8 @@ class Evaluation:
         :rtype: int
         """
         return sum(
-            [
-                source_evaluation.successful_commands_number
-                for source_evaluation in self.sources_evaluations.values()
-            ]
+            source_evaluation.successful_commands_number
+            for source_evaluation in self.sources_evaluations.values()
         )
 
     @property

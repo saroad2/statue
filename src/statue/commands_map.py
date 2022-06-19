@@ -9,7 +9,7 @@ class CommandsMap(dict):
     @property
     def total_commands_count(self) -> int:
         """How many commands total in the commands map."""
-        return sum([len(value) for value in self.values()])
+        return sum(len(value) for value in self.values())
 
     @property
     def command_names(self) -> Set[str]:
