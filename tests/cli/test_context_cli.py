@@ -42,7 +42,7 @@ def test_contexts_list_of_full_configuration(
         Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
         Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
     )
-    result = cli_runner.invoke(statue_cli, ["context", "list"])
+    result = cli_runner.invoke(statue_cli, ["contexts", "list"])
     assert result.exit_code == 0, "list contexts should exit with success."
     assert result.output == (
         f"{CONTEXT1} - {CONTEXT_HELP_STRING1}\n"
@@ -56,7 +56,7 @@ def test_contexts_list_of_full_configuration(
 def test_contexts_list_of_an_empty_configuration(
     cli_runner, mock_build_configuration_from_file
 ):
-    result = cli_runner.invoke(statue_cli, ["context", "list"])
+    result = cli_runner.invoke(statue_cli, ["contexts", "list"])
     assert result.exit_code == 1, "list contexts should exit with failure."
     assert (
         result.output == "No contexts were found.\n"
@@ -72,7 +72,7 @@ def test_contexts_show_simple_context(cli_runner, mock_build_configuration_from_
         Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
         Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
     )
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT2])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT2])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT2}\n" f"Description - {CONTEXT_HELP_STRING2}\n"
@@ -86,7 +86,7 @@ def test_contexts_show_context_with_one_alias(
     configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2])
     )
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -102,7 +102,7 @@ def test_contexts_show_context_with_two_aliases(
     configuration.contexts_repository.add_contexts(
         Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, aliases=[CONTEXT2, CONTEXT3])
     )
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -118,7 +118,7 @@ def test_contexts_show_context_with_parent(
     context = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent)
     configuration = mock_build_configuration_from_file.return_value
     configuration.contexts_repository.add_contexts(context, parent)
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -138,7 +138,7 @@ def test_contexts_show_context_required_by_command(
         )
     )
     configuration.contexts_repository.add_contexts(context)
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -158,7 +158,7 @@ def test_contexts_show_context_allowed_for_command(
         )
     )
     configuration.contexts_repository.add_contexts(context)
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -180,7 +180,7 @@ def test_contexts_show_context_specified_for_command(
         )
     )
     configuration.contexts_repository.add_contexts(context)
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -219,7 +219,7 @@ def test_contexts_show_context_with_multiple_available_commands(
         ),
     )
     configuration.contexts_repository.add_contexts(context)
-    result = cli_runner.invoke(statue_cli, ["context", "show", CONTEXT1])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", CONTEXT1])
     assert result.exit_code == 0, "show context should exit with success."
     assert result.output == (
         f"Name - {CONTEXT1}\n"
@@ -241,7 +241,7 @@ def test_contexts_show_non_existing_context(
         Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
         Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
     )
-    result = cli_runner.invoke(statue_cli, ["context", "show", NOT_EXISTING_CONTEXT])
+    result = cli_runner.invoke(statue_cli, ["contexts", "show", NOT_EXISTING_CONTEXT])
     assert result.exit_code == 1, "show context should exit with failure."
     assert (
         result.output == f'Could not find the context "{NOT_EXISTING_CONTEXT}".\n'

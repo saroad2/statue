@@ -8,7 +8,7 @@ from statue.config.configuration import Configuration
 from statue.exceptions import UnknownContext
 
 
-@statue_cli.group("context")
+@statue_cli.group("contexts")
 def context_cli() -> None:
     """Contexts related actions such as list, show, etc."""
 
