@@ -33,7 +33,7 @@ from tests.constants import (
     CONTEXT_HELP_STRING6,
     NOT_EXISTING_COMMAND,
 )
-from tests.util import command_builder_mock, dummy_versions
+from tests.util import command_builder_mock, dummy_version, dummy_versions
 
 
 def test_commands_list(cli_runner, mock_build_configuration_from_file):
@@ -66,6 +66,26 @@ def test_commands_show_simple_command(cli_runner, mock_build_configuration_from_
     assert result.exit_code == 0, f"Exited with exception: {result.exception}"
     assert result.output == (
         f"Name - {COMMAND2}\n"
+        f"Description - {COMMAND_HELP_STRING2}\n"
+        f"Default arguments - {ARG3}\n"
+    ), "Show output is different than expected."
+
+
+def test_commands_show_command_with_version(
+    cli_runner, mock_build_configuration_from_file
+):
+    version = dummy_version()
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository.add_command_builders(
+        CommandBuilder(
+            COMMAND2, help=COMMAND_HELP_STRING2, default_args=[ARG3], version=version
+        )
+    )
+    result = cli_runner.invoke(statue_cli, ["commands", "show", COMMAND2])
+    assert result.exit_code == 0, f"Exited with exception: {result.exception}"
+    assert result.output == (
+        f"Name - {COMMAND2}\n"
+        f"Version - {version}\n"
         f"Description - {COMMAND_HELP_STRING2}\n"
         f"Default arguments - {ARG3}\n"
     ), "Show output is different than expected."

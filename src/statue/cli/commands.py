@@ -56,6 +56,8 @@ def show_command_cli(
         click.echo(str(error))
         ctx.exit(1)
     click.echo(f"{bullet_style('Name')} - {name_style(command_builder.name)}")
+    if command_builder.version is not None:
+        click.echo(f"{bullet_style('Version')} - {command_builder.version}")
     click.echo(f"{bullet_style('Description')} - {command_builder.help}")
     if len(command_builder.default_args) != 0:
         click.echo(
