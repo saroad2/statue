@@ -328,9 +328,9 @@ def test_evaluation_failed(evaluation, failure_evaluation, commands_map):
 )
 def test_total_commands_count(evaluation, failure_evaluation, commands_map):
     expected_failed_count = sum(
-        [len(commands_list) for commands_list in failure_evaluation.values()]
+        len(commands_list) for commands_list in failure_evaluation.values()
     )
-    commands_number = sum([len(commands) for commands in commands_map.values()])
+    commands_number = sum(len(commands) for commands in commands_map.values())
     expected_successful_count = commands_number - expected_failed_count
     assert (
         evaluation.commands_number == commands_number
