@@ -18,7 +18,10 @@ def commands_cli() -> None:
 def list_commands_cli(configuration: Configuration) -> None:
     """List matching commands to contexts, allow list and deny list."""
     for command_builder in configuration.commands_repository:
-        click.echo(f"{name_style(command_builder.name)} - {command_builder.help}")
+        name = name_style(command_builder.name)
+        if command_builder.version is not None:
+            name += f" (version: {command_builder.version})"
+        click.echo(f"{name} - {command_builder.help}")
 
 
 @commands_cli.command("install")
@@ -53,6 +56,8 @@ def show_command_cli(
         click.echo(str(error))
         ctx.exit(1)
     click.echo(f"{bullet_style('Name')} - {name_style(command_builder.name)}")
+    if command_builder.version is not None:
+        click.echo(f"{bullet_style('Version')} - {command_builder.version}")
     click.echo(f"{bullet_style('Description')} - {command_builder.help}")
     if len(command_builder.default_args) != 0:
         click.echo(
