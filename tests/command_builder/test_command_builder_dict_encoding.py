@@ -32,16 +32,8 @@ from tests.constants import (
     COMMAND_HELP_STRING2,
     CONTEXT1,
     CONTEXT2,
-    CONTEXT3,
-    CONTEXT4,
-    CONTEXT5,
-    CONTEXT6,
     CONTEXT_HELP_STRING1,
     CONTEXT_HELP_STRING2,
-    CONTEXT_HELP_STRING3,
-    CONTEXT_HELP_STRING4,
-    CONTEXT_HELP_STRING5,
-    CONTEXT_HELP_STRING6,
     FAILED_TAG,
     SUCCESSFUL_TAG,
 )
@@ -224,47 +216,6 @@ def case_command_builder_from_dict_with_two_contexts_specifications():
         },
     )
     contexts_repository = ContextsRepository(context1, context2)
-
-    return command_builder_dict, command_builder, contexts_repository
-
-
-@case(tags=[SUCCESSFUL_TAG])
-def case_command_builder_from_dict_with_everything():
-    context1, context2, context3, context4, context5, context6 = (
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
-        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
-        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
-        Context(name=CONTEXT6, help=CONTEXT_HELP_STRING6),
-    )
-    version = dummy_version()
-    command_builder_dict = OrderedDict(
-        [
-            (HELP, COMMAND_HELP_STRING1),
-            (ARGS, [ARG1, ARG2]),
-            (REQUIRED_CONTEXTS, [CONTEXT3, CONTEXT4]),
-            (ALLOWED_CONTEXTS, [CONTEXT1, CONTEXT2]),
-            (VERSION, version),
-            (CONTEXT5, {CLEAR_ARGS: True}),
-            (CONTEXT6, {ADD_ARGS: [ARG3, ARG4]}),
-        ]
-    )
-    command_builder = CommandBuilder(
-        name=COMMAND1,
-        help=COMMAND_HELP_STRING1,
-        version=version,
-        default_args=[ARG1, ARG2],
-        allowed_contexts=[context1, context2],
-        required_contexts=[context3, context4],
-        contexts_specifications={
-            context5: ContextSpecification(clear_args=True),
-            context6: ContextSpecification(add_args=[ARG3, ARG4]),
-        },
-    )
-    contexts_repository = ContextsRepository(
-        context1, context2, context3, context4, context5, context6
-    )
 
     return command_builder_dict, command_builder, contexts_repository
 
