@@ -40,6 +40,7 @@ class CommandBuilder:
         version: Optional[str] = None,
         required_contexts: Optional[Iterable[Context]] = None,
         allowed_contexts: Optional[Iterable[Context]] = None,
+        denied_contexts: Optional[Iterable[Context]] = None,
         contexts_specifications: Optional[Dict[Context, ContextSpecification]] = None,
     ):
         """
@@ -59,6 +60,9 @@ class CommandBuilder:
         :param allowed_contexts: Optional list of contexts allowed for
             the command builder
         :type allowed_contexts: Optional[List[Context]]
+        :param denied_contexts: Optional list of contexts denied for
+            the command builder
+        :type denied_contexts: Optional[List[Context]]
         :param contexts_specifications: Optional dictionary of contexts specification
             for the command builder
         :type contexts_specifications: Optional[Dict[Context, ContextSpecification]]
@@ -74,6 +78,9 @@ class CommandBuilder:
         )
         self.allowed_contexts = (
             set(allowed_contexts) if allowed_contexts is not None else set()
+        )
+        self.denied_contexts = (
+            set(denied_contexts) if denied_contexts is not None else set()
         )
         self.contexts_specifications = (
             contexts_specifications if contexts_specifications is not None else {}
@@ -96,6 +103,7 @@ class CommandBuilder:
         if len(required_contexts) != 0:
             self._validate_consistency(
                 allowed=self.allowed_contexts,
+                denied=self.denied_contexts,
                 required=required_contexts,
                 specified=self.specified_contexts,
             )
@@ -118,10 +126,28 @@ class CommandBuilder:
         if len(allowed_contexts) != 0:
             self._validate_consistency(
                 allowed=allowed_contexts,
+                denied=self.denied_contexts,
                 required=self.required_contexts,
                 specified=self.specified_contexts,
             )
         self._allowed_contexts = allowed_contexts
+
+    @property
+    def denied_contexts(self) -> Set[Context]:
+        """Get contexts allowed for command builder."""
+        return self._denied_contexts
+
+    @denied_contexts.setter
+    def denied_contexts(self, denied_contexts):
+        denied_contexts = set(denied_contexts)
+        if len(denied_contexts) != 0:
+            self._validate_consistency(
+                allowed=self.allowed_contexts,
+                denied=denied_contexts,
+                required=self.required_contexts,
+                specified=self.specified_contexts,
+            )
+        self._denied_contexts = denied_contexts
 
     @property
     def contexts_specifications(self) -> Dict[Context, ContextSpecification]:
@@ -139,6 +165,7 @@ class CommandBuilder:
         if len(contexts_specifications) != 0:
             self._validate_consistency(
                 allowed=self.allowed_contexts,
+                denied=self.denied_contexts,
                 required=self.required_contexts,
                 specified=set(contexts_specifications.keys()),
             )
@@ -155,6 +182,8 @@ class CommandBuilder:
         required_contexts.sort()
         allowed_contexts = [context.name for context in self.allowed_contexts]
         allowed_contexts.sort()
+        denied_contexts = [context.name for context in self.denied_contexts]
+        denied_contexts.sort()
         contexts_specification = {
             context.name: specification
             for context, specification in self.contexts_specifications.items()
@@ -167,6 +196,7 @@ class CommandBuilder:
             f"version={self.version}, "
             f"required_contexts={required_contexts}, "
             f"allowed_contexts={allowed_contexts}, "
+            f"denied_contexts={denied_contexts}, "
             f"contexts_specifications={contexts_specification}"
             ")"
         )
@@ -187,6 +217,7 @@ class CommandBuilder:
             and self.default_args == other.default_args
             and self.version == other.version
             and self.allowed_contexts == other.allowed_contexts
+            and self.denied_contexts == other.denied_contexts
             and self.required_contexts == other.required_contexts
             and self.contexts_specifications == other.contexts_specifications
         )
@@ -640,7 +671,12 @@ class CommandBuilder:
         ]
 
     def _validate_consistency(self, **kwargs: Set[Context]):
-        assert set(kwargs.keys()) == {"allowed", "required", "specified"}  # nosec
+        assert set(kwargs.keys()) == {  # nosec
+            "allowed",
+            "denied",
+            "required",
+            "specified",
+        }
         for key1, key2 in itertools.combinations(kwargs.keys(), 2):
             value1, value2 = kwargs[key1], kwargs[key2]
             values_intersection = value1.intersection(value2)
@@ -665,6 +701,7 @@ class CommandBuilder:
     def _initialize_contexts(self):
         self.required_contexts = set()
         self.allowed_contexts = set()
+        self.denied_contexts = set()
         self.contexts_specifications = {}
 
     def _get_package(self):  # pragma: no cover
