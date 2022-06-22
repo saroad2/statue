@@ -11,7 +11,7 @@ from statue.commands_filter import CommandsFilter
 from statue.config.configuration import Configuration
 
 
-@statue_cli.command("show-tree")
+@statue_cli.command("show-tree", short_help="Show sources configuration as a tree.")
 @pass_configuration
 @contexts_option
 @allow_option

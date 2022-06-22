@@ -28,7 +28,7 @@ from statue.runner import RunnerMode, build_runner
 from statue.verbosity import is_silent, is_verbose
 
 
-@statue_cli.command("run")
+@statue_cli.command("run", short_help="Run static code analysis commands on sources.")
 @click.argument("sources", type=click.Path(exists=True, path_type=Path), nargs=-1)
 @contexts_option
 @allow_option
