@@ -460,6 +460,8 @@ class CommandBuilder:
             self.required_contexts.remove(context)
         if context in self.allowed_contexts:
             self.allowed_contexts.remove(context)
+        if context in self.denied_contexts:
+            self.denied_contexts.remove(context)
         if context in self.contexts_specifications:
             self.contexts_specifications.pop(context)
 
