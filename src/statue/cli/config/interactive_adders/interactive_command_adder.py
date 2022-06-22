@@ -80,7 +80,7 @@ class InteractiveCommandAdder:
         command_builder.help = get_help_string(name)
         command_builder.default_args = cls.get_args(name, args_type="default")
         command_builder.version = cls.get_version(name)
-        command_builder.reset_all_available_contexts()
+        command_builder.reset_all_contexts()
         command_builder.required_contexts = get_contexts(  # type: ignore
             name=name,
             contexts_repository=configuration.contexts_repository,

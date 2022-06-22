@@ -1,25 +1,11 @@
-from statue.command_builder import CommandBuilder
-from statue.context_specification import ContextSpecification
-from tests.constants import ARG1, ARG2, ARG3, COMMAND1, COMMAND_HELP_STRING1
-from tests.util import dummy_context
-
-
-def random_full_command_builder():
-    return CommandBuilder(
-        name=COMMAND1,
-        help=COMMAND_HELP_STRING1,
-        allowed_contexts=[dummy_context(), dummy_context()],
-        denied_contexts=[dummy_context(), dummy_context()],
-        required_contexts=[dummy_context(), dummy_context()],
-        contexts_specifications={
-            dummy_context(): ContextSpecification(args=[ARG1]),
-            dummy_context(): ContextSpecification(add_args=[ARG2, ARG3]),
-        },
-    )
+from tests.constants import COMMAND1, COMMAND_HELP_STRING1
+from tests.util import dummy_context, dummy_full_command_builder
 
 
 def test_command_builder_remove_non_existing_context():
-    command_builder = random_full_command_builder()
+    command_builder = dummy_full_command_builder(
+        name=COMMAND1, help_string=COMMAND_HELP_STRING1
+    )
     allowed_contexts = command_builder.allowed_contexts
     denied_contexts = command_builder.denied_contexts
     required_contexts = command_builder.required_contexts
@@ -34,7 +20,9 @@ def test_command_builder_remove_non_existing_context():
 
 
 def test_command_builder_remove_allowed_context():
-    command_builder = random_full_command_builder()
+    command_builder = dummy_full_command_builder(
+        name=COMMAND1, help_string=COMMAND_HELP_STRING1
+    )
     context1, context2 = command_builder.allowed_contexts
     denied_contexts = command_builder.denied_contexts
     required_contexts = command_builder.required_contexts
@@ -49,7 +37,9 @@ def test_command_builder_remove_allowed_context():
 
 
 def test_command_builder_remove_denied_context():
-    command_builder = random_full_command_builder()
+    command_builder = dummy_full_command_builder(
+        name=COMMAND1, help_string=COMMAND_HELP_STRING1
+    )
     allowed_contexts = command_builder.allowed_contexts
     context1, context2 = command_builder.denied_contexts
     required_contexts = command_builder.required_contexts
@@ -64,7 +54,9 @@ def test_command_builder_remove_denied_context():
 
 
 def test_command_builder_remove_required_context():
-    command_builder = random_full_command_builder()
+    command_builder = dummy_full_command_builder(
+        name=COMMAND1, help_string=COMMAND_HELP_STRING1
+    )
     allowed_contexts = command_builder.allowed_contexts
     denied_contexts = command_builder.denied_contexts
     context1, context2 = command_builder.required_contexts
@@ -79,7 +71,9 @@ def test_command_builder_remove_required_context():
 
 
 def test_command_builder_remove_specified_context():
-    command_builder = random_full_command_builder()
+    command_builder = dummy_full_command_builder(
+        name=COMMAND1, help_string=COMMAND_HELP_STRING1
+    )
     allowed_contexts = command_builder.allowed_contexts
     denied_contexts = command_builder.denied_contexts
     required_contexts = command_builder.required_contexts

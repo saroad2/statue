@@ -24,7 +24,7 @@ from tests.constants import (
     CONTEXT_HELP_STRING5,
     CONTEXT_HELP_STRING6,
 )
-from tests.util import dummy_version
+from tests.util import dummy_full_command_builder, dummy_version
 
 
 def test_command_builder_empty_constructor():
@@ -395,41 +395,21 @@ def test_command_builder_set_contexts_specification():
 
 
 def test_command_builder_reset_all_available_contexts():
-    context1, context2, context3, context4, context5, context6 = (
-        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
-        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
-        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
-        Context(name=CONTEXT4, help=CONTEXT_HELP_STRING4),
-        Context(name=CONTEXT5, help=CONTEXT_HELP_STRING5),
-        Context(name=CONTEXT6, help=CONTEXT_HELP_STRING6),
-    )
-    context_specification1, context_specification2 = (
-        ContextSpecification(args=[ARG3]),
-        ContextSpecification(add_args=[ARG4]),
-    )
-    command_builder = CommandBuilder(
-        name=COMMAND1,
-        help=COMMAND_HELP_STRING1,
-        required_contexts=[context1, context2],
-        allowed_contexts=[context3, context4],
-        contexts_specifications={
-            context5: context_specification1,
-            context6: context_specification2,
-        },
+    command_builder = dummy_full_command_builder(
+        name=COMMAND1, help_string=COMMAND_HELP_STRING1
     )
 
-    assert command_builder.available_contexts == {
-        context1,
-        context2,
-        context3,
-        context4,
-        context5,
-        context6,
-    }
+    assert len(command_builder.allowed_contexts) > 0
+    assert len(command_builder.denied_contexts) > 0
+    assert len(command_builder.required_contexts) > 0
+    assert len(command_builder.specified_contexts) > 0
 
-    command_builder.reset_all_available_contexts()
+    command_builder.reset_all_contexts()
 
-    assert not command_builder.available_contexts
+    assert not command_builder.allowed_contexts
+    assert not command_builder.denied_contexts
+    assert not command_builder.required_contexts
+    assert not command_builder.specified_contexts
 
 
 @pytest.mark.parametrize(

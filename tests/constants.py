@@ -35,7 +35,14 @@ COMMAND3, COMMAND_HELP_STRING3, COMMAND_CAPTURED_OUTPUT3 = command_strings("comm
 COMMAND4, COMMAND_HELP_STRING4, COMMAND_CAPTURED_OUTPUT4 = command_strings("command4")
 COMMAND5, COMMAND_HELP_STRING5, COMMAND_CAPTURED_OUTPUT5 = command_strings("command5")
 COMMAND6, COMMAND_HELP_STRING6, COMMAND_CAPTURED_OUTPUT6 = command_strings("command6")
-ARG1, ARG2, ARG3, ARG4, ARG5, ARG6 = "arg1", "arg2", "arg3", "arg4", "arg5", "arg6"
+ARG1, ARG2, ARG3, ARG4, ARG5, ARG6 = ARGS = (
+    "arg1",
+    "arg2",
+    "arg3",
+    "arg4",
+    "arg5",
+    "arg6",
+)
 CONTEXT1, CONTEXT_HELP_STRING1 = name_and_help_string("context1")
 CONTEXT2, CONTEXT_HELP_STRING2 = name_and_help_string("context2")
 CONTEXT3, CONTEXT_HELP_STRING3 = name_and_help_string("context3")

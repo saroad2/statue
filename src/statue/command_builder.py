@@ -275,10 +275,11 @@ class CommandBuilder:
             *self.specified_contexts,
         }
 
-    def reset_all_available_contexts(self):
+    def reset_all_contexts(self):
         """Reset all available contexts."""
         self.required_contexts = []
         self.allowed_contexts = []
+        self.denied_contexts = []
         self.contexts_specifications = {}
 
     def installed(self) -> bool:
