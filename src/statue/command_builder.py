@@ -414,9 +414,23 @@ class CommandBuilder:
         ]
         if len(missing_required_contexts) != 0:
             raise InvalidCommand(
-                f"Command `{self.name}`"
+                f"Command `{self.name}` "
                 "requires the following contexts, which are missing: "
                 f"{', '.join(missing_required_contexts)}"
+            )
+        explicitly_denied_contexts = [
+            context.name
+            for context in contexts
+            if any(
+                context == denied_context or context.is_child_of(denied_context)
+                for denied_context in self.denied_contexts
+            )
+        ]
+        if len(explicitly_denied_contexts) != 0:
+            raise InvalidCommand(
+                f"Command `{self.name}` "
+                "denies the following contexts, which are present: "
+                f"{', '.join(explicitly_denied_contexts)}"
             )
         not_allowed_contexts = [
             context.name
@@ -430,7 +444,7 @@ class CommandBuilder:
         ]
         if len(not_allowed_contexts) != 0:
             raise InvalidCommand(
-                f"Command `{self.name}`"
+                f"Command `{self.name}` "
                 "is not allowed due to the following contexts: "
                 f"{', '.join(not_allowed_contexts)}"
             )

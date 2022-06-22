@@ -208,7 +208,7 @@ def case_command_builder_missing_required_context():
         name=COMMAND1, help=COMMAND_HELP_STRING1, required_contexts=[context1]
     )
     error_message = (
-        f"Command `{COMMAND1}`requires the following contexts, "
+        f"Command `{COMMAND1}` requires the following contexts, "
         f"which are missing: {CONTEXT1}"
     )
 
@@ -229,10 +229,44 @@ def case_command_builder_with_not_allowed_context():
         contexts_specifications={context4: ContextSpecification(args=[ARG1, ARG2])},
     )
     error_message = (
-        f"Command `{COMMAND1}`is not allowed due to the following contexts: {CONTEXT1}"
+        f"Command `{COMMAND1}` is not allowed due to the following contexts: {CONTEXT1}"
     )
 
     return command_builder, [context1, context2], error_message
+
+
+@case(tags=FAILED_TAG)
+def case_command_builder_context_allowed_by_default_fail_on_specific_deny():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1, allowed_by_default=True),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2, allowed_by_default=True),
+    )
+    command_builder = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[context1, context2]
+    )
+    error_message = (
+        f"Command `{COMMAND1}` denies the following contexts, "
+        f"which are present: {CONTEXT1}"
+    )
+
+    return command_builder, [context1], error_message
+
+
+@case(tags=FAILED_TAG)
+def case_command_builder_context_allowed_by_default_fail_on_parent_deny():
+    parent = Context(name=CONTEXT2, help=COMMAND_HELP_STRING1)
+    context = Context(
+        name=CONTEXT1, help=CONTEXT_HELP_STRING1, parent=parent, allowed_by_default=True
+    )
+    command_builder = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[parent]
+    )
+    error_message = (
+        f"Command `{COMMAND1}` denies the following contexts, "
+        f"which are present: {CONTEXT1}"
+    )
+
+    return command_builder, [context], error_message
 
 
 @parametrize_with_cases(
