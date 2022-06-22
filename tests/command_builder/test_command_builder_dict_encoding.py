@@ -10,6 +10,7 @@ from statue.constants import (
     ALLOWED_CONTEXTS,
     ARGS,
     CLEAR_ARGS,
+    DENIED_CONTEXTS,
     HELP,
     REQUIRED_CONTEXTS,
     VERSION,
@@ -113,6 +114,23 @@ def case_command_builder_from_dict_with_allowed_contexts():
     )
     command_builder = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING1, allowed_contexts=[context1, context2]
+    )
+    contexts_repository = ContextsRepository(context1, context2)
+
+    return command_builder_dict, command_builder, contexts_repository
+
+
+@case(tags=[SUCCESSFUL_TAG])
+def case_command_builder_from_dict_with_denied_contexts():
+    context1, context2 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+    )
+    command_builder_dict = OrderedDict(
+        [(HELP, COMMAND_HELP_STRING1), (DENIED_CONTEXTS, [CONTEXT1, CONTEXT2])]
+    )
+    command_builder = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[context1, context2]
     )
     contexts_repository = ContextsRepository(context1, context2)
 

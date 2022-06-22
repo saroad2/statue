@@ -15,7 +15,14 @@ import pkg_resources
 
 from statue.command import Command
 from statue.config.contexts_repository import ContextsRepository
-from statue.constants import ALLOWED_CONTEXTS, ARGS, HELP, REQUIRED_CONTEXTS, VERSION
+from statue.constants import (
+    ALLOWED_CONTEXTS,
+    ARGS,
+    DENIED_CONTEXTS,
+    HELP,
+    REQUIRED_CONTEXTS,
+    VERSION,
+)
 from statue.context import Context
 from statue.context_specification import ContextSpecification
 from statue.exceptions import (
@@ -516,6 +523,10 @@ class CommandBuilder:
             allowed_contexts = [context.name for context in self.allowed_contexts]
             allowed_contexts.sort()
             builder_as_dict[ALLOWED_CONTEXTS] = allowed_contexts
+        if len(self.denied_contexts) != 0:
+            denied_contexts = [context.name for context in self.denied_contexts]
+            denied_contexts.sort()
+            builder_as_dict[DENIED_CONTEXTS] = denied_contexts
         if self.version is not None:
             builder_as_dict[VERSION] = self.version
         specified_contexts = list(self.specified_contexts)
@@ -562,6 +573,12 @@ class CommandBuilder:
             allowed_contexts=cls.build_contexts_list(
                 command_name=command_name,
                 key_name=ALLOWED_CONTEXTS,
+                builder_setups=builder_setups,
+                contexts_repository=contexts_repository,
+            ),
+            denied_contexts=cls.build_contexts_list(
+                command_name=command_name,
+                key_name=DENIED_CONTEXTS,
                 builder_setups=builder_setups,
                 contexts_repository=contexts_repository,
             ),
@@ -666,8 +683,9 @@ class CommandBuilder:
             HELP,
             ARGS,
             VERSION,
-            REQUIRED_CONTEXTS,
             ALLOWED_CONTEXTS,
+            DENIED_CONTEXTS,
+            REQUIRED_CONTEXTS,
         ]
 
     def _validate_consistency(self, **kwargs: Set[Context]):
