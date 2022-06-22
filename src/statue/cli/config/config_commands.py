@@ -64,7 +64,9 @@ def remove_command_cli(config, command_name):
     click.echo(f"{name_style(command_name)} was successfully removed!")
 
 
-@config_cli.command("fix-versions")
+@config_cli.command(
+    "fix-versions", short_help="Fixate the installed version of the commands."
+)
 @config_path_option
 @click.option(
     "-l",

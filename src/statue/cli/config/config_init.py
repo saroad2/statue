@@ -18,7 +18,7 @@ from statue.sources_finder import find_sources
 from statue.templates.templates_provider import TemplatesProvider
 
 
-@config_cli.command("init")
+@config_cli.command("init", short_help="Initialize configuration for Statue.")
 @config_path_option
 @click.option(
     "-t",
