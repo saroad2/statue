@@ -80,6 +80,14 @@ def show_command_cli(
         click.echo(
             f"{bullet_style('Allowed contexts')} - " f"{', '.join(allowed_contexts)}"
         )
+    if len(command_builder.denied_contexts) != 0:
+        denied_contexts = [
+            name_style(context.name) for context in command_builder.denied_contexts
+        ]
+        denied_contexts.sort()
+        click.echo(
+            f"{bullet_style('Denied contexts')} - " f"{', '.join(denied_contexts)}"
+        )
     if len(command_builder.specified_contexts) == 0:
         return
     click.echo(f"{bullet_style('Specified contexts')}:")
