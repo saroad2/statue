@@ -18,10 +18,14 @@ Which will print:
 In order for *Statue* to work correctly, you need to initialize *Statue*'s configuration file.
 This is simply done by going to your project's root directory and using the command:
 
-    statue config init
+    statue config init -i
 
 This command will create *statue.toml* file with the relevant configurations. Just follow the instructions, and your
 *Statue* configuration file will be ready!
+
+!!! note
+    
+    The flag `-i` flag is important. It will make *Statue* install all commands added in the configuration.
 
 You can see which commands have been set in your configuration using the command:
 
@@ -49,6 +53,17 @@ And all the commands defined in the configuration will run on your codebase.
     When running `statue run`, *Statue* creates a cache directory named *.statue* which is saved in your project's
     root directory. If you're using *git* as your VCS tool we highly recommend that you add *.statue* to your
     *.gitignore* file. 
+
+## Fixate Your Versions
+
+We highly recommend fixing your commands versions in the configuration. This will make sure every
+developer working on your project uses the same command versions. You can do so by running:
+
+    statue config fix-versions
+
+If you want to fix the versions of your commands to their latest available version, simply run:
+
+    statue config fix-versions --latest
 
 ## What's Next?
 - Learn how to use `statue run` in various ways to [improve efficiency](run_efficiently.md)
