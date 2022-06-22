@@ -10,6 +10,8 @@ nav:
       - Run Efficiently: tutorials/run_efficiently.md
       - It's All A Matter of Context: tutorials/contexts.md
       - Configurate It: tutorials/configuration.md
+  - Advanced:
+      - Taking Contexts to The Next Level: advanced/advanced_contexts.md
   - CLI References: cli_references.md
   - Templates: templates.md
 markdown_extensions:

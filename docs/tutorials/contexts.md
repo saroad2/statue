@@ -64,36 +64,6 @@ As you'll see, a context can change a command in 3 ways:
 Different contexts can change a command in different ways. Be sure to use the right context
 in the right situation to elevate your code writing routines.
 
-## Keeping It Together
-
-As mentioned before, one can choose to use multiple contexts simultaneously.
-Just run the following command with all the contexts you want *Statue* to apply:
-
-    statue run -c context1 -c context2 ...
-
-Now, *Statue* will run with all the presented contexts. Contexts that are allowed or required
-by a command will not change the arguments of this command. However, contexts that are
-specified for a command will change the arguments **according to the order that they are
-presented in the command line**.
-
-Here's an example: assume that *context1* adds the arguments "a", "b" and "c" to the command
-*my_command* and *context2* clears the arguments entirely. By default *my_command* runs with
-the arguments "r", "t" and "s". When running:
-
-    statue run -c context1 -c context2
-
-*my_command* will run without any arguments, since it first added "a", "b" and "c", and then
-cleared all the arguments, including the ones added by *context1*. However, if you run:
-
-    statue run -c context2 -c context1
-
-*my_command* will run with the arguments "a", "b" and "c", since it first cleared all arguments
-(and removed "r", "t" and "s") and then added "a", "b" and "c".
-
-On the contrary, if both of your context simple add arguments, and the command is invariant
-to the order to arguments, than changing the order to contexts will not affect the end result
-of the command run.
-
 ## Special Treatment
 
 One of the most common uses one might use contexts for is to inform commands to run
