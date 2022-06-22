@@ -2,6 +2,7 @@
 # pylint: disable=too-many-public-methods,too-many-arguments
 # pylint: disable=too-many-instance-attributes
 import importlib
+import itertools
 import os
 import subprocess  # nosec
 import sys
@@ -94,9 +95,9 @@ class CommandBuilder:
         required_contexts = set(required_contexts)
         if len(required_contexts) != 0:
             self._validate_consistency(
-                allowed_contexts=self.allowed_contexts,
-                required_contexts=required_contexts,
-                specified_contexts=self.specified_contexts,
+                allowed=self.allowed_contexts,
+                required=required_contexts,
+                specified=self.specified_contexts,
             )
         self._required_contexts = required_contexts
 
@@ -116,9 +117,9 @@ class CommandBuilder:
         allowed_contexts = set(allowed_contexts)
         if len(allowed_contexts) != 0:
             self._validate_consistency(
-                allowed_contexts=allowed_contexts,
-                required_contexts=self.required_contexts,
-                specified_contexts=self.specified_contexts,
+                allowed=allowed_contexts,
+                required=self.required_contexts,
+                specified=self.specified_contexts,
             )
         self._allowed_contexts = allowed_contexts
 
@@ -137,9 +138,9 @@ class CommandBuilder:
         """
         if len(contexts_specifications) != 0:
             self._validate_consistency(
-                allowed_contexts=self.allowed_contexts,
-                required_contexts=self.required_contexts,
-                specified_contexts=set(contexts_specifications.keys()),
+                allowed=self.allowed_contexts,
+                required=self.required_contexts,
+                specified=set(contexts_specifications.keys()),
             )
         self._contexts_specifications = contexts_specifications
 
@@ -638,33 +639,17 @@ class CommandBuilder:
             ALLOWED_CONTEXTS,
         ]
 
-    def _validate_consistency(
-        self,
-        allowed_contexts: Set[Context],
-        required_contexts: Set[Context],
-        specified_contexts: Set[Context],
-    ):
-        both_allowed_and_required = allowed_contexts.intersection(required_contexts)
-        if len(both_allowed_and_required) != 0:
-            self._raise_inconsistency_error(
-                type1="allowed",
-                type2="required",
-                contexts=both_allowed_and_required,
-            )
-        both_allowed_and_specified = allowed_contexts.intersection(specified_contexts)
-        if len(both_allowed_and_specified) != 0:
-            self._raise_inconsistency_error(
-                type1="allowed",
-                type2="specified",
-                contexts=both_allowed_and_specified,
-            )
-        both_required_and_specified = required_contexts.intersection(specified_contexts)
-        if len(both_required_and_specified) != 0:
-            self._raise_inconsistency_error(
-                type1="required",
-                type2="specified",
-                contexts=both_required_and_specified,
-            )
+    def _validate_consistency(self, **kwargs: Set[Context]):
+        assert set(kwargs.keys()) == {"allowed", "required", "specified"}  # nosec
+        for key1, key2 in itertools.combinations(kwargs.keys(), 2):
+            value1, value2 = kwargs[key1], kwargs[key2]
+            values_intersection = value1.intersection(value2)
+            if len(values_intersection) != 0:
+                self._raise_inconsistency_error(
+                    type1=key1,
+                    type2=key2,
+                    contexts=values_intersection,
+                )
 
     def _raise_inconsistency_error(
         self, type1: str, type2: str, contexts: Set[Context]
@@ -678,8 +663,8 @@ class CommandBuilder:
         raise InconsistentConfiguration(message, location=location)
 
     def _initialize_contexts(self):
-        self.allowed_contexts = set()
         self.required_contexts = set()
+        self.allowed_contexts = set()
         self.contexts_specifications = {}
 
     def _get_package(self):  # pragma: no cover
