@@ -39,12 +39,14 @@ If you want to see how a context affect your commands, simply run:
 
     statue contexts show your_context_name
 
-After that, you'll see that the context can affect commands in three ways:
+After that, you'll see that the context can affect commands in four ways:
 
-* *Allowed by*: If a context is allowed by a commands, it means that the command will
-run the same way when this context is presented without changing its arguments
 * *Required by*: If a context is required by a command, it means that the command will
 not run at all unless the context is presented
+* *Allowed by*: If a context is allowed by a commands, it means that the command will
+run the same way when this context is presented without changing its arguments
+* *Denied by*: If a context is denied by a command, it means that the command will not
+run if the context is present. This includes commands which are allowed by default
 * *Specified for*: If a context is specified for a command, it means that presenting this
 context will change the arguments of the command.
 
