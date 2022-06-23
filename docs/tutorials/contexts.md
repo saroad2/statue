@@ -12,11 +12,15 @@ The use of contexts presents few major advantages:
 
 * Using the same context name for multiple commands allows you to change the arguments of huge number
 of commands with a single magic word
-* Assigning a context to a source helps you to direct the commands how to
-run on that particular source.
+* [Attaching](../advanced/advanced_contexts.md#attaching-a-context-to-a-source) a context to a
+source helps you to direct the commands how to run on that particular source.
 * Turning commands on and off when introducing a context which they don't comply with.
-* Joining few contexts together allows you to express complex specifications for a given command or source
-* Parenting context makes it easy to demonstrate increasingly specific requirements for a given command or source
+* [Joining](../advanced/advanced_contexts.md#keeping-things-in-order) few contexts together allows
+you to express complex specifications for a given command or source
+* [Parenting](../advanced/advanced_contexts.md#keeping-things-in-the-family) context makes it easy
+to demonstrate increasingly specific requirements for a given command or source
+* [Aliasing](../advanced/advanced_contexts.md#living-under-an-alias) a context for more fluent
+usage of that context
 
 Using contexts wisely when running *Statue* can help you to reduce time spent on code reviews and broken CI processes.
 Just run *Statue* with the right contexts, and *Statue* will take it from there.
@@ -98,3 +102,4 @@ are not required for unit tests. You can do it by editing the configuration file
 - Learn how to edit the [configuration](configuration.md) file via the command line
 - Learn about the [default template](../templates.md#Default Template) and which contexts and commands are
 available in it
+- Learn about more [advanced abilities](../advanced/advanced_contexts.md) of contexts
