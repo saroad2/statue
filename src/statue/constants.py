@@ -25,6 +25,7 @@ ALLOWED_BY_DEFAULT = "allowed_by_default"
 VERSION = "version"
 MODE = "mode"
 HISTORY_SIZE = "history_size"
+CACHE = "cache"
 
 TEMPLATE_NAME_REGEX = r"^[A-Za-z]\w*$"
 DATETIME_FORMAT = "%m/%d/%Y, %H:%M:%S"

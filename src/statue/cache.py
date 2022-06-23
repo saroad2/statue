@@ -14,18 +14,22 @@ class Cache:
         self,
         size: int,
         cache_root_directory: Optional[Path] = None,
+        enabled: bool = True,
     ):
         """
         Initialize cache.
 
-        :param cache_root_directory: Optional root directory for caching
-        :type cache_root_directory: Optional[Path]
         :param size: Number of evaluations to save
         :type size: int
+        :param cache_root_directory: Optional root directory for caching
+        :type cache_root_directory: Optional[Path]
+        :param enabled: Whether caching is enabled or not. True by default.
+        :type enabled: bool
         """
         self._all_evaluations: Deque[Evaluation] = deque()
         self.cache_root_directory = cache_root_directory
         self.history_size = size
+        self.enabled = enabled
 
     @property
     def cache_root_directory(self) -> Optional[Path]:

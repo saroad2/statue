@@ -19,6 +19,7 @@ from statue.config.commands_repository import CommandsRepository
 from statue.config.contexts_repository import ContextsRepository
 from statue.config.sources_repository import SourcesRepository
 from statue.constants import (
+    CACHE,
     COMMANDS,
     CONTEXTS,
     DEFAULT_HISTORY_SIZE,
@@ -149,6 +150,8 @@ class Configuration:
                 (HISTORY_SIZE, self.cache.history_size),
             ]
         )
+        if not self.cache.enabled:
+            general_dict[CACHE] = False
         return OrderedDict(
             [
                 (GENERAL, general_dict),
@@ -216,7 +219,10 @@ class Configuration:
         """
         general_configuration = statue_config_dict.get(GENERAL, {})
         history_size = general_configuration.get(HISTORY_SIZE, DEFAULT_HISTORY_SIZE)
-        cache = Cache(cache_root_directory=cache_dir, size=history_size)
+        cached_enabled = general_configuration.get(CACHE, True)
+        cache = Cache(
+            cache_root_directory=cache_dir, size=history_size, enabled=cached_enabled
+        )
         mode = RunnerMode.DEFAULT_MODE
         if MODE in general_configuration:
             mode_string = general_configuration[MODE].upper()
