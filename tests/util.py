@@ -1,5 +1,6 @@
 import datetime
 import random
+import uuid
 from typing import List, Optional
 from unittest import mock
 
@@ -7,8 +8,10 @@ import pytest
 
 from statue.command import Command, CommandEvaluation
 from statue.command_builder import CommandBuilder
+from statue.context import Context
+from statue.context_specification import ContextSpecification
 from statue.evaluation import Evaluation, SourceEvaluation
-from tests.constants import EPSILON
+from tests.constants import ARGS, EPSILON
 
 
 def dummy_time_stamps(
@@ -40,6 +43,30 @@ def dummy_versions(n: int):
             version = dummy_version()
         versions.append(version)
     return versions
+
+
+def dummy_context():
+    context_name = str(uuid.uuid4())
+    return Context(name=context_name, help=f"{context_name} help")
+
+
+def dummy_full_command_builder(name, help_string):
+    args_num = len(ARGS)
+    return CommandBuilder(
+        name=name,
+        help=help_string,
+        allowed_contexts=[dummy_context(), dummy_context()],
+        denied_contexts=[dummy_context(), dummy_context()],
+        required_contexts=[dummy_context(), dummy_context()],
+        contexts_specifications={
+            dummy_context(): ContextSpecification(
+                args=random.sample(ARGS, random.randint(0, args_num))
+            ),
+            dummy_context(): ContextSpecification(
+                add_args=random.sample(ARGS, random.randint(0, args_num))
+            ),
+        },
+    )
 
 
 def build_commands_builders_map(*commands_builders: CommandBuilder):

@@ -74,6 +74,17 @@ def case_equal_with_allowed_contexts():
 
 
 @case(tags=[EQUAL_TAG])
+def case_equal_with_denied_contexts():
+    command_builder1 = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[CONTEXT1, CONTEXT2]
+    )
+    command_builder2 = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[CONTEXT1, CONTEXT2]
+    )
+    return command_builder1, command_builder2
+
+
+@case(tags=[EQUAL_TAG])
 def case_equal_with_contexts_specifications():
     command_builder1 = CommandBuilder(
         name=CONTEXT1,
@@ -135,6 +146,17 @@ def case_not_equal_different_allowed_contexts():
     )
     command_builder2 = CommandBuilder(
         name=COMMAND1, help=COMMAND_HELP_STRING2, allowed_contexts=[CONTEXT2]
+    )
+    return command_builder1, command_builder2
+
+
+@case(tags=[NOT_EQUAL_TAG])
+def case_not_equal_different_denied_contexts():
+    command_builder1 = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[CONTEXT1]
+    )
+    command_builder2 = CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING2, denied_contexts=[CONTEXT2]
     )
     return command_builder1, command_builder2
 

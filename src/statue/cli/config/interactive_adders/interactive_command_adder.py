@@ -49,6 +49,14 @@ class InteractiveCommandAdder:
             preoccupied_contexts=preoccupied_contexts,
         )
         preoccupied_contexts.update(allowed_contexts)
+        denied_contexts = get_contexts(
+            name=name,
+            contexts_repository=configuration.contexts_repository,
+            name_style_method=name_style,
+            contexts_type="denied",
+            preoccupied_contexts=preoccupied_contexts,
+        )
+        preoccupied_contexts.update(denied_contexts)
         contexts_specifications = cls.get_contexts_specifications(
             name=name,
             contexts_repository=configuration.contexts_repository,
@@ -62,6 +70,7 @@ class InteractiveCommandAdder:
                 version=version,
                 required_contexts=required_contexts,
                 allowed_contexts=allowed_contexts,
+                denied_contexts=denied_contexts,
                 contexts_specifications=contexts_specifications,
             )
         )
@@ -80,24 +89,35 @@ class InteractiveCommandAdder:
         command_builder.help = get_help_string(name)
         command_builder.default_args = cls.get_args(name, args_type="default")
         command_builder.version = cls.get_version(name)
-        command_builder.reset_all_available_contexts()
+        command_builder.reset_all_contexts()
+        preoccupied_contexts = set()
         command_builder.required_contexts = get_contexts(  # type: ignore
             name=name,
             contexts_repository=configuration.contexts_repository,
             name_style_method=name_style,
             contexts_type="required",
         )
+        preoccupied_contexts.update(command_builder.required_contexts)
         command_builder.allowed_contexts = get_contexts(  # type: ignore
             name=name,
             contexts_repository=configuration.contexts_repository,
             name_style_method=name_style,
             contexts_type="allowed",
-            preoccupied_contexts=command_builder.available_contexts,
+            preoccupied_contexts=preoccupied_contexts,
         )
+        preoccupied_contexts.update(command_builder.allowed_contexts)
+        command_builder.denied_contexts = get_contexts(  # type: ignore
+            name=name,
+            contexts_repository=configuration.contexts_repository,
+            name_style_method=name_style,
+            contexts_type="denied",
+            preoccupied_contexts=preoccupied_contexts,
+        )
+        preoccupied_contexts.update(command_builder.denied_contexts)
         command_builder.contexts_specifications = cls.get_contexts_specifications(
             name=name,
             contexts_repository=configuration.contexts_repository,
-            preoccupied_contexts=command_builder.available_contexts,
+            preoccupied_contexts=preoccupied_contexts,
         )
 
     @classmethod
