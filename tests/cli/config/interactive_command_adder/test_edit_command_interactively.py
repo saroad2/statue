@@ -249,6 +249,101 @@ def test_interactive_edit_command_re_ask_for_allowed_contexts_due_to_taken_conte
     )
 
 
+def test_interactive_edit_command_with_denied_contexts(cli_runner, empty_configuration):
+    context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
+        name=CONTEXT2, help=CONTEXT_HELP_STRING2
+    )
+    empty_configuration.contexts_repository.add_contexts(context1, context2)
+    empty_configuration.commands_repository.add_command_builders(
+        CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    )
+    assert len(empty_configuration.commands_repository) == 1
+
+    with cli_runner.isolation(
+        input=(
+            f"{COMMAND_HELP_STRING1}\n"  # help string
+            "\n"  # no default args
+            "\n"  # no version
+            "\n"  # no required contexts
+            "\n"  # no allowed contexts
+            f"{CONTEXT1}, {CONTEXT2}"  # denied contexts
+        )
+    ):
+        InteractiveCommandAdder.edit_command(COMMAND1, empty_configuration)
+
+    assert len(empty_configuration.commands_repository) == 1
+    assert empty_configuration.commands_repository[COMMAND1] == CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[context1, context2]
+    )
+
+
+def test_interactive_edit_command_re_ask_for_denied_contexts_due_to_unknown_context(
+    cli_runner, empty_configuration
+):
+    context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
+        name=CONTEXT2, help=CONTEXT_HELP_STRING2
+    )
+    empty_configuration.contexts_repository.add_contexts(context1, context2)
+    empty_configuration.commands_repository.add_command_builders(
+        CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    )
+    assert len(empty_configuration.commands_repository) == 1
+
+    with cli_runner.isolation(
+        input=(
+            f"{COMMAND_HELP_STRING1}\n"  # help string
+            "\n"  # no default args
+            "\n"  # no version
+            "\n"  # no required contexts
+            "\n"  # no allowed contexts
+            f"{CONTEXT3}, {CONTEXT2}\n"  # denied contexts, context3 is unknown
+            f"{CONTEXT1}, {CONTEXT2}\n"  # denied contexts
+        )
+    ):
+        InteractiveCommandAdder.edit_command(COMMAND1, empty_configuration)
+
+    assert len(empty_configuration.commands_repository) == 1
+    assert empty_configuration.commands_repository[COMMAND1] == CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[context1, context2]
+    )
+
+
+def test_interactive_edit_command_re_ask_for_denied_contexts_due_to_taken_context(
+    cli_runner, empty_configuration
+):
+    context1, context2, context3 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
+    empty_configuration.contexts_repository.add_contexts(context1, context2, context3)
+    empty_configuration.commands_repository.add_command_builders(
+        CommandBuilder(name=COMMAND1, help=COMMAND_HELP_STRING1)
+    )
+    assert len(empty_configuration.commands_repository) == 1
+
+    with cli_runner.isolation(
+        input=(
+            f"{COMMAND_HELP_STRING1}\n"  # help string
+            "\n"  # no default args
+            "\n"  # no version
+            f"{CONTEXT3}\n"  # required context
+            "\n"  # no allowed contexts
+            f"{CONTEXT3}, {CONTEXT2}\n"  # denied contexts, context3 is preoccupied
+            f"{CONTEXT1}, {CONTEXT2}\n"  # denied contexts
+        )
+    ):
+        InteractiveCommandAdder.edit_command(COMMAND1, empty_configuration)
+
+    assert len(empty_configuration.commands_repository) == 1
+    assert empty_configuration.commands_repository[COMMAND1] == CommandBuilder(
+        name=COMMAND1,
+        help=COMMAND_HELP_STRING1,
+        required_contexts=[context3],
+        denied_contexts=[context1, context2],
+    )
+
+
 def test_interactive_edit_command_with_args_override_context(
     cli_runner, empty_configuration
 ):
@@ -266,6 +361,7 @@ def test_interactive_edit_command_with_args_override_context(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             f"{ARG1} {ARG2}"  # override args
         )
@@ -297,6 +393,7 @@ def test_interactive_edit_command_with_added_args_context(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             "\n"  # no override args
             f"{ARG1} {ARG2}"  # added args
@@ -329,6 +426,7 @@ def test_interactive_edit_command_with_clear_args_context(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             "\n"  # no override args
             "\n"  # no override args
@@ -362,6 +460,7 @@ def test_interactive_edit_command_with_both_added_args_and_override_context_fail
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             f"{ARG1} {ARG2}\n"  # override args
             f"{ARG3} {ARG4}\n"  # also added args, which will cause error
@@ -401,7 +500,8 @@ def test_interactive_edit_command_re_ask_for_specified_context_due_to_unknown_co
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
-            f"{CONTEXT3}\n"  # nknown context
+            "\n"  # no denied contexts
+            f"{CONTEXT3}\n"  # Unknown context
             f"{CONTEXT1}\n"  # specify context1 instead
             f"{ARG1} {ARG2}"  # override args
         )
@@ -437,6 +537,7 @@ def test_interactive_edit_command_re_ask_for_specified_context_due_to_taken_cont
             "\n"  # no version
             f"{CONTEXT3}\n"  # required context
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT3}\n"  # fail because context3 is already taken
             f"{CONTEXT1}\n"  # specify context1 instead
             f"{ARG1} {ARG2}"  # override args

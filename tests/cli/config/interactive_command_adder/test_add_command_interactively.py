@@ -260,6 +260,95 @@ def test_interactive_add_command_re_ask_allowed_contexts_due_to_taken_context(
     )
 
 
+def test_interactive_add_command_with_denied_contexts(cli_runner, empty_configuration):
+    context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
+        name=CONTEXT2, help=CONTEXT_HELP_STRING2
+    )
+    empty_configuration.contexts_repository.add_contexts(context1, context2)
+    assert len(empty_configuration.commands_repository) == 0
+
+    with cli_runner.isolation(
+        input=(
+            f"{COMMAND1}\n"  # name
+            f"{COMMAND_HELP_STRING1}\n"  # help string
+            "\n"  # no default args
+            "\n"  # no version
+            "\n"  # no required contexts
+            "\n"  # no allowed contexts
+            f"{CONTEXT1}, {CONTEXT2}"  # denied contexts
+        )
+    ):
+        InteractiveCommandAdder.add_command(empty_configuration)
+
+    assert len(empty_configuration.commands_repository) == 1
+    assert empty_configuration.commands_repository[COMMAND1] == CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[context1, context2]
+    )
+
+
+def test_interactive_add_command_re_ask_denied_contexts_due_to_unknown_context(
+    cli_runner, empty_configuration
+):
+    context1, context2 = Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1), Context(
+        name=CONTEXT2, help=CONTEXT_HELP_STRING2
+    )
+    empty_configuration.contexts_repository.add_contexts(context1, context2)
+    assert len(empty_configuration.commands_repository) == 0
+
+    with cli_runner.isolation(
+        input=(
+            f"{COMMAND1}\n"  # name
+            f"{COMMAND_HELP_STRING1}\n"  # help string
+            "\n"  # no default args
+            "\n"  # no version
+            "\n"  # no required contexts
+            "\n"  # no allowed contexts
+            f"{CONTEXT3}, {CONTEXT2}\n"  # denied contexts, context3 is unknown
+            f"{CONTEXT1}, {CONTEXT2}\n"  # denied contexts
+        )
+    ):
+        InteractiveCommandAdder.add_command(empty_configuration)
+
+    assert len(empty_configuration.commands_repository) == 1
+    assert empty_configuration.commands_repository[COMMAND1] == CommandBuilder(
+        name=COMMAND1, help=COMMAND_HELP_STRING1, denied_contexts=[context1, context2]
+    )
+
+
+def test_interactive_add_command_re_ask_denied_contexts_due_to_taken_context(
+    cli_runner, empty_configuration
+):
+    context1, context2, context3 = (
+        Context(name=CONTEXT1, help=CONTEXT_HELP_STRING1),
+        Context(name=CONTEXT2, help=CONTEXT_HELP_STRING2),
+        Context(name=CONTEXT3, help=CONTEXT_HELP_STRING3),
+    )
+    empty_configuration.contexts_repository.add_contexts(context1, context2, context3)
+    assert len(empty_configuration.commands_repository) == 0
+
+    with cli_runner.isolation(
+        input=(
+            f"{COMMAND1}\n"  # name
+            f"{COMMAND_HELP_STRING1}\n"  # help string
+            "\n"  # no default args
+            "\n"  # no version
+            f"{CONTEXT3}\n"  # required context
+            "\n"  # no allowed contexts
+            f"{CONTEXT3}, {CONTEXT2}\n"  # denied contexts, context3 is preoccupied
+            f"{CONTEXT1}, {CONTEXT2}\n"  # denied contexts
+        )
+    ):
+        InteractiveCommandAdder.add_command(empty_configuration)
+
+    assert len(empty_configuration.commands_repository) == 1
+    assert empty_configuration.commands_repository[COMMAND1] == CommandBuilder(
+        name=COMMAND1,
+        help=COMMAND_HELP_STRING1,
+        required_contexts=[context3],
+        denied_contexts=[context1, context2],
+    )
+
+
 def test_interactive_add_command_with_args_override_context(
     cli_runner, empty_configuration
 ):
@@ -275,6 +364,7 @@ def test_interactive_add_command_with_args_override_context(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             f"{ARG1} {ARG2}"  # override args
         )
@@ -304,6 +394,7 @@ def test_interactive_add_command_with_added_args_context(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             "\n"  # no override args
             f"{ARG1} {ARG2}"  # added args
@@ -334,6 +425,7 @@ def test_interactive_add_command_with_clear_args_context(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             "\n"  # no override args
             "\n"  # no override args
@@ -365,6 +457,7 @@ def test_interactive_add_command_with_both_added_args_and_override_context_fail(
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT1}\n"  # Specified context
             f"{ARG1} {ARG2}\n"  # override args
             f"{ARG3} {ARG4}\n"  # also added args, which will cause error
@@ -402,7 +495,8 @@ def test_interactive_add_command_re_ask_specified_contexts_due_to_unknown_contex
             "\n"  # no version
             "\n"  # no required contexts
             "\n"  # no allowed contexts
-            f"{CONTEXT3}\n"  # nknown context
+            "\n"  # no denied contexts
+            f"{CONTEXT3}\n"  # Unknown context
             f"{CONTEXT1}\n"  # specify context1 instead
             f"{ARG1} {ARG2}"  # override args
         )
@@ -436,6 +530,7 @@ def test_interactive_add_command_re_ask_specified_contexts_due_to_taken_context(
             "\n"  # no version
             f"{CONTEXT3}\n"  # required context
             "\n"  # no allowed contexts
+            "\n"  # no denied contexts
             f"{CONTEXT3}\n"  # try to specify context3 fail
             f"{CONTEXT1}\n"  # specify context1 instead
             f"{ARG1} {ARG2}"  # override args
