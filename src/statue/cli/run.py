@@ -150,7 +150,7 @@ def run_cli(  # pylint: disable=too-many-arguments
     if not is_silent(verbosity):
         click.echo(boxed_string("Evaluation"))
         click.echo(evaluation_string(evaluation, verbosity=verbosity))
-    if cache:
+    if cache and configuration.cache.enabled:
         configuration.cache.save_evaluation(evaluation)
     if output is not None:
         evaluation.save_as_json(output)

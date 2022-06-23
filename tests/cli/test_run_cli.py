@@ -606,6 +606,42 @@ def test_run_cli_without_cache(
     mock_evaluation_string.assert_called_once_with(evaluation, verbosity=NORMAL)
 
 
+def test_run_cli_with_disabled_cache(
+    cli_runner,
+    mock_build_configuration_from_file,
+    mock_commands_map_builder,
+    mock_build_runner,
+    mock_evaluation_string,
+    mock_evaluation_summary_string,
+):
+    commands_builders = [
+        command_builder_mock(COMMAND1),
+        command_builder_mock(COMMAND2),
+        command_builder_mock(COMMAND3),
+    ]
+    configuration = mock_build_configuration_from_file.return_value
+    configuration.commands_repository = commands_builders
+    configuration.cache.enabled = False
+    commands_map = mock.MagicMock()
+    commands_map.__len__.return_value = 3
+    commands_map.command_names = [COMMAND1, COMMAND2, COMMAND3]
+    mock_commands_map_builder.return_value.build.return_value = commands_map
+    evaluation = successful_evaluation_mock()
+    mock_build_runner.return_value.evaluate.return_value = evaluation
+
+    result = cli_runner.invoke(statue_cli, ["run"])
+
+    assert result.exit_code == 0, f"Failed with exception: {result.exception}"
+    assert result.output == DEFAULT_EVALUATION_STRING
+    mock_commands_map_builder.assert_called_once_with(**run_flags(configuration))
+    mock_commands_map_builder.return_value.build.assert_called_once_with()
+    mock_build_runner.assert_called_once_with("SYNC")
+    mock_build_runner.return_value.evaluate.assert_called_once_with(commands_map)
+    configuration.cache.save_evaluation.assert_not_called()
+    evaluation.save_as_json.assert_not_called()
+    mock_evaluation_string.assert_called_once_with(evaluation, verbosity=NORMAL)
+
+
 def test_run_cli_with_output_path(
     tmp_path,
     cli_runner,
