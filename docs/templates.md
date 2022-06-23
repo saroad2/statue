@@ -30,6 +30,9 @@ only a single template, which is the default template. This will be changed in t
 {% if command_builder.allowed_contexts | length != 0 %} 
 *Allowed Contexts*: {{ contexts_links_list("templates", command_builder.allowed_contexts) }}
 {% endif %}
+{% if command_builder.denied_contexts | length != 0 %} 
+*Denied Contexts*: {{ contexts_links_list("templates", command_builder.denied_contexts) }}
+{% endif %}
 {% if command_builder.specified_contexts | length != 0 %}
 *Specified contexts*:
 {% for context, context_specification in command_builder.contexts_specifications.items()%}

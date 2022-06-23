@@ -12,11 +12,15 @@ The use of contexts presents few major advantages:
 
 * Using the same context name for multiple commands allows you to change the arguments of huge number
 of commands with a single magic word
-* Assigning a context to a source helps you to direct the commands how to
-run on that particular source.
+* [Attaching](../advanced/advanced_contexts.md#attaching-a-context-to-a-source) a context to a
+source helps you to direct the commands how to run on that particular source.
 * Turning commands on and off when introducing a context which they don't comply with.
-* Joining few contexts together allows you to express complex specifications for a given command or source
-* Parenting context makes it easy to demonstrate increasingly specific requirements for a given command or source
+* [Joining](../advanced/advanced_contexts.md#keeping-things-in-order) few contexts together allows
+you to express complex specifications for a given command or source
+* [Parenting](../advanced/advanced_contexts.md#keeping-things-in-the-family) context makes it easy
+to demonstrate increasingly specific requirements for a given command or source
+* [Aliasing](../advanced/advanced_contexts.md#living-under-an-alias) a context for more fluent
+usage of that context
 
 Using contexts wisely when running *Statue* can help you to reduce time spent on code reviews and broken CI processes.
 Just run *Statue* with the right contexts, and *Statue* will take it from there.
@@ -39,12 +43,14 @@ If you want to see how a context affect your commands, simply run:
 
     statue contexts show your_context_name
 
-After that, you'll see that the context can affect commands in three ways:
+After that, you'll see that the context can affect commands in four ways:
 
-* *Allowed by*: If a context is allowed by a commands, it means that the command will
-run the same way when this context is presented without changing its arguments
 * *Required by*: If a context is required by a command, it means that the command will
 not run at all unless the context is presented
+* *Allowed by*: If a context is allowed by a commands, it means that the command will
+run the same way when this context is presented without changing its arguments
+* *Denied by*: If a context is denied by a command, it means that the command will not
+run if the context is present. This includes commands which are allowed by default
 * *Specified for*: If a context is specified for a command, it means that presenting this
 context will change the arguments of the command.
 
@@ -61,36 +67,6 @@ As you'll see, a context can change a command in 3 ways:
 
 Different contexts can change a command in different ways. Be sure to use the right context
 in the right situation to elevate your code writing routines.
-
-## Keeping It Together
-
-As mentioned before, one can choose to use multiple contexts simultaneously.
-Just run the following command with all the contexts you want *Statue* to apply:
-
-    statue run -c context1 -c context2 ...
-
-Now, *Statue* will run with all the presented contexts. Contexts that are allowed or required
-by a command will not change the arguments of this command. However, contexts that are
-specified for a command will change the arguments **according to the order that they are
-presented in the command line**.
-
-Here's an example: assume that *context1* adds the arguments "a", "b" and "c" to the command
-*my_command* and *context2* clears the arguments entirely. By default *my_command* runs with
-the arguments "r", "t" and "s". When running:
-
-    statue run -c context1 -c context2
-
-*my_command* will run without any arguments, since it first added "a", "b" and "c", and then
-cleared all the arguments, including the ones added by *context1*. However, if you run:
-
-    statue run -c context2 -c context1
-
-*my_command* will run with the arguments "a", "b" and "c", since it first cleared all arguments
-(and removed "r", "t" and "s") and then added "a", "b" and "c".
-
-On the contrary, if both of your context simple add arguments, and the command is invariant
-to the order to arguments, than changing the order to contexts will not affect the end result
-of the command run.
 
 ## Special Treatment
 
@@ -126,3 +102,4 @@ are not required for unit tests. You can do it by editing the configuration file
 - Learn how to edit the [configuration](configuration.md) file via the command line
 - Learn about the [default template](../templates.md#Default Template) and which contexts and commands are
 available in it
+- Learn about more [advanced abilities](../advanced/advanced_contexts.md) of contexts
