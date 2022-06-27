@@ -98,6 +98,7 @@ Or:
 
 ## What's Next?
 - Learn how to use [contexts](contexts.md) in order to specify the way you want
-your commands to run
+your commands to run.
 - Learn how to add new commands and edit existing ones in your [configuration](configuration.md)
-using only the command line
+using only the command line.
+- Learn some [advanced usage](../advanced/advanced_run.md) of `statue run`.
