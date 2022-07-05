@@ -13,6 +13,7 @@ nav:
   - Advanced:
       - Taking Contexts to The Next Level: advanced/advanced_contexts.md
       - Run On Steroids: advanced/advanced_run.md
+      - User Templates: advanced/user_templates.md
   - CLI References: cli_references.md
   - Templates: templates.md
 markdown_extensions:
