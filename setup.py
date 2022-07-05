@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-version = "0.0.19.dev0"
+version = "0.0.19.dev1"
 setup(version=version)

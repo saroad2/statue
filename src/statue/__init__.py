@@ -1,4 +1,4 @@
 # noqa: D104
 # pylint: disable=missing-module-docstring
 
-__version__ = "0.0.19.dev0"
+__version__ = "0.0.19.dev1"
