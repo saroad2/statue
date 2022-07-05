@@ -24,5 +24,3 @@ plugins:
   - macros:
       module_name: docs/mkdocs_macros
   - search
-extra:
-    version: 0.0.19.dev4
