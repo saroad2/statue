@@ -102,4 +102,4 @@ configuration. Just follow the instruction and the new context will be added!
 ## What's next?
 - Learn about the [default template](../templates.md#Default Template) and which contexts and commands are
 available in it
-- Learn how to turn your project's configuration into a template
+- Learn how to turn your project's configuration into a [template](../advanced/user_templates.md)
