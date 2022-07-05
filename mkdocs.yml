@@ -25,4 +25,4 @@ plugins:
       module_name: docs/mkdocs_macros
   - search
 extra:
-    version: 0.0.18
+    version: 0.0.19.dev0
