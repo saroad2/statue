@@ -52,6 +52,7 @@ jobs:
     name: Publish Documentation
     runs-on: ubuntu-latest
     needs: deploy
+    if: ${{ !contains( github.ref, 'dev') }}
     steps:
       - uses: actions/checkout@v2
       - name: Install Statue
