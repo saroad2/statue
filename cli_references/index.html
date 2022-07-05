@@ -1,0 +1,1557 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Statue - Orchestration tool for static code analysis">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>CLI References - Statue</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#statue" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Statue" class="md-header__button md-logo" aria-label="Statue" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Statue
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI References
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/saroad2/statue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Statue" class="md-nav__button md-logo" aria-label="Statue" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Statue
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/saroad2/statue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/quick_start/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/run_efficiently/" class="md-nav__link">
+        Run Efficiently
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/contexts/" class="md-nav__link">
+        It's All A Matter of Context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/configuration/" class="md-nav__link">
+        Configurate It
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Advanced
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Advanced" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/advanced_contexts/" class="md-nav__link">
+        Taking Contexts to The Next Level
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/advanced_run/" class="md-nav__link">
+        Run On Steroids
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/user_templates/" class="md-nav__link">
+        User Templates
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          CLI References
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        CLI References
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#statue-commands" class="md-nav__link">
+    commands
+  </a>
+  
+    <nav class="md-nav" aria-label="commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-commands-install" class="md-nav__link">
+    install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-commands-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-commands-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-config" class="md-nav__link">
+    config
+  </a>
+  
+    <nav class="md-nav" aria-label="config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-add-command" class="md-nav__link">
+    add-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-add-context" class="md-nav__link">
+    add-context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-add-source" class="md-nav__link">
+    add-source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-disable-cache" class="md-nav__link">
+    disable-cache
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-edit-command" class="md-nav__link">
+    edit-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-edit-context" class="md-nav__link">
+    edit-context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-edit-source" class="md-nav__link">
+    edit-source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-enable-cache" class="md-nav__link">
+    enable-cache
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-fix-versions" class="md-nav__link">
+    fix-versions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-init" class="md-nav__link">
+    init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-remove-command" class="md-nav__link">
+    remove-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-remove-context" class="md-nav__link">
+    remove-context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-remove-source" class="md-nav__link">
+    remove-source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-set-history-size" class="md-nav__link">
+    set-history-size
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-set-mode" class="md-nav__link">
+    set-mode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-contexts" class="md-nav__link">
+    contexts
+  </a>
+  
+    <nav class="md-nav" aria-label="contexts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-contexts-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-contexts-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-history" class="md-nav__link">
+    history
+  </a>
+  
+    <nav class="md-nav" aria-label="history">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-history-clear" class="md-nav__link">
+    clear
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-history-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-history-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-show-tree" class="md-nav__link">
+    show-tree
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-templates" class="md-nav__link">
+    templates
+  </a>
+  
+    <nav class="md-nav" aria-label="templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-clear" class="md-nav__link">
+    clear
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-remove" class="md-nav__link">
+    remove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-save" class="md-nav__link">
+    save
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
+        Templates
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#statue-commands" class="md-nav__link">
+    commands
+  </a>
+  
+    <nav class="md-nav" aria-label="commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-commands-install" class="md-nav__link">
+    install
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-commands-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-commands-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-config" class="md-nav__link">
+    config
+  </a>
+  
+    <nav class="md-nav" aria-label="config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-add-command" class="md-nav__link">
+    add-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-add-context" class="md-nav__link">
+    add-context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-add-source" class="md-nav__link">
+    add-source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-disable-cache" class="md-nav__link">
+    disable-cache
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-edit-command" class="md-nav__link">
+    edit-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-edit-context" class="md-nav__link">
+    edit-context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-edit-source" class="md-nav__link">
+    edit-source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-enable-cache" class="md-nav__link">
+    enable-cache
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-fix-versions" class="md-nav__link">
+    fix-versions
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-init" class="md-nav__link">
+    init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-remove-command" class="md-nav__link">
+    remove-command
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-remove-context" class="md-nav__link">
+    remove-context
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-remove-source" class="md-nav__link">
+    remove-source
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-set-history-size" class="md-nav__link">
+    set-history-size
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-set-mode" class="md-nav__link">
+    set-mode
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-config-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-contexts" class="md-nav__link">
+    contexts
+  </a>
+  
+    <nav class="md-nav" aria-label="contexts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-contexts-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-contexts-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-history" class="md-nav__link">
+    history
+  </a>
+  
+    <nav class="md-nav" aria-label="history">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-history-clear" class="md-nav__link">
+    clear
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-history-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-history-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-show-tree" class="md-nav__link">
+    show-tree
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#statue-templates" class="md-nav__link">
+    templates
+  </a>
+  
+    <nav class="md-nav" aria-label="templates">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-clear" class="md-nav__link">
+    clear
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-list" class="md-nav__link">
+    list
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-remove" class="md-nav__link">
+    remove
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-save" class="md-nav__link">
+    save
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statue-templates-show" class="md-nav__link">
+    show
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/saroad2/statue/edit/master/docs/cli_references.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="statue">statue</h1>
+<p>Statue is a static code analysis tools orchestrator.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --version              Show the version and exit.
+  --config FILE          Statue configuration file.
+  --cache-dir DIRECTORY  Statue caching directory path
+  --help                 Show this message and exit.
+</code></pre>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#statue-commands">commands</a></em>: Commands related actions such as list, install, show, etc.</li>
+<li><em><a href="#statue-config">config</a></em>: Configuration related actions.</li>
+<li><em><a href="#statue-contexts">contexts</a></em>: Contexts related actions such as list, show, etc.</li>
+<li><em><a href="#statue-history">history</a></em>: History related actions such as list, show, etc.</li>
+<li><em><a href="#statue-run">run</a></em>: Run static code analysis commands on sources.</li>
+<li><em><a href="#statue-show-tree">show-tree</a></em>: Show sources configuration as a tree.</li>
+<li><em><a href="#statue-templates">templates</a></em>: Template related actions such as list, show, etc.</li>
+</ul>
+<h2 id="statue-commands">statue commands</h2>
+<p>Commands related actions such as list, install, show, etc.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue commands [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#statue-commands-install">install</a></em>: Install missing commands.</li>
+<li><em><a href="#statue-commands-list">list</a></em>: List matching commands to contexts, allow list and deny list.</li>
+<li><em><a href="#statue-commands-show">show</a></em>: Show information about specific command.</li>
+</ul>
+<h3 id="statue-commands-install">statue commands install</h3>
+<p>Install missing commands.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue commands install [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --silent                        Set verbosity to &quot;silent&quot;.
+  --verbose                       Set verbosity to &quot;verbose&quot;.
+  --verbosity [normal|silent|verbose]
+                                  [default: normal]
+  --help                          Show this message and exit.
+</code></pre>
+<h3 id="statue-commands-list">statue commands list</h3>
+<p>List matching commands to contexts, allow list and deny list.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue commands list [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h3 id="statue-commands-show">statue commands show</h3>
+<p>Show information about specific command.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue commands show [OPTIONS] COMMAND_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h2 id="statue-config">statue config</h2>
+<p>Configuration related actions.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#statue-config-add-command">add-command</a></em>: Add new command to configuration.</li>
+<li><em><a href="#statue-config-add-context">add-context</a></em>: Add new context to configuration.</li>
+<li><em><a href="#statue-config-add-source">add-source</a></em>: Add new source to configuration.</li>
+<li><em><a href="#statue-config-disable-cache">disable-cache</a></em>: Disabled caching in configuration.</li>
+<li><em><a href="#statue-config-edit-command">edit-command</a></em>: Edit context from configuration.</li>
+<li><em><a href="#statue-config-edit-context">edit-context</a></em>: Edit context from configuration.</li>
+<li><em><a href="#statue-config-edit-source">edit-source</a></em>: Edit a source from configuration.</li>
+<li><em><a href="#statue-config-enable-cache">enable-cache</a></em>: Enabled caching in configuration.</li>
+<li><em><a href="#statue-config-fix-versions">fix-versions</a></em>: Fixate the installed version of the commands.</li>
+<li><em><a href="#statue-config-init">init</a></em>: Initialize configuration for Statue.</li>
+<li><em><a href="#statue-config-remove-command">remove-command</a></em>: Remove command from configuration.</li>
+<li><em><a href="#statue-config-remove-context">remove-context</a></em>: Remove context from configuration.</li>
+<li><em><a href="#statue-config-remove-source">remove-source</a></em>: Remove context from configuration.</li>
+<li><em><a href="#statue-config-set-history-size">set-history-size</a></em>: Choose which runner mode will be used by default.</li>
+<li><em><a href="#statue-config-set-mode">set-mode</a></em>: Choose which runner mode will be used by default.</li>
+<li><em><a href="#statue-config-show">show</a></em>: Show configuration file context.</li>
+</ul>
+<h3 id="statue-config-add-command">statue config add-command</h3>
+<p>Add new command to configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config add-command [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-add-context">statue config add-context</h3>
+<p>Add new context to configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config add-context [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-add-source">statue config add-source</h3>
+<p>Add new source to configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config add-source [OPTIONS] [SOURCES]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-disable-cache">statue config disable-cache</h3>
+<p>Disabled caching in configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config disable-cache [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-edit-command">statue config edit-command</h3>
+<p>Edit context from configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config edit-command [OPTIONS] COMMAND_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-edit-context">statue config edit-context</h3>
+<p>Edit context from configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config edit-context [OPTIONS] CONTEXT_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-edit-source">statue config edit-source</h3>
+<p>Edit a source from configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config edit-source [OPTIONS] SOURCE
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-enable-cache">statue config enable-cache</h3>
+<p>Enabled caching in configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config enable-cache [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-fix-versions">statue config fix-versions</h3>
+<p>Fixate the installed version of the commands.</p>
+<p>This helps you make sure that you use the same checkers in all commands
+across time.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config fix-versions [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  -l, --latest   Update commands to latest before fixing the version. If a
+                 command is not installed, will install it.
+  --verbose      Set verbosity to &quot;verbose&quot;.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-init">statue config init</h3>
+<p>Initialize configuration for Statue.</p>
+<p>By default, this command searches for sources files in the given directory (cwd by
+ default) and sets them with default contexts.</p>
+<p>You can run this command with the "-i" flag in order to choose interactively which
+ source files to track and which contexts to assign to them.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config init [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE                  Statue configuration file.
+  -t, --template TEXT            Configuration template name
+  --with-sources / --no-sources  Track available sources and add to
+                                 configuration
+  -e, --exclude PATH             Sources paths that Statue will ignore
+                                 tracking
+  -y
+  --git / --no-git               Should use git to trace ignored files
+  --fix-versions                 Fix versions in config when running
+  -i, --install                  Install latest version for all commands in
+                                 configuration
+  --blank                        Initialize blank configuration
+  --help                         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-remove-command">statue config remove-command</h3>
+<p>Remove command from configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config remove-command [OPTIONS] COMMAND_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-remove-context">statue config remove-context</h3>
+<p>Remove context from configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config remove-context [OPTIONS] CONTEXT_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-remove-source">statue config remove-source</h3>
+<p>Remove context from configuration.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config remove-source [OPTIONS] SOURCE
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-set-history-size">statue config set-history-size</h3>
+<p>Choose which runner mode will be used by default.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config set-history-size [OPTIONS] SIZE
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-set-mode">statue config set-mode</h3>
+<p>Choose which runner mode will be used by default.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config set-mode [OPTIONS] {sync|async}
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h3 id="statue-config-show">statue config show</h3>
+<p>Show configuration file context.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue config show [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE  Statue configuration file.
+  --help         Show this message and exit.
+</code></pre>
+<h2 id="statue-contexts">statue contexts</h2>
+<p>Contexts related actions such as list, show, etc.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue contexts [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#statue-contexts-list">list</a></em>: Print all available contexts.</li>
+<li><em><a href="#statue-contexts-show">show</a></em>: Print all available contexts.</li>
+</ul>
+<h3 id="statue-contexts-list">statue contexts list</h3>
+<p>Print all available contexts.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue contexts list [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h3 id="statue-contexts-show">statue contexts show</h3>
+<p>Print all available contexts.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue contexts show [OPTIONS] CONTEXT_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h2 id="statue-history">statue history</h2>
+<p>History related actions such as list, show, etc.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue history [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#statue-history-clear">clear</a></em>: Clear records of previous statue runs.</li>
+<li><em><a href="#statue-history-list">list</a></em>: List all recent evaluations.</li>
+<li><em><a href="#statue-history-show">show</a></em>: Show past evaluation.</li>
+</ul>
+<h3 id="statue-history-clear">statue history clear</h3>
+<p>Clear records of previous statue runs.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue history clear [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  -f, --force          Force deletion and avoid prompt.
+  -l, --limit INTEGER  Limit the number of deleted records. Deletes earliest
+                       evaluations.
+  --help               Show this message and exit.
+</code></pre>
+<h3 id="statue-history-list">statue history list</h3>
+<p>List all recent evaluations.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue history list [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --head INTEGER  Show only the nth recent evaluations
+  --help          Show this message and exit.
+</code></pre>
+<h3 id="statue-history-show">statue history show</h3>
+<p>Show past evaluation.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue history show [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  -n INTEGER  Show nth recent evaluation. 1 by default
+  --verbose   Set verbosity to &quot;verbose&quot;.
+  --help      Show this message and exit.
+</code></pre>
+<h2 id="statue-run">statue run</h2>
+<p>Run static code analysis commands on sources.</p>
+<p>Source files to run Statue on can be presented as positional arguments.
+When no source files are presented, will use configuration file to determine on
+which files to run</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue run [OPTIONS] [SOURCES]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  -c, --context TEXT              Context in which to evaluate the commands.
+  -a, --allow TEXT                Allowed command.
+  -d, --deny TEXT                 Denied command.
+  -i, --install                   Install commands before running if missing
+  -p, --previous INTEGER          Run commands of the nth recent evaluation.
+                                  combine this flag with &quot;-f&quot; in order to run
+                                  only failed commands from that evaluation
+  -r, --recent                    Run commands of the most recent evaluation.
+                                  Same as &quot;--previous 1&quot;.
+  -f, --failed                    Run commands from the most recent failed run
+  -fo, --failed-only              Same as &quot;--failed&quot;, but will only run the
+                                  commands and not those who ended
+                                  successfully
+  --cache / --no-cache            Save evaluation to cache or not
+  --silent                        Set verbosity to &quot;silent&quot;.
+  --verbose                       Set verbosity to &quot;verbose&quot;.
+  --verbosity [normal|silent|verbose]
+                                  [default: normal]
+  --mode [sync|async]             Should run asynchronously or not.
+  -o, --output FILE               Output path to save evaluation result
+  --help                          Show this message and exit.
+</code></pre>
+<h2 id="statue-show-tree">statue show-tree</h2>
+<p>Show sources configuration as a tree.</p>
+<p>This method prints the sources' configuration as a tree, including:
+contexts, allow and deny lists and matching commands.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue show-tree [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  -c, --context TEXT  Context in which to evaluate the commands.
+  -a, --allow TEXT    Allowed command.
+  -d, --deny TEXT     Denied command.
+  --help              Show this message and exit.
+</code></pre>
+<h2 id="statue-templates">statue templates</h2>
+<p>Template related actions such as list, show, etc.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue templates [OPTIONS] COMMAND [ARGS]...
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<p><strong>Subcommands</strong></p>
+<ul>
+<li><em><a href="#statue-templates-clear">clear</a></em>: Remove template by name.</li>
+<li><em><a href="#statue-templates-list">list</a></em>: List all available templates.</li>
+<li><em><a href="#statue-templates-remove">remove</a></em>: Remove template by name.</li>
+<li><em><a href="#statue-templates-save">save</a></em>: Save current configuration as template.</li>
+<li><em><a href="#statue-templates-show">show</a></em>: Show template by name.</li>
+</ul>
+<h3 id="statue-templates-clear">statue templates clear</h3>
+<p>Remove template by name.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue templates clear [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h3 id="statue-templates-list">statue templates list</h3>
+<p>List all available templates.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue templates list [OPTIONS]
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h3 id="statue-templates-remove">statue templates remove</h3>
+<p>Remove template by name.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue templates remove [OPTIONS] TEMPLATE_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+<h3 id="statue-templates-save">statue templates save</h3>
+<p>Save current configuration as template.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue templates save [OPTIONS] TEMPLATE_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --config FILE              Statue configuration file.
+  --override / -no-override  Override template with given name if already
+                             exists.
+  --help                     Show this message and exit.
+</code></pre>
+<h3 id="statue-templates-show">statue templates show</h3>
+<p>Show template by name.</p>
+<p><strong>Usage:</strong></p>
+<pre><code>statue templates show [OPTIONS] TEMPLATE_NAME
+</code></pre>
+<p><strong>Options:</strong></p>
+<pre><code>  --help  Show this message and exit.
+</code></pre>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../advanced/user_templates/" class="md-footer__link md-footer__link--prev" aria-label="Previous: User Templates" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              User Templates
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../templates/" class="md-footer__link md-footer__link--next" aria-label="Next: Templates" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Templates
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>

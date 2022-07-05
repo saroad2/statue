@@ -1,0 +1,756 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Statue - Orchestration tool for static code analysis">
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.0, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Taking Contexts to The Next Level - Statue</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#taking-contexts-to-the-next-level" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Statue" class="md-header__button md-logo" aria-label="Statue" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Statue
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Taking Contexts to The Next Level
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/saroad2/statue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Statue" class="md-nav__button md-logo" aria-label="Statue" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Statue
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/saroad2/statue" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2">
+          Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/quick_start/" class="md-nav__link">
+        Quick Start
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/run_efficiently/" class="md-nav__link">
+        Run Efficiently
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/contexts/" class="md-nav__link">
+        It's All A Matter of Context
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/configuration/" class="md-nav__link">
+        Configurate It
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Advanced
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Advanced" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Advanced
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Taking Contexts to The Next Level
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Taking Contexts to The Next Level
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#attaching-a-context-to-a-source" class="md-nav__link">
+    Attaching A Context to A Source
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-friendly-context" class="md-nav__link">
+    A Friendly Context
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-things-in-the-family" class="md-nav__link">
+    Keeping Things In The Family
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#living-under-an-alias" class="md-nav__link">
+    Living Under An Alias
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-things-in-order" class="md-nav__link">
+    Keeping Things In Order
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced_run/" class="md-nav__link">
+        Run On Steroids
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user_templates/" class="md-nav__link">
+        User Templates
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli_references/" class="md-nav__link">
+        CLI References
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../templates/" class="md-nav__link">
+        Templates
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#attaching-a-context-to-a-source" class="md-nav__link">
+    Attaching A Context to A Source
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-friendly-context" class="md-nav__link">
+    A Friendly Context
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-things-in-the-family" class="md-nav__link">
+    Keeping Things In The Family
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#living-under-an-alias" class="md-nav__link">
+    Living Under An Alias
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#keeping-things-in-order" class="md-nav__link">
+    Keeping Things In Order
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/saroad2/statue/edit/master/docs/advanced/advanced_contexts.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+<h1 id="taking-contexts-to-the-next-level">Taking Contexts to The Next Level</h1>
+<p>We've already discussed <a href="../../tutorials/contexts/">contexts</a> and how to use them. Now
+it's time to take things for the next level. Here are some advanced abilities you can use
+to unleash the full power of contexts.</p>
+<h2 id="attaching-a-context-to-a-source">Attaching A Context to A Source</h2>
+<p>You added a new context and used an existing context and ran <em>Statue</em> with that context:</p>
+<pre><code>statue run -c your_context
+</code></pre>
+<p>But two things bother you:</p>
+<ol>
+<li>You don't want to use that context on all of your codebase</li>
+<li>You want to attach this context to a specific source on <strong>every run</strong></li>
+</ol>
+<p>Fortunately, <em>Statue</em> can attach a context to a specific source and use that context every time
+a command is running on that context. You attach a context to a source in three ways:</p>
+<ol>
+<li>When you initialize <em>Statue</em> and run <code>statue config init</code>, when your source is presented, choose
+tracking it and choose your context to attach</li>
+<li>If you already initialized <em>Statue</em> and the source is not tracked, you can track the source by running
+<code>statue config add-source your_source</code> and when asked to specify contexts, specify the desired context</li>
+<li>If you already initialized <em>Statue</em> and the source is tracked, do the same as 2. but run
+<code>statue config edit-source your_source</code>.</li>
+</ol>
+<h2 id="a-friendly-context">A Friendly Context</h2>
+<p>By default, when presenting a context, a command will not run unless it comply one of the following:</p>
+<ul>
+<li>The context is allowed for this command</li>
+<li>The context is required for that command</li>
+<li>The context is specified for that command</li>
+</ul>
+<p>Each of the three possibilities requires the <strong>command</strong> to declare what to do with the <strong>context</strong>.
+However, sometimes you want the context to be allowed by default for all commands, meaning that
+by default, if the context is present the command will run the same as it would without it.</p>
+<p>In order to do exactly that you can define a context as <em>allowed by default</em> in the configuration.
+Just edit the context using <code>statue config edit-context your_context</code> and set <em>allowed by default</em>
+to true. If the context is non-existing, when adding it using <code>statue config add-context</code> specify
+it as allowed by default.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If a context is explicitly denied for a command using the <em>denied contexts</em> field, the command
+will not run when the context is presented, even if it is allowed by default</p>
+</div>
+<h2 id="keeping-things-in-the-family">Keeping Things In The Family</h2>
+<p>A powerful tool that contexts present is <em>parenting</em>, meaning that one context can be a parent of
+another context.</p>
+<p>How is that helpful? let's assume we have a context <em>child</em> which has a parent context <em>parent</em>.
+Now, if we run <code>statue run -c child</code>, the followings can happen when choosing how to run a command:</p>
+<ul>
+<li>If <em>child</em> is defined for the command (allowed, required, denied or specified) than
+that behaviour will take place.</li>
+<li>Otherwise, if <em>parent</em> is defined for the command than that behaviour will take place</li>
+<li>If both are not defined than the command will run if and only if <em>child</em> is allowed by default</li>
+</ul>
+<p>The usage of children contexts is very helpful for deeper specifications for commands. If we
+introduce a child context of another context it allows us to defined even more specific behavior
+for certain commands.</p>
+<p>Pay attention that one can create a chain of parents (grandparent, great-grandparent,
+great-great-grandparent, etc.) such that the behavior of the command will be taken from
+the closest ancestor to the given context which is explicitly defined for the command.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While each context can have multiple children, contexts can have at most one parent</p>
+</div>
+<p>You can define parents when editing a context (<code>statue config edit-context</code>) or adding one
+(<code>statue config add-context</code>).</p>
+<h2 id="living-under-an-alias">Living Under An Alias</h2>
+<p>Naming things can be tricky. On the one hand, you want a meaningful name, even if it's a long
+one. On the other hand, you don't want to write long names every time. The same goes for contexts.</p>
+<p>Using an <em>alias</em> allows you to name your context with a meaningful name, but allowing users to
+call that context with a shorter name.</p>
+<p>For example, in our <a href="../../templates/#default-template">default template</a> we have the
+<strong>documentation</strong> context. This is a long name! However, this context has an alias: <em>docs</em>.
+That means that instead of running:</p>
+<pre><code>statue run -c documentation
+</code></pre>
+<p>You can run:</p>
+<pre><code>statue run -c docs
+</code></pre>
+<p>You can use a context's alias instead of its name <strong>everywhere</strong>, including when specifying
+a context in the configuration. <em>Statue</em> will make sure to translate the alias to the real name of
+the context.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A context can have more than one alias. The aliases can be used intechangably.</p>
+</div>
+<h2 id="keeping-things-in-order">Keeping Things In Order</h2>
+<p>Contexts are a strong tool as they are, combining multiple contexts is even more powerful!
+If you run:</p>
+<pre><code>statue run -c context1 -c context2 ...
+</code></pre>
+<p><em>Statue</em> will run will process all the commands with the presented contexts.
+Contexts that are allowed or required by a command will not change the arguments of this command.
+However, contexts that are specified for a command will change the arguments
+<strong>according to the order that they are presented in the command line</strong>.</p>
+<p>Here's an example: assume that <em>context1</em> adds the arguments "a", "b" and "c" to the command
+<em>my_command</em> and <em>context2</em> clears the arguments entirely for that command.
+By default, <em>my_command</em> runs with the arguments "r", "t" and "s". When running:</p>
+<pre><code>statue run -c context1 -c context2
+</code></pre>
+<p><em>my_command</em> will run without any arguments, since it first added "a", "b" and "c", and then
+cleared all the arguments, including the ones added by <em>context1</em>:</p>
+<pre><code>my_command arguments = [r t s] =&gt; (context1) =&gt; [r t s a b c] =&gt; (context2) =&gt; []
+</code></pre>
+<p>However, if you run:</p>
+<pre><code>statue run -c context2 -c context1
+</code></pre>
+<p><em>my_command</em> will run with the arguments "a", "b" and "c", since it first cleared all arguments
+(and removed "r", "t" and "s") and then added "a", "b" and "c":</p>
+<pre><code>my_command arguments = [r t s] =&gt; (context2) =&gt; [] =&gt; (context1) =&gt; [a b c]
+</code></pre>
+<p>On the contrary, if both of your context simply add arguments, and the command is invariant
+to the order to arguments, than changing the order to contexts will not affect the end result
+of the command run.</p>
+<p>Pay attention that the same is true when specifying contexts in the sources configuration!
+The order of contexts defined for the source is the order that the contexts will be processed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>contexts which are attached to a given source will be processed after gloval contexts.
+That means that when running <code>statue run -c context1</code> of a source with attached context
+<em>context2</em>, <em>context1</em> will be processed before <em>context2</em>.</p>
+</div>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../../tutorials/configuration/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configurate It" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Configurate It
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../advanced_run/" class="md-footer__link md-footer__link--next" aria-label="Next: Run On Steroids" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Run On Steroids
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
