@@ -43,6 +43,11 @@ color = "008672"
 name = "help wanted"
 description = "Extra attention is needed"
 
+[integration]
+color = "D4CCF1"
+name = "integration"
+description = "Work item regarding Statue integration with other tools"
+
 [invalid]
 color = "e4e669"
 name = "invalid"
