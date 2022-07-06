@@ -3,6 +3,8 @@ site_description: 'Statue - Orchestration tool for static code analysis'
 repo_url: https://github.com/saroad2/statue
 theme:
   name: material
+  logo: img/logo_white.png
+  custom_dir: docs/overrides
 nav:
   - Home: README.md
   - Tutorials:

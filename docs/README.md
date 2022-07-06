@@ -1,4 +1,6 @@
 # Welcome to *Statue*
+![Logo](img/logo.png){ width=300x }
+
 ![Python Versions](https://img.shields.io/pypi/pyversions/statue)
 ![PyPI Version](https://img.shields.io/pypi/v/statue)
 ![Maturity](https://img.shields.io/pypi/status/statue)
