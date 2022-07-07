@@ -57,17 +57,20 @@ While *Statue* does introduce an additional configuration file (*statue.toml*), 
 
 ## How does *Statue* differ from *pre-commit*?
 
-*pre-commit* has been for a long time the go-to tool for running linters and formatters on your codebase,
-and it is provided with predefined hooks for most state-of-the-art tools.
+[pre-commit](https://github.com/pre-commit/pre-commit) has been for a long time the go-to tool for running linters and
+formatters on your codebase, and it is provided with predefined hooks for most state-of-the-art tools.
 While we surely recommend on using *pre-commit*, here are few reasons why you might want to consider also
 using *Statue*:
 
 * If you don't need each and every commit to pass your linters
-* If you want to use a linters and formatters that doesn't have *.pre-commit-hooks.yaml* file
-* If you use a lot of linters and formatters which cause your `git commit` to hang for long periods of time
-* If you want to run your linters and formatters with different arguments on different files and directories
+* If you want to use a command that doesn't have *.pre-commit-hooks.yaml* file
+* If you use a lot of commands which cause your `git commit` to hang for long periods of time
+* If you want to run your commands with different arguments on different files and directories
 * If you need clear and concise reports of your linters evaluations
 
+!!! note
+
+    Psst! If you really want you can [run statue via pre-commit](integrations.md#pre-commit).
 
 ## What's next?
 
