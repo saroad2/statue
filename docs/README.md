@@ -1,5 +1,5 @@
 # Welcome to *Statue*
-![Logo](img/logo.png){ width=300x }
+![Logo](img/logo.jpg){ width=300x }
 
 ![Python Versions](https://img.shields.io/pypi/pyversions/statue)
 ![PyPI Version](https://img.shields.io/pypi/v/statue)
@@ -15,6 +15,8 @@ Your pathway to a clean codebase.
 power of several linters and formatters into one consistent tool that prevents
 unwanted conflicts. With *Statue* you can integrate tools such as *Mypy*, *Pylint*,
 *Black*, *Isort* and many others.
+
+**You can read *Statue*'s full documentation [here](https://saroad2.github.io/statue/)**.
 
 ## What Do You Mean by "Orchestration"?
 
