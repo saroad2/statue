@@ -1,0 +1,8 @@
+- id: statue
+  name: statue
+  description: "Statue: All your static code analysis tools, in one place"
+  entry: statue run -i
+  language: python
+  minimum_pre_commit_version: 2.19.0
+  require_serial: true
+  types_or: [python, pyi]
