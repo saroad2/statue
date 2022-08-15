@@ -24,6 +24,7 @@ def test_config_add_source_with_default_path(
     mock_build_configuration_from_file.assert_called_once_with(
         mock_configuration_path.return_value
     )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
     assert result.exit_code == 0
 
 
@@ -45,6 +46,7 @@ def test_config_add_source_with_path(
 
     mock_build_configuration_from_file.assert_called_once_with(config_path)
     mock_configuration_path.assert_not_called()
+    configuration.to_toml.assert_called_once_with(config_path)
     assert result.exit_code == 0
 
 
@@ -65,6 +67,7 @@ def test_config_edit_source_with_default_configuration_path(
     mock_build_configuration_from_file.assert_called_once_with(
         mock_configuration_path.return_value
     )
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
     assert result.exit_code == 0
 
 
@@ -88,6 +91,7 @@ def test_config_edit_source_with_configuration_path(
 
     mock_build_configuration_from_file.assert_called_once_with(config_path)
     mock_configuration_path.assert_not_called()
+    configuration.to_toml.assert_called_once_with(config_path)
     assert result.exit_code == 0
 
 
@@ -96,6 +100,7 @@ def test_config_edit_non_existing_source(
 ):
     source = tmp_path / SOURCE1
     source.touch()
+    configuration = mock_build_configuration_from_file.return_value
     with mock.patch.object(InteractiveSourcesAdder, "get_filter") as mock_get_filter:
         result = cli_runner.invoke(
             statue_cli,
@@ -106,6 +111,7 @@ def test_config_edit_non_existing_source(
     mock_build_configuration_from_file.assert_called_once_with(
         mock_configuration_path.return_value
     )
+    configuration.to_toml.assert_not_called()
     assert result.exit_code == 1
     assert result.output == f"{source} is not specified in configuration\n"
 
@@ -125,6 +131,7 @@ def test_config_remove_source_with_default_configuration_path(
         mock_configuration_path.return_value
     )
     assert source not in configuration.sources_repository.sources_list
+    configuration.to_toml.assert_called_once_with(mock_configuration_path.return_value)
     assert result.exit_code == 0
 
 
@@ -144,6 +151,7 @@ def test_config_remove_source_with_configuration_path(
     mock_build_configuration_from_file.assert_called_once_with(config_path)
 
     assert source not in configuration.sources_repository.sources_list
+    configuration.to_toml.assert_called_once_with(config_path)
     assert result.exit_code == 0
 
 
@@ -152,6 +160,7 @@ def test_config_remove_non_existing_source_with_default_configuration_path(
 ):
     source = tmp_path / SOURCE1
     source.touch()
+    configuration = mock_build_configuration_from_file.return_value
     result = cli_runner.invoke(
         statue_cli, ["config", "remove-source", str(source)], input="y\n"
     )
@@ -159,6 +168,7 @@ def test_config_remove_non_existing_source_with_default_configuration_path(
     mock_build_configuration_from_file.assert_called_once_with(
         mock_configuration_path.return_value
     )
+    configuration.to_toml.assert_not_called()
     assert result.exit_code == 1
     assert result.output == f"Could not find {source} in configuration.\n"
 
@@ -184,6 +194,7 @@ def test_config_remove_source_abort(
     mock_build_configuration_from_file.assert_called_once_with(
         mock_configuration_path.return_value
     )
+    configuration.to_toml.assert_not_called()
     assert result.exit_code == 0
     assert result.output == (
         f"Are you sure you would like to remove the source {source} "

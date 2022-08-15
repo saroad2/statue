@@ -41,6 +41,7 @@ def edit_source_in_configuration_cli(config: Optional[Path], source: Path):
     configuration.sources_repository[source] = InteractiveSourcesAdder.get_filter(
         configuration=configuration, source=source
     )
+    configuration.to_toml(config)
 
 
 @config_cli.command("remove-source")
